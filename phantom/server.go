@@ -13,10 +13,9 @@ import (
 	"encoding/json"
 )
 
-const PHANTOM_HOST = "127.0.0.1"
-const PHANTOM_PORT = 8910
-
 type Phantom struct {
+	Host string
+	Port int
 	Timeout time.Duration
 	process *os.Process
 }
@@ -27,7 +26,7 @@ func (p *Phantom) Start() error {
 		return errors.New("phantomjs not found")
 	}
 
-	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s:%d", PHANTOM_HOST, PHANTOM_PORT))
+	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s:%d", p.Host, p.Port))
 	command.Start()
 	p.process = command.Process
 
@@ -36,7 +35,7 @@ func (p *Phantom) Start() error {
 
 func (p *Phantom) waitForServer() error {
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", fmt.Sprintf("http://%s:%d/status", PHANTOM_HOST, PHANTOM_PORT), nil)
+	request, _ := http.NewRequest("GET", fmt.Sprintf("http://%s:%d/status", p.Host, p.Port), nil)
 
 	timeoutChan := time.After(p.Timeout)
 	failedChan := make(chan struct{}, 1)
@@ -78,7 +77,7 @@ func (p *Phantom) CreateSession() (sessionURL string, err error) {
 
 	client := &http.Client{}
 	postBody := strings.NewReader(`{"desiredCapabilities": {} }`)
-	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/session", PHANTOM_HOST, PHANTOM_PORT), postBody)
+	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/session", p.Host, p.Port), postBody)
 
     response, err := client.Do(request)
 
@@ -89,9 +88,13 @@ func (p *Phantom) CreateSession() (sessionURL string, err error) {
 	var sessionResponse struct{SessionID string}
 
 	body, _ := ioutil.ReadAll(response.Body)
+	json.Unmarshal(body, &sessionResponse)
 
-	_ = json.Unmarshal(body, &sessionResponse)
+	if sessionResponse.SessionID == "" {
+		err = errors.New("phantomjs webdriver failed to return a session ID")
+		return
+	}
 
-	sessionURL = fmt.Sprintf("http://%s:%d/session/%s", PHANTOM_HOST, PHANTOM_PORT, sessionResponse.SessionID)
-	return sessionURL, nil
+	sessionURL = fmt.Sprintf("http://%s:%d/session/%s", p.Host, p.Port, sessionResponse.SessionID)
+	return
 }
