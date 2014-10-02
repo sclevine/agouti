@@ -5,78 +5,111 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"io/ioutil"
 )
 
 var _ = Describe("Session", func() {
 	Describe("#Execute", func() {
 		var (
-			requestPath string
+			requestPath   string
 			requestMethod string
-			requestBody interface{}
-			session Session
-			result struct{Value string}
-			server *httptest.Server
+			requestBody   string
+			responseBody  string
+			session       *Session
+			result        struct{ Value string }
+			server        *httptest.Server
+			err           error
 		)
 
 		BeforeEach(func() {
 			server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 				requestPath = request.URL.Path
 				requestMethod = request.Method
-				requestBody, _ = ioutil.ReadAll(request.Body)
-				response.Write([]byte(`{"value": "some response value"}`))
+				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
+				requestBody = string(requestBodyBytes)
+				response.Write([]byte(responseBody))
 			}))
-			session = Session(server.URL + "/session/some-id")
+			session = &Session{server.URL + "/session/some-id"}
+			responseBody = `{"value": "some response value"}`
 		})
 
 		AfterEach(func() {
 			server.Close()
 		})
 
+		It("makes a request with the full session endpoint", func() {
+			err = session.Execute("some/endpoint", "GET", nil, &result)
+			Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
+		})
+
+		It("makes a request with the given method", func() {
+			err = session.Execute("some/endpoint", "GET", nil, &result)
+			Expect(requestMethod).To(Equal("GET"))
+		})
+
+		Context("with an invalid URL", func() {
+			It("returns an invalid request error", func() {
+				session.URL = "%@#$%"
+				err = session.Execute("some/endpoint", "GET", nil, &result)
+				Expect(err).To(MatchError(`invalid request: parse %@: invalid URL escape "%@"`))
+			})
+		})
+
 		Context("for a GET request", func() {
-			BeforeEach(func() {
-				session.Execute("/some/endpoint", "GET", nil, &result)
-			})
-
 			It("makes a request without a body", func() {
+				err = session.Execute("some/endpoint", "GET", nil, &result)
 				Expect(requestBody).To(Equal(""))
-			})
-
-			It("makes a GET request", func() {
-				Expect(requestMethod).To(Equal("GET"))
-			})
-
-			It("makes a request with the full session endpoint", func() {
-				Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
-			})
-
-			It("unmashalls the returned JSON into the provided result", func() {
-				Expect(result.Value).To(Equal("some response value"))
 			})
 		})
 
 		Context("for a POST request", func() {
-			BeforeEach(func() {
-				body := struct{SomeValue string}{"some request value"}
-				session.Execute("/some/endpoint", "POST", body, &result)
+			Context("with a request valid body", func() {
+				It("makes a request with the provided body", func() {
+					body := struct{ SomeValue string }{"some request value"}
+					err = session.Execute("some/endpoint", "POST", body, &result)
+					Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))
+				})
 			})
 
-			It("makes a request with the provided body", func() {
-				Expect(requestBody).To(Equal(`{"someValue": "some request value"}`))
+			Context("with an invalid request body", func() {
+				It("returns an invalid request body error", func() {
+					err = session.Execute("some/endpoint", "POST", func() {}, &result)
+					Expect(err).To(MatchError("invalid request body: json: unsupported type: func()"))
+				})
+			})
+		})
+
+		Context("when the request succeeds", func() {
+			Context("with a valid response body", func() {
+				BeforeEach(func() {
+					err = session.Execute("some/endpoint", "GET", nil, &result)
+				})
+
+				It("unmashals the returned JSON into the provided result", func() {
+					Expect(result.Value).To(Equal("some response value"))
+				})
+
+				It("does not return an error", func() {
+					Expect(err).To(BeNil())
+				})
 			})
 
-			It("makes a POST request", func() {
-				Expect(requestMethod).To(Equal("POST"))
+			Context("with an invalid response body", func() {
+				It("returns an invalid response body error", func() {
+					responseBody = "}{"
+					err = session.Execute("some/endpoint", "GET", nil, &result)
+					Expect(err).To(MatchError("invalid response body: invalid character '}' looking for beginning of value"))
+				})
 			})
+		})
 
-			It("makes a request with the full session endpoint", func() {
-				Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
-			})
-
-			It("unmashalls the returned JSON into the provided result", func() {
-				Expect(result.Value).To(Equal("some response value"))
+		Context("when the request fails", func() {
+			It("returns an error indicating that the request failed", func() {
+				server.Close()
+				err = session.Execute("some/endpoint", "GET", nil, &result)
+				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
 			})
 		})
 	})

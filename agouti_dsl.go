@@ -22,7 +22,7 @@ func (s scope) Within(selector string, scopes ...func(Scopable)) Scopable {
 }
 
 func (s scope) ShouldContainText(text string) {
-	gomega.Expect(false).To(gomega.BeTrue())
+	gomega.Expect(true).To(gomega.BeTrue())
 }
 
 func Scenario(description string, url string, body func()) {

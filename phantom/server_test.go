@@ -5,23 +5,14 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"io/ioutil"
 	"os"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 )
-
-func makeRequest(url string) string {
-	response, err := http.Get(url)
-	if err != nil {
-		return ""
-	}
-	body, _ := ioutil.ReadAll(response.Body)
-	return string(body)
-}
 
 var _ = Describe("Phantom server", func() {
 	var server *Phantom
@@ -47,7 +38,9 @@ var _ = Describe("Phantom server", func() {
 			})
 
 			It("starts a phantom webdriver server on port 8910", func() {
-				Expect(makeRequest("http://127.0.0.1:8910/status")).To(ContainSubstring(`"status":0`))
+				response, _ := http.Get("http://127.0.0.1:8910/status")
+				body, _ := ioutil.ReadAll(response.Body)
+				Expect(string(body)).To(ContainSubstring(`"status":0`))
 			})
 		})
 
@@ -73,7 +66,8 @@ var _ = Describe("Phantom server", func() {
 		It("stops a running server", func() {
 			server.Start()
 			server.Stop()
-			Expect(makeRequest("http://127.0.0.1:8910/status")).NotTo(ContainSubstring(`"status":0`))
+			_, err := http.Get("http://127.0.0.1:8910/status")
+			Expect(err).NotTo(BeNil())
 		})
 	})
 
@@ -91,7 +85,7 @@ var _ = Describe("Phantom server", func() {
 				It("returns a session with session URL", func() {
 					session, err := server.CreateSession()
 					Expect(err).To(BeNil())
-					Expect(string(session)).To(MatchRegexp(`http://127\.0\.0\.1:8910/session/([0-9a-f]+-)+[0-9a-f]+`))
+					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:8910/session/([0-9a-f]+-)+[0-9a-f]+`))
 				})
 			})
 

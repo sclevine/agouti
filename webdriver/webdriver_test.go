@@ -12,6 +12,9 @@ var _ = Describe("Webdriver", func() {
 
 	BeforeEach(func() {
 		api = &Webdriver{}
+	})
 
+	It("exists", func() {
+		Expect(api).To(Equal(api))
 	})
 })

@@ -1,28 +1,27 @@
 package phantom
 
 import (
-	"fmt"
-	"os/exec"
-	"os"
-	"syscall"
-	"errors"
-	"net/http"
-	"time"
-	"strings"
-	"io/ioutil"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/exec"
+	"strings"
+	"syscall"
+	"time"
 )
 
 type Phantom struct {
-	Host string
-	Port int
+	Host    string
+	Port    int
 	Timeout time.Duration
 	process *os.Process
 }
 
 func (p *Phantom) Start() error {
-	_, err := exec.LookPath("phantomjs")
-	if err != nil {
+	if _, err := exec.LookPath("phantomjs"); err != nil {
 		return errors.New("phantomjs not found")
 	}
 
@@ -56,7 +55,7 @@ func (p *Phantom) waitForServer() error {
 
 	select {
 	case <-timeoutChan:
-	failedChan <- struct{}{}
+		failedChan <- struct{}{}
 		p.Stop()
 		return errors.New("phantomjs webdriver failed to start")
 	case <-startedChan:
@@ -69,33 +68,30 @@ func (p *Phantom) Stop() {
 	p.process = nil
 }
 
-func (p *Phantom) CreateSession() (sessionURL Session, err error) {
+func (p *Phantom) CreateSession() (*Session, error) {
 	if p.process == nil {
-		err = errors.New("phantomjs not running")
-		return
+		return nil, errors.New("phantomjs not running")
 	}
 
 	client := &http.Client{}
 	postBody := strings.NewReader(`{"desiredCapabilities": {} }`)
 	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/session", p.Host, p.Port), postBody)
 
-    response, err := client.Do(request)
+	response, err := client.Do(request)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	var sessionResponse struct{SessionID string}
+	var sessionResponse struct{ SessionID string }
 
 	body, _ := ioutil.ReadAll(response.Body)
 	json.Unmarshal(body, &sessionResponse)
 
 	if sessionResponse.SessionID == "" {
-		err = errors.New("phantomjs webdriver failed to return a session ID")
-		return
+		return nil, errors.New("phantomjs webdriver failed to return a session ID")
 	}
 
-	sessionURL = Session(fmt.Sprintf("http://%s:%d/session/%s", p.Host, p.Port, sessionResponse.SessionID))
-	return
+	sessionURL := fmt.Sprintf("http://%s:%d/session/%s", p.Host, p.Port, sessionResponse.SessionID)
+	return &Session{sessionURL}, nil
 }
-
