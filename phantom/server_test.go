@@ -93,7 +93,7 @@ var _ = Describe("Phantom server", func() {
 				It("returns the request error", func() {
 					server.Port = 0
 					_, err := server.CreateSession()
-					Expect(err.Error()).To(ContainSubstring("can't assign requested address"))
+					Expect(err.Error()).To(ContainSubstring("Post http://127.0.0.1:0/session: dial tcp 127.0.0.1:0:"))
 				})
 			})
 
