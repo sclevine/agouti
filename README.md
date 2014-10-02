@@ -1,11 +1,24 @@
-[![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
-
 Agouti
 ======
 
-Integration testing for Go using Ginkgo
+[![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
+
+Integration testing for Go using Ginkgo 
+
+Install (OS X):
+```
+brew install phantomjs
+go get github.com/sclevine/agoati
+```
+
+
+Example:
 
 ```Go
+import . "github.com/sclevine/agouti"
+
+...
+
 Describe("Agouti", func() {
   Scenario("Loads some page", "http://example.com/", func() {
     Step("finds a title", func() {
