@@ -24,10 +24,10 @@ func makeRequest(url string) string {
 }
 
 var _ = Describe("Phantom server", func() {
-	var server Phantom
+	var server *Phantom
 
 	BeforeEach(func() {
-		server = Phantom{Host: "127.0.0.1", Port: 8910, Timeout: time.Second * 5}
+		server = &Phantom{Host: "127.0.0.1", Port: 8910, Timeout: time.Second * 5}
 	})
 
 	Describe("#Start", func() {
@@ -88,10 +88,10 @@ var _ = Describe("Phantom server", func() {
 			})
 
 			Context("if the request succeeds", func() {
-				It("returns a session URL", func() {
-					url, err := server.CreateSession()
+				It("returns a session with session URL", func() {
+					session, err := server.CreateSession()
 					Expect(err).To(BeNil())
-					Expect(url).To(MatchRegexp(`http://127\.0\.0\.1:8910/session/([0-9a-f]+-)+[0-9a-f]+`))
+					Expect(string(session)).To(MatchRegexp(`http://127\.0\.0\.1:8910/session/([0-9a-f]+-)+[0-9a-f]+`))
 				})
 			})
 
@@ -111,6 +111,7 @@ var _ = Describe("Phantom server", func() {
 					server.Port, _ = strconv.Atoi(strings.Split(fakeServer.URL, ":")[2])
 					_, err := server.CreateSession()
 					Expect(err).To(MatchError("phantomjs webdriver failed to return a session ID"))
+					fakeServer.Close()
 				})
 			})
 		})

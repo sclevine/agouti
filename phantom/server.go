@@ -69,7 +69,7 @@ func (p *Phantom) Stop() {
 	p.process = nil
 }
 
-func (p *Phantom) CreateSession() (sessionURL string, err error) {
+func (p *Phantom) CreateSession() (sessionURL Session, err error) {
 	if p.process == nil {
 		err = errors.New("phantomjs not running")
 		return
@@ -95,6 +95,7 @@ func (p *Phantom) CreateSession() (sessionURL string, err error) {
 		return
 	}
 
-	sessionURL = fmt.Sprintf("http://%s:%d/session/%s", p.Host, p.Port, sessionResponse.SessionID)
+	sessionURL = Session(fmt.Sprintf("http://%s:%d/session/%s", p.Host, p.Port, sessionResponse.SessionID))
 	return
 }
+

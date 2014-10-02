@@ -36,4 +36,3 @@ func Step(description string, body func()) {
 func Within(selector string, scopes ...func(Scopable)) Scopable {
 	return scope{}.Within(selector, scopes...)
 }
-
