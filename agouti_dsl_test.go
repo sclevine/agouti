@@ -20,19 +20,19 @@ var _ = AfterSuite(func() {
 
 var _ = Feature("Agouti DSL", func() {
 	Scenario("Loading a page", func() {
-		Navigate(server.URL)
+		page := Navigate(server.URL)
 
 		Step("finds text in a page", func() {
-			Within("header").ShouldContainText("Page Title")
+			page.Within("header").ShouldContainText("Page Title")
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
-			Within("header").Within("h1").ShouldContainText("Page Title")
+			page.Within("header").Within("h1").ShouldContainText("Page Title")
 		})
 
 		Step("allows tests to be scoped by functions", func() {
-			Within("header h1", func(scope Scopable) {
-				scope.ShouldContainText("Page Title")
+			page.Within("header h1", func(h1 *Selection) {
+				h1.ShouldContainText("Page Title")
 			})
 		})
 	})

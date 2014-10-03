@@ -17,6 +17,7 @@ var _ = Describe("Session", func() {
 			requestMethod string
 			requestBody   string
 			responseBody  string
+			responseStatus int
 			session       *Session
 			result        struct{ Value string }
 			server        *httptest.Server
@@ -29,10 +30,12 @@ var _ = Describe("Session", func() {
 				requestMethod = request.Method
 				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 				requestBody = string(requestBodyBytes)
+				response.WriteHeader(responseStatus)
 				response.Write([]byte(responseBody))
 			}))
 			session = &Session{server.URL + "/session/some-id"}
 			responseBody = `{"value": "some response value"}`
+			responseStatus = 200
 		})
 
 		AfterEach(func() {
@@ -105,11 +108,19 @@ var _ = Describe("Session", func() {
 			})
 		})
 
-		Context("when the request fails", func() {
+		Context("when the request fails entirely", func() {
 			It("returns an error indicating that the request failed", func() {
 				server.Close()
 				err = session.Execute("some/endpoint", "GET", nil, &result)
 				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
+			})
+		})
+
+		Context("when the server responds with a non-2xx status code", func() {
+			It("returns an error indicating that the request failed", func() {
+				responseStatus = 400
+				err = session.Execute("some/endpoint", "GET", nil, &result)
+				Expect(err).To(MatchError("request unsuccessful: 400 - Bad Request"))
 			})
 		})
 	})

@@ -11,6 +11,24 @@ brew install phantomjs
 go get github.com/sclevine/agoati
 ```
 
+Make sure to add the `defer CleanupAgouti(SetupAgouti())` to your `project_suite_test.go` file, like so:
+```Go
+package your_project_test
+
+import (
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti"
+
+	"testing"
+)
+
+func TestYourProject(t *testing.T) {
+	RegisterFailHandler(Fail)
+	defer CleanupAgouti(SetupAgouti())
+	RunSpecs(t, "Your Project Suite")
+}
+```
 
 Example:
 
@@ -19,17 +37,19 @@ import . "github.com/sclevine/agouti"
 
 ...
 
-Describe("Agouti", func() {
-  Scenario("Loads some page", "http://example.com/", func() {
+Feature("Agouti", func() {
+  Scenario("Loads some page", func() {
+    page := Navigate("http://example.com/")
+
     Step("finds a title", func() {
-      Within("header").Within("h1").ShouldContainText("Page Title")
+      page.Within("header").Within("h1").ShouldContainText("Page Title")
     })
 
-    Within("#some-element", func(scope Scopable) {
-      scope.Within("p").ShouldContainText("Foo")
+    Within("#some-element", func(someElement *Selection) {
+      someElement.Within("p").ShouldContainText("Foo")
 
       Step("and finds more text", func() {
-        scope.Within("[role=moreText]").ShouldContainText("Bar")
+        someElement.Within("[role=moreText]").ShouldContainText("Bar")
       })
     })
   })

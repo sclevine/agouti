@@ -2,42 +2,24 @@ package agouti
 
 import (
 	"github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
 	"github.com/sclevine/agouti/phantom"
+	"github.com/sclevine/agouti/webdriver"
 	"time"
 )
 
 const PHANTOM_HOST = "127.0.0.1"
 const PHANTOM_PORT = 8910
 
-var beforeSuiteBody = func() {}
-var afterSuiteBody = func() {}
+var phantomService *phantom.Service
 
-func init() {
-	var phantomService *phantom.Service
-
-	ginkgo.BeforeSuite(func() {
-		phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: time.Second}
-		phantomService.Start()
-		beforeSuiteBody()
-	})
-
-	// TODO: figure out how to test
-	ginkgo.AfterSuite(func() {
-		afterSuiteBody()
-		phantomService.Stop()
-	})
-}
-
-func BeforeSuite(body func()) bool {
-	// TODO: panic if already defined, conform to ginkgo interface
-	beforeSuiteBody = body
+func SetupAgouti() bool {
+	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: time.Second}
+	phantomService.Start()
 	return true
 }
 
-func AfterSuite(body func()) bool {
-	// TODO: panic if already defined, conform to ginkgo interface
-	afterSuiteBody = body
+func CleanupAgouti(ignored bool) bool {
+	phantomService.Stop()
 	return true
 }
 
@@ -57,25 +39,16 @@ func Step(description string, body func()) {
 	body()
 }
 
-func Navigate(url string) {
+func Navigate(url string) *Page {
+	session, err := phantom.CreateSession()
+	// TODO: test error
+	if err != nil {
+		ginkgo.Fail(err)
+	}
 
+	driver := &webdriver.Driver{session}
+
+	driver.Navigate(url)
+	return &Page{driver}
 }
 
-type Scopable interface {
-	Within(selector string, scopes ...func(Scopable)) Scopable
-	ShouldContainText(text string)
-}
-
-func Within(selector string, scopes ...func(Scopable)) Scopable {
-	return scope{}.Within(selector, scopes...)
-}
-
-type scope struct{}
-
-func (s scope) Within(selector string, scopes ...func(Scopable)) Scopable {
-	return scope{}
-}
-
-func (s scope) ShouldContainText(text string) {
-	gomega.Expect(true).To(gomega.BeTrue())
-}

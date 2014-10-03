@@ -35,6 +35,10 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 		return fmt.Errorf("request failed: %s", err)
 	}
 
+	if response.StatusCode < 200 || response.StatusCode > 299  {
+		return fmt.Errorf("request unsuccessful: %d - %s", response.StatusCode, http.StatusText(response.StatusCode))
+	}
+
 	responseBody, _ := ioutil.ReadAll(response.Body)
 	if err := json.Unmarshal(responseBody, result); err != nil {
 		return fmt.Errorf("invalid response body: %s", err)
