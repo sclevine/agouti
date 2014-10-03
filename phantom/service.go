@@ -65,6 +65,7 @@ func (s *Service) waitForServer() error {
 
 func (s *Service) Stop() {
 	s.process.Signal(syscall.SIGINT)
+	s.process.Wait()
 	s.process = nil
 }
 

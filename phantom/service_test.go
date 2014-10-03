@@ -18,7 +18,7 @@ var _ = Describe("Phantom service", func() {
 	var service *Service
 
 	BeforeEach(func() {
-		service = &Service{Host: "127.0.0.1", Port: 8910, Timeout: time.Second * 5}
+		service = &Service{Host: "127.0.0.1", Port: 42344, Timeout: time.Second * 5}
 	})
 
 	Describe("#Start", func() {
@@ -37,8 +37,8 @@ var _ = Describe("Phantom service", func() {
 				Expect(err).To(BeNil())
 			})
 
-			It("starts a phantom webdriver server on port 8910", func() {
-				response, _ := http.Get("http://127.0.0.1:8910/status")
+			It("starts a phantom webdriver server on the provided port", func() {
+				response, _ := http.Get("http://127.0.0.1:42344/status")
 				body, _ := ioutil.ReadAll(response.Body)
 				Expect(string(body)).To(ContainSubstring(`"status":0`))
 			})
@@ -66,7 +66,7 @@ var _ = Describe("Phantom service", func() {
 		It("stops a running server", func() {
 			service.Start()
 			service.Stop()
-			_, err := http.Get("http://127.0.0.1:8910/status")
+			_, err := http.Get("http://127.0.0.1:42344/status")
 			Expect(err).NotTo(BeNil())
 		})
 	})
@@ -85,7 +85,7 @@ var _ = Describe("Phantom service", func() {
 				It("returns a session with session URL", func() {
 					session, err := service.CreateSession()
 					Expect(err).To(BeNil())
-					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:8910/session/([0-9a-f]+-)+[0-9a-f]+`))
+					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:42344/session/([0-9a-f]+-)+[0-9a-f]+`))
 				})
 			})
 
