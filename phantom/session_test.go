@@ -13,15 +13,16 @@ import (
 var _ = Describe("Session", func() {
 	Describe("#Execute", func() {
 		var (
-			requestPath   string
-			requestMethod string
-			requestBody   string
-			responseBody  string
-			responseStatus int
-			session       *Session
-			result        struct{ Value string }
-			server        *httptest.Server
-			err           error
+			requestPath        string
+			requestMethod      string
+			requestBody        string
+			requestContentType string
+			responseBody       string
+			responseStatus     int
+			session            *Session
+			result             struct{ Some string }
+			server             *httptest.Server
+			err                error
 		)
 
 		BeforeEach(func() {
@@ -30,11 +31,12 @@ var _ = Describe("Session", func() {
 				requestMethod = request.Method
 				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 				requestBody = string(requestBodyBytes)
+				requestContentType = request.Header.Get("Content-Type")
 				response.WriteHeader(responseStatus)
 				response.Write([]byte(responseBody))
 			}))
 			session = &Session{server.URL + "/session/some-id"}
-			responseBody = `{"value": "some response value"}`
+			responseBody = `{"value": {"some": "response value"}}`
 			responseStatus = 200
 		})
 
@@ -43,12 +45,12 @@ var _ = Describe("Session", func() {
 		})
 
 		It("makes a request with the full session endpoint", func() {
-			err = session.Execute("some/endpoint", "GET", nil, &result)
+			session.Execute("some/endpoint", "GET", nil, &result)
 			Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
 		})
 
 		It("makes a request with the given method", func() {
-			err = session.Execute("some/endpoint", "GET", nil, &result)
+			session.Execute("some/endpoint", "GET", nil, &result)
 			Expect(requestMethod).To(Equal("GET"))
 		})
 
@@ -61,18 +63,40 @@ var _ = Describe("Session", func() {
 		})
 
 		Context("for a GET request", func() {
-			It("makes a request without a body", func() {
+			BeforeEach(func() {
 				err = session.Execute("some/endpoint", "GET", nil, &result)
-				Expect(requestBody).To(Equal(""))
+			})
+
+			It("makes a request without a body", func() {
+				Expect(requestBody).To(BeEmpty())
+			})
+
+			It("makes a request without a content type", func() {
+				Expect(requestContentType).To(BeEmpty())
+			})
+
+			It("does not return an error", func() {
+				Expect(err).To(BeNil())
 			})
 		})
 
 		Context("for a POST request", func() {
-			Context("with a request valid body", func() {
-				It("makes a request with the provided body", func() {
+			Context("with a valid request body", func() {
+				BeforeEach(func() {
 					body := struct{ SomeValue string }{"some request value"}
 					err = session.Execute("some/endpoint", "POST", body, &result)
+				})
+
+				It("makes a request with the provided body", func() {
 					Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))
+				})
+
+				It("makes a request with content type application/json", func() {
+					Expect(requestContentType).To(Equal("application/json"))
+				})
+
+				It("does not return an error", func() {
+					Expect(err).To(BeNil())
 				})
 			})
 
@@ -91,7 +115,7 @@ var _ = Describe("Session", func() {
 				})
 
 				It("unmashals the returned JSON into the provided result", func() {
-					Expect(result.Value).To(Equal("some response value"))
+					Expect(result.Some).To(Equal("response value"))
 				})
 
 				It("does not return an error", func() {
@@ -99,11 +123,11 @@ var _ = Describe("Session", func() {
 				})
 			})
 
-			Context("with an invalid response body", func() {
-				It("returns an invalid response body error", func() {
-					responseBody = "}{"
+			Context("with a response body value that cannot be read", func() {
+				It("returns a failed to extract value from response error", func() {
+					responseBody = `{"value": "unexpected string"}`
 					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("invalid response body: invalid character '}' looking for beginning of value"))
+					Expect(err).To(MatchError("failed to parse response value: json: cannot unmarshal string into Go value of type struct { Some string }"))
 				})
 			})
 		})

@@ -3,7 +3,6 @@ package agouti
 import (
 	"github.com/onsi/ginkgo"
 	"github.com/sclevine/agouti/phantom"
-	"github.com/sclevine/agouti/webdriver"
 	"time"
 )
 
@@ -36,19 +35,6 @@ func Scenario(description string, body func()) bool {
 }
 
 func Step(description string, body func()) {
+	ginkgo.GinkgoWriter.Write([]byte("\n  Step - " + description))
 	body()
 }
-
-func Navigate(url string) *Page {
-	session, err := phantom.CreateSession()
-	// TODO: test error
-	if err != nil {
-		ginkgo.Fail(err)
-	}
-
-	driver := &webdriver.Driver{session}
-
-	driver.Navigate(url)
-	return &Page{driver}
-}
-
