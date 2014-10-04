@@ -1,4 +1,4 @@
-package webdriver_test
+package element_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestWebdriver(t *testing.T) {
+func TestElement(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Webdriver Suite")
+	RunSpecs(t, "Element Suite")
 }

@@ -20,13 +20,13 @@ var _ = AfterSuite(func() {
 })
 
 var _ = Feature("Agouti", func() {
-	Scenario("Loading a page", func() {
-		cookieValue := string(`{"name":"theName","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}`)
-		cookieJar := []string{cookieValue}
+	Scenario("Loading a page with a cookie", func() {
+		cookie := Cookie{"theName", 42, "/my-path", "example.com", false, false, 1412358590}
 
-		page := Navigate(server.URL, cookieJar)
+		page := Navigate(server.URL, []Cookie{cookie})
 
 		Step("finds text in a page", func() {
+			page.ShouldContainText("Page Title")
 			page.Within("header").ShouldContainText("Page Title")
 		})
 
@@ -35,7 +35,7 @@ var _ = Feature("Agouti", func() {
 		})
 
 		Step("allows tests to be scoped by functions", func() {
-			page.Within("header h1", func(h1 *Selection) {
+			page.Within("header h1", func(h1 Selection) {
 				h1.ShouldContainText("Page Title")
 			})
 		})

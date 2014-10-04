@@ -1,6 +1,10 @@
-package webdriver
+package element
 
 import "fmt"
+
+type Executable interface {
+	Execute(endpoint, method string, body, result interface{}) error
+}
 
 type Element struct {
 	ID      string

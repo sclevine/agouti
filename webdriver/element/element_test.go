@@ -1,22 +1,23 @@
-package webdriver_test
+package element_test
 
 import (
-	. "github.com/sclevine/agouti/webdriver"
+	. "github.com/sclevine/agouti/webdriver/element"
 
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/mocks"
 )
 
-var _ = Describe("Webdriver", func() {
+var _ = Describe("Element", func() {
 	var (
-		element *Element
-		session *mockSession
+		element Element
+		session *mocks.Session
 		err     error
 	)
 
 	BeforeEach(func() {
-		session = &mockSession{}
+		session = &mocks.Session{}
 		element = &Element{"some-id", session}
 	})
 
@@ -24,16 +25,16 @@ var _ = Describe("Webdriver", func() {
 		var text string
 
 		BeforeEach(func() {
-			session.result = `"some text"`
+			session.Result = `"some text"`
 			text, err = element.GetText()
 		})
 
 		It("makes a GET request", func() {
-			Expect(session.method).To(Equal("GET"))
+			Expect(session.Method).To(Equal("GET"))
 		})
 
 		It("hits the /element/:id/text endpoint", func() {
-			Expect(session.endpoint).To(Equal("element/some-id/text"))
+			Expect(session.Endpoint).To(Equal("element/some-id/text"))
 		})
 
 		Context("when the session indicates a success", func() {
@@ -48,7 +49,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the text", func() {
-				session.err = errors.New("some error")
+				session.Err = errors.New("some error")
 				_, err = element.GetText()
 				Expect(err).To(MatchError("failed to retrieve text: some error"))
 			})

@@ -1,4 +1,4 @@
-package agouti_test
+package page_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,8 @@ import (
 	"testing"
 )
 
-func TestAgouti(t *testing.T) {
+func TestPage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Agouti Suite")
+	RunSpecs(t, "Page Suite")
 }
+

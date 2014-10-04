@@ -1,27 +1,28 @@
-package agouti
+package page
 
 import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"strings"
+	"github.com/sclevine/agouti"
 )
 
-type Selection struct {
+type selection struct {
 	selectors []string
 	page      *Page
 }
 
-func (s *Selection) Within(selector string, bodies ...func(*Selection)) *Selection {
-	selection := &Selection{append(s.selectors, selector), s.page}
+func (s *selection) Within(selector string, bodies ...func(agouti.Selection)) agouti.Selection {
+	subSelection := &selection{append(s.selectors, selector), s.page}
 	for _, body := range bodies {
-		body(selection)
+		body(subSelection)
 	}
-	return selection
+	return subSelection
 }
 
-func (s *Selection) ShouldContainText(text string) {
+func (s *selection) ShouldContainText(text string) {
 	selector := strings.Join(s.selectors, " ")
-	elements, err := s.page.driver.GetElements(selector)
+	elements, err := s.page.Driver.GetElements(selector)
 	if err != nil {
 		ginkgo.Fail("Failed to retrieve elements", 1)
 	}
