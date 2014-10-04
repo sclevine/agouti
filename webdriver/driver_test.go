@@ -93,4 +93,41 @@ var _ = Describe("Webdriver", func() {
 			})
 		})
 	})
+
+	Describe("#SetCookies", func() {
+		var cookieJar []string
+
+		BeforeEach(func() {
+			cookieValue := string(`{"name":"theName","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}`)
+			cookieJar = []string{cookieValue}
+
+			err = driver.SetCookies(cookieJar)
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.method).To(Equal("POST"))
+		})
+
+		It("hits the /cookie endpoint", func() {
+			Expect(session.endpoint).To(Equal("cookie"))
+		})
+
+		It("includes the cookies to add in the request body", func() {
+			Expect(session.bodyJSON).To(MatchJSON(`{"cookie":{"name":"theName","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to add cookies", func() {
+				session.err = errors.New("some error")
+				err = driver.SetCookies(cookieJar)
+				Expect(err).To(MatchError("failed to add cookies: some error"))
+			})
+		})
+	})
 })

@@ -9,7 +9,7 @@ type Page struct {
 	driver *webdriver.Driver
 }
 
-func Navigate(url string) *Page {
+func Navigate(url string, cookies []string) *Page {
 	session, err := phantomService.CreateSession()
 	// TODO: test error
 	if err != nil {
@@ -18,6 +18,7 @@ func Navigate(url string) *Page {
 
 	driver := &webdriver.Driver{session}
 
+	driver.SetCookies(cookies)
 	driver.Navigate(url)
 	return &Page{driver}
 }

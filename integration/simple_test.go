@@ -21,7 +21,10 @@ var _ = AfterSuite(func() {
 
 var _ = Feature("Agouti", func() {
 	Scenario("Loading a page", func() {
-		page := Navigate(server.URL)
+		cookieValue := string(`{"name":"theName","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}`)
+		cookieJar := []string{cookieValue}
+
+		page := Navigate(server.URL, cookieJar)
 
 		Step("finds text in a page", func() {
 			page.Within("header").ShouldContainText("Page Title")
