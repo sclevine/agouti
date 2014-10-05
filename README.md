@@ -45,13 +45,13 @@ Feature("Agouti", func() {
       page.Within("header").Within("h1").ShouldContainText("Page Title")
     })
 
-    Within("#some-element", func(someElement *Selection) {
+    Within("#some-element", Do(func(someElement *Selection) {
       someElement.Within("p").ShouldContainText("Foo")
 
-      Step("and finds more text", Do(func() {
+      Step("and finds more text", func() {
         someElement.Within("[role=moreText]").ShouldContainText("Bar")
-      }))
-    })
+      })
+    }))
   })
 })
 ```
