@@ -101,13 +101,13 @@ var _ = Describe("Webdriver", func() {
 
 		BeforeEach(func() {
 			cookie = &Cookie{
-				Name: "theName",
-				Value: 42,
-				Path: "/my-path",
-				Domain: "example.com",
-				Secure: false,
+				Name:     "theName",
+				Value:    42,
+				Path:     "/my-path",
+				Domain:   "example.com",
+				Secure:   false,
 				HTTPOnly: false,
-				Expiry: 1412358590,
+				Expiry:   1412358590,
 			}
 
 			err = driver.SetCookie(cookie)

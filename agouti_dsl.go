@@ -2,10 +2,10 @@ package agouti
 
 import (
 	"github.com/onsi/ginkgo"
+	"github.com/sclevine/agouti/page"
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
 	"time"
-	"github.com/sclevine/agouti/page"
 )
 
 const PHANTOM_HOST = "127.0.0.1"
@@ -69,7 +69,7 @@ func Navigate(url string, cookies ...[]Cookie) Page {
 
 	driver := &webdriver.Driver{session}
 
-	if (len(cookies) > 0) {
+	if len(cookies) > 0 {
 		for _, cookie := range cookies[0] {
 			driverCookie := webdriver.Cookie(cookie)
 			if err := driver.SetCookie(&driverCookie); err != nil {
@@ -79,7 +79,7 @@ func Navigate(url string, cookies ...[]Cookie) Page {
 	}
 
 	if err := driver.Navigate(url); err != nil {
-		ginkgo.Fail(err.Error())// TODO: test error
+		ginkgo.Fail(err.Error()) // TODO: test error
 	}
 
 	return &page.Page{driver, ginkgo.Fail}

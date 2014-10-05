@@ -5,7 +5,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/page"
 
-
 	"testing"
 )
 
@@ -15,6 +14,7 @@ func TestPage(t *testing.T) {
 }
 
 type Do func(Selection)
+
 func (f Do) Call(selection Selection) {
 	f(selection)
 }

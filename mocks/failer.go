@@ -1,9 +1,9 @@
 package mocks
 
 type Failer struct {
-	Message string
+	Message    string
 	CallerSkip int
-	Failed bool
+	Failed     bool
 }
 
 func (f *Failer) Fail(message string, callerSkip ...int) {

@@ -3,11 +3,11 @@ package page_test
 import (
 	. "github.com/sclevine/agouti/page"
 
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
 	"github.com/sclevine/agouti/webdriver"
-	"errors"
 )
 
 var _ = Describe("Selection", func() {
@@ -15,7 +15,7 @@ var _ = Describe("Selection", func() {
 		selection Selection
 		failer    *mocks.Failer
 		driver    *mocks.Driver
-		element	  *mocks.Element
+		element   *mocks.Element
 	)
 
 	BeforeEach(func() {

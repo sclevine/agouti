@@ -11,10 +11,10 @@ import (
 
 var _ = Describe("Page", func() {
 	var (
-		page 	  *Page
-		failer    *mocks.Failer
-		driver    *mocks.Driver
-		element	  *mocks.Element
+		page    *Page
+		failer  *mocks.Failer
+		driver  *mocks.Driver
+		element *mocks.Element
 	)
 
 	BeforeEach(func() {

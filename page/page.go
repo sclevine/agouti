@@ -5,7 +5,6 @@ import "github.com/sclevine/agouti/webdriver"
 type Page struct {
 	Driver driver
 	Fail   func(message string, callerSkip ...int)
-
 }
 
 type driver interface {

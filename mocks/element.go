@@ -3,7 +3,7 @@ package mocks
 type Element struct {
 	GetTextCall struct {
 		ReturnText string
-		Err error
+		Err        error
 	}
 }
 

@@ -9,18 +9,18 @@ type Driver struct {
 	}
 
 	GetElementsCall struct {
-		Selector string
+		Selector       string
 		ReturnElements []webdriver.Element
-		Err error
+		Err            error
 	}
 
 	SetCookieCall struct {
 		Cookie *webdriver.Cookie
-		Err error
+		Err    error
 	}
 }
 
-func (d* Driver) Navigate(url string) error {
+func (d *Driver) Navigate(url string) error {
 	d.NavigateCall.URL = url
 	return d.NavigateCall.Err
 }

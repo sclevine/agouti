@@ -1,8 +1,8 @@
 package page
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type Selection interface {
@@ -37,7 +37,7 @@ func (s *selection) ShouldContainText(text string) {
 	selector := s.Selector()
 	elements, err := s.page.Driver.GetElements(selector)
 	if err != nil {
-		s.page.Fail("Failed to retrieve elements: " + err.Error(), 1)
+		s.page.Fail("Failed to retrieve elements: "+err.Error(), 1)
 		return
 	}
 	if len(elements) > 1 {
