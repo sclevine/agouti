@@ -13,13 +13,21 @@ type driver interface {
 	GetElements(selector string) ([]*webdriver.Element, error)
 }
 
-
-type SelectionFunc interface {
-	Call(selection *PageSelection)
+type Selection interface {
+	Within(selector string, bodies ...callable) Selection
+	FinalSelection
 }
 
-func (p *Page) Within(selector string, bodies ...SelectionFunc) *PageSelection {
-	firstSelection := &PageSelection{[]string{selector}, p}
+type FinalSelection interface {
+	ShouldContainText(text string)
+}
+
+type callable interface {
+	Call(selection Selection)
+}
+
+func (p *Page) Within(selector string, bodies ...callable) Selection {
+	firstSelection := &selection{[]string{selector}, p}
 	for _, body := range bodies {
 		body.Call(firstSelection)
 	}
@@ -30,6 +38,6 @@ func (p *Page) ShouldContainText(text string) {
 	p.body().ShouldContainText(text)
 }
 
-func (p *Page) body() *PageSelection {
-	return &PageSelection{[]string{"body"}, p}
+func (p *Page) body() *selection {
+	return &selection{[]string{"body"}, p}
 }

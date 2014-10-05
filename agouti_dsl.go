@@ -17,18 +17,16 @@ type Page interface {
 	Selection
 }
 
-type Selection interface {
-	FinalSelection
-	Within(selector string, bodies ...page.SelectionFunc) *page.PageSelection
-}
-
-type FinalSelection interface {
-	ShouldContainText(text string)
-}
+type Selection page.Selection
+type FinalSelection page.FinalSelection
 
 type Do func(Selection)
+type DoFinal func(FinalSelection)
 
-func (f Do) Call(selection *page.PageSelection) {
+func (f Do) Call(selection page.Selection) {
+	f(selection)
+}
+func (f DoFinal) Call(selection page.FinalSelection) {
 	f(selection)
 }
 

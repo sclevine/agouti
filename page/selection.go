@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-type PageSelection struct {
+type selection struct {
 	selectors []string
 	page      *Page
 }
 
-func (s *PageSelection) Within(selector string, bodies ...SelectionFunc) *PageSelection {
-	subSelection := &PageSelection{append(s.selectors, selector), s.page}
+func (s *selection) Within(selector string, bodies ...callable) Selection {
+	subSelection := &selection{append(s.selectors, selector), s.page}
 	for _, body := range bodies {
 		body.Call(subSelection)
 	}
 	return subSelection
 }
 
-func (s *PageSelection) ShouldContainText(text string) {
+func (s *selection) ShouldContainText(text string) {
 	selector := strings.Join(s.selectors, " ")
 	elements, err := s.page.Driver.GetElements(selector)
 	if err != nil {
