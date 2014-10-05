@@ -4,23 +4,22 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"strings"
-	"github.com/sclevine/agouti"
 )
 
-type selection struct {
+type PageSelection struct {
 	selectors []string
 	page      *Page
 }
 
-func (s *selection) Within(selector string, bodies ...func(agouti.Selection)) agouti.Selection {
-	subSelection := &selection{append(s.selectors, selector), s.page}
+func (s *PageSelection) Within(selector string, bodies ...SelectionFunc) *PageSelection {
+	subSelection := &PageSelection{append(s.selectors, selector), s.page}
 	for _, body := range bodies {
-		body(subSelection)
+		body.Call(subSelection)
 	}
 	return subSelection
 }
 
-func (s *selection) ShouldContainText(text string) {
+func (s *PageSelection) ShouldContainText(text string) {
 	selector := strings.Join(s.selectors, " ")
 	elements, err := s.page.Driver.GetElements(selector)
 	if err != nil {

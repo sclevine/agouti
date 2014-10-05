@@ -19,11 +19,17 @@ type Page interface {
 
 type Selection interface {
 	FinalSelection
-	Within(selector string, bodies ...func(Selection)) Selection
+	Within(selector string, bodies ...page.SelectionFunc) *page.PageSelection
 }
 
 type FinalSelection interface {
 	ShouldContainText(text string)
+}
+
+type Do func(Selection)
+
+func (f Do) Call(selection *page.PageSelection) {
+	f(selection)
 }
 
 type Cookie struct {
