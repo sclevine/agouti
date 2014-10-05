@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
 	"github.com/sclevine/agouti/webdriver/element"
-	"github.com/sclevine/agouti"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -98,10 +97,10 @@ var _ = Describe("Webdriver", func() {
 	})
 
 	Describe("#SetCookie", func() {
-		var cookie Cookie
+		var cookie *Cookie
 
 		BeforeEach(func() {
-			cookie = agouti.Cookie{
+			cookie = &Cookie{
 				Name: "theName",
 				Value: 42,
 				Path: "/my-path",

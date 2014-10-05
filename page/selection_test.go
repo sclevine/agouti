@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Page", func() {
+var _ = Describe("Selection", func() {
 	It("exists", func() {
-		Expect(Page{})
+		Expect(&Page{})
 	})
 })

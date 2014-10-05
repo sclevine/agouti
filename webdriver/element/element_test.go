@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Element", func() {
 	var (
-		element Element
+		element *Element
 		session *mocks.Session
 		err     error
 	)

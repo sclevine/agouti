@@ -48,9 +48,9 @@ Feature("Agouti", func() {
     Within("#some-element", func(someElement *Selection) {
       someElement.Within("p").ShouldContainText("Foo")
 
-      Step("and finds more text", func() {
+      Step("and finds more text", Do(func() {
         someElement.Within("[role=moreText]").ShouldContainText("Bar")
-      })
+      }))
     })
   })
 })

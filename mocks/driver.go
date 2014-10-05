@@ -3,34 +3,34 @@ package mocks
 import "github.com/sclevine/agouti/webdriver"
 
 type Driver struct {
-	Navigate struct {
+	NavigateCall struct {
 		URL string
 		Err error
 	}
 
-	GetElements struct {
+	GetElementsCall struct {
 		Selector string
 		ReturnElements []webdriver.Element
 		Err error
 	}
 
-	SetCookie struct {
+	SetCookieCall struct {
 		Cookie *webdriver.Cookie
 		Err error
 	}
 }
 
 func (d* Driver) Navigate(url string) error {
-	d.Navigate.URL = url
-	return d.Navigate.Err
+	d.NavigateCall.URL = url
+	return d.NavigateCall.Err
 }
 
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
-	d.GetElements.Selector = selector
-	return d.GetElements.ReturnElements, d.GetElements.Err
+	d.GetElementsCall.Selector = selector
+	return d.GetElementsCall.ReturnElements, d.GetElementsCall.Err
 }
 
 func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {
-	d.SetCookie.Cookie = cookie
-	return d.SetCookie.Err
+	d.SetCookieCall.Cookie = cookie
+	return d.SetCookieCall.Err
 }

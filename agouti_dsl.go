@@ -14,7 +14,7 @@ const PHANTOM_PORT = 8910
 var phantomService *phantom.Service
 
 type Page interface {
-	Selection
+	page.Selection
 }
 
 type Selection page.Selection
@@ -30,15 +30,7 @@ func (f DoFinal) Call(selection page.FinalSelection) {
 	f(selection)
 }
 
-type Cookie struct {
-	Name string
-	Value interface{}
-	Path string
-	Domain string
-	Secure bool
-	HTTPOnly bool
-	Expiry int64
-}
+type Cookie webdriver.Cookie
 
 func SetupAgouti() bool {
 	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: time.Second}
@@ -69,7 +61,7 @@ func Step(description string, body func()) {
 }
 
 // TODO: strip cookies out and test
-func Navigate(url string, cookies []Cookie) Page {
+func Navigate(url string, cookies ...[]Cookie) Page {
 	session, err := phantomService.CreateSession()
 	if err != nil {
 		ginkgo.Fail(err.Error()) // TODO: test error
@@ -77,9 +69,12 @@ func Navigate(url string, cookies []Cookie) Page {
 
 	driver := &webdriver.Driver{session}
 
-	for _, cookie := range cookies {
-		if err := driver.SetCookie(&webdriver.Cookie(cookie)); err != nil {
-			ginkgo.Fail(err.Error())
+	if (len(cookies) > 0) {
+		for _, cookie := range cookies[0] {
+			driverCookie := webdriver.Cookie(cookie)
+			if err := driver.SetCookie(&driverCookie); err != nil {
+				ginkgo.Fail(err.Error())
+			}
 		}
 	}
 

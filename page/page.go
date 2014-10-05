@@ -1,8 +1,6 @@
 package page
 
-import (
-	"github.com/sclevine/agouti/webdriver"
-)
+import "github.com/sclevine/agouti/webdriver"
 
 type Page struct {
 	Driver driver
@@ -10,16 +8,7 @@ type Page struct {
 
 type driver interface {
 	Navigate(url string) error
-	GetElements(selector string) ([]*webdriver.Element, error)
-}
-
-type Selection interface {
-	Within(selector string, bodies ...callable) Selection
-	FinalSelection
-}
-
-type FinalSelection interface {
-	ShouldContainText(text string)
+	GetElements(selector string) ([]webdriver.Element, error)
 }
 
 type callable interface {
