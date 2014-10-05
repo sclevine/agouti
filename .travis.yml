@@ -6,3 +6,6 @@ go:
 
 script:
  - go test -v ./...
+
+install:
+ - go get -d -t -v ./... && go build -v ./...
