@@ -82,5 +82,5 @@ func Navigate(url string, cookies ...[]Cookie) Page {
 		ginkgo.Fail(err.Error())// TODO: test error
 	}
 
-	return &page.Page{driver}
+	return &page.Page{driver, ginkgo.Fail}
 }

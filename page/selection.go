@@ -1,7 +1,6 @@
 package page
 
 import (
-	"github.com/onsi/ginkgo"
 	"strings"
 	"fmt"
 )
@@ -13,6 +12,7 @@ type Selection interface {
 
 type FinalSelection interface {
 	ShouldContainText(text string)
+	Selector() string
 }
 
 type selection struct {
@@ -28,26 +28,34 @@ func (s *selection) Within(selector string, bodies ...callable) Selection {
 	return subSelection
 }
 
+func (s *selection) Selector() string {
+	return strings.Join(s.selectors, " ")
+}
+
 func (s *selection) ShouldContainText(text string) {
-	selector := strings.Join(s.selectors, " ")
+	// NOTE: return after failing in case Fail does not panic
+	selector := s.Selector()
 	elements, err := s.page.Driver.GetElements(selector)
 	if err != nil {
-		ginkgo.Fail("Failed to retrieve elements.", 1)
+		s.page.Fail("Failed to retrieve elements: " + err.Error(), 1)
+		return
 	}
 	if len(elements) > 1 {
-		ginkgo.Fail("Mutiple items were selected.", 1)
+		s.page.Fail(fmt.Sprintf("Mutiple elements (%d) were selected.", len(elements)), 1)
+		return
 	}
 	if len(elements) == 0 {
-		ginkgo.Fail("No items were selected.", 1)
+		s.page.Fail("No elements found.", 1)
+		return
 	}
 	elementText, err := elements[0].GetText()
 	if err != nil {
-		ginkgo.Fail(fmt.Sprintf("Failed to retrieve text for selector %s.", selector), 1)
+		s.page.Fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", selector, err), 1)
+		return
 	}
 
 	if !strings.Contains(elementText, text) {
-		ginkgo.Fail(fmt.Sprintf("Failed to find text '%s' for selector '%s'.\nFound: %s ", text, selector, elementText), 1)
+		s.page.Fail(fmt.Sprintf("Failed to find text '%s' for selector '%s'.\nFound: '%s'", text, selector, elementText), 1)
+		return
 	}
 }
-
-// TODO: unit test both selection and page with fake driver and fake ginkgo.Fail

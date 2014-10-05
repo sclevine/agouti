@@ -4,6 +4,8 @@ import "github.com/sclevine/agouti/webdriver"
 
 type Page struct {
 	Driver driver
+	Fail   func(message string, callerSkip ...int)
+
 }
 
 type driver interface {
@@ -21,6 +23,10 @@ func (p *Page) Within(selector string, bodies ...callable) Selection {
 		body.Call(firstSelection)
 	}
 	return firstSelection
+}
+
+func (p *Page) Selector() string {
+	return p.body().Selector()
 }
 
 func (p *Page) ShouldContainText(text string) {
