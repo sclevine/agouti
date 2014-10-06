@@ -38,14 +38,15 @@ var _ = Describe("Page", func() {
 		Context("when the navigate fails", func() {
 			BeforeEach(func() {
 				driver.NavigateCall.Err = errors.New("some error")
-				page.Navigate("http://example.com")
 			})
 
 			It("should fail the test", func() {
+				Expect(func() { page.Navigate("http://example.com") }).To(Panic())
 				Expect(failer.Message).To(Equal("some error"))
 			})
 
 			It("fails the test with an offset of 1", func() {
+				Expect(func() { page.Navigate("http://example.com") }).To(Panic())
 				Expect(failer.CallerSkip).To(Equal(1))
 			})
 		})
@@ -71,14 +72,15 @@ var _ = Describe("Page", func() {
 		Context("when the webdriver fails", func() {
 			BeforeEach(func() {
 				driver.SetCookieCall.Err = errors.New("some error")
-				page.SetCookie(webdriver.Cookie{})
 			})
 
 			It("should fail the test", func() {
+				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
 				Expect(failer.Message).To(Equal("some error"))
 			})
 
 			It("fails the test with an offset of 1", func() {
+				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
 				Expect(failer.CallerSkip).To(Equal(1))
 			})
 		})
@@ -120,13 +122,11 @@ var _ = Describe("Page", func() {
 		})
 
 		It("passes on contained text", func() {
-			page.ShouldContainText("ment tex")
-			Expect(failer.Failed).To(BeFalse())
+			Expect(func() { page.ShouldContainText("ment tex") }).NotTo(Panic())
 		})
 
 		It("fails on non-contained text", func() {
-			page.ShouldContainText("banana")
-			Expect(failer.Failed).To(BeTrue())
+			Expect(func() { page.ShouldContainText("banana") }).To(Panic())
 		})
 	})
 })

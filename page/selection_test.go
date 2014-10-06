@@ -61,13 +61,13 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("fails with an error", func() {
-				selection.ShouldContainText("text")
-				Expect(failer.Message).To(Equal("Failed to retrieve elements: some error"))
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to retrieve element: some error"))
 			})
 
 			It("fails with an offset of one", func() {
-				selection.ShouldContainText("text")
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
 			})
 		})
 
@@ -77,13 +77,13 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("fails with the number of elements", func() {
-				selection.ShouldContainText("text")
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
 				Expect(failer.Message).To(Equal("Mutiple elements (2) were selected."))
 			})
 
 			It("fails with an offset of one", func() {
-				selection.ShouldContainText("text")
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
 			})
 		})
 
@@ -93,13 +93,13 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("fails with an error indicating there were no elements", func() {
-				selection.ShouldContainText("text")
-				Expect(failer.Message).To(Equal("No elements found."))
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(failer.Message).To(Equal("No element found."))
 			})
 
 			It("fails with an offset of one", func() {
-				selection.ShouldContainText("text")
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
 			})
 		})
 
@@ -109,12 +109,12 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("fails with the selector and an error", func() {
-				selection.ShouldContainText("text")
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
 				Expect(failer.Message).To(Equal("Failed to retrieve text for selector '#selector': some error"))
 			})
 
 			It("fails with an offset of one", func() {
-				selection.ShouldContainText("text")
+				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
 				Expect(failer.CallerSkip).To(Equal(1))
 			})
 		})
@@ -122,19 +122,18 @@ var _ = Describe("Selection", func() {
 		Context("when the a single element text is found", func() {
 			Context("if the provided text is a substring of the element text", func() {
 				It("it does not fail the test", func() {
-					selection.ShouldContainText("ment tex")
-					Expect(failer.Failed).To(BeFalse())
+					Expect(func() { selection.ShouldContainText("ment tex") }).NotTo(Panic())
 				})
 			})
 
 			Context("if the provided text is not a substring of the element text", func() {
 				It("fails with information about the failure", func() {
-					selection.ShouldContainText("banana")
+					Expect(func() { selection.ShouldContainText("banana") }).To(Panic())
 					Expect(failer.Message).To(Equal("Failed to find text 'banana' for selector '#selector'.\nFound: 'element text'"))
 				})
 
 				It("fails with an offset of 1", func() {
-					selection.ShouldContainText("banana")
+					Expect(func() { selection.ShouldContainText("banana") }).To(Panic())
 					Expect(failer.CallerSkip).To(Equal(1))
 				})
 			})
