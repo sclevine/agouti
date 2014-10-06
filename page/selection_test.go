@@ -25,6 +25,56 @@ var _ = Describe("Selection", func() {
 		selection = NewPage(driver, failer.Fail).Within("#selector")
 	})
 
+	ItShouldRetrieveASingleElement := func(matcherCall func()) {
+		Context("when the driver fails to retrieve any elements", func() {
+			BeforeEach(func() {
+				driver.GetElementsCall.Err = errors.New("some error")
+			})
+
+			It("fails with an error", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to retrieve element: some error"))
+			})
+
+			It("fails with an offset of one", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
+			})
+		})
+
+		Context("when the driver retrieves more than one element", func() {
+			BeforeEach(func() {
+				driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
+			})
+
+			It("fails with the number of elements", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.Message).To(Equal("Mutiple elements (2) were selected."))
+			})
+
+			It("fails with an offset of one", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
+			})
+		})
+
+		Context("when the driver retrieves zero elements", func() {
+			BeforeEach(func() {
+				driver.GetElementsCall.ReturnElements = []webdriver.Element{}
+			})
+
+			It("fails with an error indicating there were no elements", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.Message).To(Equal("No element found."))
+			})
+
+			It("fails with an offset of one", func() {
+				Expect(matcherCall).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(2))
+			})
+		})
+	}
+
 	Describe("#Within", func() {
 		It("returns a subselection", func() {
 			subselection := selection.Within("#subselector")
@@ -55,52 +105,8 @@ var _ = Describe("Selection", func() {
 			element.GetTextCall.ReturnText = "element text"
 		})
 
-		Context("when the driver fails to retrieve any elements", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.Err = errors.New("some error")
-			})
-
-			It("fails with an error", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.Message).To(Equal("Failed to retrieve element: some error"))
-			})
-
-			It("fails with an offset of one", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
-			})
-		})
-
-		Context("when the driver retrieves more than one element", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
-			})
-
-			It("fails with the number of elements", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.Message).To(Equal("Mutiple elements (2) were selected."))
-			})
-
-			It("fails with an offset of one", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
-			})
-		})
-
-		Context("when the driver retrieves zero elements", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []webdriver.Element{}
-			})
-
-			It("fails with an error indicating there were no elements", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.Message).To(Equal("No element found."))
-			})
-
-			It("fails with an offset of one", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
-			})
+		ItShouldRetrieveASingleElement(func() {
+			selection.ShouldContainText("text")
 		})
 
 		Context("when the driver cannot retrieve an element's text", func() {
