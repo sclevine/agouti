@@ -22,7 +22,7 @@ var _ = Describe("Selection", func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
-		selection = (&Page{driver, failer.Fail}).Within("#selector")
+		selection = NewPage(driver, failer.Fail).Within("#selector")
 	})
 
 	Describe("#Within", func() {

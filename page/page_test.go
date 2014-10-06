@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Page", func() {
 	var (
-		page    *Page
+		page    Page
 		failer  *mocks.Failer
 		driver  *mocks.Driver
 		element *mocks.Element
@@ -21,7 +21,7 @@ var _ = Describe("Page", func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
-		page = &Page{driver, failer.Fail}
+		page = NewPage(driver, failer.Fail)
 	})
 
 	Describe("#Within", func() {

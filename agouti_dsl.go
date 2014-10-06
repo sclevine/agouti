@@ -13,20 +13,13 @@ const PHANTOM_PORT = 8910
 
 var phantomService *phantom.Service
 
-type Page interface {
-	page.Selection
-}
-
+type Page page.Page
 type Selection page.Selection
 type FinalSelection page.FinalSelection
 
 type Do func(Selection)
-type DoFinal func(FinalSelection)
 
 func (f Do) Call(selection page.Selection) {
-	f(selection)
-}
-func (f DoFinal) Call(selection page.FinalSelection) {
 	f(selection)
 }
 
@@ -82,5 +75,5 @@ func Navigate(url string, cookies ...[]Cookie) Page {
 		ginkgo.Fail(err.Error()) // TODO: test error
 	}
 
-	return &page.Page{driver, ginkgo.Fail}
+	return Page(page.NewPage(driver, ginkgo.Fail))
 }

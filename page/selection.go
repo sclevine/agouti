@@ -17,7 +17,7 @@ type FinalSelection interface {
 
 type selection struct {
 	selectors []string
-	page      *Page
+	page      *page
 }
 
 func (s *selection) Within(selector string, bodies ...callable) Selection {
@@ -35,27 +35,27 @@ func (s *selection) Selector() string {
 func (s *selection) ShouldContainText(text string) {
 	// NOTE: return after failing in case Fail does not panic
 	selector := s.Selector()
-	elements, err := s.page.Driver.GetElements(selector)
+	elements, err := s.page.driver.GetElements(selector)
 	if err != nil {
-		s.page.Fail("Failed to retrieve elements: "+err.Error(), 1)
+		s.page.fail("Failed to retrieve elements: "+err.Error(), 1)
 		return
 	}
 	if len(elements) > 1 {
-		s.page.Fail(fmt.Sprintf("Mutiple elements (%d) were selected.", len(elements)), 1)
+		s.page.fail(fmt.Sprintf("Mutiple elements (%d) were selected.", len(elements)), 1)
 		return
 	}
 	if len(elements) == 0 {
-		s.page.Fail("No elements found.", 1)
+		s.page.fail("No elements found.", 1)
 		return
 	}
 	elementText, err := elements[0].GetText()
 	if err != nil {
-		s.page.Fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", selector, err), 1)
+		s.page.fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", selector, err), 1)
 		return
 	}
 
 	if !strings.Contains(elementText, text) {
-		s.page.Fail(fmt.Sprintf("Failed to find text '%s' for selector '%s'.\nFound: '%s'", text, selector, elementText), 1)
+		s.page.fail(fmt.Sprintf("Failed to find text '%s' for selector '%s'.\nFound: '%s'", text, selector, elementText), 1)
 		return
 	}
 }
