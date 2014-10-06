@@ -3,6 +3,8 @@ package page
 import "github.com/sclevine/agouti/webdriver"
 
 type Page interface {
+	Navigate(url string) Page
+	SetCookie(cookie webdriver.Cookie) Page
 	Selection
 }
 
@@ -14,6 +16,7 @@ type page struct {
 type driver interface {
 	Navigate(url string) error
 	GetElements(selector string) ([]webdriver.Element, error)
+	SetCookie(cookie *webdriver.Cookie) error
 }
 
 type callable interface {
@@ -22,6 +25,22 @@ type callable interface {
 
 func NewPage(driver driver, fail func(message string, callerSkip ...int)) Page {
 	return &page{driver, fail}
+}
+
+func (p *page) Navigate(url string) Page {
+	if err := p.driver.Navigate(url); err != nil {
+		p.fail(err.Error(), 1)
+	}
+
+	return p
+}
+
+func (p *page) SetCookie(cookie webdriver.Cookie) Page {
+	if err := p.driver.SetCookie(&cookie); err != nil {
+		p.fail(err.Error(), 1)
+	}
+
+	return p
 }
 
 func (p *page) Within(selector string, bodies ...callable) Selection {

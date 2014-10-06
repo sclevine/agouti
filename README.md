@@ -39,7 +39,7 @@ import . "github.com/sclevine/agouti"
 
 Feature("Agouti", func() {
   Scenario("Loads some page", func() {
-    page := Navigate("http://example.com/")
+    page := CreatePage().Navigate("http://example.com/")
 
     Step("finds a title", func() {
       page.Within("header").Within("h1").ShouldContainText("Page Title")

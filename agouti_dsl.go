@@ -53,27 +53,17 @@ func Step(description string, body func()) {
 	body()
 }
 
-// TODO: strip cookies out and test
-func Navigate(url string, cookies ...[]Cookie) Page {
+func CreatePage() Page {
 	session, err := phantomService.CreateSession()
 	if err != nil {
-		ginkgo.Fail(err.Error()) // TODO: test error
+		ginkgo.Fail(err.Error())
 	}
 
 	driver := &webdriver.Driver{session}
 
-	if len(cookies) > 0 {
-		for _, cookie := range cookies[0] {
-			driverCookie := webdriver.Cookie(cookie)
-			if err := driver.SetCookie(&driverCookie); err != nil {
-				ginkgo.Fail(err.Error())
-			}
-		}
-	}
-
-	if err := driver.Navigate(url); err != nil {
-		ginkgo.Fail(err.Error()) // TODO: test error
-	}
-
 	return Page(page.NewPage(driver, ginkgo.Fail))
+}
+
+func CreateCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) webdriver.Cookie {
+	return webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
 }

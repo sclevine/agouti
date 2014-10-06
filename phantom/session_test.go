@@ -141,10 +141,31 @@ var _ = Describe("Session", func() {
 		})
 
 		Context("when the server responds with a non-2xx status code", func() {
-			It("returns an error indicating that the request failed", func() {
-				responseStatus = 400
-				err = session.Execute("some/endpoint", "GET", nil, &result)
-				Expect(err).To(MatchError("request unsuccessful: 400 - Bad Request"))
+			Context("when the server has a valid error message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{"value": {"message": "{\"errorMessage\": \"some error\"}"}}`
+					err = session.Execute("some/endpoint", "GET", nil, &result)
+					Expect(err).To(MatchError("request unsuccessful: some error"))
+				})
+			})
+
+			Context("when the server does not have a valid message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{}}`
+					err = session.Execute("some/endpoint", "GET", nil, &result)
+					Expect(err).To(MatchError("request unsuccessful: phantom error unreadable"))
+				})
+			})
+
+			Context("when the server does not have a valid error message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{"value": {"message": "{}}"}}`
+					err = session.Execute("some/endpoint", "GET", nil, &result)
+					Expect(err).To(MatchError("request unsuccessful: phantom error message unreadable"))
+				})
 			})
 		})
 	})

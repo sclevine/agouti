@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
 	"github.com/sclevine/agouti/webdriver"
+	"errors"
 )
 
 var _ = Describe("Page", func() {
@@ -22,6 +23,65 @@ var _ = Describe("Page", func() {
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
 		page = NewPage(driver, failer.Fail)
+	})
+
+	Describe("#Navigate", func() {
+		It("directs the driver to navigate to the provided URL", func() {
+			page.Navigate("http://example.com")
+			Expect(driver.NavigateCall.URL).To(Equal("http://example.com"))
+		})
+
+		It("returns the page", func() {
+			Expect(page.Navigate("http://example.com")).To(Equal(page))
+		})
+
+		Context("when the navigate fails", func() {
+			BeforeEach(func() {
+				driver.NavigateCall.Err = errors.New("some error")
+				page.Navigate("http://example.com")
+			})
+
+			It("should fail the test", func() {
+				Expect(failer.Message).To(Equal("some error"))
+			})
+
+			It("fails the test with an offset of 1", func() {
+				Expect(failer.CallerSkip).To(Equal(1))
+			})
+		})
+	})
+
+	Describe("#SetCookie", func() {
+		It("instructs the driver to add the cookie to the session", func() {
+			cookie := webdriver.Cookie{
+				Name:     "theName",
+				Value:    42,
+				Path:     "/my-path",
+				Domain:   "example.com",
+				Secure:   false,
+				HTTPOnly: false,
+				Expiry:   1412358590,
+			}
+
+			page.SetCookie(cookie)
+			Expect(driver.SetCookieCall.Cookie.Name).To(Equal("theName"))
+			Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
+		})
+
+		Context("when the webdriver fails", func() {
+			BeforeEach(func() {
+				driver.SetCookieCall.Err = errors.New("some error")
+				page.SetCookie(webdriver.Cookie{})
+			})
+
+			It("should fail the test", func() {
+				Expect(failer.Message).To(Equal("some error"))
+			})
+
+			It("fails the test with an offset of 1", func() {
+				Expect(failer.CallerSkip).To(Equal(1))
+			})
+		})
 	})
 
 	Describe("#Within", func() {

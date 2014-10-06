@@ -33,7 +33,7 @@ func (s *selection) Selector() string {
 }
 
 func (s *selection) ShouldContainText(text string) {
-	// NOTE: return after failing in case Fail does not panic
+	// NOTE: return after failing in case fail does not panic
 	selector := s.Selector()
 	elements, err := s.page.driver.GetElements(selector)
 	if err != nil {
