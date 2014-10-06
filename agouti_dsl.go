@@ -28,9 +28,8 @@ type Cookie webdriver.Cookie
 
 func SetupAgouti() bool {
 	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: 3 * time.Second}
-	err := phantomService.Start()
-	if err != nil {
-		fmt.Println(err.Error())
+	if err := phantomService.Start(); err != nil {
+		panic("Agouti failed to start phantomjs: " + err.Error())
 	}
 	return true
 }

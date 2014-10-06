@@ -18,7 +18,7 @@ var _ = Describe("Phantom service", func() {
 	var service *Service
 
 	BeforeEach(func() {
-		service = &Service{Host: "127.0.0.1", Port: 42344, Timeout: time.Second * 5}
+		service = &Service{Host: "127.0.0.1", Port: 42344, Timeout: 3 * time.Second}
 	})
 
 	Describe("#Start", func() {

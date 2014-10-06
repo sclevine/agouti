@@ -47,6 +47,7 @@ func (s *Service) waitForServer() error {
 			case <-failedChan:
 				return
 			default:
+				time.Sleep(500 * time.Millisecond)
 				_, err = client.Do(request)
 			}
 		}
