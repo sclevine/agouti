@@ -6,7 +6,6 @@ import (
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
 	"time"
-	"fmt"
 )
 
 const PHANTOM_HOST = "127.0.0.1"
