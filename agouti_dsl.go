@@ -6,6 +6,7 @@ import (
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
 	"time"
+	"fmt"
 )
 
 const PHANTOM_HOST = "127.0.0.1"
@@ -26,8 +27,11 @@ func (f Do) Call(selection page.Selection) {
 type Cookie webdriver.Cookie
 
 func SetupAgouti() bool {
-	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: time.Second}
-	phantomService.Start()
+	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: 3 * time.Second}
+	err := phantomService.Start()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	return true
 }
 
