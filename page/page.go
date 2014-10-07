@@ -65,6 +65,10 @@ func (p *page) ShouldNot() FinalSelection {
 	return body
 }
 
+func (p *page) ShouldEventually() FinalSelection { // TODO: test
+	return &async{p.body()}
+}
+
 func (p *page) Within(selector string, bodies ...callable) Selection {
 	firstSelection := &selection{[]string{selector}, p, false}
 	for _, body := range bodies {

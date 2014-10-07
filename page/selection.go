@@ -9,6 +9,7 @@ import (
 type Selection interface {
 	Should() FinalSelection
 	ShouldNot() FinalSelection
+	ShouldEventually() FinalSelection
 	Within(selector string, bodies ...callable) Selection
 	Click()
 	Selector() string
@@ -31,6 +32,10 @@ func (s *selection) Should() FinalSelection {
 func (s *selection) ShouldNot() FinalSelection {
 	s.invert = true
 	return s
+}
+
+func (s *selection) ShouldEventually() FinalSelection {
+	return &async{s}
 }
 
 func (s *selection) Within(selector string, bodies ...callable) Selection {

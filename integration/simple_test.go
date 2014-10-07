@@ -6,13 +6,15 @@ import (
 	. "github.com/sclevine/agouti"
 	"net/http"
 	"net/http/httptest"
+	"io/ioutil"
 )
 
 var server *httptest.Server
 
 var _ = BeforeSuite(func() {
 	server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		response.Write([]byte(`<html><body><header><h1>Page Title</h1></header><a href="#new_page">Click Me</a></body></html>`))
+		html, _ := ioutil.ReadFile("test_page.html")
+		response.Write(html)
 	}))
 })
 
@@ -31,7 +33,7 @@ var _ = Feature("Agouti", func() {
 			page.Within("header").Should().ContainText("Page Title")
 		})
 
-		Step("assets that text is not in a page", func() {
+		Step("asserts that text is not in a page", func() {
 			page.ShouldNot().ContainText("Page Not-Title")
 			page.Within("header").ShouldNot().ContainText("Page Not-Title")
 		})
@@ -44,6 +46,11 @@ var _ = Feature("Agouti", func() {
 			page.Within("header h1", Do(func(h1 Selection) {
 				h1.Should().ContainText("Page Title")
 			}))
+		})
+
+		Step("allows assertions that wait for matchers to be true", func() {
+//			page.Within("#some_element").ShouldNot().ContainText("some text")
+//			page.Within("#some_element").ShouldEventually().ContainText("some text")
 		})
 
 		Step("allows clicking on a link", func() {
