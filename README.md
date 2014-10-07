@@ -8,7 +8,7 @@ Integration testing for Go using Ginkgo
 Install (OS X):
 ```
 brew install phantomjs
-go get github.com/sclevine/agoati
+go get github.com/sclevine/agouti
 ```
 
 Make sure to add the `defer CleanupAgouti(SetupAgouti())` to your `project_suite_test.go` file, like so:
