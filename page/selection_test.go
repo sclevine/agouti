@@ -33,7 +33,7 @@ var _ = Describe("Selection", func() {
 
 			It("fails with an error", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.Message).To(Equal("Failed to retrieve element: some error"))
+				Expect(failer.Message).To(Equal("Failed to retrieve element with selector '#selector': some error"))
 			})
 
 			It("fails with an offset of one", func() {
@@ -49,7 +49,7 @@ var _ = Describe("Selection", func() {
 
 			It("fails with the number of elements", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.Message).To(Equal("Mutiple elements (2) were selected."))
+				Expect(failer.Message).To(Equal("Mutiple elements (2) with selector '#selector' were selected."))
 			})
 
 			It("fails with an offset of one", func() {
@@ -65,7 +65,7 @@ var _ = Describe("Selection", func() {
 
 			It("fails with an error indicating there were no elements", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.Message).To(Equal("No element found."))
+				Expect(failer.Message).To(Equal("No element with selector '#selector' found."))
 			})
 
 			It("fails with an offset of one", func() {

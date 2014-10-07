@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
 	"net/http"
 	"net/http/httptest"
@@ -42,6 +43,7 @@ var _ = Feature("Agouti", func() {
 
 		Step("allows clicking on a link", func() {
 			page.Within("a").Click()
+			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 	})
 })

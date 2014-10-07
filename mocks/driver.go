@@ -18,6 +18,11 @@ type Driver struct {
 		Cookie *webdriver.Cookie
 		Err    error
 	}
+
+	GetURLCall struct {
+	    ReturnURL string
+	    Err error
+	}
 }
 
 func (d *Driver) Navigate(url string) error {
@@ -33,4 +38,8 @@ func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
 func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {
 	d.SetCookieCall.Cookie = cookie
 	return d.SetCookieCall.Err
+}
+
+func (d *Driver) GetURL() (string, error) {
+	return d.GetURLCall.ReturnURL, d.GetURLCall.Err
 }

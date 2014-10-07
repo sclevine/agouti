@@ -1,10 +1,13 @@
 package page
 
-import "github.com/sclevine/agouti/webdriver"
+import (
+	"github.com/sclevine/agouti/webdriver"
+)
 
 type Page interface {
 	Navigate(url string) Page
 	SetCookie(cookie webdriver.Cookie) Page
+	URL() string
 	Selection
 }
 
@@ -17,6 +20,7 @@ type driver interface {
 	Navigate(url string) error
 	GetElements(selector string) ([]webdriver.Element, error)
 	SetCookie(cookie *webdriver.Cookie) error
+	GetURL() (string, error)
 }
 
 type callable interface {
@@ -29,7 +33,7 @@ func NewPage(driver driver, fail func(message string, callerSkip ...int)) Page {
 
 func (p *page) Navigate(url string) Page {
 	if err := p.driver.Navigate(url); err != nil {
-		p.fail(err.Error(), 1)
+		p.fail("Failed to navigate: " + err.Error(), 1)
 	}
 
 	return p
@@ -37,10 +41,18 @@ func (p *page) Navigate(url string) Page {
 
 func (p *page) SetCookie(cookie webdriver.Cookie) Page {
 	if err := p.driver.SetCookie(&cookie); err != nil {
-		p.fail(err.Error(), 1)
+		p.fail("Failed to set cookie: " + err.Error(), 1)
 	}
 
 	return p
+}
+
+func(p *page) URL() string {
+	url, err:= p.driver.GetURL()
+	if err != nil {
+		p.fail("Failed to retrieve URL: " + err.Error(), 1)
+	}
+	return url
 }
 
 func (p *page) Within(selector string, bodies ...callable) Selection {

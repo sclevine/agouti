@@ -42,7 +42,7 @@ var _ = Describe("Page", func() {
 
 			It("should fail the test", func() {
 				Expect(func() { page.Navigate("http://example.com") }).To(Panic())
-				Expect(failer.Message).To(Equal("some error"))
+				Expect(failer.Message).To(Equal("Failed to navigate: some error"))
 			})
 
 			It("fails the test with an offset of 1", func() {
@@ -74,14 +74,40 @@ var _ = Describe("Page", func() {
 				driver.SetCookieCall.Err = errors.New("some error")
 			})
 
-			It("should fail the test", func() {
+			It("fails the test with the propagated URL", func() {
 				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
-				Expect(failer.Message).To(Equal("some error"))
+				Expect(failer.Message).To(Equal("Failed to set cookie: some error"))
 			})
 
 			It("fails the test with an offset of 1", func() {
 				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
 				Expect(failer.CallerSkip).To(Equal(1))
+			})
+		})
+	})
+
+	Describe("#URL", func() {
+		Context("when the driver fails to retrieve the URL", func() {
+			BeforeEach(func() {
+				driver.GetURLCall.Err = errors.New("some error")
+			})
+
+			It("fails the test with the propagated URL", func() {
+				Expect(func() { page.URL() }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to retrieve URL: some error"))
+			})
+
+			It("fails the ", func() {
+				Expect(func() { page.URL() }).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(1))
+			})
+		})
+
+		Context("when the driver successfully retrieves the URL", func() {
+			It("returns the URL of the current page", func() {
+				driver.GetURLCall.ReturnURL = "http://example.com"
+				url := page.URL()
+				Expect(url).To(Equal("http://example.com"))
 			})
 		})
 	})

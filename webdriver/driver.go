@@ -1,7 +1,6 @@
 package webdriver
 
 import (
-	"fmt"
 	"github.com/sclevine/agouti/webdriver/element"
 )
 
@@ -32,10 +31,8 @@ func (d *Driver) Navigate(url string) error {
 	request := struct {
 		URL string `json:"url"`
 	}{url}
-	if err := d.Session.Execute("url", "POST", request, &struct{}{}); err != nil {
-		return fmt.Errorf("failed to navigate: %s", err)
-	}
-	return nil
+
+	return d.Session.Execute("url", "POST", request, &struct{}{})
 }
 
 func (d *Driver) GetElements(selector string) ([]Element, error) {
@@ -47,7 +44,7 @@ func (d *Driver) GetElements(selector string) ([]Element, error) {
 	var results []struct{ Element string }
 
 	if err := d.Session.Execute("elements", "POST", request, &results); err != nil {
-		return nil, fmt.Errorf("failed to get elements with selector '%s': %s", selector, err)
+		return nil, err
 	}
 
 	elements := []Element{}
@@ -63,9 +60,14 @@ func (d *Driver) SetCookie(cookie *Cookie) error {
 		Cookie *Cookie `json:"cookie"`
 	}{cookie}
 
-	if err := d.Session.Execute("cookie", "POST", request, &struct{}{}); err != nil {
-		return fmt.Errorf("failed to add cookie: %s", err)
+	return d.Session.Execute("cookie", "POST", request, &struct{}{})
+}
+
+func (d *Driver) GetURL() (string, error) {
+	var url string
+	if err := d.Session.Execute("url", "GET", nil, &url); err != nil {
+		return "", err
 	}
 
-	return nil
+	return url, nil
 }

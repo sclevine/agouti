@@ -60,13 +60,13 @@ func (s *selection) getSingleElement() webdriver.Element {
 
 	elements, err := s.page.driver.GetElements(selector)
 	if err != nil {
-		s.page.fail("Failed to retrieve element: "+err.Error(), 2)
+		s.page.fail(fmt.Sprintf("Failed to retrieve element with selector '%s': %s", selector, err), 2)
 	}
 	if len(elements) > 1 {
-		s.page.fail(fmt.Sprintf("Mutiple elements (%d) were selected.", len(elements)), 2)
+		s.page.fail(fmt.Sprintf("Mutiple elements (%d) with selector '%s' were selected.", len(elements), selector), 2)
 	}
 	if len(elements) == 0 {
-		s.page.fail("No element found.", 2)
+		s.page.fail(fmt.Sprintf("No element with selector '%s' found.", selector), 2)
 	}
 	return elements[0]
 }

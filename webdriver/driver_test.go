@@ -49,7 +49,7 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the page failed to navigate", func() {
 				session.Err = errors.New("some error")
 				err = driver.Navigate("http://example.com")
-				Expect(err).To(MatchError("failed to navigate: some error"))
+				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})
@@ -91,7 +91,7 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
 				session.Err = errors.New("some error")
 				_, err = driver.GetElements("#selector")
-				Expect(err).To(MatchError("failed to get elements with selector '#selector': some error"))
+				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})
@@ -135,7 +135,42 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the page failed to add the cookie", func() {
 				session.Err = errors.New("some error")
 				err = driver.SetCookie(cookie)
-				Expect(err).To(MatchError("failed to add cookie: some error"))
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetURL", func() {
+		var url string
+
+		BeforeEach(func() {
+			session.Result = `"http://example.com"`
+			url, err = driver.GetURL()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /url endpoint", func() {
+			Expect(session.Endpoint).To(Equal("url"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("returns the page URL", func() {
+				Expect(url).To(Equal("http://example.com"))
+			})
+
+			It("doesn't return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to add the cookie", func() {
+				session.Err = errors.New("some error")
+				_, err = driver.GetURL()
+				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})
