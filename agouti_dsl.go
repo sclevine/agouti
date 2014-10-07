@@ -40,7 +40,7 @@ func freeAddress() string {
 	return listener.Addr().String()
 }
 
-func CleanupAgouti(ignored bool) bool {
+func CleanupAgouti(ignored... bool) bool {
 	phantomService.Stop()
 	return true
 }
