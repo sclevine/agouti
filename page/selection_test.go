@@ -99,14 +99,14 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
-	Describe("#ShouldContainText", func() {
+	Describe("#ContainText", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 			element.GetTextCall.ReturnText = "element text"
 		})
 
 		ItShouldRetrieveASingleElement(func() {
-			selection.ShouldContainText("text")
+			selection.Should().ContainText("text")
 		})
 
 		Context("when the driver cannot retrieve an element's text", func() {
@@ -115,32 +115,46 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("fails with the selector and an error", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(func() { selection.Should().ContainText("text") }).To(Panic())
 				Expect(failer.Message).To(Equal("Failed to retrieve text for selector '#selector': some error"))
 			})
 
 			It("fails with an offset of one", func() {
-				Expect(func() { selection.ShouldContainText("text") }).To(Panic())
+				Expect(func() { selection.Should().ContainText("text") }).To(Panic())
 				Expect(failer.CallerSkip).To(Equal(1))
 			})
 		})
 
 		Context("when the a single element text is found", func() {
 			Context("if the provided text is a substring of the element text", func() {
-				It("it does not fail the test", func() {
-					Expect(func() { selection.ShouldContainText("ment tex") }).NotTo(Panic())
+				It("does not fail the test", func() {
+					Expect(func() { selection.Should().ContainText("ment tex") }).NotTo(Panic())
+				})
+
+				It("fails the test with information about the failure if inverted", func() {
+					Expect(func() { selection.ShouldNot().ContainText("ment tex") }).To(Panic())
+					Expect(failer.Message).To(Equal("Found text 'ment tex' for selector '#selector'.\nFound: 'element text'"))
+				})
+
+				It("fails with an offset of 1 if inverted", func() {
+					Expect(func() { selection.ShouldNot().ContainText("ment tex") }).To(Panic())
+					Expect(failer.CallerSkip).To(Equal(1))
 				})
 			})
 
 			Context("if the provided text is not a substring of the element text", func() {
 				It("fails with information about the failure", func() {
-					Expect(func() { selection.ShouldContainText("banana") }).To(Panic())
+					Expect(func() { selection.Should().ContainText("banana") }).To(Panic())
 					Expect(failer.Message).To(Equal("Failed to find text 'banana' for selector '#selector'.\nFound: 'element text'"))
 				})
 
 				It("fails with an offset of 1", func() {
-					Expect(func() { selection.ShouldContainText("banana") }).To(Panic())
+					Expect(func() { selection.Should().ContainText("banana") }).To(Panic())
 					Expect(failer.CallerSkip).To(Equal(1))
+				})
+
+				It("passes the test if inverted", func() {
+					Expect(func() { selection.ShouldNot().ContainText("banana") }).NotTo(Panic())
 				})
 			})
 		})

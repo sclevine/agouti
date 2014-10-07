@@ -3,11 +3,11 @@ package page_test
 import (
 	. "github.com/sclevine/agouti/page"
 
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
 	"github.com/sclevine/agouti/webdriver"
-	"errors"
 )
 
 var _ = Describe("Page", func() {
@@ -136,15 +136,18 @@ var _ = Describe("Page", func() {
 		})
 	})
 
-	Describe("#ShouldContainText", func() {
+	Describe("#ContainText", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 			element.GetTextCall.ReturnText = "element text"
 		})
 
 		It("calls selection#ShouldContainText on the body of the page", func() {
-			page.ShouldContainText("ment tex")
-			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
+			Expect(func() { page.Should().ContainText("ment tex") }).NotTo(Panic())
+			Expect(func() { page.ShouldNot().ContainText("ment tex") }).To(Panic())
+
+			Expect(func() { page.Should().ContainText("banana") }).To(Panic())
+			Expect(func() { page.ShouldNot().ContainText("banana") }).NotTo(Panic())
 		})
 	})
 
@@ -155,6 +158,7 @@ var _ = Describe("Page", func() {
 
 		It("calls selection#Click on the body of the page", func() {
 			page.Click()
+			Expect(element.ClickCall.Called).To(BeTrue())
 			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
 		})
 	})

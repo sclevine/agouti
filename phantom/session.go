@@ -42,7 +42,7 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
 	if response.StatusCode < 200 || response.StatusCode > 299 {
-		var errBody struct{ Value struct { Message string } }
+		var errBody struct{ Value struct{ Message string } }
 		if err := json.Unmarshal(responseBody, &errBody); err != nil {
 			return fmt.Errorf("request unsuccessful: phantom error unreadable")
 		}
@@ -54,7 +54,6 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 
 		return fmt.Errorf("request unsuccessful: %s", errMessage.ErrorMessage)
 	}
-
 
 	bodyValue := struct{ Value interface{} }{result}
 

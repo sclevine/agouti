@@ -42,14 +42,14 @@ Feature("Agouti", func() {
     page := CreatePage().Navigate("http://example.com/")
 
     Step("finds a title", func() {
-      page.Within("header").Within("h1").ShouldContainText("Page Title")
+      page.Within("header").Within("h1").Should().ContainText("Page Title")
     })
 
     Within("#some-element", Do(func(someElement Selection) {
-      someElement.Within("p").ShouldContainText("Foo")
+      someElement.Within("p").Should().ContainText("Foo")
 
       Step("and finds more text", func() {
-        someElement.Within("[role=moreText]").ShouldContainText("Bar")
+        someElement.Within("[role=moreText]").Should().ContainText("Bar")
       })
     }))
   })

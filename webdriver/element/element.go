@@ -18,5 +18,5 @@ func (e *Element) GetText() (string, error) {
 }
 
 func (e *Element) Click() error {
-	return e.Session.Execute("element/"+e.ID+"/click", "POST", nil,  &struct{}{})
+	return e.Session.Execute("element/"+e.ID+"/click", "POST", nil, &struct{}{})
 }

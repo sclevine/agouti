@@ -6,10 +6,9 @@ type Element struct {
 		Err        error
 	}
 
-
 	ClickCall struct {
 		Called bool
-		Err	   error
+		Err    error
 	}
 }
 

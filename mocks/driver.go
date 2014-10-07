@@ -20,8 +20,8 @@ type Driver struct {
 	}
 
 	GetURLCall struct {
-	    ReturnURL string
-	    Err error
+		ReturnURL string
+		Err       error
 	}
 }
 

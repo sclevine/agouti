@@ -27,17 +27,22 @@ var _ = Feature("Agouti", func() {
 		page.Navigate(server.URL).SetCookie(cookie)
 
 		Step("finds text in a page", func() {
-			page.ShouldContainText("Page Title")
-			page.Within("header").ShouldContainText("Page Title")
+			page.Should().ContainText("Page Title")
+			page.Within("header").Should().ContainText("Page Title")
+		})
+
+		Step("assets that text is not in a page", func() {
+			page.ShouldNot().ContainText("Page Not-Title")
+			page.Within("header").ShouldNot().ContainText("Page Not-Title")
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
-			page.Within("header").Within("h1").ShouldContainText("Page Title")
+			page.Within("header").Within("h1").Should().ContainText("Page Title")
 		})
 
 		Step("allows tests to be scoped by functions", func() {
 			page.Within("header h1", Do(func(h1 Selection) {
-				h1.ShouldContainText("Page Title")
+				h1.Should().ContainText("Page Title")
 			}))
 		})
 
