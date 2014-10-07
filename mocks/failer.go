@@ -3,12 +3,27 @@ package mocks
 type Failer struct {
 	Message    string
 	CallerSkip int
+	IsAsync      bool
 }
 
-func (f *Failer) Fail(message string, callerSkip ...int) {
+func (f *Failer) Fail(message string) {
 	f.Message = message
-	if len(callerSkip) > 0 {
-		f.CallerSkip = callerSkip[0]
-	}
+
 	panic("FAILED")
+}
+
+func (f *Failer) Skip() {
+	f.CallerSkip += 1
+}
+
+func (f *Failer) UnSkip() {
+	f.CallerSkip -= 1
+}
+
+func (f *Failer) Async() {
+	f.IsAsync = true
+}
+
+func (f *Failer) Sync() {
+	f.IsAsync = false
 }

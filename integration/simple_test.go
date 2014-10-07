@@ -49,8 +49,8 @@ var _ = Feature("Agouti", func() {
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {
-//			page.Within("#some_element").ShouldNot().ContainText("some text")
-//			page.Within("#some_element").ShouldEventually().ContainText("some text")
+			page.Within("#some_element").ShouldNot().ContainText("some text")
+			page.Within("#some_element").ShouldEventually().ContainText("some text")
 		})
 
 		Step("allows clicking on a link", func() {

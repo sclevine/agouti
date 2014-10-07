@@ -13,7 +13,15 @@ type Page interface {
 
 type page struct {
 	driver driver
-	fail   func(message string, callerSkip ...int)
+	failer failer
+}
+
+type failer interface {
+	Fail(message string)
+	Skip()
+	UnSkip()
+	Async()
+	Sync()
 }
 
 type driver interface {
@@ -27,30 +35,33 @@ type callable interface {
 	Call(selection Selection)
 }
 
-func NewPage(driver driver, fail func(message string, callerSkip ...int)) Page {
-	return &page{driver, fail}
+func NewPage(driver driver, failer failer) Page {
+	return &page{driver, failer}
 }
 
 func (p *page) Navigate(url string) Page {
+	p.failer.Skip()
 	if err := p.driver.Navigate(url); err != nil {
-		p.fail("Failed to navigate: "+err.Error(), 1)
+		p.failer.Fail("Failed to navigate: "+err.Error())
 	}
 
 	return p
 }
 
 func (p *page) SetCookie(cookie webdriver.Cookie) Page {
+	p.failer.Skip()
 	if err := p.driver.SetCookie(&cookie); err != nil {
-		p.fail("Failed to set cookie: "+err.Error(), 1)
+		p.failer.Fail("Failed to set cookie: "+err.Error())
 	}
 
 	return p
 }
 
 func (p *page) URL() string {
+	p.failer.Skip()
 	url, err := p.driver.GetURL()
 	if err != nil {
-		p.fail("Failed to retrieve URL: "+err.Error(), 1)
+		p.failer.Fail("Failed to retrieve URL: "+err.Error())
 	}
 	return url
 }
@@ -65,8 +76,8 @@ func (p *page) ShouldNot() FinalSelection {
 	return body
 }
 
-func (p *page) ShouldEventually() FinalSelection { // TODO: test
-	return &async{p.body()}
+func (p *page) ShouldEventually() FinalSelection {
+	return p.body().ShouldEventually()
 }
 
 func (p *page) Within(selector string, bodies ...callable) Selection {
@@ -81,11 +92,8 @@ func (p *page) Selector() string {
 	return p.body().Selector()
 }
 
-func (p *page) ContainText(text string) {
-	p.body().ContainText(text)
-}
-
 func (p *page) Click() {
+	p.failer.Skip()
 	p.body().Click()
 }
 

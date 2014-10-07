@@ -22,7 +22,7 @@ var _ = Describe("Page", func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
-		page = NewPage(driver, failer.Fail)
+		page = NewPage(driver, failer)
 	})
 
 	Describe("#Navigate", func() {
@@ -136,17 +136,20 @@ var _ = Describe("Page", func() {
 		})
 	})
 
-	Describe("#ContainText", func() {
+	Describe("#Should", func() {
+		It("returns a final selector for the body of the page", func() {
+			Expect(page.Should().Selector()).To(Equal("body"))
+		})
+	})
+
+	Describe("#ShouldNot", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 			element.GetTextCall.ReturnText = "element text"
 		})
 
-		It("calls selection#ShouldContainText on the body of the page", func() {
-			Expect(func() { page.Should().ContainText("ment tex") }).NotTo(Panic())
+		It("inverts the selector matcher", func() {
 			Expect(func() { page.ShouldNot().ContainText("ment tex") }).To(Panic())
-
-			Expect(func() { page.Should().ContainText("banana") }).To(Panic())
 			Expect(func() { page.ShouldNot().ContainText("banana") }).NotTo(Panic())
 		})
 	})
@@ -160,6 +163,11 @@ var _ = Describe("Page", func() {
 			page.Click()
 			Expect(element.ClickCall.Called).To(BeTrue())
 			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
+		})
+
+		It("increments the caller skip", func() {
+			page.Click()
+			Expect(failer.CallerSkip).To(Equal(2))
 		})
 	})
 })

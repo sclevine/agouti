@@ -22,7 +22,13 @@ var _ = Describe("Async", func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
-		async = NewPage(driver, failer.Fail).Within("#selector").ShouldEventually()
+		async = NewPage(driver, failer).Within("#selector").ShouldEventually()
+	})
+
+	Describe("#Selector", func() {
+		It("returns the selector", func() {
+			Expect(async.Selector()).To(Equal("#selector"))
+		})
 	})
 
 	Describe("#ContainText", func() {
@@ -36,6 +42,7 @@ var _ = Describe("Async", func() {
 				go func() {
 					defer GinkgoRecover()
 					Expect(func() { async.ContainText("text") }).NotTo(Panic())
+					Expect(failer.IsAsync).To(BeTrue())
 					close(done)
 				}()
 				time.Sleep(400 * time.Millisecond)
@@ -49,7 +56,8 @@ var _ = Describe("Async", func() {
 					defer GinkgoRecover()
 					Expect(func() { async.ContainText("text") }).To(Panic())
 					Expect(failer.Message).To(Equal("After 0.5 seconds:\n FAILED"))
-					Expect(failer.CallerSkip).To(Equal(100))
+					Expect(failer.CallerSkip).To(Equal(18))
+					Expect(failer.IsAsync).To(BeFalse())
 					close(done)
 				}()
 				time.Sleep(600 * time.Millisecond)

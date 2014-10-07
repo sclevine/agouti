@@ -17,6 +17,7 @@ type Selection interface {
 
 type FinalSelection interface {
 	ContainText(text string)
+	Selector() string
 }
 
 type selection struct {
@@ -51,39 +52,46 @@ func (s *selection) Selector() string {
 }
 
 func (s *selection) ContainText(text string) {
+	s.page.failer.Skip()
 	element := s.getSingleElement()
 
 	elementText, err := element.GetText()
 	if err != nil {
-		s.page.fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", s.Selector(), err), 1)
+		s.page.failer.Fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", s.Selector(), err))
 	}
 
 	if strings.Contains(elementText, text) == s.invert {
-		s.page.fail(fmt.Sprintf("%s text '%s' for selector '%s'.\nFound: '%s'", s.prefix(), text, s.Selector(), elementText), 1)
+		s.page.failer.Fail(fmt.Sprintf("%s text '%s' for selector '%s'.\nFound: '%s'", s.prefix(), text, s.Selector(), elementText))
 	}
 }
 
 func (s *selection) Click() {
+	s.page.failer.Skip()
+
 	element := s.getSingleElement()
 
 	if err := element.Click(); err != nil {
-		s.page.fail(fmt.Sprintf("Failed to click on selector '%s': %s", s.Selector(), err), 1)
+		s.page.failer.Fail(fmt.Sprintf("Failed to click on selector '%s': %s", s.Selector(), err))
 	}
 }
 
 func (s *selection) getSingleElement() webdriver.Element {
+	s.page.failer.Skip()
+
 	selector := s.Selector()
 
 	elements, err := s.page.driver.GetElements(selector)
 	if err != nil {
-		s.page.fail(fmt.Sprintf("Failed to retrieve element with selector '%s': %s", selector, err), 2)
+		s.page.failer.Fail(fmt.Sprintf("Failed to retrieve element with selector '%s': %s", selector, err))
 	}
 	if len(elements) > 1 {
-		s.page.fail(fmt.Sprintf("Mutiple elements (%d) with selector '%s' were selected.", len(elements), selector), 2)
+		s.page.failer.Fail(fmt.Sprintf("Mutiple elements (%d) with selector '%s' were selected.", len(elements), selector))
 	}
 	if len(elements) == 0 {
-		s.page.fail(fmt.Sprintf("No element with selector '%s' found.", selector), 2)
+		s.page.failer.Fail(fmt.Sprintf("No element with selector '%s' found.", selector))
 	}
+
+	s.page.failer.UnSkip()
 	return elements[0]
 }
 

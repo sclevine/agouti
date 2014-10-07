@@ -5,6 +5,7 @@ import (
 	"github.com/sclevine/agouti/page"
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
+	"github.com/sclevine/agouti/failer"
 	"net"
 	"time"
 )
@@ -69,8 +70,9 @@ func CreatePage() Page {
 	}
 
 	driver := &webdriver.Driver{session}
+	failer := &failer.Failer{}
 
-	return Page(page.NewPage(driver, ginkgo.Fail))
+	return Page(page.NewPage(driver, failer))
 }
 
 func CreateCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) webdriver.Cookie {
