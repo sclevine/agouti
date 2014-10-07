@@ -12,8 +12,9 @@ type Selection interface {
 }
 
 type FinalSelection interface {
-	ShouldContainText(text string)
 	Selector() string
+	ShouldContainText(text string)
+	Click()
 }
 
 type selection struct {
@@ -43,6 +44,14 @@ func (s *selection) ShouldContainText(text string) {
 
 	if !strings.Contains(elementText, text) {
 		s.page.fail(fmt.Sprintf("Failed to find text '%s' for selector '%s'.\nFound: '%s'", text, s.Selector(), elementText), 1)
+	}
+}
+
+func(s *selection) Click() {
+	element := s.getSingleElement()
+
+	if err := element.Click(); err != nil {
+		s.page.fail(fmt.Sprintf("Failed to click on selector '%s': %s", s.Selector(), err), 1)
 	}
 }
 

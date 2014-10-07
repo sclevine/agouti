@@ -51,7 +51,35 @@ var _ = Describe("Element", func() {
 			It("returns an error indicating the session failed to retrieve the text", func() {
 				session.Err = errors.New("some error")
 				_, err = element.GetText()
-				Expect(err).To(MatchError("failed to retrieve text: some error"))
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Click", func() {
+		BeforeEach(func() {
+			err = element.Click()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("POST"))
+		})
+
+		It("hits the /element/:id/click endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/click"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the text", func() {
+				session.Err = errors.New("some error")
+				err = element.Click()
+				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})

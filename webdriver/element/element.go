@@ -1,7 +1,5 @@
 package element
 
-import "fmt"
-
 type Executable interface {
 	Execute(endpoint, method string, body, result interface{}) error
 }
@@ -14,7 +12,11 @@ type Element struct {
 func (e *Element) GetText() (string, error) {
 	var text string
 	if err := e.Session.Execute("element/"+e.ID+"/text", "GET", nil, &text); err != nil {
-		return "", fmt.Errorf("failed to retrieve text: %s", err)
+		return "", err
 	}
 	return text, nil
+}
+
+func (e *Element) Click() error {
+	return e.Session.Execute("element/"+e.ID+"/click", "POST", nil,  &struct{}{})
 }

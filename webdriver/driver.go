@@ -15,6 +15,7 @@ type Driver struct {
 
 type Element interface {
 	GetText() (string, error)
+	Click() error
 }
 
 type Cookie struct {

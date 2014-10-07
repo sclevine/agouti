@@ -59,6 +59,10 @@ func (p *page) ShouldContainText(text string) {
 	p.body().ShouldContainText(text)
 }
 
+func (p *page) Click() {
+	p.body().Click()
+}
+
 func (p *page) body() *selection {
 	return &selection{[]string{"body"}, p}
 }

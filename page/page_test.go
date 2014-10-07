@@ -120,13 +120,16 @@ var _ = Describe("Page", func() {
 			page.ShouldContainText("ment tex")
 			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
 		})
+	})
 
-		It("passes on contained text", func() {
-			Expect(func() { page.ShouldContainText("ment tex") }).NotTo(Panic())
+	Describe("#Click", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
-		It("fails on non-contained text", func() {
-			Expect(func() { page.ShouldContainText("banana") }).To(Panic())
+		It("calls selection#Click on the body of the page", func() {
+			page.Click()
+			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
 		})
 	})
 })

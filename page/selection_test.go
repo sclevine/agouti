@@ -145,4 +145,41 @@ var _ = Describe("Selection", func() {
 			})
 		})
 	})
+
+	Describe("#Click", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldRetrieveASingleElement(func() {
+			selection.Click()
+		})
+
+		Context("if the click fails", func() {
+			BeforeEach(func() {
+				element.ClickCall.Err = errors.New("some error")
+			})
+
+			It("fails with information about the failure", func() {
+				Expect(func() { selection.Click() }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to click on selector '#selector': some error"))
+			})
+
+			It("fails with an offset of 1", func() {
+				Expect(func() { selection.Click() }).To(Panic())
+				Expect(failer.CallerSkip).To(Equal(1))
+			})
+		})
+
+		Context("if the click succeeds", func() {
+			It("clicks on an element", func() {
+				element.Click()
+				Expect(element.ClickCall.Called).To(BeTrue())
+			})
+
+			It("does not fail the test", func() {
+				Expect(func() { selection.Click() }).NotTo(Panic())
+			})
+		})
+	})
 })
