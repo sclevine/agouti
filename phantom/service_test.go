@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -18,7 +17,7 @@ var _ = Describe("Phantom service", func() {
 	var service *Service
 
 	BeforeEach(func() {
-		service = &Service{Host: "127.0.0.1", Port: 42344, Timeout: 3 * time.Second}
+		service = &Service{Address: "127.0.0.1:42344", Timeout: 3 * time.Second}
 	})
 
 	Describe("#Start", func() {
@@ -91,9 +90,9 @@ var _ = Describe("Phantom service", func() {
 
 			Context("if the request fails", func() {
 				It("returns the request error", func() {
-					service.Port = 0
+					service.Address = "potato"
 					_, err := service.CreateSession()
-					Expect(err.Error()).To(ContainSubstring("Post http://127.0.0.1:0/session: dial tcp 127.0.0.1:0:"))
+					Expect(err.Error()).To(ContainSubstring("Post http://potato/session: dial tcp"))
 				})
 			})
 
@@ -102,7 +101,7 @@ var _ = Describe("Phantom service", func() {
 					fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 						response.Write([]byte("{}"))
 					}))
-					service.Port, _ = strconv.Atoi(strings.Split(fakeServer.URL, ":")[2])
+					service.Address = strings.Split(fakeServer.URL, "/")[2]
 					_, err := service.CreateSession()
 					Expect(err).To(MatchError("phantomjs webdriver failed to return a session ID"))
 					fakeServer.Close()

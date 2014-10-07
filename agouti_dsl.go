@@ -5,11 +5,9 @@ import (
 	"github.com/sclevine/agouti/page"
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
+	"net"
 	"time"
 )
-
-const PHANTOM_HOST = "127.0.0.1"
-const PHANTOM_PORT = 8910
 
 var phantomService *phantom.Service
 
@@ -26,11 +24,20 @@ func (f Do) Call(selection page.Selection) {
 type Cookie webdriver.Cookie
 
 func SetupAgouti() bool {
-	phantomService = &phantom.Service{Host: PHANTOM_HOST, Port: PHANTOM_PORT, Timeout: 3 * time.Second}
+	phantomService = &phantom.Service{Address: freeAddress(), Timeout: 3 * time.Second}
 	if err := phantomService.Start(); err != nil {
 		panic("Agouti failed to start phantomjs: " + err.Error())
 	}
 	return true
+}
+
+func freeAddress() string {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		panic("Agouti failed to locate a free port: " + err.Error())
+	}
+	defer listener.Close()
+	return listener.Addr().String()
 }
 
 func CleanupAgouti(ignored bool) bool {

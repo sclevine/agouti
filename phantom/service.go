@@ -14,8 +14,7 @@ import (
 )
 
 type Service struct {
-	Host    string
-	Port    int
+	Address string
 	Timeout time.Duration
 	process *os.Process
 }
@@ -25,7 +24,7 @@ func (s *Service) Start() error {
 		return errors.New("phantomjs not found")
 	}
 
-	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s:%d", s.Host, s.Port))
+	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s", s.Address))
 	command.Start()
 	s.process = command.Process
 
@@ -34,7 +33,7 @@ func (s *Service) Start() error {
 
 func (s *Service) waitForServer() error {
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", fmt.Sprintf("http://%s:%d/status", s.Host, s.Port), nil)
+	request, _ := http.NewRequest("GET", fmt.Sprintf("http://%s/status", s.Address), nil)
 
 	timeoutChan := time.After(s.Timeout)
 	failedChan := make(chan struct{}, 1)
@@ -77,7 +76,7 @@ func (s *Service) CreateSession() (*Session, error) {
 
 	client := &http.Client{}
 	postBody := strings.NewReader(`{"desiredCapabilities": {} }`)
-	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s:%d/session", s.Host, s.Port), postBody)
+	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s/session", s.Address), postBody)
 
 	response, err := client.Do(request)
 
@@ -94,6 +93,6 @@ func (s *Service) CreateSession() (*Session, error) {
 		return nil, errors.New("phantomjs webdriver failed to return a session ID")
 	}
 
-	sessionURL := fmt.Sprintf("http://%s:%d/session/%s", s.Host, s.Port, sessionResponse.SessionID)
+	sessionURL := fmt.Sprintf("http://%s/session/%s", s.Address, sessionResponse.SessionID)
 	return &Session{sessionURL}, nil
 }
