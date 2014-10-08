@@ -15,12 +15,11 @@ func (f *Failer) Fail(message string) {
 	panic("FAILED")
 }
 
-func (f *Failer) Down() bool {
+func (f *Failer) Down() {
 	f.DownCount += 1
-	return true
 }
 
-func (f *Failer) Up(ignored ...bool) {
+func (f *Failer) Up() {
 	f.UpCount += 1
 }
 

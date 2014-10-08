@@ -19,12 +19,11 @@ func (f *Failer) Fail(message string) {
 	}
 }
 
-func (f *Failer) Down() bool {
+func (f *Failer) Down() {
 	f.callerSkip += 1
-	return true
 }
 
-func (f *Failer) Up(ignored ...bool) {
+func (f *Failer) Up() {
 	f.callerSkip -= 1
 }
 

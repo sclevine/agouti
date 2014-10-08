@@ -19,8 +19,8 @@ type page struct {
 
 type failer interface {
 	Fail(message string)
-	Down() bool
-	Up(ignored ...bool)
+	Down()
+	Up()
 	Async()
 	Sync()
 	Reset()
