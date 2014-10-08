@@ -30,6 +30,21 @@ func (a *async) ContainText(text string) {
 	a.selection.failer.Reset()
 }
 
+func (a *async) HaveAttribute(attribute, value string) {
+	a.selection.failer.Async()
+	a.selection.failer.Down()
+
+	timeoutChan := time.After(a.timeout)
+	matcher := func() {
+		a.selection.failer.Down()
+		a.selection.HaveAttribute(attribute, value)
+	}
+	defer a.retry(timeoutChan, matcher)
+	matcher()
+	a.selection.failer.Sync()
+	a.selection.failer.Reset()
+}
+
 func (a *async) retry(timeoutChan <-chan time.Time, matcher func()) {
 	a.selection.failer.Down()
 

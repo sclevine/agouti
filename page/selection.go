@@ -18,6 +18,7 @@ type Selection interface {
 
 type FinalSelection interface {
 	ContainText(text string)
+	HaveAttribute(attribute, value string)
 	Selector() string
 }
 
@@ -70,6 +71,21 @@ func (s *selection) ContainText(text string) {
 
 	if strings.Contains(elementText, text) == s.invert {
 		s.failer.Fail(fmt.Sprintf("%s text '%s' for selector '%s'.\nFound: '%s'", s.prefix(), text, s.Selector(), elementText))
+	}
+	s.failer.Up()
+}
+
+func (s *selection) HaveAttribute(attribute, value string) {
+	s.failer.Down()
+	element := s.getSingleElement()
+
+	foundValue, err :=  element.GetAttribute(attribute)
+	if err != nil {
+		s.failer.Fail(fmt.Sprintf("Failed to retrieve attribute '%s' for selector '%s': %s", attribute, s.Selector(), err))
+	}
+
+	if (foundValue == value) == s.invert {
+		s.failer.Fail(fmt.Sprintf("%s attribute '%s' with value '%s' for selector '%s'.", s.prefix(), attribute, value, s.Selector()))
 	}
 	s.failer.Up()
 }

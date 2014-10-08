@@ -14,6 +14,7 @@ type Driver struct {
 
 type Element interface {
 	GetText() (string, error)
+	GetAttribute(attribute string) (string, error)
 	Click() error
 }
 

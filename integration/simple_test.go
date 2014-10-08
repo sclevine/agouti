@@ -53,6 +53,12 @@ var _ = Feature("Agouti", func() {
 			page.Within("#some_element").ShouldEventually().ContainText("some text")
 		})
 
+		Step("allows retrieving attributes by name", func() {
+			page.Within("#some_input", Do(func(input Selection) {
+				input.Should().HaveAttribute("value", "some value")
+			}))
+		})
+
 		Step("allows clicking on a link", func() {
 			page.Within("a").Click()
 			Expect(page.URL()).To(ContainSubstring("#new_page"))

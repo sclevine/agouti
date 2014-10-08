@@ -70,7 +70,49 @@ var _ = Describe("Async", func() {
 					close(done)
 				}()
 				time.Sleep(600 * time.Millisecond)
-				element.GetTextCall.ReturnText = "text"
+			})
+		})
+	})
+
+	Describe("#HaveAttribute", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			element.GetAttributeCall.ReturnValue = "some other value"
+		})
+
+		Context("if #ContainText eventually passes", func() {
+			It("passes the test", func(done Done) {
+				go func() {
+					defer GinkgoRecover()
+					Expect(func() { async.HaveAttribute("some-attribute", "some value") }).NotTo(Panic())
+					Expect(failer.DownCount).To(Equal(21))
+					Expect(failer.UpCount).To(Equal(6))
+					Expect(failer.AsyncCalled).To(BeTrue())
+					Expect(failer.SyncCalled).To(BeTrue())
+					Expect(failer.IsAsync).To(BeFalse())
+					Expect(failer.ResetCalled).To(BeTrue())
+					close(done)
+				}()
+				time.Sleep(400 * time.Millisecond)
+				element.GetAttributeCall.ReturnValue = "some value"
+			})
+		})
+
+		Context("if #ContainText never passes", func() {
+			It("fails the test", func(done Done) {
+				go func() {
+					defer GinkgoRecover()
+					Expect(func() { async.HaveAttribute("some-attribute", "some value") }).To(Panic())
+					Expect(failer.Message).To(Equal("After 500ms:\n FAILED"))
+					Expect(failer.DownCount).To(Equal(25))
+					Expect(failer.UpCount).To(Equal(6))
+					Expect(failer.AsyncCalled).To(BeTrue())
+					Expect(failer.SyncCalled).To(BeTrue())
+					Expect(failer.IsAsync).To(BeFalse())
+					Expect(failer.ResetCalled).To(BeFalse())
+					close(done)
+				}()
+				time.Sleep(600 * time.Millisecond)
 			})
 		})
 	})

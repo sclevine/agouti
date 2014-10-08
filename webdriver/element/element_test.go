@@ -56,6 +56,41 @@ var _ = Describe("Element", func() {
 		})
 	})
 
+	Describe("#GetAttribute", func() {
+		var value string
+
+		BeforeEach(func() {
+			session.Result = `"some value"`
+			value, err = element.GetAttribute("some-name")
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/attribute/:name endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/attribute/some-name"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns the value of the attribute", func() {
+				Expect(value).To(Equal("some value"))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the text", func() {
+				session.Err = errors.New("some error")
+				_, err = element.GetAttribute("some-name")
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#Click", func() {
 		BeforeEach(func() {
 			err = element.Click()

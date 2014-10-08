@@ -129,7 +129,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("when the a single element text is found", func() {
+		Context("when the a single element is found", func() {
 			Context("if the provided text is a substring of the element text", func() {
 				It("does not fail the test", func() {
 					Expect(func() { selection.Should().ContainText("ment tex") }).NotTo(Panic())
@@ -161,6 +161,70 @@ var _ = Describe("Selection", func() {
 
 				It("passes the test if inverted", func() {
 					Expect(func() { selection.ShouldNot().ContainText("banana") }).NotTo(Panic())
+				})
+			})
+		})
+	})
+
+	Describe("#HaveAttribute", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			element.GetAttributeCall.ReturnValue = "some value"
+		})
+
+		ItShouldRetrieveASingleElement(func() {
+			selection.Should().HaveAttribute("some-attribute", "some value")
+		})
+
+		Context("when the driver cannot retrieve the attribute value", func() {
+			BeforeEach(func() {
+				element.GetAttributeCall.Err = errors.New("some error")
+			})
+
+			It("fails with the selector and an error", func() {
+				Expect(func() { selection.Should().HaveAttribute("some-attribute", "some value") }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to retrieve attribute 'some-attribute' for selector '#selector': some error"))
+			})
+
+			It("fails with a net-one caller skip", func() {
+				Expect(func() { selection.Should().HaveAttribute("some-attribute", "some value") }).To(Panic())
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(1))
+			})
+		})
+
+		Context("when the a single element is found", func() {
+			Context("if the provided attribute and value are equivalent to that of the element", func() {
+				It("passes the test", func() {
+					Expect(func() { selection.Should().HaveAttribute("some-attribute", "some value") }).NotTo(Panic())
+				})
+
+				It("fails the test with information about the failure if inverted", func() {
+					Expect(func() { selection.ShouldNot().HaveAttribute("some-attribute", "some value") }).To(Panic())
+					Expect(failer.Message).To(Equal("Found attribute 'some-attribute' with value 'some value' for selector '#selector'."))
+				})
+
+				It("fails with a net-one caller skip if inverted", func() {
+					Expect(func() { selection.ShouldNot().HaveAttribute("some-attribute", "some value") }).To(Panic())
+					Expect(failer.DownCount).To(Equal(2))
+					Expect(failer.UpCount).To(Equal(1))
+				})
+			})
+
+			Context("if the provided attribute/value does not equal the element attribute/value", func() {
+				It("fails with information about the failure", func() {
+					Expect(func() { selection.Should().HaveAttribute("some-attribute", "some other value") }).To(Panic())
+					Expect(failer.Message).To(Equal("Failed to find attribute 'some-attribute' with value 'some other value' for selector '#selector'."))
+				})
+
+				It("fails with a net-one caller skip", func() {
+					Expect(func() { selection.Should().HaveAttribute("some-attribute", "some other value") }).To(Panic())
+					Expect(failer.DownCount).To(Equal(2))
+					Expect(failer.UpCount).To(Equal(1))
+				})
+
+				It("passes the test if inverted", func() {
+					Expect(func() { selection.ShouldNot().HaveAttribute("some-attribute", "some other value") }).NotTo(Panic())
 				})
 			})
 		})
