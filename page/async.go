@@ -16,29 +16,26 @@ func (a *async) Selector() string {
 }
 
 func (a *async) ContainText(text string) {
-	a.selection.failer.Async()
 	a.selection.failer.Down()
-
-	timeoutChan := time.After(a.timeout)
-	matcher := func() {
+	a.executeDeferred(func() {
 		a.selection.failer.Down()
 		a.selection.ContainText(text)
-	}
-	defer a.retry(timeoutChan, matcher)
-	matcher()
-	a.selection.failer.Sync()
-	a.selection.failer.Reset()
+	})
 }
 
 func (a *async) HaveAttribute(attribute, value string) {
+	a.selection.failer.Down()
+	a.executeDeferred(func() {
+		a.selection.failer.Down()
+		a.selection.HaveAttribute(attribute, value)
+	})
+}
+
+func (a *async) executeDeferred(matcher func()) {
 	a.selection.failer.Async()
 	a.selection.failer.Down()
 
 	timeoutChan := time.After(a.timeout)
-	matcher := func() {
-		a.selection.failer.Down()
-		a.selection.HaveAttribute(attribute, value)
-	}
 	defer a.retry(timeoutChan, matcher)
 	matcher()
 	a.selection.failer.Sync()
