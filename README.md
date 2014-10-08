@@ -55,3 +55,4 @@ Feature("Agouti", func() {
   })
 })
 ```
+For more examples, see our [integration tests](integration/simple_test.go).
