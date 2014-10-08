@@ -4,12 +4,12 @@ import (
 	"github.com/sclevine/agouti/webdriver/element"
 )
 
-type Executable interface {
-	Execute(endpoint, method string, body, result interface{}) error
+type Driver struct {
+	Session executable
 }
 
-type Driver struct {
-	Session Executable
+type executable interface {
+	Execute(endpoint, method string, body, result interface{}) error
 }
 
 type Element interface {
