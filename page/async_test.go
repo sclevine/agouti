@@ -55,7 +55,7 @@ var _ = Describe("Async", func() {
 				go func() {
 					defer GinkgoRecover()
 					Expect(func() { async.ContainText("text") }).To(Panic())
-					Expect(failer.Message).To(Equal("After 0.5 seconds:\n FAILED"))
+					Expect(failer.Message).To(Equal("After 500ms:\n FAILED"))
 					Expect(failer.CallerSkip).To(Equal(18))
 					Expect(failer.IsAsync).To(BeFalse())
 					close(done)

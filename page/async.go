@@ -35,7 +35,7 @@ func (a *async) retry(timeoutChan <-chan time.Time, matcher func()) {
 		case <-timeoutChan:
 			a.selection.page.failer.Sync()
 			a.selection.page.failer.UnSkip()
-			a.selection.page.failer.Fail(fmt.Sprintf("After 0.5 seconds:\n %s", failure))
+			a.selection.page.failer.Fail(fmt.Sprintf("After %s:\n %s", a.timeout, failure))
 		default:
 			time.Sleep(a.interval)
 			defer a.retry(timeoutChan, matcher)
