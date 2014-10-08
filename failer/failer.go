@@ -3,7 +3,7 @@ package failer
 import "github.com/onsi/ginkgo"
 
 type Failer struct {
-	async bool
+	async      bool
 	callerSkip int
 }
 

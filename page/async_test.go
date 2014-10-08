@@ -5,24 +5,24 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/webdriver"
 	"github.com/sclevine/agouti/mocks"
+	"github.com/sclevine/agouti/webdriver"
 	"time"
 )
 
 var _ = Describe("Async", func() {
 	var (
-		async FinalSelection
-		failer    *mocks.Failer
-		driver    *mocks.Driver
-		element   *mocks.Element
+		async   FinalSelection
+		failer  *mocks.Failer
+		driver  *mocks.Driver
+		element *mocks.Element
 	)
 
 	BeforeEach(func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
 		element = &mocks.Element{}
-		async = NewPage(driver, failer).Within("#selector").ShouldEventually()
+		async = NewPage(driver, failer).Within("#selector").ShouldEventually(500*time.Millisecond, 100*time.Millisecond)
 	})
 
 	Describe("#Selector", func() {

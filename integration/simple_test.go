@@ -4,9 +4,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"io/ioutil"
 )
 
 var server *httptest.Server

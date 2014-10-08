@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/sclevine/agouti/webdriver"
 	"strings"
+	"time"
 )
 
 type Selection interface {
 	Should() FinalSelection
 	ShouldNot() FinalSelection
-	ShouldEventually() FinalSelection
+	ShouldEventually(timing ...time.Duration) FinalSelection
 	Within(selector string, bodies ...callable) Selection
 	Click()
 	Selector() string
@@ -35,8 +36,14 @@ func (s *selection) ShouldNot() FinalSelection {
 	return s
 }
 
-func (s *selection) ShouldEventually() FinalSelection {
-	return &async{s}
+func (s *selection) ShouldEventually(timing ...time.Duration) FinalSelection {
+	if len(timing) > 1 {
+		return &async{s, timing[0], timing[1]}
+	} else if len(timing) == 1 {
+		return &async{s, timing[0], 100 * time.Millisecond}
+	}
+
+	return &async{s, 2 * time.Second, 100 * time.Millisecond}
 }
 
 func (s *selection) Within(selector string, bodies ...callable) Selection {

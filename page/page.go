@@ -2,6 +2,7 @@ package page
 
 import (
 	"github.com/sclevine/agouti/webdriver"
+	"time"
 )
 
 type Page interface {
@@ -42,7 +43,7 @@ func NewPage(driver driver, failer failer) Page {
 func (p *page) Navigate(url string) Page {
 	p.failer.Skip()
 	if err := p.driver.Navigate(url); err != nil {
-		p.failer.Fail("Failed to navigate: "+err.Error())
+		p.failer.Fail("Failed to navigate: " + err.Error())
 	}
 
 	return p
@@ -51,9 +52,8 @@ func (p *page) Navigate(url string) Page {
 func (p *page) SetCookie(cookie webdriver.Cookie) Page {
 	p.failer.Skip()
 	if err := p.driver.SetCookie(&cookie); err != nil {
-		p.failer.Fail("Failed to set cookie: "+err.Error())
+		p.failer.Fail("Failed to set cookie: " + err.Error())
 	}
-
 	return p
 }
 
@@ -61,7 +61,7 @@ func (p *page) URL() string {
 	p.failer.Skip()
 	url, err := p.driver.GetURL()
 	if err != nil {
-		p.failer.Fail("Failed to retrieve URL: "+err.Error())
+		p.failer.Fail("Failed to retrieve URL: " + err.Error())
 	}
 	return url
 }
@@ -76,8 +76,8 @@ func (p *page) ShouldNot() FinalSelection {
 	return body
 }
 
-func (p *page) ShouldEventually() FinalSelection {
-	return p.body().ShouldEventually()
+func (p *page) ShouldEventually(timing ...time.Duration) FinalSelection {
+	return p.body().ShouldEventually(timing...)
 }
 
 func (p *page) Within(selector string, bodies ...callable) Selection {

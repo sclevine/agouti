@@ -3,7 +3,7 @@ package mocks
 type Failer struct {
 	Message    string
 	CallerSkip int
-	IsAsync      bool
+	IsAsync    bool
 }
 
 func (f *Failer) Fail(message string) {

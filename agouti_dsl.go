@@ -2,10 +2,10 @@ package agouti
 
 import (
 	"github.com/onsi/ginkgo"
+	"github.com/sclevine/agouti/failer"
 	"github.com/sclevine/agouti/page"
 	"github.com/sclevine/agouti/phantom"
 	"github.com/sclevine/agouti/webdriver"
-	"github.com/sclevine/agouti/failer"
 	"net"
 	"time"
 )
@@ -41,7 +41,7 @@ func freeAddress() string {
 	return listener.Addr().String()
 }
 
-func CleanupAgouti(ignored... bool) bool {
+func CleanupAgouti(ignored ...bool) bool {
 	phantomService.Stop()
 	return true
 }

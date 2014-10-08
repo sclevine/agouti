@@ -1,12 +1,14 @@
 package page
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 type async struct {
 	selection *selection
+	timeout   time.Duration
+	interval  time.Duration
 }
 
 func (a *async) Selector() string {
@@ -17,7 +19,7 @@ func (a *async) ContainText(text string) {
 	a.selection.page.failer.Async()
 	a.selection.page.failer.Skip()
 
-	timeoutChan := time.After(500 * time.Millisecond)
+	timeoutChan := time.After(a.timeout)
 	matcher := func() {
 		a.selection.page.failer.Skip()
 		a.selection.ContainText(text)
@@ -35,7 +37,7 @@ func (a *async) retry(timeoutChan <-chan time.Time, matcher func()) {
 			a.selection.page.failer.UnSkip()
 			a.selection.page.failer.Fail(fmt.Sprintf("After 0.5 seconds:\n %s", failure))
 		default:
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(a.interval)
 			defer a.retry(timeoutChan, matcher)
 			matcher()
 		}
