@@ -26,13 +26,21 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Navigate", func() {
-		It("directs the driver to navigate to the provided URL", func() {
-			page.Navigate("http://example.com")
-			Expect(driver.NavigateCall.URL).To(Equal("http://example.com"))
-		})
+		Context("when the navigate succeeds", func() {
+			It("directs the driver to navigate to the provided URL", func() {
+				page.Navigate("http://example.com")
+				Expect(driver.NavigateCall.URL).To(Equal("http://example.com"))
+			})
 
-		It("returns the page", func() {
-			Expect(page.Navigate("http://example.com")).To(Equal(page))
+			It("returns the page", func() {
+				Expect(page.Navigate("http://example.com")).To(Equal(page))
+			})
+
+			It("ends with a net-zero caller skip", func() {
+				page.Navigate("http://example.com")
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(1))
+			})
 		})
 
 		Context("when the navigate fails", func() {
@@ -45,31 +53,48 @@ var _ = Describe("Page", func() {
 				Expect(failer.Message).To(Equal("Failed to navigate: some error"))
 			})
 
-			It("fails the test with an offset of 1", func() {
+			It("fails the test with an caller skip of 1", func() {
 				Expect(func() { page.Navigate("http://example.com") }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 	})
 
 	Describe("#SetCookie", func() {
-		It("instructs the driver to add the cookie to the session", func() {
-			cookie := webdriver.Cookie{
-				Name:     "theName",
-				Value:    42,
-				Path:     "/my-path",
-				Domain:   "example.com",
-				Secure:   false,
-				HTTPOnly: false,
-				Expiry:   1412358590,
-			}
+		Context("when setting the cookie succeeds", func() {
+			var cookie webdriver.Cookie
 
-			page.SetCookie(cookie)
-			Expect(driver.SetCookieCall.Cookie.Name).To(Equal("theName"))
-			Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
+			BeforeEach(func() {
+				cookie = webdriver.Cookie{
+					Name:     "theName",
+					Value:    42,
+					Path:     "/my-path",
+					Domain:   "example.com",
+					Secure:   false,
+					HTTPOnly: false,
+					Expiry:   1412358590,
+				}
+			})
+
+			It("instructs the driver to add the cookie to the session", func() {
+				page.SetCookie(cookie)
+				Expect(driver.SetCookieCall.Cookie.Name).To(Equal("theName"))
+				Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
+			})
+
+			It("returns the page", func() {
+				Expect(page.SetCookie(cookie)).To(Equal(page))
+			})
+
+			It("ends with a net-zero caller skip", func() {
+				page.SetCookie(cookie)
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(1))
+			})
 		})
 
-		Context("when the webdriver fails", func() {
+		Context("when the webdriver fails to set the cookie", func() {
 			BeforeEach(func() {
 				driver.SetCookieCall.Err = errors.New("some error")
 			})
@@ -79,14 +104,29 @@ var _ = Describe("Page", func() {
 				Expect(failer.Message).To(Equal("Failed to set cookie: some error"))
 			})
 
-			It("fails the test with an offset of 1", func() {
+			It("fails the test with a net-one caller skip", func() {
 				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 	})
 
 	Describe("#URL", func() {
+		Context("when retrieving the URL is successful", func() {
+			It("returns the URL of the current page", func() {
+				driver.GetURLCall.ReturnURL = "http://example.com"
+				url := page.URL()
+				Expect(url).To(Equal("http://example.com"))
+			})
+
+			It("ends with a net-zero caller skip", func() {
+				page.URL()
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(1))
+			})
+		})
+
 		Context("when the driver fails to retrieve the URL", func() {
 			BeforeEach(func() {
 				driver.GetURLCall.Err = errors.New("some error")
@@ -97,17 +137,10 @@ var _ = Describe("Page", func() {
 				Expect(failer.Message).To(Equal("Failed to retrieve URL: some error"))
 			})
 
-			It("fails the ", func() {
+			It("fails the test with a net-one caller skip", func() {
 				Expect(func() { page.URL() }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(1))
-			})
-		})
-
-		Context("when the driver successfully retrieves the URL", func() {
-			It("returns the URL of the current page", func() {
-				driver.GetURLCall.ReturnURL = "http://example.com"
-				url := page.URL()
-				Expect(url).To(Equal("http://example.com"))
+				Expect(failer.DownCount).To(Equal(1))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 	})
@@ -165,9 +198,10 @@ var _ = Describe("Page", func() {
 			Expect(driver.GetElementsCall.Selector).To(Equal("body"))
 		})
 
-		It("increments the caller skip", func() {
+		It("ends with a net-zero caller skip", func() {
 			page.Click()
-			Expect(failer.CallerSkip).To(Equal(2))
+			Expect(failer.DownCount).To(Equal(3))
+			Expect(failer.UpCount).To(Equal(3))
 		})
 	})
 })

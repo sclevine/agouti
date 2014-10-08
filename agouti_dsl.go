@@ -70,7 +70,7 @@ func CreatePage() Page {
 	}
 
 	driver := &webdriver.Driver{session}
-	failer := &failer.Failer{}
+	failer := &failer.Failer{FailTest: ginkgo.Fail}
 
 	return Page(page.NewPage(driver, failer))
 }

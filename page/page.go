@@ -19,10 +19,11 @@ type page struct {
 
 type failer interface {
 	Fail(message string)
-	Skip()
-	UnSkip()
+	Down() bool
+	Up(ignored ...bool)
 	Async()
 	Sync()
+	Reset()
 }
 
 type driver interface {
@@ -41,28 +42,30 @@ func NewPage(driver driver, failer failer) Page {
 }
 
 func (p *page) Navigate(url string) Page {
-	p.failer.Skip()
+	p.failer.Down()
 	if err := p.driver.Navigate(url); err != nil {
 		p.failer.Fail("Failed to navigate: " + err.Error())
 	}
-
+	p.failer.Up()
 	return p
 }
 
 func (p *page) SetCookie(cookie webdriver.Cookie) Page {
-	p.failer.Skip()
+	p.failer.Down()
 	if err := p.driver.SetCookie(&cookie); err != nil {
 		p.failer.Fail("Failed to set cookie: " + err.Error())
 	}
+	p.failer.Up()
 	return p
 }
 
 func (p *page) URL() string {
-	p.failer.Skip()
+	p.failer.Down()
 	url, err := p.driver.GetURL()
 	if err != nil {
 		p.failer.Fail("Failed to retrieve URL: " + err.Error())
 	}
+	p.failer.Up()
 	return url
 }
 
@@ -81,7 +84,7 @@ func (p *page) ShouldEventually(timing ...time.Duration) FinalSelection {
 }
 
 func (p *page) Within(selector string, bodies ...callable) Selection {
-	firstSelection := &selection{[]string{selector}, p, false}
+	firstSelection := &selection{p.driver, p.failer, []string{selector}, false}
 	for _, body := range bodies {
 		body.Call(firstSelection)
 	}
@@ -93,10 +96,11 @@ func (p *page) Selector() string {
 }
 
 func (p *page) Click() {
-	p.failer.Skip()
+	p.failer.Down()
 	p.body().Click()
+	p.failer.Up()
 }
 
 func (p *page) body() *selection {
-	return &selection{[]string{"body"}, p, false}
+	return &selection{p.driver, p.failer, []string{"body"}, false}
 }

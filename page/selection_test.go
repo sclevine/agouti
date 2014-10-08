@@ -36,9 +36,10 @@ var _ = Describe("Selection", func() {
 				Expect(failer.Message).To(Equal("Failed to retrieve element with selector '#selector': some error"))
 			})
 
-			It("fails with an offset of one", func() {
+			It("fails with a net-two caller skip", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 
@@ -52,9 +53,10 @@ var _ = Describe("Selection", func() {
 				Expect(failer.Message).To(Equal("Mutiple elements (2) with selector '#selector' were selected."))
 			})
 
-			It("fails with an offset of one", func() {
+			It("fails with a net-two caller skip", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 
@@ -68,9 +70,10 @@ var _ = Describe("Selection", func() {
 				Expect(failer.Message).To(Equal("No element with selector '#selector' found."))
 			})
 
-			It("fails with an offset of one", func() {
+			It("fails with a net-two caller skip", func() {
 				Expect(matcherCall).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(2))
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(0))
 			})
 		})
 	}
@@ -119,9 +122,10 @@ var _ = Describe("Selection", func() {
 				Expect(failer.Message).To(Equal("Failed to retrieve text for selector '#selector': some error"))
 			})
 
-			It("fails with an offset of one", func() {
+			It("fails with a net-one caller skip", func() {
 				Expect(func() { selection.Should().ContainText("text") }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(1))
 			})
 		})
 
@@ -136,9 +140,10 @@ var _ = Describe("Selection", func() {
 					Expect(failer.Message).To(Equal("Found text 'ment tex' for selector '#selector'.\nFound: 'element text'"))
 				})
 
-				It("fails with an offset of 1 if inverted", func() {
+				It("fails with a net-one caller skip if inverted", func() {
 					Expect(func() { selection.ShouldNot().ContainText("ment tex") }).To(Panic())
-					Expect(failer.CallerSkip).To(Equal(1))
+					Expect(failer.DownCount).To(Equal(2))
+					Expect(failer.UpCount).To(Equal(1))
 				})
 			})
 
@@ -148,9 +153,10 @@ var _ = Describe("Selection", func() {
 					Expect(failer.Message).To(Equal("Failed to find text 'banana' for selector '#selector'.\nFound: 'element text'"))
 				})
 
-				It("fails with an offset of 1", func() {
+				It("fails with a net-one caller skip", func() {
 					Expect(func() { selection.Should().ContainText("banana") }).To(Panic())
-					Expect(failer.CallerSkip).To(Equal(1))
+					Expect(failer.DownCount).To(Equal(2))
+					Expect(failer.UpCount).To(Equal(1))
 				})
 
 				It("passes the test if inverted", func() {
@@ -179,9 +185,10 @@ var _ = Describe("Selection", func() {
 				Expect(failer.Message).To(Equal("Failed to click on selector '#selector': some error"))
 			})
 
-			It("fails with an offset of 1", func() {
+			It("fails with a net-one caller skip", func() {
 				Expect(func() { selection.Click() }).To(Panic())
-				Expect(failer.CallerSkip).To(Equal(1))
+				Expect(failer.DownCount).To(Equal(2))
+				Expect(failer.UpCount).To(Equal(1))
 			})
 		})
 
