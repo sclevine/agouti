@@ -1,11 +1,11 @@
 package webdriver
 
 import (
+	"bytes"
+	"encoding/base64"
 	"github.com/sclevine/agouti/webdriver/element"
 	"github.com/sclevine/agouti/webdriver/window"
 	"io"
-	"bytes"
-	"encoding/base64"
 )
 
 type Driver struct {
@@ -64,7 +64,7 @@ func (d *Driver) GetElements(selector string) ([]Element, error) {
 	return elements, nil
 }
 
-func(d *Driver) GetWindow() (Window, error) {
+func (d *Driver) GetWindow() (Window, error) {
 	var ID string
 
 	if err := d.Session.Execute("window_handle", "GET", nil, &ID); err != nil {
@@ -73,11 +73,11 @@ func(d *Driver) GetWindow() (Window, error) {
 	return &window.Window{ID, d.Session}, nil
 }
 
-func(d *Driver) GetScreenshot() (io.Reader, error) {
+func (d *Driver) GetScreenshot() (io.Reader, error) {
 	var imageBuffer bytes.Buffer
 	var base64Image string
 	var imageBytes []byte
-    var err error
+	var err error
 
 	if err = d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
 		return nil, err

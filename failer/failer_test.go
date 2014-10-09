@@ -9,11 +9,10 @@ import (
 
 var _ = Describe("Failer", func() {
 	var (
-		failer *Failer
-		failMessage string
+		failer         *Failer
+		failMessage    string
 		failCallerSkip int
 	)
-
 
 	BeforeEach(func() {
 		failer = &Failer{FailTest: func(message string, callerSkip ...int) {

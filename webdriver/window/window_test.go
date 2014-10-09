@@ -3,15 +3,15 @@ package window_test
 import (
 	. "github.com/sclevine/agouti/webdriver/window"
 
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
-	"errors"
 )
 
 var _ = Describe("Window", func() {
 	var (
-		window *Window
+		window  *Window
 		session *mocks.Session
 		err     error
 	)
@@ -24,7 +24,7 @@ var _ = Describe("Window", func() {
 	Describe("#SetSize", func() {
 		BeforeEach(func() {
 			session.Result = `"text is unimportant"`
-			err = window.SetSize(640,480)
+			err = window.SetSize(640, 480)
 		})
 
 		It("makes a POST request", func() {
@@ -48,7 +48,7 @@ var _ = Describe("Window", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the text", func() {
 				session.Err = errors.New("some error")
-				err = window.SetSize(640,480)
+				err = window.SetSize(640, 480)
 				Expect(err).To(MatchError("some error"))
 			})
 		})

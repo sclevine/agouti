@@ -82,7 +82,7 @@ func (p *page) Size(height, width int) {
 
 	p.failer.Up()
 
-	err = window.SetSize(640,480)
+	err = window.SetSize(640, 480)
 	if err != nil {
 		p.failer.Fail("Failed to re-size the window: " + err.Error())
 	}

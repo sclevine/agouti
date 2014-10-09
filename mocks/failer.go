@@ -33,7 +33,6 @@ func (f *Failer) Sync() {
 	f.SyncCalled = true
 }
 
-
 func (f *Failer) Reset() {
 	f.ResetCalled = true
 }

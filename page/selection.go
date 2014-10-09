@@ -79,7 +79,7 @@ func (s *selection) HaveAttribute(attribute, value string) {
 	s.failer.Down()
 	element := s.getSingleElement()
 
-	foundValue, err :=  element.GetAttribute(attribute)
+	foundValue, err := element.GetAttribute(attribute)
 	if err != nil {
 		s.failer.Fail(fmt.Sprintf("Failed to retrieve attribute '%s' for selector '%s': %s", attribute, s.Selector(), err))
 	}

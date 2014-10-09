@@ -7,9 +7,9 @@ type Element struct {
 	}
 
 	GetAttributeCall struct {
-		Attribute    string
-		ReturnValue     string
-		Err        		error
+		Attribute   string
+		ReturnValue string
+		Err         error
 	}
 
 	ClickCall struct {

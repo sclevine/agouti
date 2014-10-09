@@ -68,9 +68,9 @@ var _ = Describe("Page", func() {
 			driver.GetWindowCall.ReturnWindow = window
 		})
 
-		Context("when the size setting succeeds", func () {
+		Context("when the size setting succeeds", func() {
 			It("sizes the window correctly", func() {
-				page.Size(640,480)
+				page.Size(640, 480)
 				Expect(window.SizeCall.Width).To(Equal(480))
 				Expect(window.SizeCall.Height).To(Equal(640))
 			})
@@ -82,7 +82,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("should fail the test", func() {
-				Expect(func() { page.Size(640,480) }).To(Panic())
+				Expect(func() { page.Size(640, 480) }).To(Panic())
 				Expect(failer.Message).To(Equal("Failed to get a window: some error"))
 			})
 		})
@@ -93,7 +93,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("should fail the test", func() {
-				Expect(func() { page.Size(640,480) }).To(Panic())
+				Expect(func() { page.Size(640, 480) }).To(Panic())
 				Expect(failer.Message).To(Equal("Failed to re-size the window: some error"))
 			})
 		})

@@ -42,7 +42,7 @@ func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
 	return d.GetElementsCall.ReturnElements, d.GetElementsCall.Err
 }
 
-func(d *Driver) GetWindow() (webdriver.Window, error) {
+func (d *Driver) GetWindow() (webdriver.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 

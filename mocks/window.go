@@ -2,9 +2,9 @@ package mocks
 
 type Window struct {
 	SizeCall struct {
-	  Width  int
-	  Height int
-	  Err error
+		Width  int
+		Height int
+		Err    error
 	}
 }
 

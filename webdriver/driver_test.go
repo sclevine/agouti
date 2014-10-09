@@ -4,11 +4,11 @@ import (
 	. "github.com/sclevine/agouti/webdriver"
 
 	"errors"
-	"io"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
 	"github.com/sclevine/agouti/webdriver/element"
+	"io"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -214,7 +214,6 @@ var _ = Describe("Webdriver", func() {
 				})
 			})
 		})
-
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to add the cookie", func() {
