@@ -1,4 +1,4 @@
-package failer_test
+package matchers_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestFailer(t *testing.T) {
+func TestMatchers(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Failer Suite")
+	RunSpecs(t, "Matchers Suite")
 }

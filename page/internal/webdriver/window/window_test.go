@@ -1,12 +1,12 @@
 package window_test
 
 import (
-	. "github.com/sclevine/agouti/webdriver/window"
+	. "github.com/sclevine/agouti/page/internal/webdriver/window"
 
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/mocks"
+	"github.com/sclevine/agouti/internal/mocks"
 )
 
 var _ = Describe("Window", func() {

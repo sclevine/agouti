@@ -18,14 +18,14 @@ package your_project_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti"
+	. "github.com/sclevine/agouti/page"
 
 	"testing"
 )
 
 func TestYourProject(t *testing.T) {
 	RegisterFailHandler(Fail)
-	defer CleanupAgouti(SetupAgouti())
+	defer StopPhantom(StartPhantom())
 	RunSpecs(t, "Your Project Suite")
 }
 ```
@@ -33,26 +33,48 @@ func TestYourProject(t *testing.T) {
 Example:
 
 ```Go
-import . "github.com/sclevine/agouti"
+import (
+	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/dsl"
+	. "github.com/sclevine/agouti/matchers"
+)
 
 ...
 
 Feature("Agouti", func() {
-  Scenario("Loads some page", func() {
-    page := CreatePage().Navigate("http://example.com/")
+	Scenario("Loading a page with a cookie and clicking", func() {
+		page := CreatePage()
+		page.Size(640, 480)
+		page.Navigate(server.URL)
+		page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
 
-    Step("finds a title", func() {
-      page.Within("header").Within("h1").Should().ContainText("Page Title")
-    })
+		Step("finds text in a page", func() {
+			Expect(page.Find("header")).To(ContainText("Page Title"))
+		})
 
-    Within("#some-element", Do(func(someElement Selection) {
-      someElement.Within("p").Should().ContainText("Foo")
+		Step("asserts that text is not in a page", func() {
+			Expect(page).NotTo(ContainText("Page Not-Title"))
+			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
+		})
 
-      Step("and finds more text", func() {
-        someElement.Within("[role=moreText]").Should().ContainText("Bar")
-      })
-    }))
-  })
+		Step("allows tests to be scoped by chaining", func() {
+			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
+		})
+
+		Step("allows assertions that wait for matchers to be true", func() {
+			Expect(page.Find("#some_element")).NotTo(ContainText("some text"))
+			Eventually(page.Find("#some_element")).Should(ContainText("some text"))
+			Consistently(page.Find("#some_element")).Should(ContainText("some text"))
+		})
+
+		Step("allows retrieving attributes by name", func() {
+			Expect(page.Find("#some_input")).To(HaveAttribute("value", "some value"))
+		})
+
+		Step("allows clicking on a link", func() {
+			page.Find("a").Click()
+			Expect(page.URL()).To(ContainSubstring("#new_page"))
+		})
+	})
 })
 ```
-For more examples, see our [integration tests](integration/simple_test.go).

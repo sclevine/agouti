@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/sclevine/agouti/webdriver"
+	"github.com/sclevine/agouti/page/internal/webdriver"
 )
 
 type Driver struct {

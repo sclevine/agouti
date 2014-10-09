@@ -3,8 +3,8 @@ package webdriver
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/sclevine/agouti/webdriver/element"
-	"github.com/sclevine/agouti/webdriver/window"
+	"github.com/sclevine/agouti/page/internal/webdriver/element"
+	"github.com/sclevine/agouti/page/internal/webdriver/window"
 	"io"
 )
 
@@ -101,7 +101,7 @@ func (d *Driver) DeleteAllCookies() error {
 }
 
 func (d *Driver) DeleteCookie(cookieName string) error {
-	return d.Session.Execute("cookie/" + cookieName, "DELETE", nil, &struct{}{})
+	return d.Session.Execute("cookie/"+cookieName, "DELETE", nil, &struct{}{})
 }
 
 func (d *Driver) GetURL() (string, error) {

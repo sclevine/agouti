@@ -1,0 +1,33 @@
+package matchers_test
+
+import (
+	"github.com/sclevine/agouti/internal/mocks"
+	. "github.com/sclevine/agouti/matchers"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Matchers", func() {
+	var selection *mocks.Selection
+
+	BeforeEach(func() {
+		selection = &mocks.Selection{}
+	})
+
+	Describe("#ContainText", func() {
+		It("calls the selection#ContainText matcher", func() {
+			selection.TextCall.ReturnText = "some text"
+			Expect(selection).To(ContainText("some text"))
+			Expect(selection).NotTo(ContainText("some other text"))
+		})
+	})
+
+	Describe("#HaveAttribute", func() {
+		It("calls the selection#ContainText matcher", func() {
+			selection.AttributeCall.ReturnValue = "some value"
+			Expect(selection).To(HaveAttribute("some-attribute", "some value"))
+			Expect(selection).NotTo(HaveAttribute("some-attribute", "some other value"))
+		})
+	})
+})

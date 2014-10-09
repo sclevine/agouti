@@ -2,127 +2,81 @@ package page
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/webdriver"
+	"github.com/sclevine/agouti/page/internal/webdriver"
 	"strings"
-	"time"
 )
 
 type Selection interface {
-	Should() FinalSelection
-	ShouldNot() FinalSelection
-	ShouldEventually(timing ...time.Duration) FinalSelection
-	Within(selector string, bodies ...callable) Selection
-	Click()
+	Find(selector string) Selection
 	Selector() string
-}
-
-type FinalSelection interface {
-	ContainText(text string)
-	HaveAttribute(attribute, value string)
-	Selector() string
+	Click() error
+	Text() (string, error)
+	Attribute(attribute string) (string, error)
 }
 
 type selection struct {
 	driver    driver
-	failer    failer
 	selectors []string
-	invert    bool
 }
 
-func (s *selection) Should() FinalSelection {
-	return s
-}
-
-func (s *selection) ShouldNot() FinalSelection {
-	s.invert = true
-	return s
-}
-
-func (s *selection) ShouldEventually(timing ...time.Duration) FinalSelection {
-	if len(timing) > 1 {
-		return &async{s, timing[0], timing[1]}
-	} else if len(timing) == 1 {
-		return &async{s, timing[0], 100 * time.Millisecond}
-	}
-
-	return &async{s, 2 * time.Second, 100 * time.Millisecond}
-}
-
-func (s *selection) Within(selector string, bodies ...callable) Selection {
-	subSelection := &selection{s.driver, s.failer, append(s.selectors, selector), false}
-	for _, body := range bodies {
-		body.Call(subSelection)
-	}
-	return subSelection
+func (s *selection) Find(selector string) Selection {
+	return &selection{s.driver, append(s.selectors, selector)}
 }
 
 func (s *selection) Selector() string {
 	return strings.Join(s.selectors, " ")
 }
 
-func (s *selection) ContainText(text string) {
-	s.failer.Down()
-	element := s.getSingleElement()
-
-	elementText, err := element.GetText()
+func (s *selection) Click() error {
+	element, err := s.getSingleElement()
 	if err != nil {
-		s.failer.Fail(fmt.Sprintf("Failed to retrieve text for selector '%s': %s", s.Selector(), err))
+		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
 	}
-
-	if strings.Contains(elementText, text) == s.invert {
-		s.failer.Fail(fmt.Sprintf("%s text '%s' for selector '%s'.\nFound: '%s'", s.prefix(), text, s.Selector(), elementText))
-	}
-	s.failer.Up()
-}
-
-func (s *selection) HaveAttribute(attribute, value string) {
-	s.failer.Down()
-	element := s.getSingleElement()
-
-	foundValue, err := element.GetAttribute(attribute)
-	if err != nil {
-		s.failer.Fail(fmt.Sprintf("Failed to retrieve attribute '%s' for selector '%s': %s", attribute, s.Selector(), err))
-	}
-
-	if (foundValue == value) == s.invert {
-		s.failer.Fail(fmt.Sprintf("%s attribute '%s' with value '%s' for selector '%s'.", s.prefix(), attribute, value, s.Selector()))
-	}
-	s.failer.Up()
-}
-
-func (s *selection) Click() {
-	s.failer.Down()
-	element := s.getSingleElement()
 
 	if err := element.Click(); err != nil {
-		s.failer.Fail(fmt.Sprintf("Failed to click on selector '%s': %s", s.Selector(), err))
+		return fmt.Errorf("failed to click on selector '%s': %s", s.Selector(), err)
 	}
-	s.failer.Up()
+	return nil
 }
 
-func (s *selection) getSingleElement() webdriver.Element {
-	s.failer.Down()
-	selector := s.Selector()
-
-	elements, err := s.driver.GetElements(selector)
+func (s *selection) Text() (string, error) {
+	element, err := s.getSingleElement()
 	if err != nil {
-		s.failer.Fail(fmt.Sprintf("Failed to retrieve element with selector '%s': %s", selector, err))
+		return "", fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	text, err := element.GetText()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve text for selector '%s': %s", s.Selector(), err)
+	}
+	return text, nil
+}
+
+func (s *selection) Attribute(attribute string) (string, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	value, err := element.GetAttribute(attribute)
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve attribute value for selector '%s': %s", s.Selector(), err)
+	}
+	return value, nil
+}
+
+func (s *selection) getSingleElement() (webdriver.Element, error) {
+	elements, err := s.driver.GetElements(s.Selector())
+
+	if err != nil {
+		return nil, err
 	}
 	if len(elements) > 1 {
-		s.failer.Fail(fmt.Sprintf("Mutiple elements (%d) with selector '%s' were selected.", len(elements), selector))
+		return nil, fmt.Errorf("mutiple elements (%d) were selected", len(elements))
 	}
 	if len(elements) == 0 {
-		s.failer.Fail(fmt.Sprintf("No element with selector '%s' found.", selector))
+		return nil, fmt.Errorf("no element found")
 	}
-	s.failer.Up()
 
-	return elements[0]
-}
-
-func (s *selection) prefix() string {
-	if s.invert {
-		return "Found"
-	} else {
-		return "Failed to find"
-	}
+	return elements[0], nil
 }

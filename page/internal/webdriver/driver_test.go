@@ -1,13 +1,13 @@
 package webdriver_test
 
 import (
-	. "github.com/sclevine/agouti/webdriver"
+	. "github.com/sclevine/agouti/page/internal/webdriver"
 
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/mocks"
-	"github.com/sclevine/agouti/webdriver/element"
+	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/page/internal/webdriver/element"
 	"io"
 )
 
@@ -246,26 +246,26 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the sesssion indicates a success", func() {
 			Context("and the string is properly base64 encoded", func() {
-				It("it returns a reader that is not empty", func() {
+				It("returns a reader that is not empty", func() {
 					Expect(reader).ToNot(BeNil())
 				})
 
-				It("doesn't return an error", func() {
+				It("does not return an error", func() {
 					Expect(err).To(BeNil())
 				})
 			})
 
-			Context("and the string is no properly base64 encoded", func() {
+			Context("when the image is not properly base64 encoded", func() {
 				BeforeEach(func() {
 					session.Result = `"sd.mfng;lsdfglksdfglksjdfg"`
 					reader, err = driver.GetScreenshot()
 				})
 
-				It("it returns a reader that is not empty", func() {
+				It("returns a reader that is not empty", func() {
 					Expect(reader).To(BeNil())
 				})
 
-				It("doesn't return an error", func() {
+				It("does not return an error", func() {
 					Expect(err).To(HaveOccurred())
 				})
 			})

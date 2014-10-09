@@ -1,4 +1,4 @@
-package page_test
+package dsl_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestPage(t *testing.T) {
+func TestDsl(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Page Suite")
+	RunSpecs(t, "DSL Suite")
 }

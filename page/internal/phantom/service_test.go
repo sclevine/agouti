@@ -1,7 +1,7 @@
 package phantom_test
 
 import (
-	. "github.com/sclevine/agouti/phantom"
+	. "github.com/sclevine/agouti/page/internal/phantom"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
