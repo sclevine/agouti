@@ -96,6 +96,14 @@ func (d *Driver) SetCookie(cookie *Cookie) error {
 	return d.Session.Execute("cookie", "POST", request, &struct{}{})
 }
 
+func (d *Driver) DeleteAllCookies() error {
+	return d.Session.Execute("cookie", "DELETE", nil, &struct{}{})
+}
+
+func (d *Driver) DeleteCookie(cookieName string) error {
+	return d.Session.Execute("cookie/" + cookieName, "DELETE", nil, &struct{}{})
+}
+
 func (d *Driver) GetURL() (string, error) {
 	var url string
 	if err := d.Session.Execute("url", "GET", nil, &url); err != nil {

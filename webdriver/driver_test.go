@@ -172,6 +172,62 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
+	Describe("#DeleteAllCookies", func() {
+		BeforeEach(func() {
+			err = driver.DeleteAllCookies()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("DELETE"))
+		})
+
+		It("hits the /cookie endpoint", func() {
+			Expect(session.Endpoint).To(Equal("cookie"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to add the cookie", func() {
+				session.Err = errors.New("some error")
+				err = driver.DeleteAllCookies()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DeleteCookie", func() {
+		BeforeEach(func() {
+			err = driver.DeleteCookie("myCookie")
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("DELETE"))
+		})
+
+		It("hits the /cookie/:name endpoint", func() {
+			Expect(session.Endpoint).To(Equal("cookie/myCookie"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to add the cookie", func() {
+				session.Err = errors.New("some error")
+				err = driver.DeleteCookie("myCookie")
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetScreenshot", func() {
 		var reader io.Reader
 
