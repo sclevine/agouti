@@ -96,6 +96,37 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
+	Describe("#GetWindow", func() {
+		var myWindow Window
+
+		BeforeEach(func() {
+			session.Result = `"a window"`
+			myWindow, err = driver.GetWindow()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /url endpoint", func() {
+			Expect(session.Endpoint).To(Equal("window_handle"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the elements", func() {
+				session.Err = errors.New("some error")
+				_, err = driver.GetWindow()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#SetCookie", func() {
 		var cookie *Cookie
 

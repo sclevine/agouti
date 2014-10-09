@@ -1,6 +1,8 @@
 package mocks
 
-import "github.com/sclevine/agouti/webdriver"
+import (
+	"github.com/sclevine/agouti/webdriver"
+)
 
 type Driver struct {
 	NavigateCall struct {
@@ -12,6 +14,11 @@ type Driver struct {
 		Selector       string
 		ReturnElements []webdriver.Element
 		Err            error
+	}
+
+	GetWindowCall struct {
+	    ReturnWindow webdriver.Window
+		Err error
 	}
 
 	SetCookieCall struct {
@@ -33,6 +40,10 @@ func (d *Driver) Navigate(url string) error {
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
 	d.GetElementsCall.Selector = selector
 	return d.GetElementsCall.ReturnElements, d.GetElementsCall.Err
+}
+
+func(d *Driver) GetWindow() (webdriver.Window, error) {
+	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 
 func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {

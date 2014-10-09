@@ -9,6 +9,7 @@ type Page interface {
 	Navigate(url string) Page
 	SetCookie(cookie webdriver.Cookie) Page
 	URL() string
+	Size(height, width int)
 	Selection
 }
 
@@ -29,6 +30,7 @@ type failer interface {
 type driver interface {
 	Navigate(url string) error
 	GetElements(selector string) ([]webdriver.Element, error)
+	GetWindow() (webdriver.Window, error)
 	SetCookie(cookie *webdriver.Cookie) error
 	GetURL() (string, error)
 }
@@ -67,6 +69,22 @@ func (p *page) URL() string {
 	}
 	p.failer.Up()
 	return url
+}
+
+func (p *page) Size(height, width int) {
+	p.failer.Down()
+
+	window, err := p.driver.GetWindow()
+	if err != nil {
+		p.failer.Fail("Failed to get a window: " + err.Error())
+	}
+
+	p.failer.Up()
+
+	err = window.SetSize(640,480)
+	if err != nil {
+		p.failer.Fail("Failed to re-size the window: " + err.Error())
+	}
 }
 
 func (p *page) Should() FinalSelection {

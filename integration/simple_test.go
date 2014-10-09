@@ -27,10 +27,15 @@ var _ = Feature("Agouti", func() {
 		cookie := CreateCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
 		page := CreatePage()
 		page.Navigate(server.URL).SetCookie(cookie)
+		page.Size(640,480)
 
 		Step("finds text in a page", func() {
 			page.Should().ContainText("Page Title")
 			page.Within("header").Should().ContainText("Page Title")
+		})
+
+		Step("takes a screenshot of text on the page", func() {
+//			page.Screenshot("/Desktop")
 		})
 
 		Step("asserts that text is not in a page", func() {

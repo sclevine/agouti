@@ -16,11 +16,13 @@ var _ = Describe("Page", func() {
 		failer  *mocks.Failer
 		driver  *mocks.Driver
 		element *mocks.Element
+		window  *mocks.Window
 	)
 
 	BeforeEach(func() {
 		driver = &mocks.Driver{}
 		failer = &mocks.Failer{}
+		window = &mocks.Window{}
 		element = &mocks.Element{}
 		page = NewPage(driver, failer)
 	})
@@ -57,6 +59,42 @@ var _ = Describe("Page", func() {
 				Expect(func() { page.Navigate("http://example.com") }).To(Panic())
 				Expect(failer.DownCount).To(Equal(1))
 				Expect(failer.UpCount).To(Equal(0))
+			})
+		})
+	})
+
+	Describe("#Size", func() {
+		BeforeEach(func() {
+			driver.GetWindowCall.ReturnWindow = window
+		})
+
+		Context("when the size setting succeeds", func () {
+			It("sizes the window correctly", func() {
+				page.Size(640,480)
+				Expect(window.SizeCall.Width).To(Equal(480))
+				Expect(window.SizeCall.Height).To(Equal(640))
+			})
+		})
+
+		Context("when you fail to get a window", func() {
+			BeforeEach(func() {
+				driver.GetWindowCall.Err = errors.New("some error")
+			})
+
+			It("should fail the test", func() {
+				Expect(func() { page.Size(640,480) }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to get a window: some error"))
+			})
+		})
+
+		Context("when you fail to size the window returned", func() {
+			BeforeEach(func() {
+				window.SizeCall.Err = errors.New("some error")
+			})
+
+			It("should fail the test", func() {
+				Expect(func() { page.Size(640,480) }).To(Panic())
+				Expect(failer.Message).To(Equal("Failed to re-size the window: some error"))
 			})
 		})
 	})

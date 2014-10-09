@@ -2,6 +2,7 @@ package webdriver
 
 import (
 	"github.com/sclevine/agouti/webdriver/element"
+	"github.com/sclevine/agouti/webdriver/window"
 )
 
 type Driver struct {
@@ -16,6 +17,10 @@ type Element interface {
 	GetText() (string, error)
 	GetAttribute(attribute string) (string, error)
 	Click() error
+}
+
+type Window interface {
+	SetSize(height, width int) error
 }
 
 type Cookie struct {
@@ -54,6 +59,15 @@ func (d *Driver) GetElements(selector string) ([]Element, error) {
 	}
 
 	return elements, nil
+}
+
+func(d *Driver) GetWindow() (Window, error) {
+	var ID string
+
+	if err := d.Session.Execute("window_handle", "GET", nil, &ID); err != nil {
+		return nil, err
+	}
+	return &window.Window{ID, d.Session}, nil
 }
 
 func (d *Driver) SetCookie(cookie *Cookie) error {
