@@ -74,23 +74,18 @@ func (d *Driver) GetWindow() (Window, error) {
 }
 
 func (d *Driver) GetScreenshot() (io.Reader, error) {
-	var imageBuffer bytes.Buffer
 	var base64Image string
-	var imageBytes []byte
-	var err error
 
-	if err = d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
+	if err := d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
 		return nil, err
 	}
 
-	imageBytes, err = base64.StdEncoding.DecodeString(base64Image)
+	imageBytes, err := base64.StdEncoding.DecodeString(base64Image)
 	if err != nil {
 		return nil, err
 	}
 
-	// NOTE not checking error here, this is just a buffer write
-	imageBuffer.Write(imageBytes)
-	return &imageBuffer, nil
+	return bytes.NewBuffer(imageBytes), nil
 }
 
 func (d *Driver) SetCookie(cookie *Cookie) error {
