@@ -22,8 +22,6 @@ func (f Do) Call(selection page.Selection) {
 	f(selection)
 }
 
-type Cookie webdriver.Cookie
-
 func SetupAgouti() bool {
 	phantomService = &phantom.Service{Address: freeAddress(), Timeout: 3 * time.Second}
 	if err := phantomService.Start(); err != nil {
@@ -73,8 +71,4 @@ func CreatePage() Page {
 	failer := &failer.Failer{FailTest: ginkgo.Fail}
 
 	return Page(page.NewPage(driver, failer))
-}
-
-func CreateCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) webdriver.Cookie {
-	return webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
 }

@@ -101,32 +101,22 @@ var _ = Describe("Page", func() {
 
 	Describe("#SetCookie", func() {
 		Context("when setting the cookie succeeds", func() {
-			var cookie webdriver.Cookie
+			var cookiePage Page
 
 			BeforeEach(func() {
-				cookie = webdriver.Cookie{
-					Name:     "theName",
-					Value:    42,
-					Path:     "/my-path",
-					Domain:   "example.com",
-					Secure:   false,
-					HTTPOnly: false,
-					Expiry:   1412358590,
-				}
+				cookiePage = page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
 			})
 
 			It("instructs the driver to add the cookie to the session", func() {
-				page.SetCookie(cookie)
 				Expect(driver.SetCookieCall.Cookie.Name).To(Equal("theName"))
 				Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
 			})
 
 			It("returns the page", func() {
-				Expect(page.SetCookie(cookie)).To(Equal(page))
+				Expect(cookiePage).To(Equal(page))
 			})
 
 			It("ends with a net-zero caller skip", func() {
-				page.SetCookie(cookie)
 				Expect(failer.DownCount).To(Equal(1))
 				Expect(failer.UpCount).To(Equal(1))
 			})
@@ -138,12 +128,12 @@ var _ = Describe("Page", func() {
 			})
 
 			It("fails the test with the propagated URL", func() {
-				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
+				Expect(func() { page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590) }).To(Panic())
 				Expect(failer.Message).To(Equal("Failed to set cookie: some error"))
 			})
 
 			It("fails the test with a net-one caller skip", func() {
-				Expect(func() { page.SetCookie(webdriver.Cookie{}) }).To(Panic())
+				Expect(func() { page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590) }).To(Panic())
 				Expect(failer.DownCount).To(Equal(1))
 				Expect(failer.UpCount).To(Equal(0))
 			})

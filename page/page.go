@@ -7,7 +7,7 @@ import (
 
 type Page interface {
 	Navigate(url string) Page
-	SetCookie(cookie webdriver.Cookie) Page
+	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) Page
 	URL() string
 	Size(height, width int)
 	Selection
@@ -52,7 +52,8 @@ func (p *page) Navigate(url string) Page {
 	return p
 }
 
-func (p *page) SetCookie(cookie webdriver.Cookie) Page {
+func (p *page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) Page {
+	cookie := webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
 	p.failer.Down()
 	if err := p.driver.SetCookie(&cookie); err != nil {
 		p.failer.Fail("Failed to set cookie: " + err.Error())
