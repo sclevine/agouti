@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"time"
 )
 
 var server *httptest.Server
@@ -45,7 +46,7 @@ var _ = Feature("Agouti", func() {
 
 		Step("allows assertions that wait for matchers to be true", func() {
 			Expect(page.Find("#some_element")).NotTo(ContainText("some text"))
-			Eventually(page.Find("#some_element")).Should(ContainText("some text"))
+			Eventually(page.Find("#some_element"), 4*time.Second).Should(ContainText("some text"))
 			Consistently(page.Find("#some_element")).Should(ContainText("some text"))
 		})
 
