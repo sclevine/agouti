@@ -3,6 +3,9 @@ package webdriver
 import (
 	"github.com/sclevine/agouti/webdriver/element"
 	"github.com/sclevine/agouti/webdriver/window"
+	"io"
+	"bytes"
+	"encoding/base64"
 )
 
 type Driver struct {
@@ -68,6 +71,26 @@ func(d *Driver) GetWindow() (Window, error) {
 		return nil, err
 	}
 	return &window.Window{ID, d.Session}, nil
+}
+
+func(d *Driver) GetScreenshot() (io.Reader, error) {
+	var imageBuffer bytes.Buffer
+	var base64Image string
+	var imageBytes []byte
+    var err error
+
+	if err = d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
+		return nil, err
+	}
+
+	imageBytes, err = base64.StdEncoding.DecodeString(base64Image)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE not checking error here, this is just a buffer write
+	imageBuffer.Write(imageBytes)
+	return &imageBuffer, nil
 }
 
 func (d *Driver) SetCookie(cookie *Cookie) error {

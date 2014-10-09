@@ -4,6 +4,7 @@ import (
 	. "github.com/sclevine/agouti/webdriver"
 
 	"errors"
+	"io"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/mocks"
@@ -166,6 +167,59 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the page failed to add the cookie", func() {
 				session.Err = errors.New("some error")
 				err = driver.SetCookie(cookie)
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetScreenshot", func() {
+		var reader io.Reader
+
+		BeforeEach(func() {
+			session.Result = `"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg=="`
+			reader, err = driver.GetScreenshot()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /screenshot endpoint", func() {
+			Expect(session.Endpoint).To(Equal("screenshot"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			Context("and the string is properly base64 encoded", func() {
+				It("it returns a reader that is not empty", func() {
+					Expect(reader).ToNot(BeNil())
+				})
+
+				It("doesn't return an error", func() {
+					Expect(err).To(BeNil())
+				})
+			})
+
+			Context("and the string is no properly base64 encoded", func() {
+				BeforeEach(func() {
+					session.Result = `"sd.mfng;lsdfglksdfglksjdfg"`
+					reader, err = driver.GetScreenshot()
+				})
+
+				It("it returns a reader that is not empty", func() {
+					Expect(reader).To(BeNil())
+				})
+
+				It("doesn't return an error", func() {
+					Expect(err).To(HaveOccurred())
+				})
+			})
+		})
+
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to add the cookie", func() {
+				session.Err = errors.New("some error")
+				_, err = driver.GetScreenshot()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

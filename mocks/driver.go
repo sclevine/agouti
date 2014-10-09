@@ -17,8 +17,8 @@ type Driver struct {
 	}
 
 	GetWindowCall struct {
-	    ReturnWindow webdriver.Window
-		Err error
+		ReturnWindow webdriver.Window
+		Err          error
 	}
 
 	SetCookieCall struct {
