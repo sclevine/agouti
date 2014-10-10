@@ -69,7 +69,7 @@ type Page interface {
 func CreatePage() Page {
 	page, err := page.PhantomPage()
 	if err != nil {
-		ginkgo.Fail(err.Error())
+		ginkgo.Fail(err.Error(), 1)
 	}
 
 	return page

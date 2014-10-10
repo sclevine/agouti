@@ -30,7 +30,7 @@ type Element struct {
 
 	ValueCall struct {
 		Text string
-		Err    error
+		Err  error
 	}
 }
 

@@ -83,7 +83,6 @@ func (s *Service) CreateSession() (*Session, error) {
 	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s/session", s.Address), postBody)
 
 	response, err := client.Do(request)
-
 	if err != nil {
 		return nil, err
 	}
