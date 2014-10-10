@@ -284,6 +284,13 @@ var _ = Describe("Page", func() {
 			})
 		})
 
+		Describe("#Check", func() {
+			It("calls selection#Check() on the body of the page", func() {
+				element.ClickCall.Err = errors.New("some error")
+				Expect(page.Check()).To(MatchError("selector 'body' does not refer to a checkbox"))
+			})
+		})
+
 		Describe("#Text", func() {
 			It("calls selection#Text() on the body of the page", func() {
 				element.GetTextCall.Err = errors.New("some error")
@@ -305,6 +312,14 @@ var _ = Describe("Page", func() {
 				element.GetCSSCall.Err = errors.New("some error")
 				_, err := page.CSS("some-property")
 				Expect(err).To(MatchError("failed to retrieve CSS property for selector 'body': some error"))
+			})
+		})
+
+		Describe("#Selected", func() {
+			It("calls selection#Selected() on the body of the page", func() {
+				element.SelectedCall.Err = errors.New("some error")
+				_, err := page.Selected()
+				Expect(err).To(MatchError("failed to determine whether selector 'body' is selected: some error"))
 			})
 		})
 	})

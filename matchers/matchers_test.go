@@ -38,4 +38,13 @@ var _ = Describe("Matchers", func() {
 			Expect(selection).NotTo(HaveCSS("some-property", "some other value"))
 		})
 	})
+
+	Describe("#BeSelected", func() {
+		It("calls the selection#BeSelected matcher", func() {
+			selection.SelectedCall.ReturnSelected = true
+			Expect(selection).To(BeSelected())
+			selection.SelectedCall.ReturnSelected = false
+			Expect(selection).NotTo(BeSelected())
+		})
+	})
 })

@@ -23,6 +23,7 @@ type Element interface {
 	Click() error
 	Clear() error
 	Value(text string) error
+	Selected() (bool, error)
 }
 
 type Window interface {

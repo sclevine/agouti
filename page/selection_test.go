@@ -144,6 +144,89 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Check", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			return selection.Check()
+		})
+
+		It("checks the type of the checkbox", func() {
+			selection.Check()
+			Expect(element.GetAttributeCall.Attribute).To(Equal("type"))
+		})
+
+		Context("when the the driver fails to retrieve the 'type' attribute", func() {
+			BeforeEach(func() {
+				element.GetAttributeCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(selection.Check()).To(MatchError("failed to retrieve type of selector '#selector': some error"))
+			})
+		})
+
+		Context("when the selection is not a checkbox", func() {
+			BeforeEach(func() {
+				element.GetAttributeCall.ReturnValue = "banana"
+			})
+
+			It("returns an error", func() {
+				Expect(selection.Check()).To(MatchError("selector '#selector' does not refer to a checkbox"))
+			})
+		})
+
+		Context("when the selection is a checkbox", func() {
+			BeforeEach(func() {
+				element.GetAttributeCall.ReturnValue = "checkbox"
+			})
+
+			Context("when the determining the selected status of the element fails", func() {
+				BeforeEach(func() {
+					element.SelectedCall.Err = errors.New("some error")
+				})
+
+				It("returns an error", func() {
+					Expect(selection.Check()).To(MatchError("failed to retrieve selected state of selector '#selector': some error"))
+				})
+			})
+
+			Context("when the box is already checked", func() {
+				BeforeEach(func() {
+					element.SelectedCall.ReturnSelected = true
+				})
+
+				It("does not click on the checkbox", func() {
+					selection.Check()
+					Expect(element.ClickCall.Called).To(BeFalse())
+				})
+			})
+
+			Context("when the box is not checked", func() {
+				BeforeEach(func() {
+					element.SelectedCall.ReturnSelected = false
+				})
+
+				It("clicks on the checkbox", func() {
+					selection.Check()
+					Expect(element.ClickCall.Called).To(BeTrue())
+				})
+
+				Context("when clicking on the checkbox fails", func() {
+					BeforeEach(func() {
+						element.ClickCall.Err = errors.New("some error")
+					})
+
+					It("returns an error", func() {
+						Expect(selection.Check()).To(MatchError("failed to check selector '#selector': some error"))
+					})
+				})
+			})
+		})
+	})
+
 	Describe("#Text", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
@@ -257,6 +340,44 @@ var _ = Describe("Selection", func() {
 
 			It("does not return an error", func() {
 				_, err := selection.CSS("some-property")
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("#Selected", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.Selected()
+			return err
+		})
+
+		Context("if the the driver fails to retrieve the element's selected status", func() {
+			It("returns an error", func() {
+				element.SelectedCall.Err = errors.New("some error")
+				_, err := selection.Selected()
+				Expect(err).To(MatchError("failed to determine whether selector '#selector' is selected: some error"))
+			})
+		})
+
+		Context("if the driver succeeds in retrieving the element's selected status", func() {
+			It("returns the selected status when selected", func() {
+				element.SelectedCall.ReturnSelected = true
+				value, _ := selection.Selected()
+				Expect(value).To(BeTrue())
+			})
+
+			It("returns the selected status when not selected", func() {
+				element.SelectedCall.ReturnSelected = false
+				value, _ := selection.Selected()
+				Expect(value).To(BeFalse())
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.Selected()
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

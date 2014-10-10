@@ -32,6 +32,11 @@ type Element struct {
 		Text string
 		Err  error
 	}
+
+	SelectedCall struct {
+		ReturnSelected bool
+		Err            error
+	}
 }
 
 func (e *Element) GetText() (string, error) {
@@ -61,4 +66,8 @@ func (e *Element) Clear() error {
 func (e *Element) Value(text string) error {
 	e.ValueCall.Text = text
 	return e.ValueCall.Err
+}
+
+func (e *Element) Selected() (bool, error) {
+	return e.SelectedCall.ReturnSelected, e.SelectedCall.Err
 }

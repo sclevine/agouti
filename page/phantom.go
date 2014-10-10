@@ -41,7 +41,7 @@ func StopPhantom(startErr ...error) {
 func PhantomPage() (*Page, error) {
 	session, err := phantomService.CreateSession()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate PhantomJS page: ", err.Error())
+		return nil, fmt.Errorf("failed to generate PhantomJS page: %s", err)
 	}
 
 	driver := &webdriver.Driver{session}

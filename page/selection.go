@@ -14,6 +14,8 @@ type Selection interface {
 	Text() (string, error)
 	Attribute(attribute string) (string, error)
 	CSS(property string) (string, error)
+	Check() error
+	Selected() (bool, error)
 }
 
 type selection struct {
@@ -57,6 +59,35 @@ func (s *selection) Fill(text string) error {
 	return nil
 }
 
+func (s *selection) Check() error {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	elementType, err := element.GetAttribute("type")
+	if err != nil {
+		return fmt.Errorf("failed to retrieve type of selector '%s': %s", s.Selector(), err)
+	}
+
+	if elementType != "checkbox" {
+		return fmt.Errorf("selector '%s' does not refer to a checkbox", s.Selector())
+	}
+
+	selected, err := element.Selected()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve selected state of selector '%s': %s", s.Selector(), err)
+	}
+
+	if !selected {
+		if err := element.Click(); err != nil {
+			return fmt.Errorf("failed to check selector '%s': %s", s.Selector(), err)
+		}
+	}
+
+	return nil
+}
+
 func (s *selection) Text() (string, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
@@ -94,6 +125,20 @@ func (s *selection) CSS(property string) (string, error) {
 		return "", fmt.Errorf("failed to retrieve CSS property for selector '%s': %s", s.Selector(), err)
 	}
 	return value, nil
+}
+
+func (s *selection) Selected() (bool, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	selected, err := element.Selected()
+	if err != nil {
+		return false, fmt.Errorf("failed to determine whether selector '%s' is selected: %s", s.Selector(), err)
+	}
+
+	return selected, nil
 }
 
 func (s *selection) getSingleElement() (webdriver.Element, error) {

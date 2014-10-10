@@ -16,3 +16,7 @@ func HaveAttribute(attribute string, value string) types.GomegaMatcher {
 func HaveCSS(property string, value string) types.GomegaMatcher {
 	return &selection.HaveCSSMatcher{ExpectedProperty: property, ExpectedValue: value}
 }
+
+func BeSelected() types.GomegaMatcher {
+	return &selection.BeSelectedMatcher{}
+}

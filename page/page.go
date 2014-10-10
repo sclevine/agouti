@@ -118,6 +118,10 @@ func (p *Page) Click() error {
 	return p.body().Click()
 }
 
+func (p *Page) Check() error {
+	return p.body().Check()
+}
+
 func (p *Page) Fill(text string) error {
 	return p.body().Fill(text)
 }
@@ -132,6 +136,10 @@ func (p *Page) Attribute(attribute string) (string, error) {
 
 func (p *Page) CSS(property string) (string, error) {
 	return p.body().CSS(property)
+}
+
+func (p *Page) Selected() (bool, error) {
+	return p.body().Selected()
 }
 
 func (p *Page) body() *selection {

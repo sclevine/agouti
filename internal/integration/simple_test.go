@@ -30,7 +30,7 @@ var _ = Feature("Agouti", func() {
 		page.Size(640, 480)
 		page.Navigate(server.URL)
 		page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
-		page.SetCookie("AnotherSillyCookie", "WOW", "/my-path", "example.com", false, false, 1412358590)
+		page.SetCookie("some-other-name", "WOW", "/my-path", "example.com", false, false, 1412358590)
 
 		Step("finds text in a page", func() {
 			Expect(page.Find("header")).To(ContainText("Page Title"))
@@ -71,6 +71,12 @@ var _ = Feature("Agouti", func() {
 		Step("allows clicking on a link", func() {
 			page.Find("a").Click()
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
+		})
+
+		Step("allows checking a checkbox", func() {
+			checkbox := page.Find("#some_checkbox")
+			checkbox.Check()
+			Expect(checkbox).To(BeSelected())
 		})
 
 		XStep("this step doesn't run", func() {

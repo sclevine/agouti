@@ -48,7 +48,7 @@ var _ = Describe("HaveCSS", func() {
 					selection.CSSCall.ReturnValue = "some other value"
 				})
 
-				It("returns true", func() {
+				It("returns false", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 				})

@@ -213,4 +213,39 @@ var _ = Describe("Element", func() {
 			})
 		})
 	})
+
+	Describe("#Selected", func() {
+		var value bool
+
+		BeforeEach(func() {
+			session.Result = `true`
+			value, err = element.Selected()
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/selected endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/selected"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns the selected status", func() {
+				Expect(value).To(BeTrue())
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the selected status", func() {
+				session.Err = errors.New("some error")
+				_, err = element.Selected()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })
