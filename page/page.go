@@ -14,6 +14,8 @@ type driver interface {
 	GetElements(selector string) ([]webdriver.Element, error)
 	GetWindow() (webdriver.Window, error)
 	SetCookie(cookie *webdriver.Cookie) error
+	DeleteCookie(name string) error
+	DeleteAllCookies() error
 	GetURL() (string, error)
 }
 
@@ -28,6 +30,20 @@ func (p *Page) SetCookie(name string, value interface{}, path, domain string, se
 	cookie := webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
 	if err := p.Driver.SetCookie(&cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) DeleteCookieByName(name string) error {
+	if err := p.Driver.DeleteCookie(name); err != nil {
+		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
+	}
+	return nil
+}
+
+func (p *Page) ClearCookies() error {
+	if err := p.Driver.DeleteAllCookies(); err != nil {
+		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }

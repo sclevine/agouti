@@ -30,19 +30,27 @@ var _ = Feature("Agouti", func() {
 		page.Size(640, 480)
 		page.Navigate(server.URL)
 		page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
+		page.SetCookie("AnotherSillyCookie", "WOW", "/my-path", "example.com", false, false, 1412358590)
 
 		Step("finds text in a page", func() {
 			Expect(page.Find("header")).To(ContainText("Page Title"))
 		})
 
+		//NOTE later we delete a cookie
+		page.DeleteCookieByName("theName")
+
 		Step("asserts that text is not in a page", func() {
 			Expect(page).NotTo(ContainText("Page Not-Title"))
 			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
+			// page.TakeScreenshot()
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
 			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
 		})
+
+		//Now lets delete all of our cookies
+		page.ClearCookies()
 
 		Step("allows assertions that wait for matchers to be true", func() {
 			Expect(page.Find("#some_element")).NotTo(ContainText("some text"))

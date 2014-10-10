@@ -33,7 +33,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("returns nil", func() {
-				Expect(page.Navigate("http://example.com")).To(BeNil())
+				Expect(page.Navigate("http://example.com")).ToNot(HaveOccurred())
 			})
 		})
 
@@ -58,7 +58,7 @@ var _ = Describe("Page", func() {
 		Context("when setting the cookie succeeds", func() {
 			It("returns nil", func() {
 				err := page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 
@@ -67,6 +67,50 @@ var _ = Describe("Page", func() {
 				driver.SetCookieCall.Err = errors.New("some error")
 				err := page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
 				Expect(err).To(MatchError("failed to set cookie: some error"))
+			})
+		})
+	})
+
+	Describe("#DeleteCookieByName", func() {
+		It("instructs the driver to delete a named cookie", func() {
+			page.DeleteCookieByName("theName")
+			Expect(driver.DeleteCookieCall.Name).To(Equal("theName"))
+		})
+
+		Context("when deleteing the named cookie succeeds", func() {
+			It("returns nil", func() {
+				err := page.DeleteCookieByName("theName")
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when deleting the named cookie fails", func() {
+			It("returns an error", func() {
+				driver.DeleteCookieCall.Err = errors.New("some error")
+				err := page.DeleteCookieByName("theName")
+				Expect(err).To(MatchError("failed to delete cookie theName: some error"))
+			})
+		})
+	})
+
+	Describe("#ClearCookies", func() {
+		It("instructs the driver to delete all cookies", func() {
+			page.ClearCookies()
+			Expect(driver.DeleteAllCookiesCall.WasCalled).To(BeTrue())
+		})
+
+		Context("when deleteing all cookies succeeds", func() {
+			It("returns nil", func() {
+				err := page.ClearCookies()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when deleting all cookies fails", func() {
+			It("returns an error", func() {
+				driver.DeleteAllCookiesCall.Err = errors.New("some error")
+				err := page.ClearCookies()
+				Expect(err).To(MatchError("failed to clear cookies: some error"))
 			})
 		})
 	})
@@ -88,7 +132,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 
@@ -114,7 +158,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(page.Size(640, 480)).To(BeNil())
+				Expect(page.Size(640, 480)).ToNot(HaveOccurred())
 			})
 		})
 

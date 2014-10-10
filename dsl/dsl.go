@@ -27,6 +27,8 @@ func Step(description string, bodies ...func()) {
 type Page interface {
 	Navigate(url string) error
 	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
+	DeleteCookieByName(name string) error
+	ClearCookies() error
 	URL() (string, error)
 	Size(height, width int) error
 	page.Selection
