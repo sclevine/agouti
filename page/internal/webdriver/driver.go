@@ -21,6 +21,8 @@ type Element interface {
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
 	Click() error
+	Clear() error
+	Value(text string) error
 }
 
 type Window interface {

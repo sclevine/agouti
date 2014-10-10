@@ -37,6 +37,10 @@ func (s *Selection) Click() error {
 	return nil
 }
 
+func (s *Selection) Fill(text string) error {
+	return nil
+}
+
 func (s *Selection) Text() (string, error) {
 	return s.TextCall.ReturnText, s.TextCall.Err
 }

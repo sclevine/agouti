@@ -10,6 +10,7 @@ type Selection interface {
 	Find(selector string) Selection
 	Selector() string
 	Click() error
+	Fill(text string) error
 	Text() (string, error)
 	Attribute(attribute string) (string, error)
 	CSS(property string) (string, error)
@@ -36,6 +37,22 @@ func (s *selection) Click() error {
 
 	if err := element.Click(); err != nil {
 		return fmt.Errorf("failed to click on selector '%s': %s", s.Selector(), err)
+	}
+	return nil
+}
+
+func (s *selection) Fill(text string) error {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	if err := element.Clear(); err != nil {
+		return fmt.Errorf("failed to clear selector '%s': %s", s.Selector(), err)
+	}
+
+	if err := element.Value(text); err != nil {
+		return fmt.Errorf("failed to enter text into selector '%s': %s", s.Selector(), err)
 	}
 	return nil
 }

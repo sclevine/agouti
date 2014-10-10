@@ -98,6 +98,52 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Fill", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			return selection.Fill("some text")
+		})
+
+		Context("if clearing the element fails", func() {
+			BeforeEach(func() {
+				element.ClearCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(selection.Fill("some text")).To(MatchError("failed to clear selector '#selector': some error"))
+			})
+		})
+
+		Context("if entering text into the element fails", func() {
+			BeforeEach(func() {
+				element.ValueCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into selector '#selector': some error"))
+			})
+		})
+
+		Context("if the fill succeeds", func() {
+			It("clears the element", func() {
+				selection.Fill("some text")
+				Expect(element.ClearCall.Called).To(BeTrue())
+			})
+
+			It("fills the element with the provided text", func() {
+				selection.Fill("some text")
+				Expect(element.ValueCall.Text).To(Equal("some text"))
+			})
+
+			It("returns nil", func() {
+				Expect(selection.Fill("some text")).To(BeNil())
+			})
+		})
+	})
+
 	Describe("#Text", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}

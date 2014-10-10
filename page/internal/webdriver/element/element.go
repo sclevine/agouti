@@ -1,6 +1,9 @@
 package element
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Element struct {
 	ID      string
@@ -37,6 +40,18 @@ func (e *Element) GetCSS(property string) (string, error) {
 
 func (e *Element) Click() error {
 	return e.Session.Execute(e.url()+"/click", "POST", nil, &struct{}{})
+}
+
+func (e *Element) Clear() error {
+	return e.Session.Execute(e.url()+"/clear", "POST", nil, &struct{}{})
+}
+
+func (e *Element) Value(text string) error {
+	splitText := strings.Split(text, "")
+	request := struct {
+		Value []string `json:"value"`
+	}{splitText}
+	return e.Session.Execute(e.url()+"/value", "POST", request, &struct{}{})
 }
 
 func (e *Element) url() string {

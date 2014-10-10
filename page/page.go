@@ -81,6 +81,10 @@ func (p *Page) Click() error {
 	return p.body().Click()
 }
 
+func (p *Page) Fill(text string) error {
+	return p.body().Fill(text)
+}
+
 func (p *Page) Text() (string, error) {
 	return p.body().Text()
 }

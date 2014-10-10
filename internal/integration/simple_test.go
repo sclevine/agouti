@@ -55,8 +55,12 @@ var _ = Feature("Agouti", func() {
 			Consistently(page.Find("#some_element")).Should(ContainText("some text"))
 		})
 
+		Step("allows entering values into fields", func() {
+			page.Find("#some_input").Fill("some other value")
+		})
+
 		Step("allows retrieving attributes by name", func() {
-			Expect(page.Find("#some_input")).To(HaveAttribute("value", "some value"))
+			Expect(page.Find("#some_input")).To(HaveAttribute("value", "some other value"))
 		})
 
 		Step("allows asserting on whether a CSS style exists", func() {

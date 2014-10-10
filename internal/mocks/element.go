@@ -22,6 +22,16 @@ type Element struct {
 		Called bool
 		Err    error
 	}
+
+	ClearCall struct {
+		Called bool
+		Err    error
+	}
+
+	ValueCall struct {
+		Text string
+		Err    error
+	}
 }
 
 func (e *Element) GetText() (string, error) {
@@ -41,4 +51,14 @@ func (e *Element) GetCSS(property string) (string, error) {
 func (e *Element) Click() error {
 	e.ClickCall.Called = true
 	return e.ClickCall.Err
+}
+
+func (e *Element) Clear() error {
+	e.ClearCall.Called = true
+	return e.ClearCall.Err
+}
+
+func (e *Element) Value(text string) error {
+	e.ValueCall.Text = text
+	return e.ValueCall.Err
 }

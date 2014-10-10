@@ -146,9 +146,69 @@ var _ = Describe("Element", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the session failed to retrieve the text", func() {
+			It("returns an error indicating the session failed to click", func() {
 				session.Err = errors.New("some error")
 				err = element.Click()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Clear", func() {
+		BeforeEach(func() {
+			err = element.Clear()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("POST"))
+		})
+
+		It("hits the /element/:id/clear endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/clear"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to clear the field", func() {
+				session.Err = errors.New("some error")
+				err = element.Clear()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Value", func() {
+		BeforeEach(func() {
+			err = element.Value("text")
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("POST"))
+		})
+
+		It("hits the /element/:id/click endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/value"))
+		})
+
+		It("includes the text to enter in the request body", func() {
+			Expect(session.BodyJSON).To(MatchJSON(`{"value": ["t", "e", "x", "t"]}`))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to enter the text", func() {
+				session.Err = errors.New("some error")
+				err = element.Value("text")
 				Expect(err).To(MatchError("some error"))
 			})
 		})

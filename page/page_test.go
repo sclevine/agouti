@@ -207,6 +207,13 @@ var _ = Describe("Page", func() {
 			})
 		})
 
+		Describe("#Fill", func() {
+			It("calls selection#Fill() with text on the body of the page", func() {
+				element.ValueCall.Err = errors.New("some error")
+				Expect(page.Fill("some text")).To(MatchError("failed to enter text into selector 'body': some error"))
+			})
+		})
+
 		Describe("#Text", func() {
 			It("calls selection#Text() on the body of the page", func() {
 				element.GetTextCall.Err = errors.New("some error")
