@@ -17,7 +17,7 @@ var _ = Describe("ContainTextMatcher", func() {
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.SelectorCall.ReturnSelector = "#selector"
-		matcher = &ContainTextMatcher{"some text"}
+		matcher = &ContainTextMatcher{ExpectedText: "some text"}
 	})
 
 	Describe("#Match", func() {
@@ -66,20 +66,20 @@ var _ = Describe("ContainTextMatcher", func() {
 	Describe("#FailureMessage", func() {
 		It("return a failure message", func() {
 			selection.TextCall.ReturnText = "some other text"
+			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("to have text matching"))
-			Expect(message).To(ContainSubstring("<string>: some text"))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' to have text matching\n    some text"))
+			Expect(message).To(ContainSubstring("but found\n    some other text"))
 		})
 	})
 
 	Describe("#NegatedFailureMessage", func() {
 		It("return a negated failure message", func() {
-			selection.TextCall.ReturnText = "some other text"
+			selection.TextCall.ReturnText = "some text"
+			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("not to have text matching"))
-			Expect(message).To(ContainSubstring("<string>: some text"))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' not to have text matching\n    some text"))
+			Expect(message).To(ContainSubstring("but found\n    some text"))
 		})
 	})
 })

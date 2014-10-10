@@ -8,6 +8,7 @@ import (
 
 type ContainTextMatcher struct {
 	ExpectedText string
+	actualText   string
 }
 
 func (m *ContainTextMatcher) Match(actual interface{}) (success bool, err error) {
@@ -16,20 +17,19 @@ func (m *ContainTextMatcher) Match(actual interface{}) (success bool, err error)
 		return false, fmt.Errorf("ContainText matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	actualText, err := actualPage.Text()
+	m.actualText, err = actualPage.Text()
 	if err != nil {
 		return false, err
 	}
 
-	return actualText == m.ExpectedText, nil
+	return m.actualText == m.ExpectedText, nil
 }
 
 func (m *ContainTextMatcher) FailureMessage(actual interface{}) (message string) {
-	actualSelector := Selector(actual.(page.Selection).Selector())
-	return format.Message(actualSelector, "to have text matching", m.ExpectedText)
+	return selectorMessage(actual, "to have text matching", m.ExpectedText, m.actualText)
+
 }
 
 func (m *ContainTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	actualSelector := Selector(actual.(page.Selection).Selector())
-	return format.Message(actualSelector, "not to have text matching", m.ExpectedText)
+	return selectorMessage(actual, "not to have text matching", m.ExpectedText, m.actualText)
 }

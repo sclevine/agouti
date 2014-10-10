@@ -6,13 +6,13 @@ import (
 )
 
 func ContainText(text string) types.GomegaMatcher {
-	return &selection.ContainTextMatcher{text}
+	return &selection.ContainTextMatcher{ExpectedText: text}
 }
 
 func HaveAttribute(attribute string, value string) types.GomegaMatcher {
-	return &selection.HaveAttributeMatcher{attribute, value}
+	return &selection.HaveAttributeMatcher{ExpectedAttribute: attribute, ExpectedValue: value}
 }
 
 func HaveCSS(property string, value string) types.GomegaMatcher {
-	return &selection.HaveCSSMatcher{property, value}
+	return &selection.HaveCSSMatcher{ExpectedProperty: property, ExpectedValue: value}
 }

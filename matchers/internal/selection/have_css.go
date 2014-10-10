@@ -9,6 +9,7 @@ import (
 type HaveCSSMatcher struct {
 	ExpectedProperty string
 	ExpectedValue    string
+	actualValue      string
 }
 
 func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
@@ -17,24 +18,22 @@ func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
 		return false, fmt.Errorf("HaveCSS matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	actualValue, err := actualPage.CSS(m.ExpectedProperty)
+	m.actualValue, err = actualPage.CSS(m.ExpectedProperty)
 	if err != nil {
 		return false, err
 	}
 
-	return actualValue == m.ExpectedValue, nil
+	return m.actualValue == m.ExpectedValue, nil
 }
 
 func (m *HaveCSSMatcher) FailureMessage(actual interface{}) (message string) {
-	actualSelector := Selector(actual.(page.Selection).Selector())
-	return format.Message(actualSelector, "to have CSS matching", m.style())
+	return selectorMessage(actual, "to have CSS matching", m.style(m.ExpectedValue), m.style(m.actualValue))
 }
 
 func (m *HaveCSSMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	actualSelector := Selector(actual.(page.Selection).Selector())
-	return format.Message(actualSelector, "not to have CSS matching", m.style())
+	return selectorMessage(actual, "not to have CSS matching", m.style(m.ExpectedValue), m.style(m.actualValue))
 }
 
-func (m *HaveCSSMatcher) style() string {
-	return fmt.Sprintf(`%s: "%s"`, m.ExpectedProperty, m.ExpectedValue)
+func (m *HaveCSSMatcher) style(value string) string {
+	return fmt.Sprintf(`%s: "%s"`, m.ExpectedProperty, value)
 }

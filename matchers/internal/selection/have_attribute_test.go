@@ -17,7 +17,7 @@ var _ = Describe("HaveAttributeMatcher", func() {
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.SelectorCall.ReturnSelector = "#selector"
-		matcher = &HaveAttributeMatcher{"some-attribute", "some value"}
+		matcher = &HaveAttributeMatcher{ExpectedAttribute: "some-attribute", ExpectedValue: "some value"}
 	})
 
 	Describe("#Match", func() {
@@ -71,20 +71,20 @@ var _ = Describe("HaveAttributeMatcher", func() {
 	Describe("#FailureMessage", func() {
 		It("return a failure message", func() {
 			selection.AttributeCall.ReturnValue = "some other value"
+			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("to have attribute matching"))
-			Expect(message).To(ContainSubstring(`<string>: [some-attribute="some value"]`))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' to have attribute matching\n    [some-attribute=\"some value\"]"))
+			Expect(message).To(ContainSubstring("but found\n    [some-attribute=\"some other value\"]"))
 		})
 	})
 
 	Describe("#NegatedFailureMessage", func() {
 		It("return a negated failure message", func() {
-			selection.AttributeCall.ReturnValue = "some other value"
+			selection.AttributeCall.ReturnValue = "some value"
+			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("not to have attribute matching"))
-			Expect(message).To(ContainSubstring(`<string>: [some-attribute="some value"]`))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' not to have attribute matching\n    [some-attribute=\"some value\"]"))
+			Expect(message).To(ContainSubstring("but found\n    [some-attribute=\"some value\"]"))
 		})
 	})
 })

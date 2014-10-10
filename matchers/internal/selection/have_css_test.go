@@ -17,7 +17,7 @@ var _ = Describe("HaveCSS", func() {
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.SelectorCall.ReturnSelector = "#selector"
-		matcher = &HaveCSSMatcher{"some-property", "some value"}
+		matcher = &HaveCSSMatcher{ExpectedProperty: "some-property", ExpectedValue: "some value"}
 	})
 
 	Describe("#Match", func() {
@@ -71,20 +71,20 @@ var _ = Describe("HaveCSS", func() {
 	Describe("#FailureMessage", func() {
 		It("return a failure message", func() {
 			selection.CSSCall.ReturnValue = "some other value"
+			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("to have CSS matching"))
-			Expect(message).To(ContainSubstring(`<string>: some-property: "some value"`))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' to have CSS matching\n    some-property: \"some value\""))
+			Expect(message).To(ContainSubstring("but found\n    some-property: \"some other value\""))
 		})
 	})
 
 	Describe("#NegatedFailureMessage", func() {
 		It("return a negated failure message", func() {
-			selection.CSSCall.ReturnValue = "some other value"
+			selection.CSSCall.ReturnValue = "some value"
+			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
-			Expect(message).To(ContainSubstring("not to have CSS matching"))
-			Expect(message).To(ContainSubstring(`<string>: some-property: "some value"`))
+			Expect(message).To(ContainSubstring("Expected selection '#selector' not to have CSS matching\n    some-property: \"some value\""))
+			Expect(message).To(ContainSubstring("but found\n    some-property: \"some value\""))
 		})
 	})
 })
