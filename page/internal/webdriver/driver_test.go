@@ -133,7 +133,7 @@ var _ = Describe("Webdriver", func() {
 
 		BeforeEach(func() {
 			cookie = &Cookie{
-				Name:     "theName",
+				Name:     "some-name",
 				Value:    42,
 				Path:     "/my-path",
 				Domain:   "example.com",
@@ -154,7 +154,7 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("includes the cookie to add in the request body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"cookie":{"name":"theName","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`))
+			Expect(session.BodyJSON).To(MatchJSON(`{"cookie":{"name":"some-name","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`))
 		})
 
 		Context("when the sesssion indicates a success", func() {

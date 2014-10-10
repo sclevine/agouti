@@ -34,7 +34,7 @@ func (p *Page) SetCookie(name string, value interface{}, path, domain string, se
 	return nil
 }
 
-func (p *Page) DeleteCookieByName(name string) error {
+func (p *Page) DeleteCookie(name string) error {
 	if err := p.Driver.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}

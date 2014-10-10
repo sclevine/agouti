@@ -29,14 +29,14 @@ var _ = Feature("Agouti", func() {
 		page := CreatePage()
 		page.Size(640, 480)
 		page.Navigate(server.URL)
-		page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
+		page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
 		page.SetCookie("AnotherSillyCookie", "WOW", "/my-path", "example.com", false, false, 1412358590)
 
 		Step("finds text in a page", func() {
 			Expect(page.Find("header")).To(ContainText("Page Title"))
 		})
 
-		page.DeleteCookieByName("theName")
+		page.DeleteCookie("some-name")
 
 		Step("asserts that text is not in a page", func() {
 			Expect(page).NotTo(ContainText("Page Not-Title"))

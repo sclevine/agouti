@@ -50,14 +50,14 @@ var _ = Describe("Page", func() {
 
 	Describe("#SetCookie", func() {
 		It("instructs the driver to add the cookie to the session", func() {
-			page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
-			Expect(driver.SetCookieCall.Cookie.Name).To(Equal("theName"))
+			page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
+			Expect(driver.SetCookieCall.Cookie.Name).To(Equal("some-name"))
 			Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
 		})
 
 		Context("when setting the cookie succeeds", func() {
 			It("returns nil", func() {
-				err := page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
+				err := page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
@@ -65,21 +65,21 @@ var _ = Describe("Page", func() {
 		Context("when the driver fails to set the cookie", func() {
 			It("returns an error", func() {
 				driver.SetCookieCall.Err = errors.New("some error")
-				err := page.SetCookie("theName", 42, "/my-path", "example.com", false, false, 1412358590)
+				err := page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
 				Expect(err).To(MatchError("failed to set cookie: some error"))
 			})
 		})
 	})
 
-	Describe("#DeleteCookieByName", func() {
+	Describe("#DeleteCookie", func() {
 		It("instructs the driver to delete a named cookie", func() {
-			page.DeleteCookieByName("theName")
-			Expect(driver.DeleteCookieCall.Name).To(Equal("theName"))
+			page.DeleteCookie("some-name")
+			Expect(driver.DeleteCookieCall.Name).To(Equal("some-name"))
 		})
 
 		Context("when deleteing the named cookie succeeds", func() {
 			It("returns nil", func() {
-				err := page.DeleteCookieByName("theName")
+				err := page.DeleteCookie("some-name")
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
@@ -87,8 +87,8 @@ var _ = Describe("Page", func() {
 		Context("when deleting the named cookie fails", func() {
 			It("returns an error", func() {
 				driver.DeleteCookieCall.Err = errors.New("some error")
-				err := page.DeleteCookieByName("theName")
-				Expect(err).To(MatchError("failed to delete cookie theName: some error"))
+				err := page.DeleteCookie("some-name")
+				Expect(err).To(MatchError("failed to delete cookie some-name: some error"))
 			})
 		})
 	})

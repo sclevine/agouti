@@ -59,7 +59,7 @@ func XStep(description string, _ ...interface{}) {
 type Page interface {
 	Navigate(url string) error
 	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
-	DeleteCookieByName(name string) error
+	DeleteCookie(name string) error
 	ClearCookies() error
 	URL() (string, error)
 	Size(height, width int) error
