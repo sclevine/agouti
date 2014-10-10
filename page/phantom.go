@@ -13,11 +13,12 @@ var phantomService *phantom.Service
 func StartPhantom() error {
 	address, err := freeAddress()
 	if err != nil {
-		return fmt.Errorf("Agouti failed to locate a free port: %s", err)
+		return fmt.Errorf("failed to locate a free port: %s", err)
 	}
+
 	phantomService = &phantom.Service{Address: address, Timeout: 3 * time.Second}
 	if err := phantomService.Start(); err != nil {
-		return fmt.Errorf("Agouti failed to start phantomjs: %s", err)
+		return fmt.Errorf("failed to start PhantomJS: %s", err)
 	}
 	return nil
 }
@@ -32,7 +33,7 @@ func freeAddress() (string, error) {
 }
 
 func StopPhantom(startErr ...error) {
-	if startErr == nil {
+	if len(startErr) == 0 || startErr[0] == nil {
 		phantomService.Stop()
 	}
 }
@@ -40,7 +41,7 @@ func StopPhantom(startErr ...error) {
 func PhantomPage() (*Page, error) {
 	session, err := phantomService.CreateSession()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate phantomjs page: ", err)
+		return nil, fmt.Errorf("failed to generate PhantomJS page: ", err)
 	}
 
 	driver := &webdriver.Driver{session}

@@ -27,13 +27,13 @@ type Driver struct {
 	}
 
 	DeleteCookieCall struct {
-	    Name string
-	    Err  error
+		Name string
+		Err  error
 	}
 
 	DeleteAllCookiesCall struct {
 		WasCalled bool
-		Err  error
+		Err       error
 	}
 
 	GetURLCall struct {
@@ -66,7 +66,7 @@ func (d *Driver) DeleteCookie(name string) error {
 	return d.DeleteCookieCall.Err
 }
 
-func(d *Driver) DeleteAllCookies() error {
+func (d *Driver) DeleteAllCookies() error {
 	d.DeleteAllCookiesCall.WasCalled = true
 	return d.DeleteAllCookiesCall.Err
 }

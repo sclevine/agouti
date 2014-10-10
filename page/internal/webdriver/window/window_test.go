@@ -41,7 +41,7 @@ var _ = Describe("Window", func() {
 
 		Context("when the session indicates a success", func() {
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 

@@ -131,7 +131,7 @@ var _ = Describe("Selection", func() {
 
 			It("does not return an error", func() {
 				_, err := selection.Text()
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -171,7 +171,7 @@ var _ = Describe("Selection", func() {
 
 			It("does not return an error", func() {
 				_, err := selection.Attribute("some-attribute")
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -211,7 +211,7 @@ var _ = Describe("Selection", func() {
 
 			It("does not return an error", func() {
 				_, err := selection.CSS("some-property")
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})

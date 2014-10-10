@@ -43,7 +43,7 @@ var _ = Describe("Element", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
@@ -78,7 +78,7 @@ var _ = Describe("Element", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
@@ -113,7 +113,7 @@ var _ = Describe("Element", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
@@ -141,7 +141,7 @@ var _ = Describe("Element", func() {
 
 		Context("when the session indicates a success", func() {
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 

@@ -20,8 +20,12 @@ type Service struct {
 }
 
 func (s *Service) Start() error {
+	if s.process != nil {
+		return errors.New("PhantomJS is already running")
+	}
+
 	if _, err := exec.LookPath("phantomjs"); err != nil {
-		return errors.New("phantomjs not found")
+		return errors.New("PhantomJS binary not found")
 	}
 
 	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s", s.Address))
@@ -57,7 +61,7 @@ func (s *Service) waitForServer() error {
 	case <-timeoutChan:
 		failedChan <- struct{}{}
 		s.Stop()
-		return errors.New("phantomjs webdriver failed to start")
+		return errors.New("PhantomJS webdriver failed to start")
 	case <-startedChan:
 		return nil
 	}
@@ -71,7 +75,7 @@ func (s *Service) Stop() {
 
 func (s *Service) CreateSession() (*Session, error) {
 	if s.process == nil {
-		return nil, errors.New("phantomjs not running")
+		return nil, errors.New("PhantomJS not running")
 	}
 
 	client := &http.Client{}
@@ -90,7 +94,7 @@ func (s *Service) CreateSession() (*Session, error) {
 	json.Unmarshal(body, &sessionResponse)
 
 	if sessionResponse.SessionID == "" {
-		return nil, errors.New("phantomjs webdriver failed to return a session ID")
+		return nil, errors.New("PhantomJS webdriver failed to return a session ID")
 	}
 
 	sessionURL := fmt.Sprintf("http://%s/session/%s", s.Address, sessionResponse.SessionID)

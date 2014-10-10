@@ -76,7 +76,7 @@ var _ = Describe("Session", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
@@ -96,7 +96,7 @@ var _ = Describe("Session", func() {
 				})
 
 				It("does not return an error", func() {
-					Expect(err).To(BeNil())
+					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
@@ -119,7 +119,7 @@ var _ = Describe("Session", func() {
 				})
 
 				It("does not return an error", func() {
-					Expect(err).To(BeNil())
+					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 

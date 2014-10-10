@@ -23,7 +23,16 @@ var _ = Describe("Phantom service", func() {
 	Describe("#Start", func() {
 		var err error
 
-		Context("when the phantomjs binary is available in PATH", func() {
+		Context("when PhantomJS is started multiple times", func() {
+			It("returns an error indicating that PhantomJS is already running", func() {
+				service.Start()
+				err = service.Start()
+				Expect(err).To(MatchError("PhantomJS is already running"))
+				service.Stop()
+			})
+		})
+
+		Context("when the PhantomJS binary is available in PATH", func() {
 			BeforeEach(func() {
 				err = service.Start()
 			})
@@ -33,30 +42,30 @@ var _ = Describe("Phantom service", func() {
 			})
 
 			It("does not return an error", func() {
-				Expect(err).To(BeNil())
+				Expect(err).NotTo(HaveOccurred())
 			})
 
-			It("starts a phantom webdriver server on the provided port", func() {
+			It("starts a PhantomJS webdriver server on the provided port", func() {
 				response, _ := http.Get("http://127.0.0.1:42344/status")
 				body, _ := ioutil.ReadAll(response.Body)
 				Expect(string(body)).To(ContainSubstring(`"status":0`))
 			})
 		})
 
-		Context("when the phantomjs binary is not available in PATH", func() {
-			It("returns an error indicating the phantomjs needs to be installed", func() {
+		Context("when the PhantomJS binary is not available in PATH", func() {
+			It("returns an error indicating the PhantomJS needs to be installed", func() {
 				oldPATH := os.Getenv("PATH")
 				os.Setenv("PATH", "")
 				err := service.Start()
-				Expect(err).To(MatchError("phantomjs not found"))
+				Expect(err).To(MatchError("PhantomJS binary not found"))
 				os.Setenv("PATH", oldPATH)
 			})
 		})
 
-		Context("when the phantomjs server fails to start after the provided timeout", func() {
+		Context("when the PhantomJS server fails to start after the provided timeout", func() {
 			It("returns an error indicating that it failed to start", func() {
 				service.Timeout = 0
-				Expect(service.Start()).To(MatchError("phantomjs webdriver failed to start"))
+				Expect(service.Start()).To(MatchError("PhantomJS webdriver failed to start"))
 			})
 		})
 	})
@@ -66,7 +75,7 @@ var _ = Describe("Phantom service", func() {
 			service.Start()
 			service.Stop()
 			_, err := http.Get("http://127.0.0.1:42344/status")
-			Expect(err).NotTo(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 	})
 
@@ -83,7 +92,7 @@ var _ = Describe("Phantom service", func() {
 			Context("if the request succeeds", func() {
 				It("returns a session with session URL", func() {
 					session, err := service.CreateSession()
-					Expect(err).To(BeNil())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:42344/session/([0-9a-f]+-)+[0-9a-f]+`))
 				})
 			})
@@ -103,7 +112,7 @@ var _ = Describe("Phantom service", func() {
 					}))
 					service.Address = strings.Split(fakeServer.URL, "/")[2]
 					_, err := service.CreateSession()
-					Expect(err).To(MatchError("phantomjs webdriver failed to return a session ID"))
+					Expect(err).To(MatchError("PhantomJS webdriver failed to return a session ID"))
 					fakeServer.Close()
 				})
 			})
@@ -114,7 +123,7 @@ var _ = Describe("Phantom service", func() {
 				service.Start()
 				service.Stop()
 				_, err := service.CreateSession()
-				Expect(err).To(MatchError("phantomjs not running"))
+				Expect(err).To(MatchError("PhantomJS not running"))
 			})
 		})
 	})
