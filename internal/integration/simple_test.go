@@ -36,20 +36,17 @@ var _ = Feature("Agouti", func() {
 			Expect(page.Find("header")).To(ContainText("Page Title"))
 		})
 
-		//NOTE later we delete a cookie
 		page.DeleteCookieByName("theName")
 
 		Step("asserts that text is not in a page", func() {
 			Expect(page).NotTo(ContainText("Page Not-Title"))
 			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
-			// page.TakeScreenshot()
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
 			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
 		})
 
-		//Now lets delete all of our cookies
 		page.ClearCookies()
 
 		Step("allows assertions that wait for matchers to be true", func() {
@@ -62,13 +59,21 @@ var _ = Feature("Agouti", func() {
 			Expect(page.Find("#some_input")).To(HaveAttribute("value", "some value"))
 		})
 
-//		Step("allows asserting whether a CSS style exists", func() {
-//			Expect(page.Find("#some_element")).To(HaveCSS("color", "blue"))
-//		})
+		Step("allows asserting on whether a CSS style exists", func() {
+			Expect(page.Find("#some_element")).To(HaveCSS("color", "rgba(0, 0, 255, 1)"))
+		})
 
 		Step("allows clicking on a link", func() {
 			page.Find("a").Click()
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
+		})
+
+		XStep("this step doesn't run", func() {
+			Fail("pending steps do not run")
+		})
+
+		PStep("this step doesn't run either", func() {
+			Fail("pending steps do not run")
 		})
 	})
 })

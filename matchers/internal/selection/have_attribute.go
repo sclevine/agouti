@@ -26,12 +26,12 @@ func (m *HaveAttributeMatcher) Match(actual interface{}) (success bool, err erro
 }
 
 func (m *HaveAttributeMatcher) FailureMessage(actual interface{}) (message string) {
-	actualSelector := SelectorText(actual.(page.Selection).Selector())
+	actualSelector := Selector(actual.(page.Selection).Selector())
 	return format.Message(actualSelector, "to have attribute matching", m.attributeSelector())
 }
 
 func (m *HaveAttributeMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	actualSelector := SelectorText(actual.(page.Selection).Selector())
+	actualSelector := Selector(actual.(page.Selection).Selector())
 	return format.Message(actualSelector, "not to have attribute matching", m.attributeSelector())
 }
 

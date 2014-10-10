@@ -5,16 +5,40 @@ import (
 	"github.com/sclevine/agouti/page"
 )
 
-func Feature(text string, body func()) bool {
-	return ginkgo.Describe(text, body)
-}
-
 func Background(body interface{}, timeout ...float64) bool {
 	return ginkgo.BeforeEach(body, timeout...)
 }
 
+func Feature(text string, body func()) bool {
+	return ginkgo.Describe(text, body)
+}
+
+func FFeature(text string, body func()) bool {
+	return ginkgo.FDescribe(text, body)
+}
+
+func PFeature(text string, body func()) bool {
+	return ginkgo.PDescribe(text, body)
+}
+
+func XFeature(text string, body func()) bool {
+	return ginkgo.XDescribe(text, body)
+}
+
 func Scenario(description string, body func(), timeout ...float64) bool {
 	return ginkgo.It(description, body, timeout...)
+}
+
+func FScenario(description string, body func(), timeout ...float64) bool {
+	return ginkgo.FIt(description, body, timeout...)
+}
+
+func PScenario(description string, ignored ...interface{}) bool {
+	return ginkgo.PIt(description, ignored...)
+}
+
+func XScenario(description string, ignored ...interface{}) bool {
+	return ginkgo.XIt(description, ignored...)
 }
 
 func Step(description string, bodies ...func()) {
@@ -22,6 +46,14 @@ func Step(description string, bodies ...func()) {
 	for _, body := range bodies {
 		body()
 	}
+}
+
+func PStep(description string, _ ...interface{}) {
+	ginkgo.GinkgoWriter.Write([]byte("\n  Skipping Step - " + description))
+}
+
+func XStep(description string, _ ...interface{}) {
+	ginkgo.GinkgoWriter.Write([]byte("\n  Skipping Step - " + description))
 }
 
 type Page interface {

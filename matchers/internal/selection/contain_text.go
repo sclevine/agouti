@@ -25,11 +25,11 @@ func (m *ContainTextMatcher) Match(actual interface{}) (success bool, err error)
 }
 
 func (m *ContainTextMatcher) FailureMessage(actual interface{}) (message string) {
-	actualSelector := SelectorText(actual.(page.Selection).Selector())
+	actualSelector := Selector(actual.(page.Selection).Selector())
 	return format.Message(actualSelector, "to have text matching", m.ExpectedText)
 }
 
 func (m *ContainTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	actualSelector := SelectorText(actual.(page.Selection).Selector())
+	actualSelector := Selector(actual.(page.Selection).Selector())
 	return format.Message(actualSelector, "not to have text matching", m.ExpectedText)
 }

@@ -67,7 +67,7 @@ var _ = Describe("ContainTextMatcher", func() {
 		It("return a failure message", func() {
 			selection.TextCall.ReturnText = "some other text"
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.SelectorText>: #selector"))
+			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
 			Expect(message).To(ContainSubstring("to have text matching"))
 			Expect(message).To(ContainSubstring("<string>: some text"))
 		})
@@ -77,7 +77,7 @@ var _ = Describe("ContainTextMatcher", func() {
 		It("return a negated failure message", func() {
 			selection.TextCall.ReturnText = "some other text"
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.SelectorText>: #selector"))
+			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
 			Expect(message).To(ContainSubstring("not to have text matching"))
 			Expect(message).To(ContainSubstring("<string>: some text"))
 		})

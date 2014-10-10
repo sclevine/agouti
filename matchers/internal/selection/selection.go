@@ -1,3 +1,3 @@
 package selection
 
-type SelectorText string
+type Selector string

@@ -72,7 +72,7 @@ var _ = Describe("HaveAttributeMatcher", func() {
 		It("return a failure message", func() {
 			selection.AttributeCall.ReturnValue = "some other value"
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.SelectorText>: #selector"))
+			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
 			Expect(message).To(ContainSubstring("to have attribute matching"))
 			Expect(message).To(ContainSubstring(`<string>: [some-attribute="some value"]`))
 		})
@@ -82,7 +82,7 @@ var _ = Describe("HaveAttributeMatcher", func() {
 		It("return a negated failure message", func() {
 			selection.AttributeCall.ReturnValue = "some other value"
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("<selection.SelectorText>: #selector"))
+			Expect(message).To(ContainSubstring("<selection.Selector>: #selector"))
 			Expect(message).To(ContainSubstring("not to have attribute matching"))
 			Expect(message).To(ContainSubstring(`<string>: [some-attribute="some value"]`))
 		})
