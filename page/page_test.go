@@ -3,16 +3,16 @@ package page_test
 import (
 	. "github.com/sclevine/agouti/page"
 
+	"bytes"
+	"encoding/base64"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver"
-	"bytes"
-	"os"
-	"encoding/base64"
-	"path/filepath"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 var _ = Describe("Page", func() {
@@ -191,7 +191,7 @@ var _ = Describe("Page", func() {
 	Describe("#TakeScreenshot", func() {
 		var (
 			screenshotPath string
-			directory string
+			directory      string
 		)
 
 		AfterEach(func() {
@@ -219,7 +219,7 @@ var _ = Describe("Page", func() {
 			It("is a PNG", func() {
 				page.Screenshot(directory, ".test.screenshot")
 				fileBytes, _ := ioutil.ReadFile(screenshotPath)
-				Expect(bytes.HasPrefix(fileBytes,[]byte("\x89PNG\r\n\x1a\n"))).To(BeTrue())
+				Expect(bytes.HasPrefix(fileBytes, []byte("\x89PNG\r\n\x1a\n"))).To(BeTrue())
 			})
 
 			It("does not return an error", func() {

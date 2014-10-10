@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver/element"
-	"io"
 	"image/png"
+	"io"
 )
 
 var _ = Describe("Webdriver", func() {

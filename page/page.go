@@ -3,9 +3,9 @@ package page
 import (
 	"fmt"
 	"github.com/sclevine/agouti/page/internal/webdriver"
+	"image/png"
 	"io"
 	"os"
-	"image/png"
 )
 
 type Page struct {
@@ -92,12 +92,12 @@ func (p *Page) Screenshot(filepath, filename string) error {
 		return fmt.Errorf("failed to decode PNG: %s", err)
 	}
 
-	file, err := os.Create(filename+".png")
+	file, err := os.Create(filename + ".png")
 	if err != nil {
 		return fmt.Errorf("failed to create file: %s", err)
 	}
 
-	if err = png.Encode(file,decodedImage); err != nil {
+	if err = png.Encode(file, decodedImage); err != nil {
 		file.Close()
 		return fmt.Errorf("failed to save PNG: %s", err)
 	}

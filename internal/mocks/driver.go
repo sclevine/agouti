@@ -23,8 +23,8 @@ type Driver struct {
 	}
 
 	ScreenshotCall struct {
-	    ReturnImage io.Reader
-	    Err         error
+		ReturnImage io.Reader
+		Err         error
 	}
 
 	SetCookieCall struct {
