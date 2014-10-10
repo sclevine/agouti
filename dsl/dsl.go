@@ -13,8 +13,8 @@ func Background(body interface{}, timeout ...float64) bool {
 	return ginkgo.BeforeEach(body, timeout...)
 }
 
-func Scenario(description string, body func()) bool {
-	return ginkgo.It(description, body)
+func Scenario(description string, body func(), timeout ...float64) bool {
+	return ginkgo.It(description, body, timeout...)
 }
 
 func Step(description string, bodies ...func()) {
