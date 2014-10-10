@@ -89,6 +89,10 @@ func (p *Page) Attribute(attribute string) (string, error) {
 	return p.body().Attribute(attribute)
 }
 
+func (p *Page) CSS(property string) (string, error) {
+	return p.body().CSS(property)
+}
+
 func (p *Page) body() *selection {
 	return &selection{p.Driver, []string{"body"}}
 }

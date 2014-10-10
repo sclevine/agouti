@@ -175,4 +175,44 @@ var _ = Describe("Selection", func() {
 			})
 		})
 	})
+
+	Describe("#CSS", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.Text()
+			return err
+		})
+
+		It("requests the CSS property value using the property name", func() {
+			selection.CSS("some-property")
+			Expect(element.GetCSSCall.Property).To(Equal("some-property"))
+		})
+
+		Context("if the the driver fails to retrieve the requested element CSS property", func() {
+			It("returns an error", func() {
+				element.GetCSSCall.Err = errors.New("some error")
+				_, err := selection.CSS("some-property")
+				Expect(err).To(MatchError("failed to retrieve CSS property for selector '#selector': some error"))
+			})
+		})
+
+		Context("if the driver succeeds in retrieving the requested element CSS property", func() {
+			BeforeEach(func() {
+				element.GetCSSCall.ReturnValue = "some value"
+			})
+
+			It("returns the property value", func() {
+				value, _ := selection.CSS("some-property")
+				Expect(value).To(Equal("some value"))
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.CSS("some-property")
+				Expect(err).To(BeNil())
+			})
+		})
+	})
 })

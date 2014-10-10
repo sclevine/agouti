@@ -12,3 +12,7 @@ func ContainText(text string) types.GomegaMatcher {
 func HaveAttribute(attribute string, value string) types.GomegaMatcher {
 	return &selection.HaveAttributeMatcher{attribute, value}
 }
+
+func HaveCSS(property string, value string) types.GomegaMatcher {
+	return &selection.HaveCSSMatcher{property, value}
+}

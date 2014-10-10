@@ -19,6 +19,7 @@ type executable interface {
 type Element interface {
 	GetText() (string, error)
 	GetAttribute(attribute string) (string, error)
+	GetCSS(property string) (string, error)
 	Click() error
 }
 

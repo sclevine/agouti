@@ -27,6 +27,14 @@ func (e *Element) GetAttribute(attribute string) (string, error) {
 	return value, nil
 }
 
+func (e *Element) GetCSS(property string) (string, error) {
+	var value string
+	if err := e.Session.Execute(fmt.Sprintf("%s/css/%s", e.url(), property), "GET", nil, &value); err != nil {
+		return "", err
+	}
+	return value, nil
+}
+
 func (e *Element) Click() error {
 	return e.Session.Execute(e.url()+"/click", "POST", nil, &struct{}{})
 }

@@ -83,9 +83,44 @@ var _ = Describe("Element", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the session failed to retrieve the text", func() {
+			It("returns an error indicating the session failed to retrieve the attribute", func() {
 				session.Err = errors.New("some error")
 				_, err = element.GetAttribute("some-name")
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetCSS", func() {
+		var value string
+
+		BeforeEach(func() {
+			session.Result = `"some value"`
+			value, err = element.GetCSS("some-property")
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/css/:name endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/css/some-property"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns the value of the CSS property", func() {
+				Expect(value).To(Equal("some value"))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the CSS property", func() {
+				session.Err = errors.New("some error")
+				_, err = element.GetCSS("some-property")
 				Expect(err).To(MatchError("some error"))
 			})
 		})

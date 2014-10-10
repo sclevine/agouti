@@ -62,6 +62,10 @@ var _ = Feature("Agouti", func() {
 			Expect(page.Find("#some_input")).To(HaveAttribute("value", "some value"))
 		})
 
+//		Step("allows asserting whether a CSS style exists", func() {
+//			Expect(page.Find("#some_element")).To(HaveCSS("color", "blue"))
+//		})
+
 		Step("allows clicking on a link", func() {
 			page.Find("a").Click()
 			Expect(page.URL()).To(ContainSubstring("#new_page"))

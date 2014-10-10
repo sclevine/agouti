@@ -12,6 +12,7 @@ type Selection interface {
 	Click() error
 	Text() (string, error)
 	Attribute(attribute string) (string, error)
+	CSS(property string) (string, error)
 }
 
 type selection struct {
@@ -61,6 +62,19 @@ func (s *selection) Attribute(attribute string) (string, error) {
 	value, err := element.GetAttribute(attribute)
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve attribute value for selector '%s': %s", s.Selector(), err)
+	}
+	return value, nil
+}
+
+func (s *selection) CSS(property string) (string, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	value, err := element.GetCSS(property)
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve CSS property for selector '%s': %s", s.Selector(), err)
 	}
 	return value, nil
 }

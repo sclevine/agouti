@@ -24,10 +24,18 @@ var _ = Describe("Matchers", func() {
 	})
 
 	Describe("#HaveAttribute", func() {
-		It("calls the selection#ContainText matcher", func() {
+		It("calls the selection#HaveAttribute matcher", func() {
 			selection.AttributeCall.ReturnValue = "some value"
 			Expect(selection).To(HaveAttribute("some-attribute", "some value"))
 			Expect(selection).NotTo(HaveAttribute("some-attribute", "some other value"))
+		})
+	})
+
+	Describe("#HaveCSS", func() {
+		It("calls the selection#HaveCSS matcher", func() {
+			selection.CSSCall.ReturnValue = "some value"
+			Expect(selection).To(HaveCSS("some-property", "some value"))
+			Expect(selection).NotTo(HaveCSS("some-property", "some other value"))
 		})
 	})
 })

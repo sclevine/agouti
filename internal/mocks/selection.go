@@ -17,6 +17,12 @@ type Selection struct {
 		ReturnValue string
 		Err         error
 	}
+
+	CSSCall struct {
+		Property    string
+		ReturnValue string
+		Err         error
+	}
 }
 
 func (s *Selection) Find(selector string) page.Selection {
@@ -38,4 +44,9 @@ func (s *Selection) Text() (string, error) {
 func (s *Selection) Attribute(attribute string) (string, error) {
 	s.AttributeCall.Attribute = attribute
 	return s.AttributeCall.ReturnValue, s.AttributeCall.Err
+}
+
+func (s *Selection) CSS(property string) (string, error) {
+	s.CSSCall.Property = property
+	return s.CSSCall.ReturnValue, s.CSSCall.Err
 }

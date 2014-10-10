@@ -216,10 +216,18 @@ var _ = Describe("Page", func() {
 		})
 
 		Describe("#Attribute", func() {
-			It("calls selection#Click() on the body of the page", func() {
+			It("calls selection#Attribute() on the body of the page", func() {
 				element.GetAttributeCall.Err = errors.New("some error")
 				_, err := page.Attribute("some-attribute")
 				Expect(err).To(MatchError("failed to retrieve attribute value for selector 'body': some error"))
+			})
+		})
+
+		Describe("#CSS", func() {
+			It("calls selection#CSS() on the body of the page", func() {
+				element.GetCSSCall.Err = errors.New("some error")
+				_, err := page.CSS("some-property")
+				Expect(err).To(MatchError("failed to retrieve CSS property for selector 'body': some error"))
 			})
 		})
 	})
