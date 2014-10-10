@@ -9,6 +9,7 @@ import (
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver/element"
 	"io"
+	"image/png"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -228,12 +229,12 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
-	Describe("#GetScreenshot", func() {
+	Describe("#Screenshot", func() {
 		var reader io.Reader
 
 		BeforeEach(func() {
 			session.Result = `"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg=="`
-			reader, err = driver.GetScreenshot()
+			reader, err = driver.Screenshot()
 		})
 
 		It("makes a POST request", func() {
@@ -244,37 +245,34 @@ var _ = Describe("Webdriver", func() {
 			Expect(session.Endpoint).To(Equal("screenshot"))
 		})
 
-		Context("when the sesssion indicates a success", func() {
-			Context("and the string is properly base64 encoded", func() {
-				It("returns a reader that is not empty", func() {
-					Expect(reader).ToNot(BeNil())
-				})
-
-				It("does not return an error", func() {
-					Expect(err).NotTo(HaveOccurred())
+		Context("when the session indicates a success", func() {
+			Context("and the image is a real PNG", func() {
+				It("returns a PNG", func() {
+					_, err = png.Decode(reader)
+					Expect(err).ToNot(HaveOccurred())
 				})
 			})
 
-			Context("when the image is not properly base64 encoded", func() {
+			Context("and the image is not a PNG", func() {
 				BeforeEach(func() {
-					session.Result = `"sd.mfng;lsdfglksdfglksjdfg"`
-					reader, err = driver.GetScreenshot()
+					session.Result = `"..."`
+					reader, err = driver.Screenshot()
+
 				})
 
-				It("returns a reader that is not empty", func() {
-					Expect(reader).To(BeNil())
-				})
-
-				It("does not return an error", func() {
+				It("returns an error", func() {
 					Expect(err).To(HaveOccurred())
 				})
 			})
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to add the cookie", func() {
+			BeforeEach(func() {
 				session.Err = errors.New("some error")
-				_, err = driver.GetScreenshot()
+				reader, err = driver.Screenshot()
+			})
+
+			It("returns an error", func() {
 				Expect(err).To(MatchError("some error"))
 			})
 		})

@@ -76,7 +76,7 @@ func (d *Driver) GetWindow() (Window, error) {
 	return &window.Window{ID, d.Session}, nil
 }
 
-func (d *Driver) GetScreenshot() (io.Reader, error) {
+func (d *Driver) Screenshot() (io.Reader, error) {
 	var base64Image string
 
 	if err := d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {

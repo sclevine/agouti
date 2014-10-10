@@ -41,6 +41,7 @@ var _ = Feature("Agouti", func() {
 		Step("asserts that text is not in a page", func() {
 			Expect(page).NotTo(ContainText("Page Not-Title"))
 			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
+			page.Screenshot("/Users/pivotal/Desktop/foobar", "somescreenshot")
 		})
 
 		Step("allows tests to be scoped by chaining", func() {

@@ -8,6 +8,11 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver"
+	"bytes"
+	"os"
+	"encoding/base64"
+	"path/filepath"
+	"io/ioutil"
 )
 
 var _ = Describe("Page", func() {
@@ -179,6 +184,71 @@ var _ = Describe("Page", func() {
 
 			It("returns an error", func() {
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
+			})
+		})
+	})
+
+	Describe("#TakeScreenshot", func() {
+		var (
+			screenshotPath string
+			directory string
+		)
+
+		AfterEach(func() {
+			os.Remove(screenshotPath)
+		})
+
+		Context("when the driver sucessfully retrieves a screenshot", func() {
+			BeforeEach(func() {
+				directory, _ = os.Getwd()
+				screenshotPath = filepath.Join(directory, ".test.screenshot.png")
+				base64Image := "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg=="
+				imageBytes, _ := base64.StdEncoding.DecodeString(base64Image)
+				driver.ScreenshotCall.ReturnImage = bytes.NewBuffer(imageBytes)
+			})
+
+			It("successfully saves the screenshot to the filepath provided", func() {
+				_, err := os.Stat(screenshotPath)
+				Expect(err).To(HaveOccurred())
+
+				page.Screenshot(directory, ".test.screenshot")
+				_, err = os.Stat(screenshotPath)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("is a PNG", func() {
+				page.Screenshot(directory, ".test.screenshot")
+				fileBytes, _ := ioutil.ReadFile(screenshotPath)
+				Expect(bytes.HasPrefix(fileBytes,[]byte("\x89PNG\r\n\x1a\n"))).To(BeTrue())
+			})
+
+			It("does not return an error", func() {
+				err := page.Screenshot(directory, ".test.screenshot")
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			Context("but the screenshot cannot be decoded", func() {
+				BeforeEach(func() {
+					garbage := "YXNoZGZrbGphc2hkZmtqaGFzbGtkamZoYWxrc2pkaGZha2xqc2RoZmxrYWhzZGZrbGpoYWRzZg=="
+					garbageBytes, _ := base64.StdEncoding.DecodeString(garbage)
+					driver.ScreenshotCall.ReturnImage = bytes.NewBuffer(garbageBytes)
+				})
+
+				It("returns an error", func() {
+					driver.ScreenshotCall.Err = errors.New("some error")
+					err := page.Screenshot(directory, ".test.screenshot")
+					Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
+				})
+			})
+		})
+
+		Context("when the driver fails to retrieve a screenshot", func() {
+			BeforeEach(func() {
+				driver.ScreenshotCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(page.Screenshot(directory, ".test.screenshot.png")).To(MatchError("failed to retrieve screenshot: some error"))
 			})
 		})
 	})

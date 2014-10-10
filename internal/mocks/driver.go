@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"github.com/sclevine/agouti/page/internal/webdriver"
+	"io"
 )
 
 type Driver struct {
@@ -19,6 +20,11 @@ type Driver struct {
 	GetWindowCall struct {
 		ReturnWindow webdriver.Window
 		Err          error
+	}
+
+	ScreenshotCall struct {
+	    ReturnImage io.Reader
+	    Err         error
 	}
 
 	SetCookieCall struct {
@@ -54,6 +60,10 @@ func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
 
 func (d *Driver) GetWindow() (webdriver.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
+}
+
+func (d *Driver) Screenshot() (io.Reader, error) {
+	return d.ScreenshotCall.ReturnImage, d.ScreenshotCall.Err
 }
 
 func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {

@@ -3,6 +3,9 @@ package page
 import (
 	"fmt"
 	"github.com/sclevine/agouti/page/internal/webdriver"
+	"io"
+	"os"
+	"image/png"
 )
 
 type Page struct {
@@ -13,6 +16,7 @@ type driver interface {
 	Navigate(url string) error
 	GetElements(selector string) ([]webdriver.Element, error)
 	GetWindow() (webdriver.Window, error)
+	Screenshot() (io.Reader, error)
 	SetCookie(cookie *webdriver.Cookie) error
 	DeleteCookie(name string) error
 	DeleteAllCookies() error
@@ -66,6 +70,39 @@ func (p *Page) Size(height, width int) error {
 		return fmt.Errorf("failed to set window size: %s", err)
 	}
 
+	return nil
+}
+
+func (p *Page) Screenshot(filepath, filename string) error {
+	if err := os.MkdirAll(filepath, 0750); err != nil {
+		return fmt.Errorf("failed to create directory: %s", err)
+	}
+
+	if err := os.Chdir(filepath); err != nil {
+		return fmt.Errorf("failed to switch directories: %s", err)
+	}
+
+	screenshot, err := p.Driver.Screenshot()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve screenshot: %s", err)
+	}
+
+	decodedImage, err := png.Decode(screenshot)
+	if err != nil {
+		return fmt.Errorf("failed to decode PNG: %s", err)
+	}
+
+	file, err := os.Create(filename+".png")
+	if err != nil {
+		return fmt.Errorf("failed to create file: %s", err)
+	}
+
+	if err = png.Encode(file,decodedImage); err != nil {
+		file.Close()
+		return fmt.Errorf("failed to save PNG: %s", err)
+	}
+
+	file.Close()
 	return nil
 }
 
