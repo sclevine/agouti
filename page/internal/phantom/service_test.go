@@ -25,10 +25,10 @@ var _ = Describe("Phantom service", func() {
 
 		Context("when PhantomJS is started multiple times", func() {
 			It("returns an error indicating that PhantomJS is already running", func() {
+				defer service.Stop()
 				service.Start()
 				err = service.Start()
 				Expect(err).To(MatchError("PhantomJS is already running"))
-				service.Stop()
 			})
 		})
 
