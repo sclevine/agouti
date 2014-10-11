@@ -103,7 +103,7 @@ var _ = Describe("Webdriver", func() {
 		var driverWindow Window
 
 		BeforeEach(func() {
-			session.Result = `"window-id"`
+			session.Result = `"some-id"`
 			driverWindow, err = driver.GetWindow()
 		})
 
