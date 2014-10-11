@@ -1,9 +1,6 @@
 package mocks
 
-import (
-	"github.com/sclevine/agouti/page/internal/webdriver"
-	"io"
-)
+import "github.com/sclevine/agouti/page/internal/webdriver"
 
 type Driver struct {
 	NavigateCall struct {
@@ -23,7 +20,7 @@ type Driver struct {
 	}
 
 	ScreenshotCall struct {
-		ReturnImage io.Reader
+		ReturnImage []byte
 		Err         error
 	}
 
@@ -62,7 +59,7 @@ func (d *Driver) GetWindow() (webdriver.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 
-func (d *Driver) Screenshot() (io.Reader, error) {
+func (d *Driver) Screenshot() ([]byte, error) {
 	return d.ScreenshotCall.ReturnImage, d.ScreenshotCall.Err
 }
 

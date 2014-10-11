@@ -1,11 +1,9 @@
 package webdriver
 
 import (
-	"bytes"
 	"encoding/base64"
 	"github.com/sclevine/agouti/page/internal/webdriver/element"
 	"github.com/sclevine/agouti/page/internal/webdriver/window"
-	"io"
 )
 
 type Driver struct {
@@ -76,21 +74,6 @@ func (d *Driver) GetWindow() (Window, error) {
 	return &window.Window{windowID, d.Session}, nil
 }
 
-func (d *Driver) Screenshot() (io.Reader, error) {
-	var base64Image string
-
-	if err := d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
-		return nil, err
-	}
-
-	imageBytes, err := base64.StdEncoding.DecodeString(base64Image)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.NewBuffer(imageBytes), nil
-}
-
 func (d *Driver) SetCookie(cookie *Cookie) error {
 	request := struct {
 		Cookie *Cookie `json:"cookie"`
@@ -105,6 +88,16 @@ func (d *Driver) DeleteCookie(cookieName string) error {
 
 func (d *Driver) DeleteAllCookies() error {
 	return d.Session.Execute("cookie", "DELETE", nil, &struct{}{})
+}
+
+func (d *Driver) Screenshot() ([]byte, error) {
+	var base64Image string
+
+	if err := d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {
+		return nil, err
+	}
+
+	return base64.StdEncoding.DecodeString(base64Image)
 }
 
 func (d *Driver) GetURL() (string, error) {

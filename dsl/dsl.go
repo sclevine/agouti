@@ -63,7 +63,7 @@ type Page interface {
 	ClearCookies() error
 	URL() (string, error)
 	Size(height, width int) error
-	Screenshot(filepath, filename string) error
+	Screenshot(filename string) error
 	page.Selection
 }
 

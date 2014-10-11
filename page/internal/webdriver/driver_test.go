@@ -9,8 +9,6 @@ import (
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver/element"
 	"github.com/sclevine/agouti/page/internal/webdriver/window"
-	"image/png"
-	"io"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -120,7 +118,7 @@ var _ = Describe("Webdriver", func() {
 				Expect(driverWindow.(*window.Window).ID).To(Equal("some-id"))
 				Expect(driverWindow.(*window.Window).Session).To(Equal(session))
 			})
-			
+
 			It("does not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
@@ -179,34 +177,6 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
-	Describe("#DeleteAllCookies", func() {
-		BeforeEach(func() {
-			err = driver.DeleteAllCookies()
-		})
-
-		It("makes a DELETE request", func() {
-			Expect(session.Method).To(Equal("DELETE"))
-		})
-
-		It("hits the /cookie endpoint", func() {
-			Expect(session.Endpoint).To(Equal("cookie"))
-		})
-
-		Context("when the sesssion indicates a success", func() {
-			It("doesn't return an error", func() {
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to delete the cookies", func() {
-				session.Err = errors.New("some error")
-				err = driver.DeleteAllCookies()
-				Expect(err).To(MatchError("some error"))
-			})
-		})
-	})
-
 	Describe("#DeleteCookie", func() {
 		BeforeEach(func() {
 			err = driver.DeleteCookie("some-cookie")
@@ -235,15 +205,46 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
-	Describe("#Screenshot", func() {
-		var reader io.Reader
-
+	Describe("#DeleteAllCookies", func() {
 		BeforeEach(func() {
-			session.Result = `"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg=="`
-			reader, err = driver.Screenshot()
+			err = driver.DeleteAllCookies()
 		})
 
-		It("makes a POST request", func() {
+		It("makes a DELETE request", func() {
+			Expect(session.Method).To(Equal("DELETE"))
+		})
+
+		It("hits the /cookie endpoint", func() {
+			Expect(session.Endpoint).To(Equal("cookie"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to delete the cookies", func() {
+				session.Err = errors.New("some error")
+				err = driver.DeleteAllCookies()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Screenshot", func() {
+		var (
+			image []byte
+			err   error
+		)
+
+		BeforeEach(func() {
+			session.Result = `"c29tZS1wbmc="`
+			image, err = driver.Screenshot()
+		})
+
+		It("makes a GET request", func() {
 			Expect(session.Method).To(Equal("GET"))
 		})
 
@@ -252,22 +253,24 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		Context("when the session indicates a success", func() {
-			Context("and the image is a real PNG", func() {
-				It("returns a PNG", func() {
-					_, err = png.Decode(reader)
-					Expect(err).ToNot(HaveOccurred())
+			Context("when the image is valid base64", func() {
+				It("returns the decoded image", func() {
+					Expect(string(image)).To(Equal("some-png"))
+				})
+
+				It("does not return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
-			Context("and the image is not a PNG", func() {
+			Context("and the image is not valid base64", func() {
 				BeforeEach(func() {
 					session.Result = `"..."`
-					reader, err = driver.Screenshot()
-
+					image, err = driver.Screenshot()
 				})
 
 				It("returns an error", func() {
-					Expect(err).To(HaveOccurred())
+					Expect(err).To(Equal(""))
 				})
 			})
 		})
@@ -275,7 +278,7 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			BeforeEach(func() {
 				session.Err = errors.New("some error")
-				reader, err = driver.Screenshot()
+				image, err = driver.Screenshot()
 			})
 
 			It("returns an error", func() {

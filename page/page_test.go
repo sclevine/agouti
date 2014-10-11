@@ -1,14 +1,11 @@
 package page_test
 
 import (
-	. "github.com/sclevine/agouti/page"
-
-	"bytes"
-	"encoding/base64"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
+	. "github.com/sclevine/agouti/page"
 	"github.com/sclevine/agouti/page/internal/webdriver"
 	"io/ioutil"
 	"os"
@@ -188,57 +185,25 @@ var _ = Describe("Page", func() {
 		})
 	})
 
-	Describe("#TakeScreenshot", func() {
-		var (
-			screenshotPath string
-			directory      string
-		)
+	Describe("#Screenshot", func() {
+		var filename string
 
-		AfterEach(func() {
-			os.Remove(screenshotPath)
+		BeforeEach(func() {
+			directory, _ := os.Getwd()
+			filename = filepath.Join(directory, ".test.screenshot.png")
 		})
 
-		Context("when the driver sucessfully retrieves a screenshot", func() {
-			BeforeEach(func() {
-				directory, _ = os.Getwd()
-				screenshotPath = filepath.Join(directory, ".test.screenshot.png")
-				base64Image := "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg=="
-				imageBytes, _ := base64.StdEncoding.DecodeString(base64Image)
-				driver.ScreenshotCall.ReturnImage = bytes.NewBuffer(imageBytes)
+		Context("when the file path cannot be constructed", func() {
+			It("returns an error indicating that it could not create a directory", func() {
+				err := page.Screenshot("\000/a") // try NUL
+				Expect(err).To(MatchError("failed to create directory for screenshot: mkdir \x00: invalid argument"))
 			})
+		})
 
-			It("successfully saves the screenshot to the filepath provided", func() {
-				_, err := os.Stat(screenshotPath)
-				Expect(err).To(HaveOccurred())
-
-				page.Screenshot(directory, ".test.screenshot")
-				_, err = os.Stat(screenshotPath)
-				Expect(err).ToNot(HaveOccurred())
-			})
-
-			It("is a PNG", func() {
-				page.Screenshot(directory, ".test.screenshot")
-				fileBytes, _ := ioutil.ReadFile(screenshotPath)
-				Expect(bytes.HasPrefix(fileBytes, []byte("\x89PNG\r\n\x1a\n"))).To(BeTrue())
-			})
-
-			It("does not return an error", func() {
-				err := page.Screenshot(directory, ".test.screenshot")
-				Expect(err).ToNot(HaveOccurred())
-			})
-
-			Context("but the screenshot cannot be decoded", func() {
-				BeforeEach(func() {
-					garbage := "YXNoZGZrbGphc2hkZmtqaGFzbGtkamZoYWxrc2pkaGZha2xqc2RoZmxrYWhzZGZrbGpoYWRzZg=="
-					garbageBytes, _ := base64.StdEncoding.DecodeString(garbage)
-					driver.ScreenshotCall.ReturnImage = bytes.NewBuffer(garbageBytes)
-				})
-
-				It("returns an error", func() {
-					driver.ScreenshotCall.Err = errors.New("some error")
-					err := page.Screenshot(directory, ".test.screenshot")
-					Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
-				})
+		Context("when a new screenshot file cannot be created", func() {
+			It("returns an error indicating so", func() {
+				err := page.Screenshot("")
+				Expect(err).To(MatchError("failed to create file for screenshot: open : no such file or directory"))
 			})
 		})
 
@@ -247,8 +212,41 @@ var _ = Describe("Page", func() {
 				driver.ScreenshotCall.Err = errors.New("some error")
 			})
 
-			It("returns an error", func() {
-				Expect(page.Screenshot(directory, ".test.screenshot.png")).To(MatchError("failed to retrieve screenshot: some error"))
+			It("returns an error indicating so", func() {
+				err := page.Screenshot(filename)
+				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
+			})
+
+			It("removes the newly-created file", func() {
+				page.Screenshot(filename)
+				_, err := os.Stat(filename)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		Context("when the screenshot cannot be written to a file", func() {
+			// NOTE: would need to cause write-error to test
+		})
+
+		Context("when a screenshot is successfully written to a file", func() {
+			var err error
+
+			BeforeEach(func() {
+				driver.ScreenshotCall.ReturnImage = []byte("some-image")
+				err = page.Screenshot(filename)
+			})
+
+			AfterEach(func() {
+				os.Remove(filename)
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("successfully saves the screenshot", func() {
+				result, _ := ioutil.ReadFile(filename)
+				Expect(string(result)).To(Equal("some-image"))
 			})
 		})
 	})

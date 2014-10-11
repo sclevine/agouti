@@ -390,8 +390,8 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Select", func() {
 		var (
-			optionOne *mocks.Element
-			optionTwo *mocks.Element
+			optionOne   *mocks.Element
+			optionTwo   *mocks.Element
 			optionThree *mocks.Element
 		)
 
