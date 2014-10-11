@@ -142,6 +142,10 @@ func (p *Page) Selected() (bool, error) {
 	return p.body().Selected()
 }
 
+func (p *Page) Select(text string) error {
+	return p.body().Select(text)
+}
+
 func (p *Page) body() *selection {
 	return &selection{p.Driver, []string{"body"}}
 }

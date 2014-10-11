@@ -79,6 +79,12 @@ var _ = Feature("Agouti", func() {
 			Expect(checkbox).To(BeSelected())
 		})
 
+		Step("allows selecting an option", func() {
+			selection := page.Find("#some_select")
+			selection.Select("second option")
+			Expect(selection.Find("option:last-child")).To(BeSelected())
+		})
+
 		XStep("this step doesn't run", func() {
 			Fail("pending steps do not run")
 		})

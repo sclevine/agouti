@@ -16,6 +16,7 @@ type Selection interface {
 	CSS(property string) (string, error)
 	Check() error
 	Selected() (bool, error)
+	Select(text string) error
 }
 
 type selection struct {
@@ -139,6 +140,29 @@ func (s *selection) Selected() (bool, error) {
 	}
 
 	return selected, nil
+}
+
+func (s *selection) Select(text string) error {
+	elements, err := s.driver.GetElements(s.Selector() + " option")
+	if err != nil {
+		return fmt.Errorf("failed to retrieve options for selector '%s': %s", s.Selector(), err)
+	}
+
+	for _, element := range elements {
+		elementText, err := element.GetText()
+		if err != nil {
+			return fmt.Errorf("failed to retrieve option text for selector '%s': %s", s.Selector(), err)
+		}
+
+		if elementText == text {
+			if err := element.Click(); err != nil {
+				return fmt.Errorf(`failed to click on option with text "%s" for selector '%s': %s`, elementText, s.Selector(), err)
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf(`no options with text "%s" found for selector '%s'`, text, s.Selector())
 }
 
 func (s *selection) getSingleElement() (webdriver.Element, error) {

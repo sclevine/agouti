@@ -322,5 +322,13 @@ var _ = Describe("Page", func() {
 				Expect(err).To(MatchError("failed to determine whether selector 'body' is selected: some error"))
 			})
 		})
+
+		Describe("#Select", func() {
+			It("calls selection#Select() on the body of the page", func() {
+				driver.GetElementsCall.Err = errors.New("some error")
+				err := page.Select("some text")
+				Expect(err).To(MatchError("failed to retrieve options for selector 'body': some error"))
+			})
+		})
 	})
 })
