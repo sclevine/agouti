@@ -41,19 +41,8 @@ func XScenario(description string, ignored ...interface{}) bool {
 	return ginkgo.XIt(description, ignored...)
 }
 
-func Step(description string, bodies ...func()) {
-	ginkgo.GinkgoWriter.Write([]byte("\n  Step - " + description))
-	for _, body := range bodies {
-		body()
-	}
-}
-
-func PStep(description string, _ ...interface{}) {
-	ginkgo.GinkgoWriter.Write([]byte("\n  Skipping Step - " + description))
-}
-
-func XStep(description string, _ ...interface{}) {
-	ginkgo.GinkgoWriter.Write([]byte("\n  Skipping Step - " + description))
+func Step(text string, callbacks ...func()) {
+	ginkgo.By(text, callbacks...)
 }
 
 type Page interface {

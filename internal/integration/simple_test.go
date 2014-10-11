@@ -31,14 +31,10 @@ var _ = Feature("Agouti", func() {
 		page := CreatePage()
 		page.Size(640, 480)
 		page.Navigate(server.URL)
-		page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
-		page.SetCookie("some-other-name", "WOW", "/my-path", "example.com", false, false, 1412358590)
 
 		Step("finds text in a page", func() {
 			Expect(page.Find("header")).To(ContainText("Page Title"))
 		})
-
-		page.DeleteCookie("some-name")
 
 		Step("asserts that text is not in a page", func() {
 			Expect(page).NotTo(ContainText("Page Not-Title"))
@@ -49,8 +45,6 @@ var _ = Feature("Agouti", func() {
 			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
 		})
 
-		page.ClearCookies()
-
 		Step("allows assertions that wait for matchers to be true", func() {
 			Expect(page.Find("#some_element")).NotTo(ContainText("some text"))
 			Eventually(page.Find("#some_element"), 4*time.Second).Should(ContainText("some text"))
@@ -58,7 +52,7 @@ var _ = Feature("Agouti", func() {
 		})
 
 		Step("allows entering values into fields", func() {
-			page.Find("#some_input").Fill("some other value")
+			Expect(page.Find("#some_input").Fill("some other value")).To(Succeed())
 		})
 
 		Step("allows retrieving attributes by name", func() {
@@ -70,33 +64,25 @@ var _ = Feature("Agouti", func() {
 		})
 
 		Step("allows clicking on a link", func() {
-			page.Find("a").Click()
+			Expect(page.Find("a").Click()).To(Succeed())
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 
 		Step("allows checking a checkbox", func() {
 			checkbox := page.Find("#some_checkbox")
-			checkbox.Check()
+			Expect(checkbox.Check()).To(Succeed())
 			Expect(checkbox).To(BeSelected())
 		})
 
 		Step("allows selecting an option", func() {
 			selection := page.Find("#some_select")
-			selection.Select("second option")
+			Expect(selection.Select("second option")).To(Succeed())
 			Expect(selection.Find("option:last-child")).To(BeSelected())
 		})
 
 		Step("allows submitting a form", func() {
-			page.Find("#some_form").Submit()
+			Expect(page.Find("#some_form").Submit()).To(Succeed())
 			Eventually(submitted).Should(BeTrue())
-		})
-
-		XStep("this step doesn't run", func() {
-			Fail("pending steps do not run")
-		})
-
-		PStep("this step doesn't run either", func() {
-			Fail("pending steps do not run")
 		})
 	})
 })
