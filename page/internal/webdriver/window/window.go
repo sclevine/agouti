@@ -9,7 +9,7 @@ type Window struct {
 	Session Executable
 }
 
-func (w *Window) SetSize(height, width int) error {
+func (w *Window) SetSize(width, height int) error {
 	endpoint := "window/" + w.ID + "/size"
 	request := struct {
 		Width  int `json:"width"`

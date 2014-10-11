@@ -8,8 +8,8 @@ type Window struct {
 	}
 }
 
-func (w *Window) SetSize(height, width int) error {
-	w.SizeCall.Height = height
+func (w *Window) SetSize(width, height int) error {
 	w.SizeCall.Width = width
+	w.SizeCall.Height = height
 	return w.SizeCall.Err
 }

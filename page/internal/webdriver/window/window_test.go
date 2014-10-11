@@ -23,7 +23,6 @@ var _ = Describe("Window", func() {
 
 	Describe("#SetSize", func() {
 		BeforeEach(func() {
-			session.Result = `"text is unimportant"`
 			err = window.SetSize(640, 480)
 		})
 
@@ -31,12 +30,12 @@ var _ = Describe("Window", func() {
 			Expect(session.Method).To(Equal("POST"))
 		})
 
-		It("hits the /window/:id/size", func() {
+		It("hits the /window/:id/size endpoint", func() {
 			Expect(session.Endpoint).To(Equal("window/some-id/size"))
 		})
 
 		It("sends the width and height as the post body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"width":480,"height":640}`))
+			Expect(session.BodyJSON).To(MatchJSON(`{"width":640,"height":480}`))
 		})
 
 		Context("when the session indicates a success", func() {

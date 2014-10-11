@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
 	"github.com/sclevine/agouti/page/internal/webdriver/element"
+	"github.com/sclevine/agouti/page/internal/webdriver/window"
 	"image/png"
 	"io"
 )
@@ -99,22 +100,27 @@ var _ = Describe("Webdriver", func() {
 	})
 
 	Describe("#GetWindow", func() {
-		var myWindow Window
+		var driverWindow Window
 
 		BeforeEach(func() {
-			session.Result = `"a window"`
-			myWindow, err = driver.GetWindow()
+			session.Result = `"window-id"`
+			driverWindow, err = driver.GetWindow()
 		})
 
-		It("makes a POST request", func() {
+		It("makes a GET request", func() {
 			Expect(session.Method).To(Equal("GET"))
 		})
 
-		It("hits the /url endpoint", func() {
+		It("hits the /window_handle endpoint", func() {
 			Expect(session.Endpoint).To(Equal("window_handle"))
 		})
 
 		Context("when the session indicates a success", func() {
+			It("returns the window with the retrieved ID and session", func() {
+				Expect(driverWindow.(*window.Window).ID).To(Equal("some-id"))
+				Expect(driverWindow.(*window.Window).Session).To(Equal(session))
+			})
+			
 			It("does not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
@@ -159,7 +165,7 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		Context("when the sesssion indicates a success", func() {
-			It("doesn't return an error", func() {
+			It("does not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
@@ -178,7 +184,7 @@ var _ = Describe("Webdriver", func() {
 			err = driver.DeleteAllCookies()
 		})
 
-		It("makes a POST request", func() {
+		It("makes a DELETE request", func() {
 			Expect(session.Method).To(Equal("DELETE"))
 		})
 
@@ -193,7 +199,7 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to add the cookie", func() {
+			It("returns an error indicating the page failed to delete the cookies", func() {
 				session.Err = errors.New("some error")
 				err = driver.DeleteAllCookies()
 				Expect(err).To(MatchError("some error"))
@@ -203,7 +209,7 @@ var _ = Describe("Webdriver", func() {
 
 	Describe("#DeleteCookie", func() {
 		BeforeEach(func() {
-			err = driver.DeleteCookie("myCookie")
+			err = driver.DeleteCookie("some-cookie")
 		})
 
 		It("makes a POST request", func() {
@@ -211,7 +217,7 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("hits the /cookie/:name endpoint", func() {
-			Expect(session.Endpoint).To(Equal("cookie/myCookie"))
+			Expect(session.Endpoint).To(Equal("cookie/some-cookie"))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -221,9 +227,9 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to add the cookie", func() {
+			It("returns an error indicating the page failed to delete the cookie", func() {
 				session.Err = errors.New("some error")
-				err = driver.DeleteCookie("myCookie")
+				err = driver.DeleteCookie("some-cookie")
 				Expect(err).To(MatchError("some error"))
 			})
 		})

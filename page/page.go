@@ -60,13 +60,13 @@ func (p *Page) URL() (string, error) {
 	return url, nil
 }
 
-func (p *Page) Size(height, width int) error {
+func (p *Page) Size(width, height int) error {
 	window, err := p.Driver.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
 	}
 
-	if err := window.SetSize(640, 480); err != nil {
+	if err := window.SetSize(width, height); err != nil {
 		return fmt.Errorf("failed to set window size: %s", err)
 	}
 

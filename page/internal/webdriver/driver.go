@@ -69,12 +69,11 @@ func (d *Driver) GetElements(selector string) ([]Element, error) {
 }
 
 func (d *Driver) GetWindow() (Window, error) {
-	var ID string
-
-	if err := d.Session.Execute("window_handle", "GET", nil, &ID); err != nil {
+	var windowID string
+	if err := d.Session.Execute("window_handle", "GET", nil, &windowID); err != nil {
 		return nil, err
 	}
-	return &window.Window{ID, d.Session}, nil
+	return &window.Window{windowID, d.Session}, nil
 }
 
 func (d *Driver) Screenshot() (io.Reader, error) {

@@ -158,8 +158,8 @@ var _ = Describe("Page", func() {
 		Context("when the size setting succeeds", func() {
 			It("sets the window width and height accordingly", func() {
 				page.Size(640, 480)
-				Expect(window.SizeCall.Width).To(Equal(480))
-				Expect(window.SizeCall.Height).To(Equal(640))
+				Expect(window.SizeCall.Width).To(Equal(640))
+				Expect(window.SizeCall.Height).To(Equal(480))
 			})
 
 			It("does not return an error", func() {
