@@ -270,7 +270,7 @@ var _ = Describe("Webdriver", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(err).To(Equal(""))
+					Expect(err).To(MatchError("illegal base64 data at input byte 0"))
 				})
 			})
 		})
