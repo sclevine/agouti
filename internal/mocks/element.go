@@ -37,6 +37,11 @@ type Element struct {
 		ReturnSelected bool
 		Err            error
 	}
+
+	SubmitCall struct {
+		Called bool
+		Err    error
+	}
 }
 
 func (e *Element) GetText() (string, error) {
@@ -70,4 +75,9 @@ func (e *Element) Value(text string) error {
 
 func (e *Element) Selected() (bool, error) {
 	return e.SelectedCall.ReturnSelected, e.SelectedCall.Err
+}
+
+func (e *Element) Submit() error {
+	e.SubmitCall.Called = true
+	return e.SubmitCall.Err
 }

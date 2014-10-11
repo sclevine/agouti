@@ -471,4 +471,35 @@ var _ = Describe("Selection", func() {
 			})
 		})
 	})
+
+	Describe("#Submit", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			return selection.Submit()
+		})
+
+		Context("when submitting fails", func() {
+			BeforeEach(func() {
+				element.SubmitCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(selection.Submit()).To(MatchError("failed to submit selector '#selector': some error"))
+			})
+		})
+
+		Context("when submitting succeeds", func() {
+			It("submits the element", func() {
+				selection.Submit()
+				Expect(element.SubmitCall.Called).To(BeTrue())
+			})
+
+			It("returns nil", func() {
+				Expect(selection.Submit()).To(BeNil())
+			})
+		})
+	})
 })

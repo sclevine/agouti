@@ -328,5 +328,12 @@ var _ = Describe("Page", func() {
 				Expect(err).To(MatchError("failed to retrieve options for selector 'body': some error"))
 			})
 		})
+
+		Describe("#Submit", func() {
+			It("calls selection#Submit() on the body of the page", func() {
+				element.SubmitCall.Err = errors.New("some error")
+				Expect(page.Submit()).To(MatchError("failed to submit selector 'body': some error"))
+			})
+		})
 	})
 })

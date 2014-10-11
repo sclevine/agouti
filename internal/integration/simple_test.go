@@ -12,9 +12,11 @@ import (
 )
 
 var server *httptest.Server
+var submitted bool
 
 var _ = BeforeSuite(func() {
 	server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		submitted = request.Method == "POST"
 		html, _ := ioutil.ReadFile("test_page.html")
 		response.Write(html)
 	}))
@@ -82,6 +84,11 @@ var _ = Feature("Agouti", func() {
 			selection := page.Find("#some_select")
 			selection.Select("second option")
 			Expect(selection.Find("option:last-child")).To(BeSelected())
+		})
+
+		Step("allows submitting a form", func() {
+			page.Find("#some_form").Submit()
+			Eventually(submitted).Should(BeTrue())
 		})
 
 		XStep("this step doesn't run", func() {

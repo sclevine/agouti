@@ -136,6 +136,10 @@ func (p *Page) Select(text string) error {
 	return p.body().Select(text)
 }
 
+func (p *Page) Submit() error {
+	return p.body().Submit()
+}
+
 func (p *Page) body() *selection {
 	return &selection{p.Driver, []string{"body"}}
 }

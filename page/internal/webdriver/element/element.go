@@ -62,6 +62,10 @@ func (e *Element) Selected() (bool, error) {
 	return selected, nil
 }
 
+func (e *Element) Submit() error {
+	return e.Session.Execute(e.url()+"/submit", "POST", nil, &struct{}{})
+}
+
 func (e *Element) url() string {
 	return "element/" + e.ID
 }

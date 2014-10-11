@@ -17,6 +17,7 @@ type Selection interface {
 	Check() error
 	Selected() (bool, error)
 	Select(text string) error
+	Submit() error
 }
 
 type selection struct {
@@ -163,6 +164,18 @@ func (s *selection) Select(text string) error {
 	}
 
 	return fmt.Errorf(`no options with text "%s" found for selector '%s'`, text, s.Selector())
+}
+
+func (s *selection) Submit() error {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	if err := element.Submit(); err != nil {
+		return fmt.Errorf("failed to submit selector '%s': %s", s.Selector(), err)
+	}
+	return nil
 }
 
 func (s *selection) getSingleElement() (webdriver.Element, error) {

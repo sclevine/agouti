@@ -248,4 +248,32 @@ var _ = Describe("Element", func() {
 			})
 		})
 	})
+
+	Describe("#Submit", func() {
+		BeforeEach(func() {
+			err = element.Submit()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("POST"))
+		})
+
+		It("hits the /element/:id/submit endpoint", func() {
+			Expect(session.Endpoint).To(Equal("element/some-id/submit"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to submit", func() {
+				session.Err = errors.New("some error")
+				err = element.Submit()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })

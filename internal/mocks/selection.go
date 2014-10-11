@@ -54,6 +54,10 @@ func (s *Selection) Select(text string) error {
 	return nil
 }
 
+func (s *Selection) Submit() error {
+	return nil
+}
+
 func (s *Selection) Text() (string, error) {
 	return s.TextCall.ReturnText, s.TextCall.Err
 }

@@ -22,6 +22,7 @@ type Element interface {
 	Clear() error
 	Value(text string) error
 	Selected() (bool, error)
+	Submit() error
 }
 
 type Window interface {
