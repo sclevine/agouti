@@ -21,7 +21,7 @@ func StartSelenium(browserType string) error {
 	port := strings.Split(addressString, ":")[1]
 	address := fmt.Sprintf("127.0.0.1:%d/wd/hub", port)
 	desiredCapabilities := fmt.Sprintf(`{"desiredCapabilities": {"browserName: "%s"}}`, browserType)
-	command := exec.Command("selenium-server", fmt.Sprintf("-port %d", port))
+	command := exec.Command("selenium-server", "-port", port)
 
 	seleniumService = &service.Service{Address: address,
 		Timeout:             5 * time.Second,

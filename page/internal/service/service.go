@@ -19,6 +19,7 @@ type Service struct {
 	Command             *exec.Cmd
 	DesiredCapabilities string
 	process             *os.Process
+	sessionID           string
 }
 
 func (s *Service) Start() error {
@@ -69,6 +70,11 @@ func (s *Service) waitForServer() error {
 }
 
 func (s *Service) Stop() {
+	if s.ServiceName == "selenium-server" {
+		client := &http.Client{}
+		request, _ := http.NewRequest("DELETE", fmt.Sprintf("http://%s/session/%s", s.Address, s.sessionID), nil)
+		_, _ = client.Do(request)
+	}
 	s.process.Signal(syscall.SIGINT)
 	s.process.Wait()
 	s.process = nil
@@ -96,6 +102,8 @@ func (s *Service) CreateSession() (*Session, error) {
 	if sessionResponse.SessionID == "" {
 		return nil, fmt.Errorf("%s webdriver failed to return a session ID", s.ServiceName)
 	}
+
+	s.sessionID = sessionResponse.SessionID
 
 	sessionURL := fmt.Sprintf("http://%s/session/%s", s.Address, sessionResponse.SessionID)
 	return &Session{sessionURL}, nil

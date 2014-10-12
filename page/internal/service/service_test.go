@@ -142,8 +142,7 @@ var _ = Describe("Service", func() {
 		var service *Service
 
 		BeforeEach(func() {
-			command := exec.Command("selenium-server", fmt.Sprintf("-port %d", 42345))
-			fmt.Println(command)
+			command := exec.Command("selenium-server", "-port", "42345")
 			desiredCapabilities := `{"desiredCapabilities": {"browserName": "firefox"}}`
 			service = &Service{Address: "127.0.0.1:42345/wd/hub",
 				Timeout:             5 * time.Second,
@@ -180,7 +179,7 @@ var _ = Describe("Service", func() {
 				It("starts a Selenium webdriver server on the provided port", func() {
 					response, _ := http.Get("http://127.0.0.1:42345/wd/hub/status")
 					body, _ := ioutil.ReadAll(response.Body)
-					Expect(string(body)).To(ContainSubstring(`"state":success`))
+					Expect(string(body)).To(ContainSubstring(`"state":"success"`))
 				})
 			})
 
@@ -231,7 +230,7 @@ var _ = Describe("Service", func() {
 
 				Context("if the request fails", func() {
 					It("returns the request error", func() {
-						service.Address = "#"
+						service.Address = "#/wd/hub"
 						_, err := service.CreateSession()
 						Expect(err.Error()).To(ContainSubstring("Post http://#/wd/hub/session"))
 					})
