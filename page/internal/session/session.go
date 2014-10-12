@@ -1,8 +1,9 @@
-package service
+package session
 
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -59,6 +60,25 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 
 	if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
 		return fmt.Errorf("failed to parse response value: %s", err)
+	}
+
+	return nil
+}
+
+func (s *Session) Destroy() error {
+	client := &http.Client{}
+	request, err := http.NewRequest("DELETE", s.URL, nil)
+	if err != nil {
+		return fmt.Errorf("invalid request: %s", err)
+	}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return fmt.Errorf("request failed: %s", err)
+	}
+
+	if response.StatusCode != 200 {
+		return errors.New("failed to delete session")
 	}
 
 	return nil

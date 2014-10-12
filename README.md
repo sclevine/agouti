@@ -57,7 +57,7 @@ import (
 ...
 
 Feature("Agouti", func() {
-	Scenario("Loading a page with a cookie and clicking", func() {
+	Scenario("Loading a page", func() {
 		page := CreatePage()
 		page.Size(640, 480)
 		page.Navigate(server.URL)

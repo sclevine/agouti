@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sclevine/agouti/page/internal/session"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -13,33 +14,42 @@ import (
 )
 
 type Service struct {
-	Address             string
-	Timeout             time.Duration
-	ServiceName         string
-	Command             *exec.Cmd
-	DesiredCapabilities string
-	process             *os.Process
-	sessionID           string
+	URL     string
+	Timeout time.Duration
+	Command []string
+	process *os.Process
+}
+
+type Capabilities struct {
+	BrowserName string `json:"browserName,omitempty"`
+	Version     string `json:"version,omitempty"`
+	Platform    string `json:"platform,omitempty"`
+}
+
+func (s *Service) name() string {
+	return s.Command[0]
 }
 
 func (s *Service) Start() error {
 	if s.process != nil {
-		return fmt.Errorf("%s is already running", s.ServiceName)
+		return fmt.Errorf("%s is already running", s.name())
 	}
 
-	if _, err := exec.LookPath(s.ServiceName); err != nil {
-		return fmt.Errorf("%s binary not found", s.ServiceName)
+	if _, err := exec.LookPath(s.name()); err != nil {
+		return fmt.Errorf("%s binary not found", s.name())
 	}
 
-	s.Command.Start()
-	s.process = s.Command.Process
+	command := exec.Command(s.name(), s.Command[1:]...)
+
+	command.Start()
+	s.process = command.Process
 
 	return s.waitForServer()
 }
 
 func (s *Service) waitForServer() error {
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", fmt.Sprintf("http://%s/status", s.Address), nil)
+	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.URL), nil)
 
 	timeoutChan := time.After(s.Timeout)
 	failedChan := make(chan struct{}, 1)
@@ -63,32 +73,33 @@ func (s *Service) waitForServer() error {
 	case <-timeoutChan:
 		failedChan <- struct{}{}
 		s.Stop()
-		return fmt.Errorf("%s webdriver failed to start", s.ServiceName)
+		return fmt.Errorf("%s webdriver failed to start", s.name())
 	case <-startedChan:
 		return nil
 	}
 }
 
 func (s *Service) Stop() {
-	if s.ServiceName == "selenium-server" {
-		client := &http.Client{}
-		request, _ := http.NewRequest("DELETE", fmt.Sprintf("http://%s/session/%s", s.Address, s.sessionID), nil)
-		_, _ = client.Do(request)
-	}
 	s.process.Signal(syscall.SIGINT)
 	s.process.Wait()
 	s.process = nil
 }
 
-func (s *Service) CreateSession() (*Session, error) {
+func (s *Service) CreateSession(capabilities *Capabilities) (*session.Session, error) {
 	if s.process == nil {
-		return nil, fmt.Errorf("%s not running", s.ServiceName)
+		return nil, fmt.Errorf("%s not running", s.name())
+	}
+
+	capabilitiesJSON, _ := json.Marshal(capabilities)
+	desiredCapabilities := fmt.Sprintf(`{"desiredCapabilities": %s}`, capabilitiesJSON)
+	postBody := strings.NewReader(desiredCapabilities)
+
+	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", s.URL), postBody)
+	if err != nil {
+		return nil, err
 	}
 
 	client := &http.Client{}
-	postBody := strings.NewReader(s.DesiredCapabilities)
-	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s/session", s.Address), postBody)
-
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
@@ -100,11 +111,9 @@ func (s *Service) CreateSession() (*Session, error) {
 	json.Unmarshal(body, &sessionResponse)
 
 	if sessionResponse.SessionID == "" {
-		return nil, fmt.Errorf("%s webdriver failed to return a session ID", s.ServiceName)
+		return nil, fmt.Errorf("%s webdriver failed to return a session ID", s.name())
 	}
 
-	s.sessionID = sessionResponse.SessionID
-
-	sessionURL := fmt.Sprintf("http://%s/session/%s", s.Address, sessionResponse.SessionID)
-	return &Session{sessionURL}, nil
+	sessionURL := fmt.Sprintf("%s/session/%s", s.URL, sessionResponse.SessionID)
+	return &session.Session{URL: sessionURL}, nil
 }

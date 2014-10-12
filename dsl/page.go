@@ -5,16 +5,26 @@ import (
 	"github.com/sclevine/agouti/page"
 )
 
-type Page interface {
+type AgoutiPage interface {
 	page.PageOnly
 	page.Selection
 }
 
-func CreatePage() Page {
-	page, err := page.PhantomPage()
+func CreatePage(pageType ...string) AgoutiPage {
+	var (
+		newPage AgoutiPage
+		err     error
+	)
+
+	if len(pageType) == 0 {
+		newPage, err = page.PhantomPage()
+	} else {
+		newPage, err = page.SeleniumPage(pageType[0])
+	}
+
 	if err != nil {
 		ginkgo.Fail(err.Error(), 1)
 	}
 
-	return page
+	return newPage
 }

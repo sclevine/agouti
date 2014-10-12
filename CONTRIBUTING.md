@@ -1,26 +1,18 @@
 Contributing
 ============
 
-Agouti welcomes all pull-request and feature suggestions as long as they follow a few simple rules:
+Rules for pull requests:
 
-1. Everything you add must be 100% tested, if it's hard to test ask for help.
-2. Follow the patterns that are already laid out in the codebase.
-3. Before issuing a pull-request make sure you have rebased against master.  Pull-request will not be merged without this.
-4. Watch Travis and make sure all the tests still pass.
+1. Everything within reason must have BDD-style tests.
+2. Follow all existing patterns in the codebase.
+3. Before issuing a pull-request, please make sure to rebased your branch against master.
+   Pull requests will not be merged without this.
+4. After issuing your pull request, look at Travis CI to make sure all tests still pass.
 
 Setting Up
 ----------
 
-* Clone the repo down (keeping the path the same)
-* Make sure to grab both ginkgo and gomega (using go get)
-* Run all the tests and make sure they pass
+* Clone the repository
+* Follow the README instructions to install Ginkgo, Gomega, PhantomJS, and Selenium
+* Run all the tests using: `ginkgo -r .`
 * Start developing!
-
-How to Test
------------
-
-Jump into the top-level directory and run
-
-```go
-ginkgo -r .
-```

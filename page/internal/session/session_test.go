@@ -1,7 +1,7 @@
-package service_test
+package session_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/service"
+	. "github.com/sclevine/agouti/page/internal/session"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -11,39 +11,40 @@ import (
 )
 
 var _ = Describe("Session", func() {
+	var (
+		requestPath        string
+		requestMethod      string
+		requestBody        string
+		requestContentType string
+		responseBody       string
+		responseStatus     int
+		session            *Session
+		result             struct{ Some string }
+		server             *httptest.Server
+		err                error
+	)
+
+	BeforeEach(func() {
+		server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+			requestPath = request.URL.Path
+			requestMethod = request.Method
+			requestBodyBytes, _ := ioutil.ReadAll(request.Body)
+			requestBody = string(requestBodyBytes)
+			requestContentType = request.Header.Get("Content-Type")
+			response.WriteHeader(responseStatus)
+			response.Write([]byte(responseBody))
+		}))
+
+		session = &Session{server.URL + "/session/some-id"}
+		responseBody = `{"value": {"some": "response value"}}`
+		responseStatus = 200
+	})
+
+	AfterEach(func() {
+		server.Close()
+	})
+
 	Describe("#Execute", func() {
-		var (
-			requestPath        string
-			requestMethod      string
-			requestBody        string
-			requestContentType string
-			responseBody       string
-			responseStatus     int
-			session            *Session
-			result             struct{ Some string }
-			server             *httptest.Server
-			err                error
-		)
-
-		BeforeEach(func() {
-			server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-				requestPath = request.URL.Path
-				requestMethod = request.Method
-				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
-				requestBody = string(requestBodyBytes)
-				requestContentType = request.Header.Get("Content-Type")
-				response.WriteHeader(responseStatus)
-				response.Write([]byte(responseBody))
-			}))
-			session = &Session{server.URL + "/session/some-id"}
-			responseBody = `{"value": {"some": "response value"}}`
-			responseStatus = 200
-		})
-
-		AfterEach(func() {
-			server.Close()
-		})
-
 		It("makes a request with the full session endpoint", func() {
 			session.Execute("some/endpoint", "GET", nil, &result)
 			Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
@@ -166,6 +167,52 @@ var _ = Describe("Session", func() {
 					err = session.Execute("some/endpoint", "GET", nil, &result)
 					Expect(err).To(MatchError("request unsuccessful: phantom error message unreadable"))
 				})
+			})
+		})
+	})
+
+	Describe("#Destroy", func() {
+		BeforeEach(func() {
+			err = session.Destroy()
+		})
+
+		It("makes a request to the session ID", func() {
+			Expect(requestPath).To(Equal("/session/some-id"))
+		})
+
+		It("makes a request with the DELETE method", func() {
+			Expect(requestMethod).To(Equal("DELETE"))
+		})
+
+		It("makes a request without a body", func() {
+			Expect(requestBody).To(BeEmpty())
+		})
+
+		It("does not return an error when successful", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("with an invalid URL", func() {
+			It("returns an invalid request error", func() {
+				session.URL = "%@#$%"
+				err = session.Destroy()
+				Expect(err).To(MatchError(`invalid request: parse %@: invalid URL escape "%@"`))
+			})
+		})
+
+		Context("when the request fails entirely", func() {
+			It("returns an error indicating that the request failed", func() {
+				server.Close()
+				err = session.Destroy()
+				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
+			})
+		})
+
+		Context("when the server responds with a non-2xx status code", func() {
+			It("returns an error from the server indicating that the request failed", func() {
+				responseStatus = 400
+				err = session.Destroy()
+				Expect(err).To(MatchError("failed to delete session"))
 			})
 		})
 	})
