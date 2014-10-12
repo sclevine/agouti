@@ -263,7 +263,7 @@ var _ = Describe("Webdriver", func() {
 			url, err = driver.GetURL()
 		})
 
-		It("makes a POST request", func() {
+		It("makes a GET request", func() {
 			Expect(session.Method).To(Equal("GET"))
 		})
 
@@ -282,7 +282,7 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to add the cookie", func() {
+			It("returns an error indicating the page failed to retrieve the URL", func() {
 				session.Err = errors.New("some error")
 				_, err = driver.GetURL()
 				Expect(err).To(MatchError("some error"))
@@ -317,6 +317,41 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the page failed to change URL", func() {
 				session.Err = errors.New("some error")
 				err = driver.SetURL("http://example.com")
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetTitle", func() {
+		var title string
+
+		BeforeEach(func() {
+			session.Result = `"Some Title"`
+			title, err = driver.GetTitle()
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.Method).To(Equal("GET"))
+		})
+
+		It("hits the /title endpoint", func() {
+			Expect(session.Endpoint).To(Equal("title"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("returns the page title", func() {
+				Expect(title).To(Equal("Some Title"))
+			})
+
+			It("doesn't return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to retrieve the title", func() {
+				session.Err = errors.New("some error")
+				_, err = driver.GetURL()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

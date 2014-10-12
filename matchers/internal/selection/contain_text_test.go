@@ -64,7 +64,7 @@ var _ = Describe("ContainTextMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("return a failure message", func() {
+		It("returns a failure message", func() {
 			selection.TextCall.ReturnText = "some other text"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -74,7 +74,7 @@ var _ = Describe("ContainTextMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("return a negated failure message", func() {
+		It("returns a negated failure message", func() {
 			selection.TextCall.ReturnText = "some text"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

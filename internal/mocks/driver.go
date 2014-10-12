@@ -43,6 +43,11 @@ type Driver struct {
 		URL string
 		Err error
 	}
+
+	GetTitleCall struct {
+		ReturnTitle string
+		Err         error
+	}
 }
 
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
@@ -80,4 +85,8 @@ func (d *Driver) GetURL() (string, error) {
 func (d *Driver) SetURL(url string) error {
 	d.SetURLCall.URL = url
 	return d.SetURLCall.Err
+}
+
+func (d *Driver) GetTitle() (string, error) {
+	return d.GetTitleCall.ReturnTitle, d.GetTitleCall.Err
 }

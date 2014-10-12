@@ -13,12 +13,12 @@ type HaveAttributeMatcher struct {
 }
 
 func (m *HaveAttributeMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(page.Selection)
+	actualSelection, ok := actual.(page.Selection)
 	if !ok {
 		return false, fmt.Errorf("HaveAttribute matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	m.actualValue, err = actualPage.Attribute(m.ExpectedAttribute)
+	m.actualValue, err = actualSelection.Attribute(m.ExpectedAttribute)
 	if err != nil {
 		return false, err
 	}

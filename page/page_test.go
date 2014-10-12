@@ -251,6 +251,36 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#Title", func() {
+		Context("when retrieving the page title is successful", func() {
+			var (
+				title string
+				err   error
+			)
+
+			BeforeEach(func() {
+				driver.GetTitleCall.ReturnTitle = "Some Title"
+				title, err = page.Title()
+			})
+
+			It("returns the title of the current page", func() {
+				Expect(title).To(Equal("Some Title"))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the driver fails to retrieve the page title", func() {
+			It("returns an error", func() {
+				driver.GetTitleCall.Err = errors.New("some error")
+				_, err := page.Title()
+				Expect(err).To(MatchError("failed to retrieve page title: some error"))
+			})
+		})
+	})
+
 	Describe("#Find", func() {
 		It("returns a selection", func() {
 			Expect(page.Find("#selector").Selector()).To(Equal("#selector"))

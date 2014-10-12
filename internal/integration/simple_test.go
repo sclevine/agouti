@@ -13,17 +13,21 @@ var _ = Feature("Agouti", func() {
 		page.Size(640, 480)
 		page.Navigate(server.URL)
 
+		Step("find the title of the page", func() {
+			Expect(page).To(HaveTitle("Page Title"))
+		})
+
 		Step("finds text in a page", func() {
-			Expect(page.Find("header")).To(ContainText("Page Title"))
+			Expect(page.Find("header")).To(ContainText("Title"))
 		})
 
 		Step("asserts that text is not in a page", func() {
-			Expect(page).NotTo(ContainText("Page Not-Title"))
-			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
+			Expect(page).NotTo(ContainText("Not-Title"))
+			Expect(page.Find("header")).NotTo(ContainText("Not-Title"))
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
-			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
+			Expect(page.Find("header").Find("h1")).To(ContainText("Title"))
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {

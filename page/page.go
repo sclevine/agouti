@@ -11,6 +11,17 @@ type Page struct {
 	Driver driver
 }
 
+type PageOnly interface {
+	Navigate(url string) error
+	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
+	DeleteCookie(name string) error
+	ClearCookies() error
+	URL() (string, error)
+	Size(width, height int) error
+	Screenshot(filename string) error
+	Title() (string, error)
+}
+
 type driver interface {
 	GetElements(selector string) ([]webdriver.Element, error)
 	GetWindow() (webdriver.Window, error)
@@ -20,6 +31,7 @@ type driver interface {
 	DeleteCookies() error
 	GetURL() (string, error)
 	SetURL(url string) error
+	GetTitle() (string, error)
 }
 
 func (p *Page) Navigate(url string) error {
@@ -94,6 +106,14 @@ func (p *Page) Screenshot(filename string) error {
 	}
 
 	return nil
+}
+
+func (p *Page) Title() (string, error) {
+	title, err := p.Driver.GetTitle()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve page title: %s", err)
+	}
+	return title, nil
 }
 
 func (p *Page) Find(selector string) Selection {

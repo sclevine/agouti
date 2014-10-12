@@ -13,12 +13,12 @@ type HaveCSSMatcher struct {
 }
 
 func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(page.Selection)
+	actualSelection, ok := actual.(page.Selection)
 	if !ok {
 		return false, fmt.Errorf("HaveCSS matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	m.actualValue, err = actualPage.CSS(m.ExpectedProperty)
+	m.actualValue, err = actualSelection.CSS(m.ExpectedProperty)
 	if err != nil {
 		return false, err
 	}

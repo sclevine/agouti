@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Matchers", func() {
+var _ = Describe("Selection Matchers", func() {
 	var selection *mocks.Selection
 
 	BeforeEach(func() {

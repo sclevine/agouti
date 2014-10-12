@@ -104,8 +104,17 @@ func (d *Driver) GetURL() (string, error) {
 
 func (d *Driver) SetURL(url string) error {
 	request := struct {
-			URL string `json:"url"`
-		}{url}
+		URL string `json:"url"`
+	}{url}
 
 	return d.Session.Execute("url", "POST", request, &struct{}{})
+}
+
+func (d *Driver) GetTitle() (string, error) {
+	var title string
+	if err := d.Session.Execute("title", "GET", nil, &title); err != nil {
+		return "", err
+	}
+
+	return title, nil
 }

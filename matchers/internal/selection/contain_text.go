@@ -12,12 +12,12 @@ type ContainTextMatcher struct {
 }
 
 func (m *ContainTextMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(page.Selection)
+	actualSelection, ok := actual.(page.Selection)
 	if !ok {
 		return false, fmt.Errorf("ContainText matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	m.actualText, err = actualPage.Text()
+	m.actualText, err = actualSelection.Text()
 	if err != nil {
 		return false, err
 	}

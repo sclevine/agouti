@@ -64,7 +64,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("return a failure message", func() {
+		It("returns a failure message", func() {
 			selection.SelectedCall.ReturnSelected = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -73,7 +73,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("return a negated failure message", func() {
+		It("returns a negated failure message", func() {
 			selection.SelectedCall.ReturnSelected = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
