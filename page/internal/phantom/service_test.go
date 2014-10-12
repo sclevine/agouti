@@ -99,9 +99,9 @@ var _ = Describe("Phantom service", func() {
 
 			Context("if the request fails", func() {
 				It("returns the request error", func() {
-					service.Address = "potato"
+					service.Address = "#"
 					_, err := service.CreateSession()
-					Expect(err.Error()).To(ContainSubstring("Post http://potato/session: dial tcp"))
+					Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
 				})
 			})
 
