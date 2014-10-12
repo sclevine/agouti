@@ -292,7 +292,7 @@ var _ = Describe("Webdriver", func() {
 
 	Describe("#SetURL", func() {
 		BeforeEach(func() {
-			err = driver.Navigate("http://example.com")
+			err = driver.SetURL("http://example.com")
 		})
 
 		It("makes a POST request", func() {
@@ -316,7 +316,7 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to change URL", func() {
 				session.Err = errors.New("some error")
-				err = driver.Navigate("http://example.com")
+				err = driver.SetURL("http://example.com")
 				Expect(err).To(MatchError("some error"))
 			})
 		})
