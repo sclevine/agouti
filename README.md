@@ -28,9 +28,16 @@ import (
 
 func TestYourProject(t *testing.T) {
 	RegisterFailHandler(Fail)
-	defer StopPhantom(StartPhantom())
 	RunSpecs(t, "Your Project Suite")
 }
+
+var _ = BeforeSuite(func() {
+	StartPhantom()
+});
+
+var _ = AfterSuite(func() {
+	StopPhantom()
+});
 ```
 
 Example:

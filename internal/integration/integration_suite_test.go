@@ -10,6 +10,13 @@ import (
 
 func TestIntegration(t *testing.T) {
 	RegisterFailHandler(Fail)
-	defer StopPhantom(StartPhantom())
 	RunSpecs(t, "Integration Suite")
 }
+
+var _ = BeforeSuite(func() {
+	StartPhantom()
+});
+
+var _ = AfterSuite(func() {
+	StopPhantom()
+});

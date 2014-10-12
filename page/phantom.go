@@ -32,10 +32,8 @@ func freeAddress() (string, error) {
 	return listener.Addr().String(), nil
 }
 
-func StopPhantom(startErr ...error) {
-	if len(startErr) == 0 || startErr[0] == nil {
-		phantomService.Stop()
-	}
+func StopPhantom() {
+	phantomService.Stop()
 }
 
 func PhantomPage() (*Page, error) {
