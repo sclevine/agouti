@@ -11,10 +11,15 @@ brew install phantomjs
 go get github.com/sclevine/agouti
 ```
 
-Note that `Feature` is a Ginkgo `Describe`, `Scenario` is a Ginkgo `It`, and `Background` is a Ginkgo `BeforeEach`.
+If you use the `dsl` package, note that:
+ * `Feature` is a Ginkgo `Describe`
+ * `Scenario` is a Ginkgo `It`
+ * `Background` is a Ginkgo `BeforeEach`
+ * `Step` is a Ginkgo `By`
+
 Feel free to import Ginkgo and use any of its container blocks instead! Agouti is 100% compatible with Ginkgo and Gomega.
 
-Make sure to add the `defer StopPhantom(StartPhantom())` to your `project_suite_test.go` file, like so:
+Make sure to add `StartPhantom()` and `StopPhantom()` to your `project_suite_test.go` file, like so:
 ```Go
 package your_project_test
 
