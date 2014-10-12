@@ -1,4 +1,4 @@
-package phantom_test
+package service_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestPhantom(t *testing.T) {
+func TestService(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Phantom Suite")
+	RunSpecs(t, "Service Suite")
 }

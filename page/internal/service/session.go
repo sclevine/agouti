@@ -1,4 +1,4 @@
-package phantom
+package service
 
 import (
 	"bytes"

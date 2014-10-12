@@ -1,8 +1,7 @@
-package phantom
+package service
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -14,23 +13,25 @@ import (
 )
 
 type Service struct {
-	Address string
-	Timeout time.Duration
-	process *os.Process
+	Address             string
+	Timeout             time.Duration
+	ServiceName         string
+	Command             *exec.Cmd
+	DesiredCapabilities string
+	process             *os.Process
 }
 
 func (s *Service) Start() error {
 	if s.process != nil {
-		return errors.New("PhantomJS is already running")
+		return fmt.Errorf("%s is already running", s.ServiceName)
 	}
 
-	if _, err := exec.LookPath("phantomjs"); err != nil {
-		return errors.New("PhantomJS binary not found")
+	if _, err := exec.LookPath(s.ServiceName); err != nil {
+		return fmt.Errorf("%s binary not found", s.ServiceName)
 	}
 
-	command := exec.Command("phantomjs", fmt.Sprintf("--webdriver=%s", s.Address))
-	command.Start()
-	s.process = command.Process
+	s.Command.Start()
+	s.process = s.Command.Process
 
 	return s.waitForServer()
 }
@@ -61,7 +62,7 @@ func (s *Service) waitForServer() error {
 	case <-timeoutChan:
 		failedChan <- struct{}{}
 		s.Stop()
-		return errors.New("PhantomJS webdriver failed to start")
+		return fmt.Errorf("%s webdriver failed to start", s.ServiceName)
 	case <-startedChan:
 		return nil
 	}
@@ -75,11 +76,11 @@ func (s *Service) Stop() {
 
 func (s *Service) CreateSession() (*Session, error) {
 	if s.process == nil {
-		return nil, errors.New("PhantomJS not running")
+		return nil, fmt.Errorf("%s not running", s.ServiceName)
 	}
 
 	client := &http.Client{}
-	postBody := strings.NewReader(`{"desiredCapabilities": {} }`)
+	postBody := strings.NewReader(s.DesiredCapabilities)
 	request, _ := http.NewRequest("POST", fmt.Sprintf("http://%s/session", s.Address), postBody)
 
 	response, err := client.Do(request)
@@ -93,7 +94,7 @@ func (s *Service) CreateSession() (*Session, error) {
 	json.Unmarshal(body, &sessionResponse)
 
 	if sessionResponse.SessionID == "" {
-		return nil, errors.New("PhantomJS webdriver failed to return a session ID")
+		return nil, fmt.Errorf("%s webdriver failed to return a session ID", s.ServiceName)
 	}
 
 	sessionURL := fmt.Sprintf("http://%s/session/%s", s.Address, sessionResponse.SessionID)

@@ -1,7 +1,7 @@
-package phantom_test
+package service_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/phantom"
+	. "github.com/sclevine/agouti/page/internal/service"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
