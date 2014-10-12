@@ -39,14 +39,6 @@ type Cookie struct {
 	Expiry   int64       `json:"expiry"`
 }
 
-func (d *Driver) Navigate(url string) error {
-	request := struct {
-		URL string `json:"url"`
-	}{url}
-
-	return d.Session.Execute("url", "POST", request, &struct{}{})
-}
-
 func (d *Driver) GetElements(selector string) ([]Element, error) {
 	request := struct {
 		Using string `json:"using"`
@@ -108,4 +100,12 @@ func (d *Driver) GetURL() (string, error) {
 	}
 
 	return url, nil
+}
+
+func (d *Driver) SetURL(url string) error {
+	request := struct {
+			URL string `json:"url"`
+		}{url}
+
+	return d.Session.Execute("url", "POST", request, &struct{}{})
 }

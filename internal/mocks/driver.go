@@ -3,11 +3,6 @@ package mocks
 import "github.com/sclevine/agouti/page/internal/webdriver"
 
 type Driver struct {
-	NavigateCall struct {
-		URL string
-		Err error
-	}
-
 	GetElementsCall struct {
 		Selector       string
 		ReturnElements []webdriver.Element
@@ -43,11 +38,11 @@ type Driver struct {
 		ReturnURL string
 		Err       error
 	}
-}
 
-func (d *Driver) Navigate(url string) error {
-	d.NavigateCall.URL = url
-	return d.NavigateCall.Err
+	SetURLCall struct {
+		URL string
+		Err error
+	}
 }
 
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
@@ -80,4 +75,9 @@ func (d *Driver) DeleteAllCookies() error {
 
 func (d *Driver) GetURL() (string, error) {
 	return d.GetURLCall.ReturnURL, d.GetURLCall.Err
+}
+
+func (d *Driver) SetURL(url string) error {
+	d.SetURLCall.URL = url
+	return d.SetURLCall.Err
 }

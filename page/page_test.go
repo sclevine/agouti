@@ -31,7 +31,7 @@ var _ = Describe("Page", func() {
 		Context("when the navigate succeeds", func() {
 			It("directs the driver to navigate to the provided URL", func() {
 				page.Navigate("http://example.com")
-				Expect(driver.NavigateCall.URL).To(Equal("http://example.com"))
+				Expect(driver.SetURLCall.URL).To(Equal("http://example.com"))
 			})
 
 			It("returns nil", func() {
@@ -41,7 +41,7 @@ var _ = Describe("Page", func() {
 
 		Context("when the navigate fails", func() {
 			BeforeEach(func() {
-				driver.NavigateCall.Err = errors.New("some error")
+				driver.SetURLCall.Err = errors.New("some error")
 			})
 
 			It("returns the driver error", func() {

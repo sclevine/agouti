@@ -12,7 +12,6 @@ type Page struct {
 }
 
 type driver interface {
-	Navigate(url string) error
 	GetElements(selector string) ([]webdriver.Element, error)
 	GetWindow() (webdriver.Window, error)
 	Screenshot() ([]byte, error)
@@ -20,10 +19,11 @@ type driver interface {
 	DeleteCookie(name string) error
 	DeleteAllCookies() error
 	GetURL() (string, error)
+	SetURL(url string) error
 }
 
 func (p *Page) Navigate(url string) error {
-	if err := p.Driver.Navigate(url); err != nil {
+	if err := p.Driver.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil

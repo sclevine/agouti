@@ -23,38 +23,6 @@ var _ = Describe("Webdriver", func() {
 		driver = &Driver{session}
 	})
 
-	Describe("#Navigate", func() {
-		BeforeEach(func() {
-			err = driver.Navigate("http://example.com")
-		})
-
-		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("POST"))
-		})
-
-		It("hits the /url endpoint", func() {
-			Expect(session.Endpoint).To(Equal("url"))
-		})
-
-		It("includes the new URL in the request body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"url": "http://example.com"}`))
-		})
-
-		Context("when the sesssion indicates a success", func() {
-			It("doesn't return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
-			})
-		})
-
-		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the page failed to navigate", func() {
-				session.Err = errors.New("some error")
-				err = driver.Navigate("http://example.com")
-				Expect(err).To(MatchError("some error"))
-			})
-		})
-	})
-
 	Describe("#GetElements", func() {
 		var elements []Element
 
@@ -317,6 +285,38 @@ var _ = Describe("Webdriver", func() {
 			It("returns an error indicating the page failed to add the cookie", func() {
 				session.Err = errors.New("some error")
 				_, err = driver.GetURL()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#SetURL", func() {
+		BeforeEach(func() {
+			err = driver.Navigate("http://example.com")
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.Method).To(Equal("POST"))
+		})
+
+		It("hits the /url endpoint", func() {
+			Expect(session.Endpoint).To(Equal("url"))
+		})
+
+		It("includes the new URL in the request body", func() {
+			Expect(session.BodyJSON).To(MatchJSON(`{"url": "http://example.com"}`))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to change URL", func() {
+				session.Err = errors.New("some error")
+				err = driver.Navigate("http://example.com")
 				Expect(err).To(MatchError("some error"))
 			})
 		})
