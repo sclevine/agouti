@@ -7,7 +7,7 @@ import (
 	. "github.com/sclevine/agouti/page"
 )
 
-var _ = Feature("Agouti running on Firefox", func() {
+var _ = PFeature("Agouti running on Firefox", func() {
 	Scenario("Loading a page", func() {
 		StartSelenium()
 		defer StopSelenium()
