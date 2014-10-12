@@ -17,7 +17,7 @@ type driver interface {
 	Screenshot() ([]byte, error)
 	SetCookie(cookie *webdriver.Cookie) error
 	DeleteCookie(name string) error
-	DeleteAllCookies() error
+	DeleteCookies() error
 	GetURL() (string, error)
 	SetURL(url string) error
 }
@@ -45,7 +45,7 @@ func (p *Page) DeleteCookie(name string) error {
 }
 
 func (p *Page) ClearCookies() error {
-	if err := p.Driver.DeleteAllCookies(); err != nil {
+	if err := p.Driver.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil

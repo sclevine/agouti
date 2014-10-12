@@ -29,7 +29,7 @@ type Driver struct {
 		Err  error
 	}
 
-	DeleteAllCookiesCall struct {
+	DeleteCookiesCall struct {
 		WasCalled bool
 		Err       error
 	}
@@ -68,9 +68,9 @@ func (d *Driver) DeleteCookie(name string) error {
 	return d.DeleteCookieCall.Err
 }
 
-func (d *Driver) DeleteAllCookies() error {
-	d.DeleteAllCookiesCall.WasCalled = true
-	return d.DeleteAllCookiesCall.Err
+func (d *Driver) DeleteCookies() error {
+	d.DeleteCookiesCall.WasCalled = true
+	return d.DeleteCookiesCall.Err
 }
 
 func (d *Driver) GetURL() (string, error) {

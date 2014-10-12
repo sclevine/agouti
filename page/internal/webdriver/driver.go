@@ -79,7 +79,7 @@ func (d *Driver) DeleteCookie(cookieName string) error {
 	return d.Session.Execute("cookie/"+cookieName, "DELETE", nil, &struct{}{})
 }
 
-func (d *Driver) DeleteAllCookies() error {
+func (d *Driver) DeleteCookies() error {
 	return d.Session.Execute("cookie", "DELETE", nil, &struct{}{})
 }
 

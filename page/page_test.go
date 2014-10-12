@@ -98,7 +98,7 @@ var _ = Describe("Page", func() {
 	Describe("#ClearCookies", func() {
 		It("instructs the driver to delete all cookies", func() {
 			page.ClearCookies()
-			Expect(driver.DeleteAllCookiesCall.WasCalled).To(BeTrue())
+			Expect(driver.DeleteCookiesCall.WasCalled).To(BeTrue())
 		})
 
 		Context("when deleteing all cookies succeeds", func() {
@@ -110,7 +110,7 @@ var _ = Describe("Page", func() {
 
 		Context("when deleting all cookies fails", func() {
 			It("returns an error", func() {
-				driver.DeleteAllCookiesCall.Err = errors.New("some error")
+				driver.DeleteCookiesCall.Err = errors.New("some error")
 				err := page.ClearCookies()
 				Expect(err).To(MatchError("failed to clear cookies: some error"))
 			})

@@ -173,9 +173,9 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
-	Describe("#DeleteAllCookies", func() {
+	Describe("#DeleteCookies", func() {
 		BeforeEach(func() {
-			err = driver.DeleteAllCookies()
+			err = driver.DeleteCookies()
 		})
 
 		It("makes a DELETE request", func() {
@@ -195,7 +195,7 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to delete the cookies", func() {
 				session.Err = errors.New("some error")
-				err = driver.DeleteAllCookies()
+				err = driver.DeleteCookies()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
