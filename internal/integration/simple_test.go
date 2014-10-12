@@ -1,30 +1,11 @@
 package integration_test
 
 import (
-	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
 	. "github.com/sclevine/agouti/matchers"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"time"
 )
-
-var server *httptest.Server
-var submitted bool
-
-var _ = BeforeSuite(func() {
-	server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		submitted = request.Method == "POST"
-		html, _ := ioutil.ReadFile("test_page.html")
-		response.Write(html)
-	}))
-})
-
-var _ = AfterSuite(func() {
-	server.Close()
-})
 
 var _ = Feature("Agouti", func() {
 	Scenario("Loading a page with a cookie and clicking", func() {

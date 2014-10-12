@@ -41,4 +41,3 @@ func XScenario(description string, ignored ...interface{}) bool {
 func Step(text string, callbacks ...func()) {
 	ginkgo.By(text, callbacks...)
 }
-
