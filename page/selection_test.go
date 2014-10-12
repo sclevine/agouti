@@ -190,7 +190,7 @@ var _ = Describe("Selection", func() {
 
 			Context("when the determining the selected status of the element fails", func() {
 				BeforeEach(func() {
-					element.SelectedCall.Err = errors.New("some error")
+					element.IsSelectedCall.Err = errors.New("some error")
 				})
 
 				It("returns an error", func() {
@@ -200,7 +200,7 @@ var _ = Describe("Selection", func() {
 
 			Context("when the box is already checked", func() {
 				BeforeEach(func() {
-					element.SelectedCall.ReturnSelected = true
+					element.IsSelectedCall.ReturnSelected = true
 				})
 
 				It("does not click on the checkbox", func() {
@@ -211,7 +211,7 @@ var _ = Describe("Selection", func() {
 
 			Context("when the box is not checked", func() {
 				BeforeEach(func() {
-					element.SelectedCall.ReturnSelected = false
+					element.IsSelectedCall.ReturnSelected = false
 				})
 
 				It("clicks on the checkbox", func() {
@@ -362,7 +362,7 @@ var _ = Describe("Selection", func() {
 
 		Context("if the the driver fails to retrieve the element's selected status", func() {
 			It("returns an error", func() {
-				element.SelectedCall.Err = errors.New("some error")
+				element.IsSelectedCall.Err = errors.New("some error")
 				_, err := selection.Selected()
 				Expect(err).To(MatchError("failed to determine whether selector '#selector' is selected: some error"))
 			})
@@ -370,13 +370,13 @@ var _ = Describe("Selection", func() {
 
 		Context("if the driver succeeds in retrieving the element's selected status", func() {
 			It("returns the selected status when selected", func() {
-				element.SelectedCall.ReturnSelected = true
+				element.IsSelectedCall.ReturnSelected = true
 				value, _ := selection.Selected()
 				Expect(value).To(BeTrue())
 			})
 
 			It("returns the selected status when not selected", func() {
-				element.SelectedCall.ReturnSelected = false
+				element.IsSelectedCall.ReturnSelected = false
 				value, _ := selection.Selected()
 				Expect(value).To(BeFalse())
 			})

@@ -201,7 +201,7 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
-	Describe("#Screenshot", func() {
+	Describe("#GetScreenshot", func() {
 		var (
 			image []byte
 			err   error
@@ -209,7 +209,7 @@ var _ = Describe("Webdriver", func() {
 
 		BeforeEach(func() {
 			session.Result = `"c29tZS1wbmc="`
-			image, err = driver.Screenshot()
+			image, err = driver.GetScreenshot()
 		})
 
 		It("makes a GET request", func() {
@@ -234,7 +234,7 @@ var _ = Describe("Webdriver", func() {
 			Context("and the image is not valid base64", func() {
 				BeforeEach(func() {
 					session.Result = `"..."`
-					image, err = driver.Screenshot()
+					image, err = driver.GetScreenshot()
 				})
 
 				It("returns an error", func() {
@@ -246,7 +246,7 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			BeforeEach(func() {
 				session.Err = errors.New("some error")
-				image, err = driver.Screenshot()
+				image, err = driver.GetScreenshot()
 			})
 
 			It("returns an error", func() {

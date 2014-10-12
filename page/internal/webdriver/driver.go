@@ -18,10 +18,10 @@ type Element interface {
 	GetText() (string, error)
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
+	IsSelected() (bool, error)
 	Click() error
 	Clear() error
 	Value(text string) error
-	Selected() (bool, error)
 	Submit() error
 }
 
@@ -83,7 +83,7 @@ func (d *Driver) DeleteCookies() error {
 	return d.Session.Execute("cookie", "DELETE", nil, &struct{}{})
 }
 
-func (d *Driver) Screenshot() ([]byte, error) {
+func (d *Driver) GetScreenshot() ([]byte, error) {
 	var base64Image string
 
 	if err := d.Session.Execute("screenshot", "GET", nil, &base64Image); err != nil {

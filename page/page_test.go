@@ -209,7 +209,7 @@ var _ = Describe("Page", func() {
 
 		Context("when the driver fails to retrieve a screenshot", func() {
 			BeforeEach(func() {
-				driver.ScreenshotCall.Err = errors.New("some error")
+				driver.GetScreenshotCall.Err = errors.New("some error")
 			})
 
 			It("returns an error indicating so", func() {
@@ -232,7 +232,7 @@ var _ = Describe("Page", func() {
 			var err error
 
 			BeforeEach(func() {
-				driver.ScreenshotCall.ReturnImage = []byte("some-image")
+				driver.GetScreenshotCall.ReturnImage = []byte("some-image")
 				err = page.Screenshot(filename)
 			})
 
@@ -315,7 +315,7 @@ var _ = Describe("Page", func() {
 
 		Describe("#Selected", func() {
 			It("calls selection#Selected() on the body of the page", func() {
-				element.SelectedCall.Err = errors.New("some error")
+				element.IsSelectedCall.Err = errors.New("some error")
 				_, err := page.Selected()
 				Expect(err).To(MatchError("failed to determine whether selector 'body' is selected: some error"))
 			})

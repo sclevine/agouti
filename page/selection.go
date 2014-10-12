@@ -76,7 +76,7 @@ func (s *selection) Check() error {
 		return fmt.Errorf("selector '%s' does not refer to a checkbox", s.Selector())
 	}
 
-	selected, err := element.Selected()
+	selected, err := element.IsSelected()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve selected state of selector '%s': %s", s.Selector(), err)
 	}
@@ -135,7 +135,7 @@ func (s *selection) Selected() (bool, error) {
 		return false, fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
 	}
 
-	selected, err := element.Selected()
+	selected, err := element.IsSelected()
 	if err != nil {
 		return false, fmt.Errorf("failed to determine whether selector '%s' is selected: %s", s.Selector(), err)
 	}

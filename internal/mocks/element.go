@@ -33,7 +33,7 @@ type Element struct {
 		Err  error
 	}
 
-	SelectedCall struct {
+	IsSelectedCall struct {
 		ReturnSelected bool
 		Err            error
 	}
@@ -73,8 +73,8 @@ func (e *Element) Value(text string) error {
 	return e.ValueCall.Err
 }
 
-func (e *Element) Selected() (bool, error) {
-	return e.SelectedCall.ReturnSelected, e.SelectedCall.Err
+func (e *Element) IsSelected() (bool, error) {
+	return e.IsSelectedCall.ReturnSelected, e.IsSelectedCall.Err
 }
 
 func (e *Element) Submit() error {

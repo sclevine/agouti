@@ -214,12 +214,12 @@ var _ = Describe("Element", func() {
 		})
 	})
 
-	Describe("#Selected", func() {
+	Describe("#IsSelected", func() {
 		var value bool
 
 		BeforeEach(func() {
 			session.Result = `true`
-			value, err = element.Selected()
+			value, err = element.IsSelected()
 		})
 
 		It("makes a GET request", func() {
@@ -243,7 +243,7 @@ var _ = Describe("Element", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the selected status", func() {
 				session.Err = errors.New("some error")
-				_, err = element.Selected()
+				_, err = element.IsSelected()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

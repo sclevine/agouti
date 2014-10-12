@@ -14,7 +14,7 @@ type Page struct {
 type driver interface {
 	GetElements(selector string) ([]webdriver.Element, error)
 	GetWindow() (webdriver.Window, error)
-	Screenshot() ([]byte, error)
+	GetScreenshot() ([]byte, error)
 	SetCookie(cookie *webdriver.Cookie) error
 	DeleteCookie(name string) error
 	DeleteCookies() error
@@ -83,7 +83,7 @@ func (p *Page) Screenshot(filename string) error {
 	}
 	defer file.Close()
 
-	screenshot, err := p.Driver.Screenshot()
+	screenshot, err := p.Driver.GetScreenshot()
 	if err != nil {
 		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)

@@ -14,7 +14,7 @@ type Driver struct {
 		Err          error
 	}
 
-	ScreenshotCall struct {
+	GetScreenshotCall struct {
 		ReturnImage []byte
 		Err         error
 	}
@@ -54,8 +54,8 @@ func (d *Driver) GetWindow() (webdriver.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 
-func (d *Driver) Screenshot() ([]byte, error) {
-	return d.ScreenshotCall.ReturnImage, d.ScreenshotCall.Err
+func (d *Driver) GetScreenshot() ([]byte, error) {
+	return d.GetScreenshotCall.ReturnImage, d.GetScreenshotCall.Err
 }
 
 func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {

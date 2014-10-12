@@ -54,7 +54,7 @@ func (e *Element) Value(text string) error {
 	return e.Session.Execute(e.url()+"/value", "POST", request, &struct{}{})
 }
 
-func (e *Element) Selected() (bool, error) {
+func (e *Element) IsSelected() (bool, error) {
 	var selected bool
 	if err := e.Session.Execute(e.url()+"/selected", "GET", nil, &selected); err != nil {
 		return false, err
