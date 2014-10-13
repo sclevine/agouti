@@ -7,7 +7,7 @@ import (
 	. "github.com/sclevine/agouti/page"
 )
 
-var _ = Feature("Agouti driving real browsers", func() {
+var _ = PFeature("Agouti driving real browsers", func() {
 	Scenario("Chrome", func() {
 		StartChrome()
 		defer StopChrome()
