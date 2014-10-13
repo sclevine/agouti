@@ -15,6 +15,7 @@ type Selection interface {
 	Attribute(attribute string) (string, error)
 	CSS(property string) (string, error)
 	Check() error
+	Uncheck() error
 	Selected() (bool, error)
 	Select(text string) error
 	Submit() error
@@ -62,6 +63,14 @@ func (s *selection) Fill(text string) error {
 }
 
 func (s *selection) Check() error {
+	return s.setChecked(true)
+}
+
+func (s *selection) Uncheck() error {
+	return s.setChecked(false)
+}
+
+func (s *selection) setChecked(checked bool) error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
@@ -78,12 +87,12 @@ func (s *selection) Check() error {
 
 	selected, err := element.IsSelected()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve selected state of selector '%s': %s", s.Selector(), err)
+		return fmt.Errorf("failed to retrieve state of selector '%s': %s", s.Selector(), err)
 	}
 
-	if !selected {
+	if selected != checked {
 		if err := element.Click(); err != nil {
-			return fmt.Errorf("failed to check selector '%s': %s", s.Selector(), err)
+			return fmt.Errorf("failed to click selector '%s': %s", s.Selector(), err)
 		}
 	}
 

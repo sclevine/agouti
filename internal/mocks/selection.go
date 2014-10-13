@@ -46,6 +46,10 @@ func (s *Selection) Check() error {
 	return nil
 }
 
+func (s *Selection) Uncheck() error {
+	return nil
+}
+
 func (s *Selection) Fill(text string) error {
 	return nil
 }

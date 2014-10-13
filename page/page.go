@@ -132,6 +132,10 @@ func (p *Page) Check() error {
 	return p.body().Check()
 }
 
+func (p *Page) Uncheck() error {
+	return p.body().Uncheck()
+}
+
 func (p *Page) Fill(text string) error {
 	return p.body().Fill(text)
 }

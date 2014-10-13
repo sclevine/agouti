@@ -194,7 +194,7 @@ var _ = Describe("Selection", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(selection.Check()).To(MatchError("failed to retrieve selected state of selector '#selector': some error"))
+					Expect(selection.Check()).To(MatchError("failed to retrieve state of selector '#selector': some error"))
 				})
 			})
 
@@ -225,10 +225,23 @@ var _ = Describe("Selection", func() {
 					})
 
 					It("returns an error", func() {
-						Expect(selection.Check()).To(MatchError("failed to check selector '#selector': some error"))
+						Expect(selection.Check()).To(MatchError("failed to click selector '#selector': some error"))
 					})
 				})
 			})
+		})
+	})
+
+	Describe("#Uncheck", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			element.GetAttributeCall.ReturnValue = "checkbox"
+			element.IsSelectedCall.ReturnSelected = true
+		})
+
+		It("clicks on an checked checkbox", func() {
+			selection.Uncheck()
+			Expect(element.ClickCall.Called).To(BeTrue())
 		})
 	})
 

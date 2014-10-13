@@ -319,6 +319,13 @@ var _ = Describe("Page", func() {
 			})
 		})
 
+		Describe("#Uncheck", func() {
+			It("calls selection#Uncheck() on the body of the page", func() {
+				element.ClickCall.Err = errors.New("some error")
+				Expect(page.Uncheck()).To(MatchError("selector 'body' does not refer to a checkbox"))
+			})
+		})
+
 		Describe("#Text", func() {
 			It("calls selection#Text() on the body of the page", func() {
 				element.GetTextCall.Err = errors.New("some error")
