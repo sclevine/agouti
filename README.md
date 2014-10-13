@@ -5,10 +5,25 @@ Agouti
 
 Integration testing for Go using Ginkgo 
 
-Install (OS X):
+Install:
+```bash
+$ go get github.com/sclevine/agouti
 ```
-brew install phantomjs
-go get github.com/sclevine/agouti
+To use with PhantomJS (OS X):
+```bash
+$ brew install phantomjs
+```
+To use with Selenium Webdriver (OS X):
+```bash
+$ brew install selenium-server-standalone
+```
+To use the `matcher` package, which provides Gomega matchers:
+```bash
+$ go get github.com/onsi/gomega
+```
+To use the `dsl` package, which defines tests that can be run with Ginkgo:
+```bash
+$ go get github.com/onsi/ginkgo/ginkgo
 ```
 
 If you use the `dsl` package, note that:
@@ -19,9 +34,11 @@ If you use the `dsl` package, note that:
 
 Feel free to import Ginkgo and use any of its container blocks instead! Agouti is 100% compatible with Ginkgo and Gomega.
 
-Make sure to add `StartPhantom()` and `StopPhantom()` to your `project_suite_test.go` file, like so:
+If you plan to use Agouti to write Ginkgo tests, add the start and stop commands for your choice of webdriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
+
+See this example `project_suite_test.go` file:
 ```Go
-package your_project_test
+package project_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -31,17 +48,21 @@ import (
 	"testing"
 )
 
-func TestYourProject(t *testing.T) {
+func TestProject(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Your Project Suite")
+	RunSpecs(t, "Project Suite")
 }
 
 var _ = BeforeSuite(func() {
 	StartPhantom()
+	// and/or
+	StartSelenium("firefox")
 });
 
 var _ = AfterSuite(func() {
 	StopPhantom()
+	// and/or
+	StopSelenium()
 });
 ```
 
