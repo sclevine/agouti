@@ -7,8 +7,21 @@ import (
 	. "github.com/sclevine/agouti/page"
 )
 
-var _ = PFeature("Agouti running on Firefox", func() {
-	Scenario("Loading a page", func() {
+var _ = Feature("Agouti driving real browsers", func() {
+	Scenario("Chrome", func() {
+		StartChrome()
+		defer StopChrome()
+
+		page := CreatePage("chrome")
+		page.Size(640, 480)
+		page.Navigate(server.URL)
+
+		Step("find the title of the page", func() {
+			Expect(page).To(HaveTitle("Page Title"))
+		})
+	})
+
+	Scenario("Firefox via Selenium", func() {
 		StartSelenium()
 		defer StopSelenium()
 

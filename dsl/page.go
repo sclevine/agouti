@@ -17,8 +17,15 @@ func CreatePage(pageType ...string) AgoutiPage {
 	)
 
 	if len(pageType) == 0 {
+		pageType = append(pageType, "phantom")
+	}
+
+	switch pageType[0] {
+	case "phantom", "phantomjs":
 		newPage, err = page.PhantomPage()
-	} else {
+	case "chrome":
+		newPage, err = page.ChromePage()
+	default:
 		newPage, err = page.SeleniumPage(pageType[0])
 	}
 

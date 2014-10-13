@@ -42,12 +42,11 @@ func StopSelenium() {
 func SeleniumPage(pageType string) (*Page, error) {
 	capabilites := &service.Capabilities{BrowserName: pageType}
 	session, err := seleniumService.CreateSession(capabilites)
-	seleniumSessions = append(seleniumSessions, session)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate Selenium page: %s", err)
 	}
 
+	seleniumSessions = append(seleniumSessions, session)
 	driver := &webdriver.Driver{session}
 	return &Page{driver}, nil
 }

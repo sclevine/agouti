@@ -15,13 +15,17 @@ func TestIntegration(t *testing.T) {
 	RunSpecs(t, "Integration Suite")
 }
 
-var server *httptest.Server
-var submitted bool
+var (
+	server *httptest.Server
+	submitted bool
+)
 
 var _ = BeforeSuite(func() {
 	StartPhantom()
 	server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		submitted = request.Method == "POST"
+		if request.Method == "POST" {
+			submitted = true
+		}
 		html, _ := ioutil.ReadFile("test_page.html")
 		response.Write(html)
 	}))

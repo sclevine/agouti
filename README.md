@@ -13,6 +13,10 @@ To use with PhantomJS (OS X):
 ```bash
 $ brew install phantomjs
 ```
+To use with ChromeDriver (OS X):
+```bash
+$ brew install chromedriver
+```
 To use with Selenium Webdriver (OS X):
 ```bash
 $ brew install selenium-server-standalone
@@ -54,12 +58,16 @@ func TestProject(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	StartChrome()
+	// and/or
 	StartPhantom()
 	// and/or
 	StartSelenium()
 });
 
 var _ = AfterSuite(func() {
+	StopChrome()
+	// and/or
 	StopPhantom()
 	// and/or
 	StopSelenium()
@@ -80,7 +88,9 @@ import (
 Feature("Agouti", func() {
 	Scenario("Loading a page", func() {
 		page := CreatePage() // for PhantomJS
+		// page := CreatePage("chrome") // for Chrome via ChromeDriver
 		// page := CreatePage("firefox") // for Firefox via Selenium
+		// page := CreatePage("safari") // for Safari via Selenium
 		page.Size(640, 480)
 		page.Navigate(server.URL)
 

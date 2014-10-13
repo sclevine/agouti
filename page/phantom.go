@@ -3,11 +3,15 @@ package page
 import (
 	"fmt"
 	"github.com/sclevine/agouti/page/internal/service"
+	"github.com/sclevine/agouti/page/internal/session"
 	"github.com/sclevine/agouti/page/internal/webdriver"
 	"time"
 )
 
-var phantomService *service.Service
+var (
+	phantomService *service.Service
+	phantomSessions []*session.Session
+)
 
 func StartPhantom() error {
 	address, err := freeAddress()
@@ -27,6 +31,9 @@ func StartPhantom() error {
 }
 
 func StopPhantom() {
+	for _, session := range phantomSessions {
+		session.Destroy()
+	}
 	phantomService.Stop()
 }
 
@@ -37,6 +44,7 @@ func PhantomPage() (*Page, error) {
 		return nil, fmt.Errorf("failed to generate PhantomJS page: %s", err)
 	}
 
+	phantomSessions = append(phantomSessions, session)
 	driver := &webdriver.Driver{session}
 	return &Page{driver}, nil
 }
