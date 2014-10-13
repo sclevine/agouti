@@ -56,7 +56,7 @@ func TestProject(t *testing.T) {
 var _ = BeforeSuite(func() {
 	StartPhantom()
 	// and/or
-	StartSelenium("firefox")
+	StartSelenium()
 });
 
 var _ = AfterSuite(func() {
@@ -79,7 +79,8 @@ import (
 
 Feature("Agouti", func() {
 	Scenario("Loading a page", func() {
-		page := CreatePage()
+		page := CreatePage() // for PhantomJS
+		// page := CreatePage("firefox") // for Firefox via Selenium
 		page.Size(640, 480)
 		page.Navigate(server.URL)
 
