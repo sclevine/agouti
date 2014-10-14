@@ -2,16 +2,13 @@ package page
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/page/internal/webdriver"
+	"github.com/sclevine/agouti/core/internal/driver"
+	"github.com/sclevine/agouti/core/internal/selection"
 	"os"
 	"path/filepath"
 )
 
-type Page struct {
-	Driver driver
-}
-
-type PageOnly interface {
+type Page interface {
 	Navigate(url string) error
 	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
 	DeleteCookie(name string) error
@@ -22,11 +19,14 @@ type PageOnly interface {
 	Title() (string, error)
 }
 
+type page struct {
+	driver driver
+}
+
 type driver interface {
-	GetElements(selector string) ([]webdriver.Element, error)
-	GetWindow() (webdriver.Window, error)
+	GetWindow() (driver.Window, error)
 	GetScreenshot() ([]byte, error)
-	SetCookie(cookie *webdriver.Cookie) error
+	SetCookie(cookie *driver.Cookie) error
 	DeleteCookie(name string) error
 	DeleteCookies() error
 	GetURL() (string, error)
@@ -34,36 +34,40 @@ type driver interface {
 	GetTitle() (string, error)
 }
 
-func (p *Page) Navigate(url string) error {
+func New(driver driver) Page {
+	return &page{driver}
+} 
+
+func (p *page) Navigate(url string) error {
 	if err := p.Driver.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil
 }
 
-func (p *Page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
-	cookie := webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
+func (p *page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
+	cookie := driver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
 	if err := p.Driver.SetCookie(&cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil
 }
 
-func (p *Page) DeleteCookie(name string) error {
+func (p *page) DeleteCookie(name string) error {
 	if err := p.Driver.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}
 	return nil
 }
 
-func (p *Page) ClearCookies() error {
+func (p *page) ClearCookies() error {
 	if err := p.Driver.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }
 
-func (p *Page) URL() (string, error) {
+func (p *page) URL() (string, error) {
 	url, err := p.Driver.GetURL()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve URL: %s", err)
@@ -71,7 +75,7 @@ func (p *Page) URL() (string, error) {
 	return url, nil
 }
 
-func (p *Page) Size(width, height int) error {
+func (p *page) Size(width, height int) error {
 	window, err := p.Driver.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
@@ -84,7 +88,7 @@ func (p *Page) Size(width, height int) error {
 	return nil
 }
 
-func (p *Page) Screenshot(filename string) error {
+func (p *page) Screenshot(filename string) error {
 	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 		return fmt.Errorf("failed to create directory for screenshot: %s", err)
 	}
@@ -108,7 +112,7 @@ func (p *Page) Screenshot(filename string) error {
 	return nil
 }
 
-func (p *Page) Title() (string, error) {
+func (p *page) Title() (string, error) {
 	title, err := p.Driver.GetTitle()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
@@ -116,54 +120,6 @@ func (p *Page) Title() (string, error) {
 	return title, nil
 }
 
-func (p *Page) Find(selector string) Selection {
-	return &selection{p.Driver, []string{selector}}
-}
-
-func (p *Page) Selector() string {
-	return p.body().Selector()
-}
-
-func (p *Page) Click() error {
-	return p.body().Click()
-}
-
-func (p *Page) Check() error {
-	return p.body().Check()
-}
-
-func (p *Page) Uncheck() error {
-	return p.body().Uncheck()
-}
-
-func (p *Page) Fill(text string) error {
-	return p.body().Fill(text)
-}
-
-func (p *Page) Text() (string, error) {
-	return p.body().Text()
-}
-
-func (p *Page) Attribute(attribute string) (string, error) {
-	return p.body().Attribute(attribute)
-}
-
-func (p *Page) CSS(property string) (string, error) {
-	return p.body().CSS(property)
-}
-
-func (p *Page) Selected() (bool, error) {
-	return p.body().Selected()
-}
-
-func (p *Page) Select(text string) error {
-	return p.body().Select(text)
-}
-
-func (p *Page) Submit() error {
-	return p.body().Submit()
-}
-
-func (p *Page) body() *selection {
-	return &selection{p.Driver, []string{"body"}}
+func (p *page) Find(selector string) selection.Selection {
+	return selection.New(p.Driver).Find(selector)
 }

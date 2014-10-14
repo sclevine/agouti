@@ -21,7 +21,8 @@ var (
 )
 
 var _ = BeforeSuite(func() {
-	StartPhantom()
+	browser = Chrome()
+	browser.Start()
 	server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		if request.Method == "POST" {
 			submitted = true
@@ -33,5 +34,5 @@ var _ = BeforeSuite(func() {
 
 var _ = AfterSuite(func() {
 	server.Close()
-	StopPhantom()
+	browser.Stop()
 })

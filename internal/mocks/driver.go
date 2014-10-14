@@ -1,16 +1,16 @@
 package mocks
 
-import "github.com/sclevine/agouti/page/internal/webdriver"
+import "github.com/sclevine/agouti/page/internal/driver"
 
 type Driver struct {
 	GetElementsCall struct {
 		Selector       string
-		ReturnElements []webdriver.Element
+		ReturnElements []driver.Element
 		Err            error
 	}
 
 	GetWindowCall struct {
-		ReturnWindow webdriver.Window
+		ReturnWindow driver.Window
 		Err          error
 	}
 
@@ -20,7 +20,7 @@ type Driver struct {
 	}
 
 	SetCookieCall struct {
-		Cookie *webdriver.Cookie
+		Cookie *driver.Cookie
 		Err    error
 	}
 
@@ -50,12 +50,12 @@ type Driver struct {
 	}
 }
 
-func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
+func (d *Driver) GetElements(selector string) ([]driver.Element, error) {
 	d.GetElementsCall.Selector = selector
 	return d.GetElementsCall.ReturnElements, d.GetElementsCall.Err
 }
 
-func (d *Driver) GetWindow() (webdriver.Window, error) {
+func (d *Driver) GetWindow() (driver.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 
@@ -63,7 +63,7 @@ func (d *Driver) GetScreenshot() ([]byte, error) {
 	return d.GetScreenshotCall.ReturnImage, d.GetScreenshotCall.Err
 }
 
-func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {
+func (d *Driver) SetCookie(cookie *driver.Cookie) error {
 	d.SetCookieCall.Cookie = cookie
 	return d.SetCookieCall.Err
 }

@@ -1,8 +1,8 @@
-package page
+package selection
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/page/internal/webdriver"
+	"github.com/sclevine/agouti/core/internal/driver"
 	"strings"
 )
 
@@ -21,9 +21,18 @@ type Selection interface {
 	Submit() error
 }
 
+
 type selection struct {
 	driver    driver
 	selectors []string
+}
+
+type driver interface {
+	GetElements(selector string) ([]driver.Element, error)
+}
+
+func NewSelection(driver driver) Selection {
+	return &selection{driver}
 }
 
 func (s *selection) Find(selector string) Selection {
@@ -187,7 +196,7 @@ func (s *selection) Submit() error {
 	return nil
 }
 
-func (s *selection) getSingleElement() (webdriver.Element, error) {
+func (s *selection) getSingleElement() (driver.Element, error) {
 	elements, err := s.driver.GetElements(s.Selector())
 
 	if err != nil {

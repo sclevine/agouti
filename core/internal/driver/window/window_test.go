@@ -1,7 +1,7 @@
 package window_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/webdriver/window"
+	. "github.com/sclevine/agouti/page/internal/driver/window"
 
 	"errors"
 	. "github.com/onsi/ginkgo"
@@ -27,15 +27,15 @@ var _ = Describe("Window", func() {
 		})
 
 		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("POST"))
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
 		It("hits the /window/:id/size endpoint", func() {
-			Expect(session.Endpoint).To(Equal("window/some-id/size"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("window/some-id/size"))
 		})
 
 		It("sends the width and height as the post body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"width":640,"height":480}`))
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"width":640,"height":480}`))
 		})
 
 		Context("when the session indicates a success", func() {
@@ -46,7 +46,7 @@ var _ = Describe("Window", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the text", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				err = window.SetSize(640, 480)
 				Expect(err).To(MatchError("some error"))
 			})

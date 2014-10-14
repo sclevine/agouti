@@ -3,17 +3,27 @@ package mocks
 import "encoding/json"
 
 type Session struct {
-	Endpoint string
-	Method   string
-	BodyJSON []byte
-	Result   string
-	Err      error
+	ExecuteCall struct {
+		Endpoint string
+		Method   string
+		BodyJSON []byte
+		Result   string
+		Err      error
+	}
+
+	DestroyCall struct {
+		Err error
+	}
 }
 
 func (s *Session) Execute(endpoint, method string, body, result interface{}) error {
-	s.Endpoint = endpoint
-	s.Method = method
-	s.BodyJSON, _ = json.Marshal(body)
-	json.Unmarshal([]byte(s.Result), result)
-	return s.Err
+	s.ExecuteCall.Endpoint = endpoint
+	s.ExecuteCall.Method = method
+	s.ExecuteCall.BodyJSON, _ = json.Marshal(body)
+	json.Unmarshal([]byte(s.ExecuteCall.Result), result)
+	return s.ExecuteCall.Err
+}
+
+func (s *Session) Destroy() error {
+	return s.DestroyCall.Err
 }

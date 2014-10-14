@@ -1,14 +1,14 @@
-package webdriver_test
+package driver_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/webdriver"
+	. "github.com/sclevine/agouti/page/internal/driver"
 
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
-	"github.com/sclevine/agouti/page/internal/webdriver/element"
-	"github.com/sclevine/agouti/page/internal/webdriver/window"
+	"github.com/sclevine/agouti/page/internal/driver/element"
+	"github.com/sclevine/agouti/page/internal/driver/window"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -27,20 +27,20 @@ var _ = Describe("Webdriver", func() {
 		var elements []Element
 
 		BeforeEach(func() {
-			session.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
+			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
 			elements, err = driver.GetElements("#selector")
 		})
 
 		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("POST"))
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
 		It("hits the /url endpoint", func() {
-			Expect(session.Endpoint).To(Equal("elements"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("elements"))
 		})
 
 		It("includes the new URL in the request body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"using": "css selector", "value": "#selector"}`))
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"using": "css selector", "value": "#selector"}`))
 		})
 
 		Context("when the session indicates a success", func() {
@@ -58,7 +58,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				_, err = driver.GetElements("#selector")
 				Expect(err).To(MatchError("some error"))
 			})
@@ -69,16 +69,16 @@ var _ = Describe("Webdriver", func() {
 		var driverWindow Window
 
 		BeforeEach(func() {
-			session.Result = `"some-id"`
+			session.ExecuteCall.Result = `"some-id"`
 			driverWindow, err = driver.GetWindow()
 		})
 
 		It("makes a GET request", func() {
-			Expect(session.Method).To(Equal("GET"))
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
 		})
 
 		It("hits the /window_handle endpoint", func() {
-			Expect(session.Endpoint).To(Equal("window_handle"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("window_handle"))
 		})
 
 		Context("when the session indicates a success", func() {
@@ -94,7 +94,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				_, err = driver.GetWindow()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -119,15 +119,15 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("POST"))
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
 		It("hits the /cookie endpoint", func() {
-			Expect(session.Endpoint).To(Equal("cookie"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("cookie"))
 		})
 
 		It("includes the cookie to add in the request body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"cookie":{"name":"some-name","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`))
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"cookie":{"name":"some-name","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -138,7 +138,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to add the cookie", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				err = driver.SetCookie(cookie)
 				Expect(err).To(MatchError("some error"))
 			})
@@ -151,11 +151,11 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("DELETE"))
+			Expect(session.ExecuteCall.Method).To(Equal("DELETE"))
 		})
 
 		It("hits the /cookie/:name endpoint", func() {
-			Expect(session.Endpoint).To(Equal("cookie/some-cookie"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("cookie/some-cookie"))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -166,7 +166,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to delete the cookie", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				err = driver.DeleteCookie("some-cookie")
 				Expect(err).To(MatchError("some error"))
 			})
@@ -179,11 +179,11 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("makes a DELETE request", func() {
-			Expect(session.Method).To(Equal("DELETE"))
+			Expect(session.ExecuteCall.Method).To(Equal("DELETE"))
 		})
 
 		It("hits the /cookie endpoint", func() {
-			Expect(session.Endpoint).To(Equal("cookie"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("cookie"))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -194,7 +194,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to delete the cookies", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				err = driver.DeleteCookies()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -208,16 +208,16 @@ var _ = Describe("Webdriver", func() {
 		)
 
 		BeforeEach(func() {
-			session.Result = `"c29tZS1wbmc="`
+			session.ExecuteCall.Result = `"c29tZS1wbmc="`
 			image, err = driver.GetScreenshot()
 		})
 
 		It("makes a GET request", func() {
-			Expect(session.Method).To(Equal("GET"))
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
 		})
 
 		It("hits the /screenshot endpoint", func() {
-			Expect(session.Endpoint).To(Equal("screenshot"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("screenshot"))
 		})
 
 		Context("when the session indicates a success", func() {
@@ -233,7 +233,7 @@ var _ = Describe("Webdriver", func() {
 
 			Context("and the image is not valid base64", func() {
 				BeforeEach(func() {
-					session.Result = `"..."`
+					session.ExecuteCall.Result = `"..."`
 					image, err = driver.GetScreenshot()
 				})
 
@@ -245,7 +245,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			BeforeEach(func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				image, err = driver.GetScreenshot()
 			})
 
@@ -259,16 +259,16 @@ var _ = Describe("Webdriver", func() {
 		var url string
 
 		BeforeEach(func() {
-			session.Result = `"http://example.com"`
+			session.ExecuteCall.Result = `"http://example.com"`
 			url, err = driver.GetURL()
 		})
 
 		It("makes a GET request", func() {
-			Expect(session.Method).To(Equal("GET"))
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
 		})
 
 		It("hits the /url endpoint", func() {
-			Expect(session.Endpoint).To(Equal("url"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("url"))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -283,7 +283,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to retrieve the URL", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				_, err = driver.GetURL()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -296,15 +296,15 @@ var _ = Describe("Webdriver", func() {
 		})
 
 		It("makes a POST request", func() {
-			Expect(session.Method).To(Equal("POST"))
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
 		It("hits the /url endpoint", func() {
-			Expect(session.Endpoint).To(Equal("url"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("url"))
 		})
 
 		It("includes the new URL in the request body", func() {
-			Expect(session.BodyJSON).To(MatchJSON(`{"url": "http://example.com"}`))
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"url": "http://example.com"}`))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -315,7 +315,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to change URL", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				err = driver.SetURL("http://example.com")
 				Expect(err).To(MatchError("some error"))
 			})
@@ -326,16 +326,16 @@ var _ = Describe("Webdriver", func() {
 		var title string
 
 		BeforeEach(func() {
-			session.Result = `"Some Title"`
+			session.ExecuteCall.Result = `"Some Title"`
 			title, err = driver.GetTitle()
 		})
 
 		It("makes a GET request", func() {
-			Expect(session.Method).To(Equal("GET"))
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
 		})
 
 		It("hits the /title endpoint", func() {
-			Expect(session.Endpoint).To(Equal("title"))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("title"))
 		})
 
 		Context("when the sesssion indicates a success", func() {
@@ -350,7 +350,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the page failed to retrieve the title", func() {
-				session.Err = errors.New("some error")
+				session.ExecuteCall.Err = errors.New("some error")
 				_, err = driver.GetURL()
 				Expect(err).To(MatchError("some error"))
 			})

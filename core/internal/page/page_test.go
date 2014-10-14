@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/internal/mocks"
 	. "github.com/sclevine/agouti/page"
-	"github.com/sclevine/agouti/page/internal/webdriver"
+	"github.com/sclevine/agouti/page/internal/driver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -284,93 +284,6 @@ var _ = Describe("Page", func() {
 	Describe("#Find", func() {
 		It("returns a selection", func() {
 			Expect(page.Find("#selector").Selector()).To(Equal("#selector"))
-		})
-	})
-
-	Describe("#Selector", func() {
-		It("returns body as the selector", func() {
-			Expect(page.Selector()).To(Equal("body"))
-		})
-	})
-
-	Describe("methods that defer to a selection on the page body", func() {
-		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
-		})
-
-		Describe("#Click", func() {
-			It("calls selection#Click() on the body of the page", func() {
-				element.ClickCall.Err = errors.New("some error")
-				Expect(page.Click()).To(MatchError("failed to click on selector 'body': some error"))
-			})
-		})
-
-		Describe("#Fill", func() {
-			It("calls selection#Fill() with text on the body of the page", func() {
-				element.ValueCall.Err = errors.New("some error")
-				Expect(page.Fill("some text")).To(MatchError("failed to enter text into selector 'body': some error"))
-			})
-		})
-
-		Describe("#Check", func() {
-			It("calls selection#Check() on the body of the page", func() {
-				element.ClickCall.Err = errors.New("some error")
-				Expect(page.Check()).To(MatchError("selector 'body' does not refer to a checkbox"))
-			})
-		})
-
-		Describe("#Uncheck", func() {
-			It("calls selection#Uncheck() on the body of the page", func() {
-				element.ClickCall.Err = errors.New("some error")
-				Expect(page.Uncheck()).To(MatchError("selector 'body' does not refer to a checkbox"))
-			})
-		})
-
-		Describe("#Text", func() {
-			It("calls selection#Text() on the body of the page", func() {
-				element.GetTextCall.Err = errors.New("some error")
-				_, err := page.Text()
-				Expect(err).To(MatchError("failed to retrieve text for selector 'body': some error"))
-			})
-		})
-
-		Describe("#Attribute", func() {
-			It("calls selection#Attribute() on the body of the page", func() {
-				element.GetAttributeCall.Err = errors.New("some error")
-				_, err := page.Attribute("some-attribute")
-				Expect(err).To(MatchError("failed to retrieve attribute value for selector 'body': some error"))
-			})
-		})
-
-		Describe("#CSS", func() {
-			It("calls selection#CSS() on the body of the page", func() {
-				element.GetCSSCall.Err = errors.New("some error")
-				_, err := page.CSS("some-property")
-				Expect(err).To(MatchError("failed to retrieve CSS property for selector 'body': some error"))
-			})
-		})
-
-		Describe("#Selected", func() {
-			It("calls selection#Selected() on the body of the page", func() {
-				element.IsSelectedCall.Err = errors.New("some error")
-				_, err := page.Selected()
-				Expect(err).To(MatchError("failed to determine whether selector 'body' is selected: some error"))
-			})
-		})
-
-		Describe("#Select", func() {
-			It("calls selection#Select() on the body of the page", func() {
-				driver.GetElementsCall.Err = errors.New("some error")
-				err := page.Select("some text")
-				Expect(err).To(MatchError("failed to retrieve options for selector 'body': some error"))
-			})
-		})
-
-		Describe("#Submit", func() {
-			It("calls selection#Submit() on the body of the page", func() {
-				element.SubmitCall.Err = errors.New("some error")
-				Expect(page.Submit()).To(MatchError("failed to submit selector 'body': some error"))
-			})
 		})
 	})
 })

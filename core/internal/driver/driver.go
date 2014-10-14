@@ -1,9 +1,9 @@
-package webdriver
+package driver
 
 import (
 	"encoding/base64"
-	"github.com/sclevine/agouti/page/internal/webdriver/element"
-	"github.com/sclevine/agouti/page/internal/webdriver/window"
+	"github.com/sclevine/agouti/page/internal/driver/element"
+	"github.com/sclevine/agouti/page/internal/driver/window"
 )
 
 type Driver struct {
