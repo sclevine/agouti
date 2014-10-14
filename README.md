@@ -38,9 +38,9 @@ If you use the `dsl` package, note that:
 
 Feel free to import Ginkgo and use any of its container blocks instead! Agouti is 100% compatible with Ginkgo and Gomega.
 
-The `core` package is a flexible, general-purpose webdriver API for Go. Unlike the `dsl` package, `core` allows unlimited and simultaneous usage of PhantomJS, ChromeDriver, Selenium.
+The `core` package is a flexible, general-purpose webdriver API for Go. Unlike the `dsl` package, `core` allows unlimited and simultaneous usage of PhantomJS, ChromeDriver, and Selenium.
 
-If you plan to use Agouti to write Ginkgo tests, add the start and stop commands for your choice of webdriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
+If you plan to use Agouti `dsl` to write Ginkgo tests, add the start and stop commands for your choice of webdriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
 
 See this example `project_suite_test.go` file:
 ```Go
