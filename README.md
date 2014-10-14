@@ -3,7 +3,7 @@ Agouti
 
 [![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
 
-Integration testing for Go using Ginkgo 
+Integration testing for Go using Ginkgo and Gomega!
 
 Install:
 ```bash
@@ -38,6 +38,8 @@ If you use the `dsl` package, note that:
 
 Feel free to import Ginkgo and use any of its container blocks instead! Agouti is 100% compatible with Ginkgo and Gomega.
 
+The `core` package is a flexible, general-purpose webdriver API for Go. Unlike the `dsl` package, `core` allows unlimited and simultaneous usage of PhantomJS, ChromeDriver, Selenium.
+
 If you plan to use Agouti to write Ginkgo tests, add the start and stop commands for your choice of webdriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
 
 See this example `project_suite_test.go` file:
@@ -58,9 +60,9 @@ func TestProject(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	StartChrome()
-	// OR
 	StartPhantomJS()
+	// OR
+	StartChrome()
 	// OR
 	StartSelenium()
 });
@@ -81,26 +83,26 @@ import (
 
 ...
 
-Feature("Agouti", func() {
+Feature("Agouti running on PhantomJS", func() {
 	Scenario("Loading a page", func() {
-		page := CreatePage() // for PhantomJS
-		// page := CreatePage("chrome") // for Chrome via ChromeDriver
-		// page := CreatePage("firefox") // for Firefox via Selenium
-		// page := CreatePage("safari") // for Safari via Selenium
+		page := CreatePage()
 		page.Size(640, 480)
-		page.Navigate(server.URL)
+		page.Navigate(Server.URL)
 
-		Step("finds text in a page", func() {
-			Expect(page.Find("header")).To(HaveText("Page Title"))
+		Step("find the title of the page", func() {
+			Expect(page).To(HaveTitle("Page Title"))
 		})
 
-		Step("asserts that text is not in a page", func() {
-			Expect(page).NotTo(HaveText("Page Not-Title"))
-			Expect(page.Find("header")).NotTo(HaveText("Page Not-Title"))
+		Step("finds text in a page", func() {
+			Expect(page.Find("header")).To(HaveText("Title"))
+		})
+
+		Step("asserts that text is not in the header", func() {
+			Expect(page.Find("header")).NotTo(HaveText("Not-Title"))
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
-			Expect(page.Find("header").Find("h1")).To(HaveText("Page Title"))
+			Expect(page.Find("header").Find("h1")).To(HaveText("Title"))
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {
@@ -140,7 +142,7 @@ Feature("Agouti", func() {
 
 		Step("allows submitting a form", func() {
 			Expect(page.Find("#some_form").Submit()).To(Succeed())
-			Eventually(submitted).Should(BeTrue())
+			Eventually(Submitted).Should(BeTrue())
 		})
 	})
 })
