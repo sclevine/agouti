@@ -21,6 +21,8 @@ To use with Selenium Webdriver (OS X):
 ```bash
 $ brew install selenium-server-standalone
 ```
+If you encounter issues with Safari, [see this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933).
+
 To use the `matcher` package, which provides Gomega matchers:
 ```bash
 $ go get github.com/onsi/gomega
