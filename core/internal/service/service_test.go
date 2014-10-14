@@ -5,20 +5,32 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/service"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"time"
 )
 
+func freeAddress() string {
+	listener, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer listener.Close()
+	return listener.Addr().String()
+}
+
 var _ = Describe("Service", func() {
-	var service *Service
+	var (
+		service *Service
+		url     string
+	)
 
 	BeforeEach(func() {
+		address := freeAddress()
+		url = "http://" + address
 		service = &Service{
-			URL:     "http://127.0.0.1:42344",
+			URL:     url,
 			Timeout: 3 * time.Second,
-			Command: []string{"phantomjs", "--webdriver=127.0.0.1:42344"},
+			Command: []string{"phantomjs", "--webdriver=" + address},
 		}
 	})
 
@@ -48,7 +60,7 @@ var _ = Describe("Service", func() {
 			})
 
 			It("starts a webdriver server on the provided port", func() {
-				response, _ := http.Get("http://127.0.0.1:42344/status")
+				response, _ := http.Get(url + "/status")
 				body, _ := ioutil.ReadAll(response.Body)
 				Expect(string(body)).To(ContainSubstring(`"status":0`))
 			})
@@ -76,7 +88,7 @@ var _ = Describe("Service", func() {
 		It("stops a running server", func() {
 			service.Start()
 			service.Stop()
-			_, err := http.Get("http://127.0.0.1:42344/status")
+			_, err := http.Get(url + "/status")
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -104,12 +116,11 @@ var _ = Describe("Service", func() {
 					requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 					requestBody = string(requestBodyBytes)
 				}))
-
+				defer fakeServer.Close()
 				service.URL = fakeServer.URL
 				capabilities.BrowserName = "some-browser"
 				service.CreateSession(capabilities)
 				Expect(requestBody).To(Equal(`{"desiredCapabilities": {"browserName":"some-browser"}}`))
-				fakeServer.Close()
 			})
 
 			Context("if the request is invalid", func() {
@@ -133,10 +144,10 @@ var _ = Describe("Service", func() {
 					fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 						response.Write([]byte("{}"))
 					}))
+					defer fakeServer.Close()
 					service.URL = fakeServer.URL
 					_, err := service.CreateSession(capabilities)
 					Expect(err).To(MatchError("phantomjs webdriver failed to return a session ID"))
-					fakeServer.Close()
 				})
 			})
 
@@ -144,7 +155,7 @@ var _ = Describe("Service", func() {
 				It("returns a session with session URL", func() {
 					session, err := service.CreateSession(capabilities)
 					Expect(err).NotTo(HaveOccurred())
-					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:42344/session/([0-9a-f]+-)+[0-9a-f]+`))
+					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:[0-9]+/session/([0-9a-f]+-)+[0-9a-f]+`))
 				})
 			})
 		})

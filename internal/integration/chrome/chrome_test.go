@@ -6,7 +6,7 @@ import (
 	. "github.com/sclevine/agouti/matchers"
 )
 
-var _ = PFeature("ChromeDriver", func() {
+var _ = Feature("ChromeDriver", func() {
 	Scenario("Chrome", func() {
 		page := CreatePage()
 		page.Size(640, 480)

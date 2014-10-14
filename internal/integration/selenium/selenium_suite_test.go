@@ -10,7 +10,7 @@ import (
 
 func TestSelenium(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Selenium Suite")
+	//RunSpecs(t, "Selenium Suite")
 }
 
 var _ = BeforeSuite(func() {

@@ -44,18 +44,25 @@ var _ = Describe("Browser", func() {
 	})
 
 	Describe("#Stop", func() {
-		var deletedSessions int
-		var destroyStatus int
+		var (
+			fakeServer      *httptest.Server
+			deletedSessions int
+			destroyStatus   int
+		)
 
 		BeforeEach(func() {
 			destroyStatus = http.StatusOK
-			fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, _ *http.Request) {
+			fakeServer = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, _ *http.Request) {
 				deletedSessions += 1
 				response.WriteHeader(destroyStatus)
 			}))
 			service.CreateSessionCall.ReturnSession = &session.Session{fakeServer.URL}
 			browser.Page()
 			browser.Page()
+		})
+
+		AfterEach(func() {
+			fakeServer.Close()
 		})
 
 		It("attempts to destroy all sessions", func() {
@@ -116,6 +123,7 @@ var _ = Describe("Browser", func() {
 			fakeServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 				sessionInPage = true
 			}))
+			defer fakeServer.Close()
 			service.CreateSessionCall.ReturnSession = &session.Session{fakeServer.URL}
 			page, _ := browser.Page()
 			page.URL()

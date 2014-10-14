@@ -6,7 +6,7 @@ import (
 	. "github.com/sclevine/agouti/matchers"
 )
 
-var _ = PFeature("Selenium", func() {
+var _ = Feature("Selenium", func() {
 	Scenario("Firefox", func() {
 		page := CreatePage("firefox")
 		page.Size(640, 480)

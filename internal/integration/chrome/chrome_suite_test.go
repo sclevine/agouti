@@ -10,7 +10,7 @@ import (
 
 func TestChrome(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Chrome Suite")
+	//RunSpecs(t, "Chrome Suite")
 }
 
 var _ = BeforeSuite(func() {
