@@ -6,11 +6,14 @@ import (
 	. "github.com/sclevine/agouti/dsl"
 
 	"testing"
+	"os"
 )
 
 func TestChrome(t *testing.T) {
 	RegisterFailHandler(Fail)
-	//RunSpecs(t, "Chrome Suite")
+	if os.Getenv("HEADLESS_ONLY") != "true" {
+		RunSpecs(t, "Chrome Suite")
+	}
 }
 
 var _ = BeforeSuite(func() {

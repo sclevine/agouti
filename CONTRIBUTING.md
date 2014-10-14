@@ -9,10 +9,10 @@ Rules for pull requests:
    Pull requests will not be merged without this.
 4. After issuing your pull request, check Travis CI to make sure that all tests still pass.
 
-Setting Up
-----------
+Development Setup
+-----------------
 
 * Clone the repository
-* Follow the README instructions to install Ginkgo, Gomega, PhantomJS, ChromeDriver, and/or Selenium
+* Follow the README instructions to install Ginkgo, Gomega, PhantomJS, ChromeDriver, and Selenium
 * Run all of the tests using: `ginkgo -r .`
 * Start developing!

@@ -6,11 +6,14 @@ import (
 	. "github.com/sclevine/agouti/dsl"
 
 	"testing"
+	"os"
 )
 
 func TestSelenium(t *testing.T) {
 	RegisterFailHandler(Fail)
-	//RunSpecs(t, "Selenium Suite")
+	if os.Getenv("HEADLESS_ONLY") != "true" {
+		RunSpecs(t, "Selenium Suite")
+	}
 }
 
 var _ = BeforeSuite(func() {
