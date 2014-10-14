@@ -34,6 +34,8 @@ type driver interface {
 	SetURL(url string) error
 	GetTitle() (string, error)
 	GetElements(selector string) ([]webdriver.Element, error)
+	DoubleClick() error
+	MoveTo(element webdriver.Element, point webdriver.Point) error
 }
 
 func New(driver driver) Page {

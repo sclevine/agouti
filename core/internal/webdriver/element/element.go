@@ -14,6 +14,10 @@ type executable interface {
 	Execute(endpoint, method string, body, result interface{}) error
 }
 
+func (e *Element) GetID() string {
+	return e.ID
+}
+
 func (e *Element) GetText() (string, error) {
 	var text string
 	if err := e.Session.Execute(e.url()+"/text", "GET", nil, &text); err != nil {

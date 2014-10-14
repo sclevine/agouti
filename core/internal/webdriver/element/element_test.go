@@ -20,6 +20,12 @@ var _ = Describe("Element", func() {
 		element = &Element{"some-id", session}
 	})
 
+	Describe("#GetID", func() {
+		It("returns the stored element ID", func() {
+			Expect(element.GetID()).To(Equal("some-id"))
+		})
+	})
+
 	Describe("#GetText", func() {
 		var text string
 

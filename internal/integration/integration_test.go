@@ -53,6 +53,12 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 
+		Step("allows double-clicking on an element", func() {
+			selection := page.Find("#double_click")
+			Expect(selection.DoubleClick()).To(Succeed())
+			Expect(selection).To(HaveText("double-click success"))
+		})
+
 		Step("allows checking a checkbox", func() {
 			checkbox := page.Find("#some_checkbox")
 			Expect(checkbox.Check()).To(Succeed())

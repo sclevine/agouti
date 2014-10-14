@@ -1,6 +1,10 @@
 package mocks
 
 type Element struct {
+	GetIDCall struct {
+		ReturnID string
+	}
+
 	GetTextCall struct {
 		ReturnText string
 		Err        error
@@ -42,6 +46,10 @@ type Element struct {
 		Called bool
 		Err    error
 	}
+}
+
+func (e *Element) GetID() string {
+	return e.GetIDCall.ReturnID
 }
 
 func (e *Element) GetText() (string, error) {

@@ -10,6 +10,7 @@ type Selection interface {
 	Find(selector string) Selection
 	Selector() string
 	Click() error
+	DoubleClick() error
 	Fill(text string) error
 	Text() (string, error)
 	Attribute(attribute string) (string, error)
@@ -28,6 +29,8 @@ type selection struct {
 
 type driver interface {
 	GetElements(selector string) ([]webdriver.Element, error)
+	DoubleClick() error
+	MoveTo(element webdriver.Element, point webdriver.Point) error
 }
 
 func New(driver driver, selector string) Selection {
@@ -50,6 +53,22 @@ func (s *selection) Click() error {
 
 	if err := element.Click(); err != nil {
 		return fmt.Errorf("failed to click on selector '%s': %s", s.Selector(), err)
+	}
+	return nil
+}
+
+func (s *selection) DoubleClick() error {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	if err := s.driver.MoveTo(element, nil); err != nil {
+		return fmt.Errorf("failed to move mouse to selector '%s': %s", s.Selector(), err)
+	}
+
+	if err := s.driver.DoubleClick(); err != nil {
+		return fmt.Errorf("failed to double-click on selector '%s': %s", s.Selector(), err)
 	}
 	return nil
 }

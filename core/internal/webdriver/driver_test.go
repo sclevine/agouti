@@ -355,4 +355,94 @@ var _ = Describe("Webdriver", func() {
 			})
 		})
 	})
+
+	Describe("#DoubleClick", func() {
+		BeforeEach(func() {
+			err = driver.DoubleClick()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /doubleclick endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("doubleclick"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to double-click", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.DoubleClick()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#MoveTo", func() {
+		BeforeEach(func() {
+			err = driver.MoveTo(nil, nil)
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /moveto endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("moveto"))
+		})
+
+		It("encodes no element or point if not provided", func() {
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{}`))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to move the mouse", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.MoveTo(nil, nil)
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when an element is provided", func() {
+			It("encodes the element into the request JSON", func() {
+				element := &mocks.Element{}
+				element.GetIDCall.ReturnID = "some-id"
+				driver.MoveTo(element, nil)
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"element": "some-id"}`))
+			})
+		})
+
+		Context("when a X point is provided", func() {
+			It("encodes the element into the request JSON", func() {
+				driver.MoveTo(nil, XPoint(100))
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
+			})
+		})
+
+		Context("when a Y point is provided", func() {
+			It("encodes the element into the request JSON", func() {
+				driver.MoveTo(nil, YPoint(200))
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
+			})
+		})
+
+		Context("when an XY point is provided", func() {
+			It("encodes the element into the request JSON", func() {
+				driver.MoveTo(nil, XYPoint{300, 400})
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
+			})
+		})
+	})
 })

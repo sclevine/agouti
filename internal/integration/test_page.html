@@ -7,6 +7,7 @@
     <h1>Title</h1>
 </header>
 <a href="#new_page">Click Me</a>
+<p id="double_click" ondblclick="doubleClicked();">Double-click Me</p>
 <div id="some_element" style="color: blue;"></div>
 <form id="some_form" method="post">
     <input id="some_input" type="text" value="some value" />
@@ -17,6 +18,11 @@
     <option>second option</option>
 </select>
 <script>
+    function doubleClicked() {
+        var element = document.getElementById("double_click");
+        element.innerHTML = "double-click success";
+    }
+
     setTimeout(function() {
         var element = document.getElementById("some_element");
         element.innerHTML = "some text";

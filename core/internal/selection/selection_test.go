@@ -80,6 +80,11 @@ var _ = Describe("Selection", func() {
 			return selection.Click()
 		})
 
+		It("clicks on an element", func() {
+			selection.Click()
+			Expect(element.ClickCall.Called).To(BeTrue())
+		})
+
 		Context("if the click fails", func() {
 			BeforeEach(func() {
 				element.ClickCall.Err = errors.New("some error")
@@ -91,13 +96,55 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("if the click succeeds", func() {
-			It("clicks on an element", func() {
-				selection.Click()
-				Expect(element.ClickCall.Called).To(BeTrue())
-			})
-
 			It("returns nil", func() {
 				Expect(selection.Click()).To(BeNil())
+			})
+		})
+	})
+
+	Describe("#DoubleClick", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			return selection.DoubleClick()
+		})
+
+		It("moves the mouse to the middle of the selected element", func() {
+			selection.DoubleClick()
+			Expect(driver.MoveToCall.Element).To(Equal(element))
+			Expect(driver.MoveToCall.Point).To(BeNil())
+		})
+
+		Context("when moving over the element fails", func() {
+			BeforeEach(func() {
+				driver.MoveToCall.Err = errors.New("some error")
+			})
+
+			It("retuns an error", func() {
+				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to selector '#selector': some error"))
+			})
+		})
+
+		It("double-clicks on an element", func() {
+			selection.DoubleClick()
+			Expect(driver.DoubleClickCall.Called).To(BeTrue())
+		})
+
+		Context("when the double-clicking the element fails", func() {
+			BeforeEach(func() {
+				driver.DoubleClickCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on selector '#selector': some error"))
+			})
+		})
+
+		Context("when the double-clicking the element succeeds", func() {
+			It("returns nil", func() {
+				Expect(selection.DoubleClick()).To(BeNil())
 			})
 		})
 	})

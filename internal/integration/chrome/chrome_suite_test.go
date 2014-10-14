@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
 
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestChrome(t *testing.T) {

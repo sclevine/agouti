@@ -156,7 +156,7 @@ var _ = Describe("Session", func() {
 					responseStatus = 400
 					responseBody = `{}}`
 					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("request unsuccessful: phantom error unreadable"))
+					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
 				})
 			})
 
@@ -165,7 +165,7 @@ var _ = Describe("Session", func() {
 					responseStatus = 400
 					responseBody = `{"value": {"message": "{}}"}}`
 					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("request unsuccessful: phantom error message unreadable"))
+					Expect(err).To(MatchError("request unsuccessful: error message unreadable"))
 				})
 			})
 		})

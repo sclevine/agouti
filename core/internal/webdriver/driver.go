@@ -15,6 +15,7 @@ type executable interface {
 }
 
 type Element interface {
+	GetID() string
 	GetText() (string, error)
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
@@ -117,4 +118,28 @@ func (d *Driver) GetTitle() (string, error) {
 	}
 
 	return title, nil
+}
+
+func (d *Driver) DoubleClick() error {
+	return d.Session.Execute("doubleclick", "POST", nil, &struct{}{})
+}
+
+func (d *Driver) MoveTo(element Element, point Point) error {
+	request := map[string]interface{}{}
+
+	if element != nil {
+		request["element"] = element.GetID()
+	}
+
+	if point != nil {
+		if xoffset, present := point.x(); present {
+			request["xoffset"] = xoffset
+		}
+
+		if yoffset, present := point.y(); present {
+			request["yoffset"] = yoffset
+		}
+	}
+
+	return d.Session.Execute("moveto", "POST", request, &struct{}{})
 }

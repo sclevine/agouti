@@ -48,6 +48,17 @@ type Driver struct {
 		ReturnTitle string
 		Err         error
 	}
+
+	DoubleClickCall struct {
+		Called bool
+		Err    error
+	}
+
+	MoveToCall struct {
+		Element webdriver.Element
+		Point   webdriver.Point
+		Err     error
+	}
 }
 
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
@@ -89,4 +100,15 @@ func (d *Driver) SetURL(url string) error {
 
 func (d *Driver) GetTitle() (string, error) {
 	return d.GetTitleCall.ReturnTitle, d.GetTitleCall.Err
+}
+
+func (d *Driver) DoubleClick() error {
+	d.DoubleClickCall.Called = true
+	return d.DoubleClickCall.Err
+}
+
+func (d *Driver) MoveTo(element webdriver.Element, point webdriver.Point) error {
+	d.MoveToCall.Element = element
+	d.MoveToCall.Point = point
+	return d.MoveToCall.Err
 }

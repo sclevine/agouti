@@ -42,6 +42,10 @@ func (s *Selection) Click() error {
 	return nil
 }
 
+func (s *Selection) DoubleClick() error {
+	return nil
+}
+
 func (s *Selection) Check() error {
 	return nil
 }

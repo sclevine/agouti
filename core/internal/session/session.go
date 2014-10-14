@@ -45,12 +45,12 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 	if response.StatusCode < 200 || response.StatusCode > 299 {
 		var errBody struct{ Value struct{ Message string } }
 		if err := json.Unmarshal(responseBody, &errBody); err != nil {
-			return fmt.Errorf("request unsuccessful: phantom error unreadable")
+			return fmt.Errorf("request unsuccessful: error unreadable")
 		}
 
 		var errMessage struct{ ErrorMessage string }
 		if err := json.Unmarshal([]byte(errBody.Value.Message), &errMessage); err != nil {
-			return fmt.Errorf("request unsuccessful: phantom error message unreadable")
+			return fmt.Errorf("request unsuccessful: error message unreadable")
 		}
 
 		return fmt.Errorf("request unsuccessful: %s", errMessage.ErrorMessage)
