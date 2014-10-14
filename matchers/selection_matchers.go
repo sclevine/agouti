@@ -24,3 +24,7 @@ func BeSelected() types.GomegaMatcher {
 func BeVisible() types.GomegaMatcher {
 	return &selection.BeVisibleMatcher{}
 }
+
+func BeFound() types.GomegaMatcher {
+	return &selection.BeFoundMatcher{}
+}

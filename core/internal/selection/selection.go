@@ -9,6 +9,7 @@ import (
 type Selection interface {
 	Find(selector string) Selection
 	Selector() string
+	Count() (int, error)
 	Click() error
 	DoubleClick() error
 	Fill(text string) error
@@ -44,6 +45,15 @@ func (s *selection) Find(selector string) Selection {
 
 func (s *selection) Selector() string {
 	return strings.Join(s.selectors, " ")
+}
+
+func (s *selection) Count() (int, error) {
+	elements, err := s.driver.GetElements(s.Selector())
+	if err != nil {
+		return 0, fmt.Errorf("failed to retrieve elements for selector '%s': %s", s.Selector(), err)
+	}
+
+	return len(elements), nil
 }
 
 func (s *selection) Click() error {
@@ -231,10 +241,10 @@ func (s *selection) Submit() error {
 
 func (s *selection) getSingleElement() (webdriver.Element, error) {
 	elements, err := s.driver.GetElements(s.Selector())
-
 	if err != nil {
 		return nil, err
 	}
+
 	if len(elements) > 1 {
 		return nil, fmt.Errorf("mutiple elements (%d) were selected", len(elements))
 	}

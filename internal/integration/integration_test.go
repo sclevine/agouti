@@ -18,7 +18,11 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(page).To(HaveTitle("Page Title"))
 		})
 
-		Step("finds text in a page", func() {
+		Step("finds a header in the page", func() {
+			Expect(page.Find("header")).To(BeFound())
+		})
+
+		Step("finds text in the header", func() {
 			Expect(page.Find("header")).To(HaveText("Title"))
 		})
 

@@ -33,6 +33,11 @@ type Selection struct {
 		ReturnVisible bool
 		Err           error
 	}
+
+	CountCall struct {
+		ReturnCount   int
+		Err           error
+	}
 }
 
 func (s *Selection) Find(selector string) selection.Selection {
@@ -91,4 +96,8 @@ func (s *Selection) Selected() (bool, error) {
 
 func (s *Selection) Visible() (bool, error) {
 	return s.VisibleCall.ReturnVisible, s.VisibleCall.Err
+}
+
+func (s *Selection) Count() (int, error) {
+	return s.CountCall.ReturnCount, s.CountCall.Err
 }

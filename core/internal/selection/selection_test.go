@@ -71,6 +71,40 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Count", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
+		})
+
+		It("requests elements from the driver using the provided selector", func() {
+			selection.Count()
+			Expect(driver.GetElementsCall.Selector).To(Equal("#selector"))
+		})
+
+		Context("when the driver succeeds in retrieving the elements", func() {
+			It("returns the text", func() {
+				count, _ := selection.Count()
+				Expect(count).To(Equal(2))
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.Count()
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the the driver fails to retrieve the elements", func() {
+			BeforeEach(func() {
+				driver.GetElementsCall.Err = errors.New("some error")
+			})
+
+			It("returns an error", func() {
+				_, err := selection.Count()
+				Expect(err).To(MatchError("failed to retrieve elements for selector '#selector': some error"))
+			})
+		})
+	})
+
 	Describe("#Click", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}

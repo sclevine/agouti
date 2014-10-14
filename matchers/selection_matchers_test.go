@@ -55,4 +55,13 @@ var _ = Describe("Selection Matchers", func() {
 			Expect(selection).NotTo(BeVisible())
 		})
 	})
+
+	Describe("#BeFound", func() {
+		It("calls the selection#BeFound matcher", func() {
+			selection.CountCall.ReturnCount = 1
+			Expect(selection).To(BeFound())
+			selection.CountCall.ReturnCount = 0
+			Expect(selection).NotTo(BeFound())
+		})
+	})
 })
