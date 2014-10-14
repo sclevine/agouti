@@ -42,6 +42,11 @@ type Element struct {
 		Err            error
 	}
 
+	IsDisplayedCall struct {
+		ReturnDisplayed bool
+		Err             error
+	}
+
 	SubmitCall struct {
 		Called bool
 		Err    error
@@ -83,6 +88,10 @@ func (e *Element) Value(text string) error {
 
 func (e *Element) IsSelected() (bool, error) {
 	return e.IsSelectedCall.ReturnSelected, e.IsSelectedCall.Err
+}
+
+func (e *Element) IsDisplayed() (bool, error) {
+	return e.IsDisplayedCall.ReturnDisplayed, e.IsDisplayedCall.Err
 }
 
 func (e *Element) Submit() error {

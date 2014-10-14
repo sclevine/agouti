@@ -447,6 +447,44 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Visible", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.Visible()
+			return err
+		})
+
+		Context("if the the driver fails to retrieve the element's visible status", func() {
+			It("returns an error", func() {
+				element.IsDisplayedCall.Err = errors.New("some error")
+				_, err := selection.Visible()
+				Expect(err).To(MatchError("failed to determine whether selector '#selector' is visible: some error"))
+			})
+		})
+
+		Context("if the driver succeeds in retrieving the element's visible status", func() {
+			It("returns the visible status when visible", func() {
+				element.IsDisplayedCall.ReturnDisplayed = true
+				value, _ := selection.Visible()
+				Expect(value).To(BeTrue())
+			})
+
+			It("returns the visible status when not visible", func() {
+				element.IsDisplayedCall.ReturnDisplayed = false
+				value, _ := selection.Visible()
+				Expect(value).To(BeFalse())
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.Visible()
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("#Select", func() {
 		var (
 			optionOne   *mocks.Element

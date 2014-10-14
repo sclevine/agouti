@@ -20,6 +20,7 @@ type Element interface {
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
 	IsSelected() (bool, error)
+	IsDisplayed() (bool, error)
 	Click() error
 	Clear() error
 	Value(text string) error

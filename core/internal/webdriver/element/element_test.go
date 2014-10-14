@@ -254,6 +254,42 @@ var _ = Describe("Element", func() {
 		})
 	})
 
+
+	Describe("#IsDisplayed", func() {
+		var value bool
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `true`
+			value, err = element.IsDisplayed()
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/displayed endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("element/some-id/displayed"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns the displayed status", func() {
+				Expect(value).To(BeTrue())
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the displayed status", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = element.IsDisplayed()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#Submit", func() {
 		BeforeEach(func() {
 			err = element.Submit()

@@ -26,6 +26,11 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(page.Find("header")).NotTo(HaveText("Not-Title"))
 		})
 
+		Step("asserts on the visibility of elements", func() {
+			Expect(page.Find("header h1")).To(BeVisible())
+			Expect(page.Find("header h2")).NotTo(BeVisible())
+		})
+
 		Step("allows tests to be scoped by chaining", func() {
 			Expect(page.Find("header").Find("h1")).To(HaveText("Title"))
 		})

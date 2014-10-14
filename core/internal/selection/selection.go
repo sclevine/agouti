@@ -18,6 +18,7 @@ type Selection interface {
 	Check() error
 	Uncheck() error
 	Selected() (bool, error)
+	Visible() (bool, error)
 	Select(text string) error
 	Submit() error
 }
@@ -177,6 +178,20 @@ func (s *selection) Selected() (bool, error) {
 	}
 
 	return selected, nil
+}
+
+func (s *selection) Visible() (bool, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve element with selector '%s': %s", s.Selector(), err)
+	}
+
+	visible, err := element.IsDisplayed()
+	if err != nil {
+		return false, fmt.Errorf("failed to determine whether selector '%s' is visible: %s", s.Selector(), err)
+	}
+
+	return visible, nil
 }
 
 func (s *selection) Select(text string) error {

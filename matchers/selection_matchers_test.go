@@ -46,4 +46,13 @@ var _ = Describe("Selection Matchers", func() {
 			Expect(selection).NotTo(BeSelected())
 		})
 	})
+
+	Describe("#BeVisible", func() {
+		It("calls the selection#BeVisible matcher", func() {
+			selection.VisibleCall.ReturnVisible = true
+			Expect(selection).To(BeVisible())
+			selection.VisibleCall.ReturnVisible = false
+			Expect(selection).NotTo(BeVisible())
+		})
+	})
 })

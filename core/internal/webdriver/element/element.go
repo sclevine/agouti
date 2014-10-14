@@ -66,6 +66,14 @@ func (e *Element) IsSelected() (bool, error) {
 	return selected, nil
 }
 
+func (e *Element) IsDisplayed() (bool, error) {
+	var displayed bool
+	if err := e.Session.Execute(e.url()+"/displayed", "GET", nil, &displayed); err != nil {
+		return false, err
+	}
+	return displayed, nil
+}
+
 func (e *Element) Submit() error {
 	return e.Session.Execute(e.url()+"/submit", "POST", nil, &struct{}{})
 }

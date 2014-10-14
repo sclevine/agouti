@@ -28,6 +28,11 @@ type Selection struct {
 		ReturnSelected bool
 		Err            error
 	}
+
+	VisibleCall struct {
+		ReturnVisible bool
+		Err           error
+	}
 }
 
 func (s *Selection) Find(selector string) selection.Selection {
@@ -82,4 +87,8 @@ func (s *Selection) CSS(property string) (string, error) {
 
 func (s *Selection) Selected() (bool, error) {
 	return s.SelectedCall.ReturnSelected, s.SelectedCall.Err
+}
+
+func (s *Selection) Visible() (bool, error) {
+	return s.VisibleCall.ReturnVisible, s.VisibleCall.Err
 }

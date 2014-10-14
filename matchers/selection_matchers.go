@@ -20,3 +20,7 @@ func HaveCSS(property string, value string) types.GomegaMatcher {
 func BeSelected() types.GomegaMatcher {
 	return &selection.BeSelectedMatcher{}
 }
+
+func BeVisible() types.GomegaMatcher {
+	return &selection.BeVisibleMatcher{}
+}
