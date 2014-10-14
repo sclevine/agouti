@@ -1,13 +1,12 @@
 package selection_test
 
 import (
-	. "github.com/sclevine/agouti/page"
-
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core/internal/selection"
+	"github.com/sclevine/agouti/core/internal/webdriver"
 	"github.com/sclevine/agouti/internal/mocks"
-	"github.com/sclevine/agouti/page/internal/driver"
 )
 
 var _ = Describe("Selection", func() {
@@ -20,7 +19,7 @@ var _ = Describe("Selection", func() {
 	BeforeEach(func() {
 		driver = &mocks.Driver{}
 		element = &mocks.Element{}
-		selection = (&Page{driver}).Find("#selector")
+		selection = New(driver, "#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
@@ -41,7 +40,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when the driver retrieves more than one element", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []driver.Element{element, element}
+				driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
 			})
 
 			It("returns an error with the number of elements", func() {
@@ -51,7 +50,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when the driver retrieves zero elements", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []driver.Element{}
+				driver.GetElementsCall.ReturnElements = []webdriver.Element{}
 			})
 
 			It("fails with an error indicating there were no elements", func() {
@@ -74,7 +73,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Click", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -105,7 +104,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Fill", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -151,7 +150,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Check", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -234,7 +233,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Uncheck", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 			element.GetAttributeCall.ReturnValue = "checkbox"
 			element.IsSelectedCall.ReturnSelected = true
 		})
@@ -247,7 +246,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Text", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -285,7 +284,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Attribute", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -325,7 +324,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#CSS", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -365,7 +364,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Selected", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -412,7 +411,7 @@ var _ = Describe("Selection", func() {
 			optionOne = &mocks.Element{}
 			optionTwo = &mocks.Element{}
 			optionThree = &mocks.Element{}
-			driver.GetElementsCall.ReturnElements = []driver.Element{optionOne, optionTwo, optionThree}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{optionOne, optionTwo, optionThree}
 		})
 
 		It("request child option elements from the driver", func() {
@@ -487,7 +486,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Submit", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []driver.Element{element}
+			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {

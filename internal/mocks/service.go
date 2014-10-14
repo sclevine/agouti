@@ -1,24 +1,24 @@
 package mocks
 
 import (
-	"github.com/sclevine/agouti/page/internal/service"
-	"github.com/sclevine/agouti/page/internal/session"
+	"github.com/sclevine/agouti/core/internal/service"
+	"github.com/sclevine/agouti/core/internal/session"
 )
 
 type Service struct {
 	StartCall struct {
-	    Called     bool
-	    Err        error
+		Called bool
+		Err    error
 	}
 
 	StopCall struct {
-	    Called     bool
+		Called bool
 	}
 
 	CreateSessionCall struct {
-		Capabilities *service.Capabilities
+		Capabilities  *service.Capabilities
 		ReturnSession *session.Session
-		Err error
+		Err           error
 	}
 }
 

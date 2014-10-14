@@ -1,13 +1,12 @@
 package browser_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/browser"
-	"github.com/sclevine/agouti/page/internal/session"
-	"github.com/sclevine/agouti/page/internal/driver"
-	"github.com/sclevine/agouti/internal/mocks"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"errors"
+	. "github.com/sclevine/agouti/core/internal/browser"
+	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/internal/mocks"
 	"net/http"
 	"net/http/httptest"
 )
@@ -50,7 +49,7 @@ var _ = Describe("Browser", func() {
 
 		BeforeEach(func() {
 			destroyStatus = http.StatusOK
-			fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+			fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, _ *http.Request) {
 				deletedSessions += 1
 				response.WriteHeader(destroyStatus)
 			}))
@@ -113,11 +112,14 @@ var _ = Describe("Browser", func() {
 		})
 
 		It("returns a page with a driver with the created session", func() {
-			createdSession := &session.Session{}
-			service.CreateSessionCall.ReturnSession = createdSession
+			var sessionInPage bool
+			fakeServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+				sessionInPage = true
+			}))
+			service.CreateSessionCall.ReturnSession = &session.Session{fakeServer.URL}
 			page, _ := browser.Page()
-			sameSession := page.Driver.(*driver.Driver).Session.(*session.Session)
-			Expect(createdSession).To(Equal(sameSession))
+			page.URL()
+			Expect(sessionInPage).To(BeTrue())
 		})
 	})
 })

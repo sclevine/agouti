@@ -1,24 +1,22 @@
-package integration_test
+package selenium_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
-	. "github.com/sclevine/agouti/internal/integration"
+
 	"testing"
 )
 
-func TestIntegration(t *testing.T) {
+func TestSelenium(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Integration Suite")
+	RunSpecs(t, "Selenium Suite")
 }
 
 var _ = BeforeSuite(func() {
-	StartPhantomJS()
-	Server.Start()
+	StartSelenium()
 })
 
 var _ = AfterSuite(func() {
-	Server.Close()
 	StopWebdriver()
 })

@@ -3,15 +3,15 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/page"
+	"github.com/sclevine/agouti/core"
 )
 
 type BeSelectedMatcher struct{}
 
 func (m *BeSelectedMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(page.Selection)
+	actualPage, ok := actual.(core.Selection)
 	if !ok {
-		return false, fmt.Errorf("BeSelected matcher requires a Selection or Page.  Got:\n%s", format.Object(actual, 1))
+		return false, fmt.Errorf("BeSelected matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
 	selected, err := actualPage.Selected()

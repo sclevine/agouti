@@ -1,14 +1,13 @@
-package driver_test
+package webdriver_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/driver"
-
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core/internal/webdriver"
+	"github.com/sclevine/agouti/core/internal/webdriver/element"
+	"github.com/sclevine/agouti/core/internal/webdriver/window"
 	"github.com/sclevine/agouti/internal/mocks"
-	"github.com/sclevine/agouti/page/internal/driver/element"
-	"github.com/sclevine/agouti/page/internal/driver/window"
 )
 
 var _ = Describe("Webdriver", func() {

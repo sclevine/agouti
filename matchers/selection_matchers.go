@@ -5,8 +5,8 @@ import (
 	"github.com/sclevine/agouti/matchers/internal/selection"
 )
 
-func ContainText(text string) types.GomegaMatcher {
-	return &selection.ContainTextMatcher{ExpectedText: text}
+func HaveText(text string) types.GomegaMatcher {
+	return &selection.HaveTextMatcher{ExpectedText: text}
 }
 
 func HaveAttribute(attribute string, value string) types.GomegaMatcher {

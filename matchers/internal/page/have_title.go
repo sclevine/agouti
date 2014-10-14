@@ -3,7 +3,7 @@ package page
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/page"
+	"github.com/sclevine/agouti/core"
 )
 
 type HaveTitleMatcher struct {
@@ -12,7 +12,7 @@ type HaveTitleMatcher struct {
 }
 
 func (m *HaveTitleMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(page.PageOnly)
+	actualPage, ok := actual.(core.Page)
 	if !ok {
 		return false, fmt.Errorf("HaveTitle matcher requires a Page.  Got:\n%s", format.Object(actual, 1))
 	}

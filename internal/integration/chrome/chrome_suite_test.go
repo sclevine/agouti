@@ -1,24 +1,22 @@
-package integration_test
+package chrome_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
-	. "github.com/sclevine/agouti/internal/integration"
+
 	"testing"
 )
 
-func TestIntegration(t *testing.T) {
+func TestChrome(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Integration Suite")
+	RunSpecs(t, "Chrome Suite")
 }
 
 var _ = BeforeSuite(func() {
-	StartPhantomJS()
-	Server.Start()
+	StartChrome()
 })
 
 var _ = AfterSuite(func() {
-	Server.Close()
 	StopWebdriver()
 })

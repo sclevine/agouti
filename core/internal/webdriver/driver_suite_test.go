@@ -1,4 +1,4 @@
-package driver_test
+package webdriver_test
 
 import (
 	. "github.com/onsi/ginkgo"

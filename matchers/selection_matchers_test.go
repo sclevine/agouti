@@ -1,11 +1,10 @@
 package matchers_test
 
 import (
-	"github.com/sclevine/agouti/internal/mocks"
-	. "github.com/sclevine/agouti/matchers"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/internal/mocks"
+	. "github.com/sclevine/agouti/matchers"
 )
 
 var _ = Describe("Selection Matchers", func() {
@@ -15,11 +14,11 @@ var _ = Describe("Selection Matchers", func() {
 		selection = &mocks.Selection{}
 	})
 
-	Describe("#ContainText", func() {
-		It("calls the selection#ContainText matcher", func() {
+	Describe("#HaveText", func() {
+		It("calls the selection#HaveText matcher", func() {
 			selection.TextCall.ReturnText = "some text"
-			Expect(selection).To(ContainText("some text"))
-			Expect(selection).NotTo(ContainText("some other text"))
+			Expect(selection).To(HaveText("some text"))
+			Expect(selection).NotTo(HaveText("some other text"))
 		})
 	})
 

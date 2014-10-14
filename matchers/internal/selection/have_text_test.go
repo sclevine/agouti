@@ -8,16 +8,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ContainTextMatcher", func() {
+var _ = Describe("HaveTextMatcher", func() {
 	var (
-		matcher   *ContainTextMatcher
+		matcher   *HaveTextMatcher
 		selection *mocks.Selection
 	)
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.SelectorCall.ReturnSelector = "#selector"
-		matcher = &ContainTextMatcher{ExpectedText: "some text"}
+		matcher = &HaveTextMatcher{ExpectedText: "some text"}
 	})
 
 	Describe("#Match", func() {
@@ -58,7 +58,7 @@ var _ = Describe("ContainTextMatcher", func() {
 		Context("when the actual object is not a selection", func() {
 			It("returns an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("ContainText matcher requires a Selection or Page.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("HaveText matcher requires a Selection.  Got:\n    <string>: not a selection"))
 			})
 		})
 	})

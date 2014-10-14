@@ -63,7 +63,7 @@ var _ = Describe("HaveCSS", func() {
 		Context("when the actual object is not a selection", func() {
 			It("returns an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("HaveCSS matcher requires a Selection or Page.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("HaveCSS matcher requires a Selection.  Got:\n    <string>: not a selection"))
 			})
 		})
 	})

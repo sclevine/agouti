@@ -1,5 +1,7 @@
 package mocks
 
+import "github.com/sclevine/agouti/core/internal/selection"
+
 type Page struct {
 	TitleCall struct {
 		ReturnTitle string
@@ -37,4 +39,8 @@ func (p *Page) Screenshot(filename string) error {
 
 func (p *Page) Title() (string, error) {
 	return p.TitleCall.ReturnTitle, p.TitleCall.Err
+}
+
+func (p *Page) Find(selector string) selection.Selection {
+	return nil
 }

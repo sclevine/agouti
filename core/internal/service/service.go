@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sclevine/agouti/page/internal/session"
+	"github.com/sclevine/agouti/core/internal/session"
 	"io/ioutil"
 	"net/http"
 	"os"

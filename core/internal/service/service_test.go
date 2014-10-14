@@ -3,7 +3,7 @@ package service_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/page/internal/service"
+	. "github.com/sclevine/agouti/core/internal/service"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -23,18 +23,18 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("#Start", func() {
-		var err error
-
 		Context("when the service is started multiple times", func() {
 			It("returns an error indicating that service is already running", func() {
 				defer service.Stop()
 				service.Start()
-				err = service.Start()
+				err := service.Start()
 				Expect(err).To(MatchError("phantomjs is already running"))
 			})
 		})
 
 		Context("when the binary is available in PATH", func() {
+			var err error
+
 			BeforeEach(func() {
 				err = service.Start()
 			})

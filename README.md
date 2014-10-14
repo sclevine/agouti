@@ -47,7 +47,7 @@ package project_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/page"
+	. "github.com/sclevine/agouti/dsl"
 
 	"testing"
 )
@@ -59,18 +59,14 @@ func TestProject(t *testing.T) {
 
 var _ = BeforeSuite(func() {
 	StartChrome()
-	// and/or
-	StartPhantom()
-	// and/or
+	// OR
+	StartPhantomJS()
+	// OR
 	StartSelenium()
 });
 
 var _ = AfterSuite(func() {
-	StopChrome()
-	// and/or
-	StopPhantom()
-	// and/or
-	StopSelenium()
+	StopWebdriver()
 });
 ```
 
@@ -95,22 +91,22 @@ Feature("Agouti", func() {
 		page.Navigate(server.URL)
 
 		Step("finds text in a page", func() {
-			Expect(page.Find("header")).To(ContainText("Page Title"))
+			Expect(page.Find("header")).To(HaveText("Page Title"))
 		})
 
 		Step("asserts that text is not in a page", func() {
-			Expect(page).NotTo(ContainText("Page Not-Title"))
-			Expect(page.Find("header")).NotTo(ContainText("Page Not-Title"))
+			Expect(page).NotTo(HaveText("Page Not-Title"))
+			Expect(page.Find("header")).NotTo(HaveText("Page Not-Title"))
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
-			Expect(page.Find("header").Find("h1")).To(ContainText("Page Title"))
+			Expect(page.Find("header").Find("h1")).To(HaveText("Page Title"))
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {
-			Expect(page.Find("#some_element")).NotTo(ContainText("some text"))
-			Eventually(page.Find("#some_element"), 4*time.Second).Should(ContainText("some text"))
-			Consistently(page.Find("#some_element")).Should(ContainText("some text"))
+			Expect(page.Find("#some_element")).NotTo(HaveText("some text"))
+			Eventually(page.Find("#some_element"), 4*time.Second).Should(HaveText("some text"))
+			Consistently(page.Find("#some_element")).Should(HaveText("some text"))
 		})
 
 		Step("allows entering values into fields", func() {

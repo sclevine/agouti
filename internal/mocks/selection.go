@@ -1,6 +1,6 @@
 package mocks
 
-import "github.com/sclevine/agouti/page"
+import "github.com/sclevine/agouti/core/internal/selection"
 
 type Selection struct {
 	SelectorCall struct {
@@ -30,7 +30,7 @@ type Selection struct {
 	}
 }
 
-func (s *Selection) Find(selector string) page.Selection {
+func (s *Selection) Find(selector string) selection.Selection {
 	return &Selection{}
 }
 

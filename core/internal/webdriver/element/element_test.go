@@ -1,11 +1,10 @@
 package element_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/driver/element"
-
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core/internal/webdriver/element"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 

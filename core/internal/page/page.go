@@ -2,8 +2,8 @@ package page
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/driver"
 	"github.com/sclevine/agouti/core/internal/selection"
+	"github.com/sclevine/agouti/core/internal/webdriver"
 	"os"
 	"path/filepath"
 )
@@ -17,6 +17,7 @@ type Page interface {
 	Size(width, height int) error
 	Screenshot(filename string) error
 	Title() (string, error)
+	Find(selector string) selection.Selection
 }
 
 type page struct {
@@ -24,51 +25,52 @@ type page struct {
 }
 
 type driver interface {
-	GetWindow() (driver.Window, error)
+	GetWindow() (webdriver.Window, error)
 	GetScreenshot() ([]byte, error)
-	SetCookie(cookie *driver.Cookie) error
+	SetCookie(cookie *webdriver.Cookie) error
 	DeleteCookie(name string) error
 	DeleteCookies() error
 	GetURL() (string, error)
 	SetURL(url string) error
 	GetTitle() (string, error)
+	GetElements(selector string) ([]webdriver.Element, error)
 }
 
 func New(driver driver) Page {
 	return &page{driver}
-} 
+}
 
 func (p *page) Navigate(url string) error {
-	if err := p.Driver.SetURL(url); err != nil {
+	if err := p.driver.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil
 }
 
 func (p *page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
-	cookie := driver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
-	if err := p.Driver.SetCookie(&cookie); err != nil {
+	cookie := webdriver.Cookie{name, value, path, domain, secure, httpOnly, expiry}
+	if err := p.driver.SetCookie(&cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil
 }
 
 func (p *page) DeleteCookie(name string) error {
-	if err := p.Driver.DeleteCookie(name); err != nil {
+	if err := p.driver.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}
 	return nil
 }
 
 func (p *page) ClearCookies() error {
-	if err := p.Driver.DeleteCookies(); err != nil {
+	if err := p.driver.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }
 
 func (p *page) URL() (string, error) {
-	url, err := p.Driver.GetURL()
+	url, err := p.driver.GetURL()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve URL: %s", err)
 	}
@@ -76,7 +78,7 @@ func (p *page) URL() (string, error) {
 }
 
 func (p *page) Size(width, height int) error {
-	window, err := p.Driver.GetWindow()
+	window, err := p.driver.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
 	}
@@ -99,7 +101,7 @@ func (p *page) Screenshot(filename string) error {
 	}
 	defer file.Close()
 
-	screenshot, err := p.Driver.GetScreenshot()
+	screenshot, err := p.driver.GetScreenshot()
 	if err != nil {
 		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
@@ -113,7 +115,7 @@ func (p *page) Screenshot(filename string) error {
 }
 
 func (p *page) Title() (string, error) {
-	title, err := p.Driver.GetTitle()
+	title, err := p.driver.GetTitle()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
@@ -121,5 +123,5 @@ func (p *page) Title() (string, error) {
 }
 
 func (p *page) Find(selector string) selection.Selection {
-	return selection.New(p.Driver).Find(selector)
+	return selection.New(p.driver, selector)
 }

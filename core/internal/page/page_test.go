@@ -4,9 +4,8 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/internal/mocks"
-	. "github.com/sclevine/agouti/page"
-	"github.com/sclevine/agouti/page/internal/driver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -24,7 +23,7 @@ var _ = Describe("Page", func() {
 		driver = &mocks.Driver{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = Page{driver}
+		page = New(driver)
 	})
 
 	Describe("#Navigate", func() {

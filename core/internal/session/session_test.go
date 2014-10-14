@@ -1,7 +1,7 @@
 package session_test
 
 import (
-	. "github.com/sclevine/agouti/page/internal/session"
+	. "github.com/sclevine/agouti/core/internal/session"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
