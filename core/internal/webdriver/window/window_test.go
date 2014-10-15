@@ -4,8 +4,8 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/webdriver/window"
-	"github.com/sclevine/agouti/internal/mocks"
 )
 
 var _ = Describe("Window", func() {

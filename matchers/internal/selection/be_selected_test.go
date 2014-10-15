@@ -1,7 +1,7 @@
 package selection_test
 
 import (
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/selection"
 
 	. "github.com/onsi/ginkgo"
@@ -16,7 +16,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.SelectorCall.ReturnSelector = "#selector"
+		selection.StringCall.ReturnString = "CSS: #selector"
 		matcher = &BeSelectedMatcher{}
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 			selection.SelectedCall.ReturnSelected = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(Equal("Expected selection '#selector' to be selected"))
+			Expect(message).To(Equal("Expected selection 'CSS: #selector' to be selected"))
 		})
 	})
 
@@ -77,7 +77,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 			selection.SelectedCall.ReturnSelected = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(Equal("Expected selection '#selector' not to be selected"))
+			Expect(message).To(Equal("Expected selection 'CSS: #selector' not to be selected"))
 		})
 	})
 })

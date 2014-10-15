@@ -1,7 +1,7 @@
 package selection_test
 
 import (
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/selection"
 
 	. "github.com/onsi/ginkgo"
@@ -16,7 +16,7 @@ var _ = Describe("HaveTextMatcher", func() {
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.SelectorCall.ReturnSelector = "#selector"
+		selection.StringCall.ReturnString = "CSS: #selector"
 		matcher = &HaveTextMatcher{ExpectedText: "some text"}
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("HaveTextMatcher", func() {
 			selection.TextCall.ReturnText = "some other text"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection '#selector' to have text matching\n    some text"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to have text matching\n    some text"))
 			Expect(message).To(ContainSubstring("but found\n    some other text"))
 		})
 	})
@@ -78,7 +78,7 @@ var _ = Describe("HaveTextMatcher", func() {
 			selection.TextCall.ReturnText = "some text"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection '#selector' not to have text matching\n    some text"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to have text matching\n    some text"))
 			Expect(message).To(ContainSubstring("but found\n    some text"))
 		})
 	})

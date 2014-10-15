@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/browser"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	"github.com/sclevine/agouti/core/internal/session"
-	"github.com/sclevine/agouti/internal/mocks"
 	"net/http"
 	"net/http/httptest"
 )

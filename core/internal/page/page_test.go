@@ -4,8 +4,8 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/page"
-	"github.com/sclevine/agouti/internal/mocks"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -323,7 +323,13 @@ var _ = Describe("Page", func() {
 
 	Describe("#Find", func() {
 		It("returns a selection", func() {
-			Expect(page.Find("#selector").Selector()).To(Equal("#selector"))
+			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector"))
+		})
+	})
+
+	Describe("#FindXPath", func() {
+		It("returns a selection", func() {
+			Expect(page.FindXPath("//selector").String()).To(Equal("XPath: //selector"))
 		})
 	})
 })

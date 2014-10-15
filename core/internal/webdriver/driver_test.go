@@ -4,10 +4,11 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/webdriver"
 	"github.com/sclevine/agouti/core/internal/webdriver/element"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 	"github.com/sclevine/agouti/core/internal/webdriver/window"
-	"github.com/sclevine/agouti/internal/mocks"
 )
 
 var _ = Describe("Webdriver", func() {
@@ -23,11 +24,11 @@ var _ = Describe("Webdriver", func() {
 	})
 
 	Describe("#GetElements", func() {
-		var elements []Element
+		var elements []types.Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
-			elements, err = driver.GetElements("#selector")
+			elements, err = driver.GetElements(types.Selector{"css selector", "#selector"})
 		})
 
 		It("makes a POST request", func() {
@@ -58,14 +59,14 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err = driver.GetElements("#selector")
+				_, err = driver.GetElements(types.Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#GetWindow", func() {
-		var driverWindow Window
+		var driverWindow types.Window
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `"some-id"`
@@ -101,10 +102,10 @@ var _ = Describe("Webdriver", func() {
 	})
 
 	Describe("#SetCookie", func() {
-		var cookie *Cookie
+		var cookie *types.Cookie
 
 		BeforeEach(func() {
-			cookie = &Cookie{
+			cookie = &types.Cookie{
 				Name:     "some-name",
 				Value:    42,
 				Path:     "/my-path",
@@ -426,21 +427,21 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when a X point is provided", func() {
 			It("encodes the element into the request JSON", func() {
-				driver.MoveTo(nil, XPoint(100))
+				driver.MoveTo(nil, types.XPoint(100))
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
 			})
 		})
 
 		Context("when a Y point is provided", func() {
 			It("encodes the element into the request JSON", func() {
-				driver.MoveTo(nil, YPoint(200))
+				driver.MoveTo(nil, types.YPoint(200))
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
 			})
 		})
 
 		Context("when an XY point is provided", func() {
 			It("encodes the element into the request JSON", func() {
-				driver.MoveTo(nil, XYPoint{300, 400})
+				driver.MoveTo(nil, types.XYPoint{300, 400})
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
 			})
 		})

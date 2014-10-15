@@ -3,8 +3,8 @@ package mocks
 import "github.com/sclevine/agouti/core/internal/selection"
 
 type Selection struct {
-	SelectorCall struct {
-		ReturnSelector string
+	StringCall struct {
+		ReturnString string
 	}
 
 	TextCall struct {
@@ -44,8 +44,12 @@ func (s *Selection) Find(selector string) selection.Selection {
 	return &Selection{}
 }
 
-func (s *Selection) Selector() string {
-	return s.SelectorCall.ReturnSelector
+func (s *Selection) FindXPath(selector string) selection.Selection {
+	return &Selection{}
+}
+
+func (s *Selection) String() string {
+	return s.StringCall.ReturnString
 }
 
 func (s *Selection) Click() error {

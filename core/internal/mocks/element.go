@@ -1,8 +1,16 @@
 package mocks
 
+import "github.com/sclevine/agouti/core/internal/webdriver/types"
+
 type Element struct {
 	GetIDCall struct {
 		ReturnID string
+	}
+
+	GetElementsCall struct {
+		Selector       types.Selector
+		ReturnElements []types.Element
+		Err            error
 	}
 
 	GetTextCall struct {
@@ -55,6 +63,11 @@ type Element struct {
 
 func (e *Element) GetID() string {
 	return e.GetIDCall.ReturnID
+}
+
+func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {
+	e.GetElementsCall.Selector = selector
+	return e.GetElementsCall.ReturnElements, e.GetElementsCall.Err
 }
 
 func (e *Element) GetText() (string, error) {

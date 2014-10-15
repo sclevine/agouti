@@ -26,6 +26,10 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(page.Find("header")).To(HaveText("Title"))
 		})
 
+		//		Step("finds an element by label text", func() {
+		//			Expect(page.FindByLabel("Some Label")).To(HaveAttribute("value", "some labeled value"))
+		//		})
+
 		Step("asserts that text is not in the header", func() {
 			Expect(page.Find("header")).NotTo(HaveText("Not-Title"))
 		})
@@ -37,6 +41,10 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 
 		Step("allows tests to be scoped by chaining", func() {
 			Expect(page.Find("header").Find("h1")).To(HaveText("Title"))
+		})
+
+		Step("allows locating elements by XPath", func() {
+			Expect(page.Find("header").FindXPath("//h1")).To(HaveText("Title"))
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {

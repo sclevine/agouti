@@ -1,7 +1,7 @@
 package selection_test
 
 import (
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/selection"
 
 	. "github.com/onsi/ginkgo"
@@ -16,7 +16,7 @@ var _ = Describe("HaveCSS", func() {
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.SelectorCall.ReturnSelector = "#selector"
+		selection.StringCall.ReturnString = "CSS: #selector"
 		matcher = &HaveCSSMatcher{ExpectedProperty: "some-property", ExpectedValue: "some value"}
 	})
 
@@ -73,7 +73,7 @@ var _ = Describe("HaveCSS", func() {
 			selection.CSSCall.ReturnValue = "some other value"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection '#selector' to have CSS matching\n    some-property: \"some value\""))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to have CSS matching\n    some-property: \"some value\""))
 			Expect(message).To(ContainSubstring("but found\n    some-property: \"some other value\""))
 		})
 	})
@@ -83,7 +83,7 @@ var _ = Describe("HaveCSS", func() {
 			selection.CSSCall.ReturnValue = "some value"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection '#selector' not to have CSS matching\n    some-property: \"some value\""))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to have CSS matching\n    some-property: \"some value\""))
 			Expect(message).To(ContainSubstring("but found\n    some-property: \"some value\""))
 		})
 	})

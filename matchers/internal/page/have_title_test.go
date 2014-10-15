@@ -1,7 +1,7 @@
 package page_test
 
 import (
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/page"
 
 	. "github.com/onsi/ginkgo"

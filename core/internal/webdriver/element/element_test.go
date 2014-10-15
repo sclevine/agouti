@@ -4,8 +4,9 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/webdriver/element"
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 )
 
 var _ = Describe("Element", func() {
@@ -23,6 +24,48 @@ var _ = Describe("Element", func() {
 	Describe("#GetID", func() {
 		It("returns the stored element ID", func() {
 			Expect(element.GetID()).To(Equal("some-id"))
+		})
+	})
+
+	Describe("#GetElements", func() {
+		var elements []types.Element
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
+			elements, err = element.GetElements(types.Selector{"css selector", "#selector"})
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /element/:id/elements endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("element/some-id/elements"))
+		})
+
+		It("includes the selection in the request body", func() {
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"using": "css selector", "value": "#selector"}`))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns a slice of elements with IDs and sessions", func() {
+				Expect(elements[0].(*Element).ID).To(Equal("some-id"))
+				Expect(elements[0].(*Element).Session).To(Equal(session))
+				Expect(elements[1].(*Element).ID).To(Equal("some-other-id"))
+				Expect(elements[1].(*Element).Session).To(Equal(session))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the elements", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = element.GetElements(types.Selector{"css selector", "#selector"})
+				Expect(err).To(MatchError("some error"))
+			})
 		})
 	})
 

@@ -2,18 +2,18 @@ package mocks
 
 import (
 	"encoding/json"
-	"github.com/sclevine/agouti/core/internal/webdriver"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 )
 
 type Driver struct {
 	GetElementsCall struct {
-		Selector       string
-		ReturnElements []webdriver.Element
+		Selector       types.Selector
+		ReturnElements []types.Element
 		Err            error
 	}
 
 	GetWindowCall struct {
-		ReturnWindow webdriver.Window
+		ReturnWindow types.Window
 		Err          error
 	}
 
@@ -23,7 +23,7 @@ type Driver struct {
 	}
 
 	SetCookieCall struct {
-		Cookie *webdriver.Cookie
+		Cookie *types.Cookie
 		Err    error
 	}
 
@@ -58,8 +58,8 @@ type Driver struct {
 	}
 
 	MoveToCall struct {
-		Element webdriver.Element
-		Point   webdriver.Point
+		Element types.Element
+		Point   types.Point
 		Err     error
 	}
 
@@ -71,12 +71,12 @@ type Driver struct {
 	}
 }
 
-func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
+func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {
 	d.GetElementsCall.Selector = selector
 	return d.GetElementsCall.ReturnElements, d.GetElementsCall.Err
 }
 
-func (d *Driver) GetWindow() (webdriver.Window, error) {
+func (d *Driver) GetWindow() (types.Window, error) {
 	return d.GetWindowCall.ReturnWindow, d.GetWindowCall.Err
 }
 
@@ -84,7 +84,7 @@ func (d *Driver) GetScreenshot() ([]byte, error) {
 	return d.GetScreenshotCall.ReturnImage, d.GetScreenshotCall.Err
 }
 
-func (d *Driver) SetCookie(cookie *webdriver.Cookie) error {
+func (d *Driver) SetCookie(cookie *types.Cookie) error {
 	d.SetCookieCall.Cookie = cookie
 	return d.SetCookieCall.Err
 }
@@ -117,7 +117,7 @@ func (d *Driver) DoubleClick() error {
 	return d.DoubleClickCall.Err
 }
 
-func (d *Driver) MoveTo(element webdriver.Element, point webdriver.Point) error {
+func (d *Driver) MoveTo(element types.Element, point types.Point) error {
 	d.MoveToCall.Element = element
 	d.MoveToCall.Point = point
 	return d.MoveToCall.Err

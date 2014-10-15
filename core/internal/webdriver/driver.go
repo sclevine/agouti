@@ -3,6 +3,7 @@ package webdriver
 import (
 	"encoding/base64"
 	"github.com/sclevine/agouti/core/internal/webdriver/element"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 	"github.com/sclevine/agouti/core/internal/webdriver/window"
 )
 
@@ -14,46 +15,14 @@ type executable interface {
 	Execute(endpoint, method string, body, result interface{}) error
 }
 
-type Element interface {
-	GetID() string
-	GetText() (string, error)
-	GetAttribute(attribute string) (string, error)
-	GetCSS(property string) (string, error)
-	IsSelected() (bool, error)
-	IsDisplayed() (bool, error)
-	Click() error
-	Clear() error
-	Value(text string) error
-	Submit() error
-}
-
-type Window interface {
-	SetSize(height, width int) error
-}
-
-type Cookie struct {
-	Name     string      `json:"name"`
-	Value    interface{} `json:"value"`
-	Path     string      `json:"path"`
-	Domain   string      `json:"domain"`
-	Secure   bool        `json:"secure"`
-	HTTPOnly bool        `json:"httpOnly"`
-	Expiry   int64       `json:"expiry"`
-}
-
-func (d *Driver) GetElements(selector string) ([]Element, error) {
-	request := struct {
-		Using string `json:"using"`
-		Value string `json:"value"`
-	}{"css selector", selector}
-
+func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {
 	var results []struct{ Element string }
 
-	if err := d.Session.Execute("elements", "POST", request, &results); err != nil {
+	if err := d.Session.Execute("elements", "POST", selector, &results); err != nil {
 		return nil, err
 	}
 
-	elements := []Element{}
+	elements := []types.Element{}
 	for _, result := range results {
 		elements = append(elements, &element.Element{result.Element, d.Session})
 	}
@@ -61,7 +30,7 @@ func (d *Driver) GetElements(selector string) ([]Element, error) {
 	return elements, nil
 }
 
-func (d *Driver) GetWindow() (Window, error) {
+func (d *Driver) GetWindow() (types.Window, error) {
 	var windowID string
 	if err := d.Session.Execute("window_handle", "GET", nil, &windowID); err != nil {
 		return nil, err
@@ -69,9 +38,9 @@ func (d *Driver) GetWindow() (Window, error) {
 	return &window.Window{windowID, d.Session}, nil
 }
 
-func (d *Driver) SetCookie(cookie *Cookie) error {
+func (d *Driver) SetCookie(cookie *types.Cookie) error {
 	request := struct {
-		Cookie *Cookie `json:"cookie"`
+		Cookie *types.Cookie `json:"cookie"`
 	}{cookie}
 
 	return d.Session.Execute("cookie", "POST", request, &struct{}{})
@@ -125,7 +94,7 @@ func (d *Driver) DoubleClick() error {
 	return d.Session.Execute("doubleclick", "POST", nil, &struct{}{})
 }
 
-func (d *Driver) MoveTo(element Element, point Point) error {
+func (d *Driver) MoveTo(element types.Element, point types.Point) error {
 	request := map[string]interface{}{}
 
 	if element != nil {
@@ -133,11 +102,11 @@ func (d *Driver) MoveTo(element Element, point Point) error {
 	}
 
 	if point != nil {
-		if xoffset, present := point.x(); present {
+		if xoffset, present := point.X(); present {
 			request["xoffset"] = xoffset
 		}
 
-		if yoffset, present := point.y(); present {
+		if yoffset, present := point.Y(); present {
 			request["yoffset"] = yoffset
 		}
 	}

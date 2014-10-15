@@ -2,6 +2,7 @@ package element
 
 import (
 	"fmt"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 	"strings"
 )
 
@@ -16,6 +17,21 @@ type executable interface {
 
 func (e *Element) GetID() string {
 	return e.ID
+}
+
+func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {
+	var results []struct{ Element string }
+
+	if err := e.Session.Execute(e.url()+"/elements", "POST", selector, &results); err != nil {
+		return nil, err
+	}
+
+	elements := []types.Element{}
+	for _, result := range results {
+		elements = append(elements, &Element{result.Element, e.Session})
+	}
+
+	return elements, nil
 }
 
 func (e *Element) GetText() (string, error) {

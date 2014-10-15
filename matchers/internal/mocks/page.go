@@ -48,3 +48,7 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 func (p *Page) Find(selector string) selection.Selection {
 	return nil
 }
+
+func (p *Page) FindXPath(selector string) selection.Selection {
+	return nil
+}

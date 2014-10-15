@@ -4,9 +4,9 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/webdriver"
-	"github.com/sclevine/agouti/internal/mocks"
+	"github.com/sclevine/agouti/core/internal/webdriver/types"
 )
 
 var _ = Describe("Selection", func() {
@@ -19,13 +19,77 @@ var _ = Describe("Selection", func() {
 	BeforeEach(func() {
 		driver = &mocks.Driver{}
 		element = &mocks.Element{}
-		selection = New(driver, "#selector")
+		selection = New(driver, types.Selector{"css selector", "#selector"})
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
+		Context("enures a single element is returned", func() {
+			It("returns an error with the number of elements", func() {
+				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
+			})
+		})
+	}
+
+	Describe("all methods: retrieving elements", func() {
+		var (
+			parentOne *mocks.Element
+			parentTwo *mocks.Element
+			count     int
+		)
+
+		BeforeEach(func() {
+			selection = selection.FindXPath("children")
+			parentOne = &mocks.Element{}
+			parentTwo = &mocks.Element{}
+			parentOne.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
+			parentTwo.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
+			driver.GetElementsCall.ReturnElements = []types.Element{parentOne, parentTwo}
+			count, _ = selection.Count()
+		})
+
+		Context("when successful", func() {
+			It("retrieves the parent elements using the driver", func() {
+				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
+			})
+
+			It("retrieves the child elements of the parent selector", func() {
+				Expect(parentOne.GetElementsCall.Selector).To(Equal(types.Selector{"xpath", "children"}))
+				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{"xpath", "children"}))
+			})
+
+			It("returns all child elements of the terminal selector", func() {
+				Expect(count).To(Equal(4))
+			})
+		})
+
+		Context("when retrieving the parent elements fails", func() {
+			BeforeEach(func() {
+				driver.GetElementsCall.Err = errors.New("some error")
+			})
+
+			It("returns the error", func() {
+				_, err := selection.Count()
+				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector | XPath: children': some error"))
+			})
+		})
+
+		Context("when retrieving any of the child elements fails", func() {
+			BeforeEach(func() {
+				parentTwo.GetElementsCall.Err = errors.New("some error")
+			})
+
+			It("returns the error", func() {
+				_, err := selection.Count()
+				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector | XPath: children': some error"))
+			})
+		})
+	})
+
+	Describe("all methods: retrieving a single element", func() {
 		It("requests an element from the driver using the element's selector", func() {
-			matcher()
-			Expect(driver.GetElementsCall.Selector).To(Equal("#selector"))
+			selection.Click()
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
 		})
 
 		Context("when the driver fails to retrieve any elements", func() {
@@ -34,51 +98,66 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns error from the driver", func() {
-				Expect(matcher()).To(MatchError("failed to retrieve element with selector '#selector': some error"))
+				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when the driver retrieves more than one element", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
+				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
 			})
 
 			It("returns an error with the number of elements", func() {
-				Expect(matcher()).To(MatchError("failed to retrieve element with selector '#selector': mutiple elements (2) were selected"))
+				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
 			})
 		})
 
 		Context("when the driver retrieves zero elements", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []webdriver.Element{}
+				driver.GetElementsCall.ReturnElements = []types.Element{}
 			})
 
 			It("fails with an error indicating there were no elements", func() {
-				Expect(matcher()).To(MatchError("failed to retrieve element with selector '#selector': no element found"))
+				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': no element found"))
 			})
-		})
-	}
-
-	Describe("#Find", func() {
-		It("returns a subselection", func() {
-			Expect(selection.Find("#subselector").Selector()).To(Equal("#selector #subselector"))
 		})
 	})
 
-	Describe("#Selector", func() {
-		It("returns the selector", func() {
-			Expect(selection.Selector()).To(Equal("#selector"))
+	Describe("#Find", func() {
+		Context("when the selection ends with an xpath selector", func() {
+			It("adds a new css selector to the selection", func() {
+				xpath := selection.FindXPath("//subselector")
+				Expect(xpath.Find("#subselector").String()).To(Equal("CSS: #selector | XPath: //subselector | CSS: #subselector"))
+			})
+		})
+
+		Context("when the selection ends with a CSS selector", func() {
+			It("modifies the terminal css selector to include the new selector", func() {
+				Expect(selection.Find("#subselector").String()).To(Equal("CSS: #selector #subselector"))
+			})
+		})
+	})
+
+	Describe("#FindXPath", func() {
+		It("adds a new xpath selector to the selection", func() {
+			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
+		})
+	})
+
+	Describe("#String", func() {
+		It("returns the separated selectors", func() {
+			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
 		})
 	})
 
 	Describe("#Count", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element, element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element, element}
 		})
 
 		It("requests elements from the driver using the provided selector", func() {
 			selection.Count()
-			Expect(driver.GetElementsCall.Selector).To(Equal("#selector"))
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
 		})
 
 		Context("when the driver succeeds in retrieving the elements", func() {
@@ -100,14 +179,14 @@ var _ = Describe("Selection", func() {
 
 			It("returns an error", func() {
 				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to retrieve elements for selector '#selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector': some error"))
 			})
 		})
 	})
 
 	Describe("#Click", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -125,7 +204,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Click()).To(MatchError("failed to click on selector '#selector': some error"))
+				Expect(selection.Click()).To(MatchError("failed to click on 'CSS: #selector': some error"))
 			})
 		})
 
@@ -138,7 +217,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#DoubleClick", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -157,7 +236,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("retuns an error", func() {
-				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to selector '#selector': some error"))
+				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to 'CSS: #selector': some error"))
 			})
 		})
 
@@ -172,7 +251,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on selector '#selector': some error"))
+				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on 'CSS: #selector': some error"))
 			})
 		})
 
@@ -185,7 +264,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Fill", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -198,7 +277,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Fill("some text")).To(MatchError("failed to clear selector '#selector': some error"))
+				Expect(selection.Fill("some text")).To(MatchError("failed to clear 'CSS: #selector': some error"))
 			})
 		})
 
@@ -208,7 +287,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into selector '#selector': some error"))
+				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
 			})
 		})
 
@@ -231,7 +310,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Check", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -249,7 +328,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Check()).To(MatchError("failed to retrieve type of selector '#selector': some error"))
+				Expect(selection.Check()).To(MatchError("failed to retrieve type of 'CSS: #selector': some error"))
 			})
 		})
 
@@ -259,7 +338,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Check()).To(MatchError("selector '#selector' does not refer to a checkbox"))
+				Expect(selection.Check()).To(MatchError("'CSS: #selector' does not refer to a checkbox"))
 			})
 		})
 
@@ -274,7 +353,7 @@ var _ = Describe("Selection", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(selection.Check()).To(MatchError("failed to retrieve state of selector '#selector': some error"))
+					Expect(selection.Check()).To(MatchError("failed to retrieve state of 'CSS: #selector': some error"))
 				})
 			})
 
@@ -305,7 +384,7 @@ var _ = Describe("Selection", func() {
 					})
 
 					It("returns an error", func() {
-						Expect(selection.Check()).To(MatchError("failed to click selector '#selector': some error"))
+						Expect(selection.Check()).To(MatchError("failed to click on 'CSS: #selector': some error"))
 					})
 				})
 			})
@@ -314,7 +393,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Uncheck", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 			element.GetAttributeCall.ReturnValue = "checkbox"
 			element.IsSelectedCall.ReturnSelected = true
 		})
@@ -327,7 +406,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Text", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -342,7 +421,7 @@ var _ = Describe("Selection", func() {
 
 			It("returns an error", func() {
 				_, err := selection.Text()
-				Expect(err).To(MatchError("failed to retrieve text for selector '#selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve text for 'CSS: #selector': some error"))
 			})
 		})
 
@@ -365,7 +444,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Attribute", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -382,7 +461,7 @@ var _ = Describe("Selection", func() {
 			It("returns an error", func() {
 				element.GetAttributeCall.Err = errors.New("some error")
 				_, err := selection.Attribute("some-attribute")
-				Expect(err).To(MatchError("failed to retrieve attribute value for selector '#selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve attribute value for 'CSS: #selector': some error"))
 			})
 		})
 
@@ -405,7 +484,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#CSS", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -422,7 +501,7 @@ var _ = Describe("Selection", func() {
 			It("returns an error", func() {
 				element.GetCSSCall.Err = errors.New("some error")
 				_, err := selection.CSS("some-property")
-				Expect(err).To(MatchError("failed to retrieve CSS property for selector '#selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve CSS property for 'CSS: #selector': some error"))
 			})
 		})
 
@@ -445,7 +524,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Selected", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -457,7 +536,7 @@ var _ = Describe("Selection", func() {
 			It("returns an error", func() {
 				element.IsSelectedCall.Err = errors.New("some error")
 				_, err := selection.Selected()
-				Expect(err).To(MatchError("failed to determine whether selector '#selector' is selected: some error"))
+				Expect(err).To(MatchError("failed to determine whether 'CSS: #selector' is selected: some error"))
 			})
 		})
 
@@ -483,7 +562,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Visible", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -495,7 +574,7 @@ var _ = Describe("Selection", func() {
 			It("returns an error", func() {
 				element.IsDisplayedCall.Err = errors.New("some error")
 				_, err := selection.Visible()
-				Expect(err).To(MatchError("failed to determine whether selector '#selector' is visible: some error"))
+				Expect(err).To(MatchError("failed to determine whether 'CSS: #selector' is visible: some error"))
 			})
 		})
 
@@ -530,12 +609,12 @@ var _ = Describe("Selection", func() {
 			optionOne = &mocks.Element{}
 			optionTwo = &mocks.Element{}
 			optionThree = &mocks.Element{}
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{optionOne, optionTwo, optionThree}
+			driver.GetElementsCall.ReturnElements = []types.Element{optionOne, optionTwo, optionThree}
 		})
 
 		It("request child option elements from the driver", func() {
 			selection.Select("some text")
-			Expect(driver.GetElementsCall.Selector).To(Equal("#selector option"))
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector option"}))
 		})
 
 		Context("when the driver fails to retrieve any elements", func() {
@@ -544,7 +623,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns error from the driver", func() {
-				Expect(selection.Select("some text")).To(MatchError("failed to retrieve options for selector '#selector': some error"))
+				Expect(selection.Select("some text")).To(MatchError("failed to retrieve options for 'CSS: #selector': some error"))
 			})
 		})
 
@@ -554,7 +633,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns error from the driver", func() {
-				Expect(selection.Select("some text")).To(MatchError("failed to retrieve option text for selector '#selector': some error"))
+				Expect(selection.Select("some text")).To(MatchError("failed to retrieve option text for 'CSS: #selector': some error"))
 			})
 		})
 
@@ -584,7 +663,7 @@ var _ = Describe("Selection", func() {
 
 				It("return an error indicating that it failed to click on the element", func() {
 					err := selection.Select("some text")
-					Expect(err).To(MatchError(`failed to click on option with text "some text" for selector '#selector': some error`))
+					Expect(err).To(MatchError(`failed to click on option with text "some text" for 'CSS: #selector': some error`))
 				})
 			})
 		})
@@ -598,14 +677,14 @@ var _ = Describe("Selection", func() {
 
 			It("returns an error indicating that no options could be selected", func() {
 				err := selection.Select("some text")
-				Expect(err).To(MatchError(`no options with text "some text" found for selector '#selector'`))
+				Expect(err).To(MatchError(`no options with text "some text" found for 'CSS: #selector'`))
 			})
 		})
 	})
 
 	Describe("#Submit", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []webdriver.Element{element}
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -618,7 +697,7 @@ var _ = Describe("Selection", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(selection.Submit()).To(MatchError("failed to submit selector '#selector': some error"))
+				Expect(selection.Submit()).To(MatchError("failed to submit 'CSS: #selector': some error"))
 			})
 		})
 
