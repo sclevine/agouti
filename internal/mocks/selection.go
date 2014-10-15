@@ -35,8 +35,8 @@ type Selection struct {
 	}
 
 	CountCall struct {
-		ReturnCount   int
-		Err           error
+		ReturnCount int
+		Err         error
 	}
 }
 

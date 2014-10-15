@@ -1,6 +1,9 @@
 package mocks
 
-import "github.com/sclevine/agouti/core/internal/webdriver"
+import (
+	"encoding/json"
+	"github.com/sclevine/agouti/core/internal/webdriver"
+)
 
 type Driver struct {
 	GetElementsCall struct {
@@ -59,6 +62,13 @@ type Driver struct {
 		Point   webdriver.Point
 		Err     error
 	}
+
+	ExecuteCall struct {
+		Body      string
+		Arguments []interface{}
+		Result    string
+		Err       error
+	}
 }
 
 func (d *Driver) GetElements(selector string) ([]webdriver.Element, error) {
@@ -111,4 +121,11 @@ func (d *Driver) MoveTo(element webdriver.Element, point webdriver.Point) error 
 	d.MoveToCall.Element = element
 	d.MoveToCall.Point = point
 	return d.MoveToCall.Err
+}
+
+func (d *Driver) Execute(body string, arguments []interface{}, result interface{}) error {
+	d.ExecuteCall.Body = body
+	d.ExecuteCall.Arguments = arguments
+	json.Unmarshal([]byte(d.ExecuteCall.Result), result)
+	return d.ExecuteCall.Err
 }

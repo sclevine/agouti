@@ -280,6 +280,47 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#RunScript", func() {
+		var (
+			result struct{ Some string }
+			err    error
+		)
+
+		BeforeEach(func() {
+			driver.ExecuteCall.Result = `{"some": "result"}`
+			err = page.RunScript("some javascript code", map[string]interface{}{"argument": "value"}, &result)
+		})
+
+		It("provides the driver with an argument-provided javascript function", func() {
+			Expect(driver.ExecuteCall.Body).To(Equal("return (function(argument) { some javascript code; }).apply(this, arguments);"))
+		})
+
+		It("provides the driver with arguments to call the provided function with", func() {
+			Expect(driver.ExecuteCall.Arguments).To(Equal([]interface{}{"value"}))
+		})
+
+		It("unmarshalls the returned result into the provided result interface", func() {
+			Expect(result.Some).To(Equal("result"))
+		})
+
+		Context("when executing the script succeeds", func() {
+			It("returns nil", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when running the script fails", func() {
+			BeforeEach(func() {
+				driver.ExecuteCall.Err = errors.New("some error")
+			})
+
+			It("returns the driver error", func() {
+				err = page.RunScript("", map[string]interface{}{}, &result)
+				Expect(err).To(MatchError("failed to run script: some error"))
+			})
+		})
+	})
+
 	Describe("#Find", func() {
 		It("returns a selection", func() {
 			Expect(page.Find("#selector").Selector()).To(Equal("#selector"))

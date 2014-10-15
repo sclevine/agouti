@@ -80,6 +80,13 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(selection.Find("option:last-child")).To(BeSelected())
 		})
 
+		Step("allows executing arbitrary javascript", func() {
+			arguments := map[string]interface{}{"elementID": "some_element"}
+			var result string
+			Expect(page.RunScript("return document.getElementById(elementID).innerHTML;", arguments, &result)).To(Succeed())
+			Expect(result).To(Equal("some text"))
+		})
+
 		Step("allows submitting a form", func() {
 			Expect(page.Find("#some_form").Submit()).To(Succeed())
 			Eventually(Submitted).Should(BeTrue())

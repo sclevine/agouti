@@ -34,11 +34,11 @@ var _ = Describe("Webdriver", func() {
 			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
-		It("hits the /url endpoint", func() {
+		It("hits the /elements endpoint", func() {
 			Expect(session.ExecuteCall.Endpoint).To(Equal("elements"))
 		})
 
-		It("includes the new URL in the request body", func() {
+		It("includes the selection in the request body", func() {
 			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"using": "css selector", "value": "#selector"}`))
 		})
 
@@ -442,6 +442,48 @@ var _ = Describe("Webdriver", func() {
 			It("encodes the element into the request JSON", func() {
 				driver.MoveTo(nil, XYPoint{300, 400})
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
+			})
+		})
+	})
+
+	Describe("#Execute", func() {
+		var (
+			result struct{ Some string }
+			err    error
+		)
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `{"some": "result"}`
+			err = driver.Execute("some javascript code", []interface{}{1, "two"}, &result)
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /execute endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("execute"))
+		})
+
+		It("includes the javascript and arguments in the request body", func() {
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"script": "some javascript code", "args": [1, "two"]}`))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("fills the provided results interface", func() {
+				Expect(result.Some).To(Equal("result"))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the elements", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.Execute("", nil, &result)
+				Expect(err).To(MatchError("some error"))
 			})
 		})
 	})

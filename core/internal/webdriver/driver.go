@@ -144,3 +144,16 @@ func (d *Driver) MoveTo(element Element, point Point) error {
 
 	return d.Session.Execute("moveto", "POST", request, &struct{}{})
 }
+
+func (d *Driver) Execute(body string, arguments []interface{}, result interface{}) error {
+	request := struct {
+		Script string        `json:"script"`
+		Args   []interface{} `json:"args"`
+	}{body, arguments}
+
+	if err := d.Session.Execute("execute", "POST", request, result); err != nil {
+		return err
+	}
+
+	return nil
+}

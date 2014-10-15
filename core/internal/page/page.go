@@ -6,6 +6,7 @@ import (
 	"github.com/sclevine/agouti/core/internal/webdriver"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Page interface {
@@ -18,6 +19,7 @@ type Page interface {
 	Screenshot(filename string) error
 	Title() (string, error)
 	Find(selector string) selection.Selection
+	RunScript(body string, arguments map[string]interface{}, result interface{}) error
 }
 
 type page struct {
@@ -36,6 +38,7 @@ type driver interface {
 	GetElements(selector string) ([]webdriver.Element, error)
 	DoubleClick() error
 	MoveTo(element webdriver.Element, point webdriver.Point) error
+	Execute(body string, arguments []interface{}, result interface{}) error
 }
 
 func New(driver driver) Page {
@@ -122,6 +125,27 @@ func (p *page) Title() (string, error) {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
 	return title, nil
+}
+
+func (p *page) RunScript(body string, arguments map[string]interface{}, result interface{}) error {
+	var (
+		keys   []string
+		values []interface{}
+	)
+
+	for key, value := range arguments {
+		keys = append(keys, key)
+		values = append(values, value)
+	}
+
+	argumentList := strings.Join(keys, ", ")
+	cleanBody := fmt.Sprintf("return (function(%s) { %s; }).apply(this, arguments);", argumentList, body)
+
+	if err := p.driver.Execute(cleanBody, values, result); err != nil {
+		return fmt.Errorf("failed to run script: %s", err)
+	}
+
+	return nil
 }
 
 func (p *page) Find(selector string) selection.Selection {

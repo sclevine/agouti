@@ -41,6 +41,10 @@ func (p *Page) Title() (string, error) {
 	return p.TitleCall.ReturnTitle, p.TitleCall.Err
 }
 
+func (p *Page) RunScript(body string, arguments map[string]interface{}, result interface{}) error {
+	return nil
+}
+
 func (p *Page) Find(selector string) selection.Selection {
 	return nil
 }

@@ -254,7 +254,6 @@ var _ = Describe("Element", func() {
 		})
 	})
 
-
 	Describe("#IsDisplayed", func() {
 		var value bool
 
