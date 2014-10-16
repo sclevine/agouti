@@ -165,7 +165,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#FindByLabel", func() {
 		It("adds an XPath selector for finding by label", func() {
-			Expect(selection.FindByLabel("label name").String()).To(Equal(`CSS: #selector | XPath: //input[@id=(//label[text()="label name"]/@for)] | //label[text()="label name"]/input`))
+			Expect(selection.FindByLabel("label name").String()).To(Equal(`CSS: #selector | XPath: //input[@id=(//label[normalize-space(text())="label name"]/@for)] | //label[normalize-space(text())="label name"]/input`))
 		})
 	})
 

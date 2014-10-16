@@ -38,7 +38,7 @@ func (s *Selection) FindXPath(selector string) types.Selection {
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {
-	selector := fmt.Sprintf(`//input[@id=(//label[text()="%s"]/@for)] | //label[text()="%s"]/input`, text, text)
+	selector := fmt.Sprintf(`//input[@id=(//label[normalize-space(text())="%s"]/@for)] | //label[normalize-space(text())="%s"]/input`, text, text)
 	return s.FindXPath(selector)
 }
 
