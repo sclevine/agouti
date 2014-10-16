@@ -8,16 +8,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("HaveTextMatcher", func() {
+var _ = Describe("MatchTextMatcher", func() {
 	var (
-		matcher   *HaveTextMatcher
+		matcher   *MatchTextMatcher
 		selection *mocks.Selection
 	)
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &HaveTextMatcher{ExpectedText: "some text"}
+		matcher = &MatchTextMatcher{ExpectedText: "s[^t]+text"}
 	})
 
 	Describe("#Match", func() {
@@ -38,7 +38,7 @@ var _ = Describe("HaveTextMatcher", func() {
 				})
 			})
 
-			Context("when the expected text does not equal the actual text", func() {
+			Context("when the expected text does not match the actual text", func() {
 				BeforeEach(func() {
 					selection.TextCall.ReturnText = "some other text"
 				})
@@ -58,7 +58,15 @@ var _ = Describe("HaveTextMatcher", func() {
 		Context("when the actual object is not a selection", func() {
 			It("returns an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("HaveText matcher requires a Selection.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("MatchText matcher requires a Selection.  Got:\n    <string>: not a selection"))
+			})
+		})
+
+		Context("when the regular expression is invalid", func() {
+			It("returns an error", func() {
+				matcher.ExpectedText = "#$(%&#Y"
+				_, err := matcher.Match(selection)
+				Expect(err).To(MatchError("error parsing regexp: missing closing ): `#$(%&#Y`"))
 			})
 		})
 	})
@@ -68,7 +76,7 @@ var _ = Describe("HaveTextMatcher", func() {
 			selection.TextCall.ReturnText = "some other text"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to have text equaling\n    some text"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to have text matching\n    s[^t]+text"))
 			Expect(message).To(ContainSubstring("but found\n    some other text"))
 		})
 	})
@@ -78,7 +86,7 @@ var _ = Describe("HaveTextMatcher", func() {
 			selection.TextCall.ReturnText = "some text"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to have text equaling\n    some text"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to have text matching\n    s[^t]+text"))
 			Expect(message).To(ContainSubstring("but found\n    some text"))
 		})
 	})

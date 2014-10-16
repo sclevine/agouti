@@ -9,6 +9,10 @@ func HaveText(text string) types.GomegaMatcher {
 	return &selection.HaveTextMatcher{ExpectedText: text}
 }
 
+func MatchText(text string) types.GomegaMatcher {
+	return &selection.MatchTextMatcher{ExpectedText: text}
+}
+
 func HaveAttribute(attribute string, value string) types.GomegaMatcher {
 	return &selection.HaveAttributeMatcher{ExpectedAttribute: attribute, ExpectedValue: value}
 }

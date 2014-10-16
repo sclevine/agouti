@@ -22,6 +22,14 @@ var _ = Describe("Selection Matchers", func() {
 		})
 	})
 
+	Describe("#MatchText", func() {
+		It("calls the selection#MatchText matcher", func() {
+			selection.TextCall.ReturnText = "some text"
+			Expect(selection).To(MatchText("s[^t]+text"))
+			Expect(selection).NotTo(MatchText("so*text"))
+		})
+	})
+
 	Describe("#HaveAttribute", func() {
 		It("calls the selection#HaveAttribute matcher", func() {
 			selection.AttributeCall.ReturnValue = "some value"

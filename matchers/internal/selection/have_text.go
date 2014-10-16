@@ -29,10 +29,10 @@ func (m *HaveTextMatcher) Match(actual interface{}) (success bool, err error) {
 }
 
 func (m *HaveTextMatcher) FailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "to have text matching", m.ExpectedText, m.actualText)
+	return selectorMessage(actual, "to have text equaling", m.ExpectedText, m.actualText)
 
 }
 
 func (m *HaveTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "not to have text matching", m.ExpectedText, m.actualText)
+	return selectorMessage(actual, "not to have text equaling", m.ExpectedText, m.actualText)
 }
