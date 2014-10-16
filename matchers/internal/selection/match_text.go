@@ -12,7 +12,10 @@ type MatchTextMatcher struct {
 }
 
 func (m *MatchTextMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(interface { Text() (string, error) })
+	actualSelection, ok := actual.(interface {
+		Text() (string, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("MatchText matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

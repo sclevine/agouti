@@ -10,12 +10,11 @@ type HaveTitleMatcher struct {
 	actualTitle   string
 }
 
-type Titler interface {
-	Title() (string, error)
-}
-
 func (m *HaveTitleMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(Titler)
+	actualPage, ok := actual.(interface {
+		Title() (string, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("HaveTitle matcher requires a Page.  Got:\n%s", format.Object(actual, 1))
 	}

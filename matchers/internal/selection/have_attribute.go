@@ -11,12 +11,11 @@ type HaveAttributeMatcher struct {
 	actualValue       string
 }
 
-type Attributer interface {
-	Attribute(attribute string) (string, error)
-}
-
 func (m *HaveAttributeMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Attributer)
+	actualSelection, ok := actual.(interface {
+		Attribute(attribute string) (string, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("HaveAttribute matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

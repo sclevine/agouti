@@ -7,12 +7,11 @@ import (
 
 type BeFoundMatcher struct{}
 
-type Counter interface {
-	Count() (int, error)
-}
-
 func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Counter)
+	actualSelection, ok := actual.(interface {
+		Count() (int, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("BeFound matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

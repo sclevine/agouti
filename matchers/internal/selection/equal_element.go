@@ -9,12 +9,11 @@ type EqualElementMatcher struct {
 	ExpectedSelection interface{}
 }
 
-type EqualsElementable interface {
-	EqualsElement(selection interface{}) (bool, error)
-}
-
 func (m *EqualElementMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(EqualsElementable)
+	actualSelection, ok := actual.(interface {
+		EqualsElement(selection interface{}) (bool, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("EqualElement matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

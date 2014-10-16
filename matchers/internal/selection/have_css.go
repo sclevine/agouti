@@ -11,12 +11,11 @@ type HaveCSSMatcher struct {
 	actualValue      string
 }
 
-type CSSer interface {
-	CSS(property string) (string, error)
-}
-
 func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(CSSer)
+	actualSelection, ok := actual.(interface {
+		CSS(property string) (string, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("HaveCSS matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

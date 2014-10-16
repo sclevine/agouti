@@ -7,12 +7,11 @@ import (
 
 type BeEnabledMatcher struct{}
 
-type Enablable interface {
-	Enabled() (bool, error)
-}
-
 func (m *BeEnabledMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Enablable)
+	actualSelection, ok := actual.(interface {
+		Enabled() (bool, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("BeEnabled matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

@@ -7,12 +7,11 @@ import (
 
 type BeSelectedMatcher struct{}
 
-type Selectable interface {
-	Selected() (bool, error)
-}
-
 func (m *BeSelectedMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Selectable)
+	actualSelection, ok := actual.(interface {
+		Selected() (bool, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("BeSelected matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

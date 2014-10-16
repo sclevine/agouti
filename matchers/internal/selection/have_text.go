@@ -10,12 +10,11 @@ type HaveTextMatcher struct {
 	actualText   string
 }
 
-type Texter interface {
-	Text() (string, error)
-}
-
 func (m *HaveTextMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Texter)
+	actualSelection, ok := actual.(interface {
+		Text() (string, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("HaveText matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

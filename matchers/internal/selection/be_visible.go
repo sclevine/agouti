@@ -7,12 +7,11 @@ import (
 
 type BeVisibleMatcher struct{}
 
-type Visible interface {
-	Visible() (bool, error)
-}
-
 func (m *BeVisibleMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(Visible)
+	actualSelection, ok := actual.(interface {
+		Visible() (bool, error)
+	})
+
 	if !ok {
 		return false, fmt.Errorf("BeVisible matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
