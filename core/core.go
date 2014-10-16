@@ -41,7 +41,7 @@ func PhantomJS() (Browser, error) {
 
 	url := fmt.Sprintf("http://%s", address)
 	command := []string{"phantomjs", fmt.Sprintf("--webdriver=%s", address)}
-	service := &service.Service{URL: url, Timeout: 3 * time.Second, Command: command}
+	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
 
 	return &browser.Browser{Service: service}, nil
 }
