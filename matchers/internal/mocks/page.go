@@ -52,3 +52,7 @@ func (p *Page) Find(selector string) selection.Selection {
 func (p *Page) FindXPath(selector string) selection.Selection {
 	return nil
 }
+
+func (p *Page) FindByLabel(text string) selection.Selection {
+	return nil
+}

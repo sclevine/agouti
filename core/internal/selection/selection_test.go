@@ -139,8 +139,14 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#FindXPath", func() {
-		It("adds a new xpath selector to the selection", func() {
+		It("adds a new XPath selector to the selection", func() {
 			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
+		})
+	})
+
+	Describe("#FindByLabel", func() {
+		It("adds an XPath selector for finding by label", func() {
+			Expect(selection.FindByLabel("label name").String()).To(Equal(`CSS: #selector | XPath: //input[@id=(//label[text()="label name"]/@for)] | //label[text()="label name"]/input`))
 		})
 	})
 

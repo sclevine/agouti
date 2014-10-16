@@ -48,6 +48,10 @@ func (s *Selection) FindXPath(selector string) selection.Selection {
 	return &Selection{}
 }
 
+func (s *Selection) FindByLabel(text string) selection.Selection {
+	return &Selection{}
+}
+
 func (s *Selection) String() string {
 	return s.StringCall.ReturnString
 }

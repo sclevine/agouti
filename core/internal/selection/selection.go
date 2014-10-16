@@ -9,6 +9,7 @@ import (
 type Selection interface {
 	Find(selector string) Selection
 	FindXPath(selector string) Selection
+	FindByLabel(text string) Selection
 	String() string
 	Count() (int, error)
 	Click() error
@@ -54,6 +55,11 @@ func (s *selection) Find(selector string) Selection {
 
 func (s *selection) FindXPath(selector string) Selection {
 	return &selection{s.driver, append(s.selectors, types.Selector{"xpath", selector})}
+}
+
+func (s *selection) FindByLabel(text string) Selection {
+	selector := fmt.Sprintf(`//input[@id=(//label[text()="%s"]/@for)] | //label[text()="%s"]/input`, text, text)
+	return s.FindXPath(selector)
 }
 
 func (s *selection) String() string {

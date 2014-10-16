@@ -21,6 +21,7 @@ type Page interface {
 	RunScript(body string, arguments map[string]interface{}, result interface{}) error
 	Find(selector string) selection.Selection
 	FindXPath(selector string) selection.Selection
+	FindByLabel(text string) selection.Selection
 }
 
 type page struct {
@@ -155,4 +156,8 @@ func (p *page) Find(selector string) selection.Selection {
 
 func (p *page) FindXPath(selector string) selection.Selection {
 	return selection.New(p.driver, types.Selector{"xpath", selector})
+}
+
+func (p *page) FindByLabel(text string) selection.Selection {
+	return p.Find("body").FindByLabel(text)
 }
