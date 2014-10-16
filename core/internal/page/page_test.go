@@ -280,6 +280,36 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#HTML", func() {
+		Context("when retrieving the page HTML is successful", func() {
+			var (
+				html string
+				err  error
+			)
+
+			BeforeEach(func() {
+				driver.GetSourceCall.ReturnSource = "Some HTML"
+				html, err = page.HTML()
+			})
+
+			It("returns the HTML of the current page", func() {
+				Expect(html).To(Equal("Some HTML"))
+			})
+
+			It("does not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the driver fails to retrieve the page HTML", func() {
+			It("returns an error", func() {
+				driver.GetSourceCall.Err = errors.New("some error")
+				_, err := page.HTML()
+				Expect(err).To(MatchError("failed to retrieve page HTML: some error"))
+			})
+		})
+	})
+
 	Describe("#RunScript", func() {
 		var (
 			result struct{ Some string }

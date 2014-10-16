@@ -57,6 +57,10 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Consistently(page.Find("#some_element")).Should(HaveText("some text"))
 		})
 
+		Step("allows serializing the current page HTML", func() {
+			Expect(page.HTML()).To(ContainSubstring(`<div id="some_element" class="some-element" style="color: blue;">some text</div>`))
+		})
+
 		Step("allows entering values into fields", func() {
 			Expect(page.Find("#some_input").Fill("some other value")).To(Succeed())
 		})

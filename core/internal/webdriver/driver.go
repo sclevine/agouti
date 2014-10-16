@@ -90,6 +90,15 @@ func (d *Driver) GetTitle() (string, error) {
 	return title, nil
 }
 
+func (d *Driver) GetSource() (string, error) {
+	var source string
+	if err := d.Session.Execute("source", "GET", nil, &source); err != nil {
+		return "", err
+	}
+
+	return source, nil
+}
+
 func (d *Driver) DoubleClick() error {
 	return d.Session.Execute("doubleclick", "POST", nil, &struct{}{})
 }

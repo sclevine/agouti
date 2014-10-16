@@ -9,6 +9,7 @@ type Page interface {
 	Size(width, height int) error
 	Screenshot(filename string) error
 	Title() (string, error)
+	HTML() (string, error)
 	RunScript(body string, arguments map[string]interface{}, result interface{}) error
 	Forward() error
 	Back() error

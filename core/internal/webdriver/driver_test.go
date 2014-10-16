@@ -357,6 +357,41 @@ var _ = Describe("Webdriver", func() {
 		})
 	})
 
+	Describe("#GetSource", func() {
+		var source string
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `"some source"`
+			source, err = driver.GetSource()
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
+		})
+
+		It("hits the /source endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("source"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("returns the page source", func() {
+				Expect(source).To(Equal("some source"))
+			})
+
+			It("doesn't return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to retrieve the source", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = driver.GetURL()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#DoubleClick", func() {
 		BeforeEach(func() {
 			err = driver.DoubleClick()

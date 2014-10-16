@@ -52,6 +52,11 @@ type Driver struct {
 		Err         error
 	}
 
+	GetSourceCall struct {
+		ReturnSource string
+		Err          error
+	}
+
 	DoubleClickCall struct {
 		Called bool
 		Err    error
@@ -125,6 +130,10 @@ func (d *Driver) SetURL(url string) error {
 
 func (d *Driver) GetTitle() (string, error) {
 	return d.GetTitleCall.ReturnTitle, d.GetTitleCall.Err
+}
+
+func (d *Driver) GetSource() (string, error) {
+	return d.GetSourceCall.ReturnSource, d.GetSourceCall.Err
 }
 
 func (d *Driver) DoubleClick() error {

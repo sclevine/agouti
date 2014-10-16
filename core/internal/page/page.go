@@ -22,6 +22,7 @@ type driver interface {
 	GetURL() (string, error)
 	SetURL(url string) error
 	GetTitle() (string, error)
+	GetSource() (string, error)
 	GetElements(selector types.Selector) ([]types.Element, error)
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
@@ -111,6 +112,14 @@ func (p *Page) Title() (string, error) {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
 	return title, nil
+}
+
+func (p *Page) HTML() (string, error) {
+	html, err := p.Driver.GetSource()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve page HTML: %s", err)
+	}
+	return html, nil
 }
 
 func (p *Page) RunScript(body string, arguments map[string]interface{}, result interface{}) error {
