@@ -1,7 +1,5 @@
 package mocks
 
-import "github.com/sclevine/agouti/core/internal/selection"
-
 type Selection struct {
 	StringCall struct {
 		ReturnString string
@@ -40,48 +38,9 @@ type Selection struct {
 	}
 }
 
-func (s *Selection) Find(selector string) selection.Selection {
-	return &Selection{}
-}
-
-func (s *Selection) FindXPath(selector string) selection.Selection {
-	return &Selection{}
-}
-
-func (s *Selection) FindByLabel(text string) selection.Selection {
-	return &Selection{}
-}
 
 func (s *Selection) String() string {
 	return s.StringCall.ReturnString
-}
-
-func (s *Selection) Click() error {
-	return nil
-}
-
-func (s *Selection) DoubleClick() error {
-	return nil
-}
-
-func (s *Selection) Check() error {
-	return nil
-}
-
-func (s *Selection) Uncheck() error {
-	return nil
-}
-
-func (s *Selection) Fill(text string) error {
-	return nil
-}
-
-func (s *Selection) Select(text string) error {
-	return nil
-}
-
-func (s *Selection) Submit() error {
-	return nil
 }
 
 func (s *Selection) Text() (string, error) {

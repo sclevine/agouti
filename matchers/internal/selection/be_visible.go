@@ -3,13 +3,16 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
 )
 
 type BeVisibleMatcher struct{}
 
+type Visible interface {
+	Visible() (bool, error)
+}
+
 func (m *BeVisibleMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(core.Selection)
+	actualPage, ok := actual.(Visible)
 	if !ok {
 		return false, fmt.Errorf("BeVisible matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

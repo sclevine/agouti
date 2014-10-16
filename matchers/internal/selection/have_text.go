@@ -3,7 +3,6 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
 )
 
 type HaveTextMatcher struct {
@@ -11,8 +10,12 @@ type HaveTextMatcher struct {
 	actualText   string
 }
 
+type Texter interface {
+	Text() (string, error)
+}
+
 func (m *HaveTextMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(core.Selection)
+	actualSelection, ok := actual.(Texter)
 	if !ok {
 		return false, fmt.Errorf("HaveText matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

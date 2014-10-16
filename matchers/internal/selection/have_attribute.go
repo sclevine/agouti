@@ -3,7 +3,6 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
 )
 
 type HaveAttributeMatcher struct {
@@ -12,8 +11,12 @@ type HaveAttributeMatcher struct {
 	actualValue       string
 }
 
+type Attributer interface {
+	Attribute(attribute string) (string, error)
+}
+
 func (m *HaveAttributeMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(core.Selection)
+	actualSelection, ok := actual.(Attributer)
 	if !ok {
 		return false, fmt.Errorf("HaveAttribute matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

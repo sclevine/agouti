@@ -3,13 +3,16 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
 )
 
 type BeFoundMatcher struct{}
 
+type Counter interface {
+	Count() (int, error)
+}
+
 func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(core.Selection)
+	actualPage, ok := actual.(Counter)
 	if !ok {
 		return false, fmt.Errorf("BeFound matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}

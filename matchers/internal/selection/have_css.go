@@ -3,7 +3,6 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
 )
 
 type HaveCSSMatcher struct {
@@ -12,8 +11,12 @@ type HaveCSSMatcher struct {
 	actualValue      string
 }
 
+type CSSer interface {
+	CSS(property string) (string, error)
+}
+
 func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
-	actualSelection, ok := actual.(core.Selection)
+	actualSelection, ok := actual.(CSSer)
 	if !ok {
 		return false, fmt.Errorf("HaveCSS matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
