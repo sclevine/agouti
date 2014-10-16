@@ -786,7 +786,8 @@ var _ = Describe("Selection", func() {
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []types.Element{element}
 			otherDriver = &mocks.Driver{}
-			otherSelection = (&Selection{Driver: otherDriver}).Find("#other_selector")
+			otherSelection = &Selection{Driver: otherDriver}
+			otherSelection = otherSelection.Find("#other_selector")
 			otherElement = &mocks.Element{}
 			otherDriver.GetElementsCall.ReturnElements = []types.Element{otherElement}
 		})
