@@ -35,13 +35,12 @@ func (s *Service) Start() error {
 		return fmt.Errorf("%s is already running", s.name())
 	}
 
-	if _, err := exec.LookPath(s.name()); err != nil {
-		return fmt.Errorf("%s binary not found", s.name())
-	}
-
 	command := exec.Command(s.name(), s.Command[1:]...)
 
-	command.Start()
+	if err := command.Start(); err != nil {
+		return fmt.Errorf("unable to run %s: %s", s.name(), err)
+	}
+
 	s.process = command.Process
 
 	return s.waitForServer()

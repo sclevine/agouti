@@ -38,7 +38,7 @@ var _ = Describe("Service", func() {
 		Context("when the service is started multiple times", func() {
 			It("returns an error indicating that service is already running", func() {
 				defer service.Stop()
-				service.Start()
+				Expect(service.Start()).To(Succeed())
 				err := service.Start()
 				Expect(err).To(MatchError("phantomjs is already running"))
 			})
@@ -71,7 +71,7 @@ var _ = Describe("Service", func() {
 				oldPATH := os.Getenv("PATH")
 				os.Setenv("PATH", "")
 				err := service.Start()
-				Expect(err).To(MatchError("phantomjs binary not found"))
+				Expect(err).To(MatchError("unable to run phantomjs: exec: \"phantomjs\": executable file not found in $PATH"))
 				os.Setenv("PATH", oldPATH)
 			})
 		})
