@@ -51,12 +51,12 @@ var _ = Describe("Selection", func() {
 
 		Context("when successful", func() {
 			It("retrieves the parent elements using the driver", func() {
-				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
+				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 			})
 
 			It("retrieves the child elements of the parent selector", func() {
-				Expect(parentOne.GetElementsCall.Selector).To(Equal(types.Selector{"xpath", "children"}))
-				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{"xpath", "children"}))
+				Expect(parentOne.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children"}))
+				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children"}))
 			})
 
 			It("returns all child elements of the terminal selector", func() {
@@ -101,7 +101,7 @@ var _ = Describe("Selection", func() {
 	Describe("most methods: retrieving a single element", func() {
 		It("requests an element from the driver using the element's selector", func() {
 			selection.Click()
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 		})
 
 		Context("when the driver fails to retrieve any elements", func() {
@@ -182,7 +182,7 @@ var _ = Describe("Selection", func() {
 
 		It("requests elements from the driver using the provided selector", func() {
 			selection.Count()
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 		})
 
 		Context("when the driver succeeds in retrieving the elements", func() {
@@ -677,7 +677,7 @@ var _ = Describe("Selection", func() {
 
 		It("request child option elements from the driver", func() {
 			selection.Select("some text")
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector option"}))
+			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector option"}))
 		})
 
 		Context("when the driver fails to retrieve any elements", func() {

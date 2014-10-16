@@ -56,7 +56,7 @@ var _ = Describe("Browser", func() {
 				deletedSessions += 1
 				response.WriteHeader(destroyStatus)
 			}))
-			service.CreateSessionCall.ReturnSession = &session.Session{fakeServer.URL}
+			service.CreateSessionCall.ReturnSession = &session.Session{URL: fakeServer.URL}
 			browser.Page()
 			browser.Page()
 		})
@@ -124,7 +124,7 @@ var _ = Describe("Browser", func() {
 				sessionInPage = true
 			}))
 			defer fakeServer.Close()
-			service.CreateSessionCall.ReturnSession = &session.Session{fakeServer.URL}
+			service.CreateSessionCall.ReturnSession = &session.Session{URL: fakeServer.URL}
 			page, _ := browser.Page()
 			page.URL()
 			Expect(sessionInPage).To(BeTrue())

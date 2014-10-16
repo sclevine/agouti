@@ -32,7 +32,7 @@ var _ = Describe("Element", func() {
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
-			elements, err = element.GetElements(types.Selector{"css selector", "#selector"})
+			elements, err = element.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
 		})
 
 		It("makes a POST request", func() {
@@ -63,7 +63,7 @@ var _ = Describe("Element", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err = element.GetElements(types.Selector{"css selector", "#selector"})
+				_, err = element.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})

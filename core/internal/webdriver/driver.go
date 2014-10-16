@@ -24,7 +24,7 @@ func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {
 
 	elements := []types.Element{}
 	for _, result := range results {
-		elements = append(elements, &element.Element{result.Element, d.Session})
+		elements = append(elements, &element.Element{ID: result.Element, Session: d.Session})
 	}
 
 	return elements, nil
@@ -35,7 +35,7 @@ func (d *Driver) GetWindow() (types.Window, error) {
 	if err := d.Session.Execute("window_handle", "GET", nil, &windowID); err != nil {
 		return nil, err
 	}
-	return &window.Window{windowID, d.Session}, nil
+	return &window.Window{ID: windowID, Session: d.Session}, nil
 }
 
 func (d *Driver) SetCookie(cookie *types.Cookie) error {

@@ -22,16 +22,19 @@ func (s *Selection) Find(selector string) types.Selection {
 	last := len(s.selectors) - 1
 
 	if last == -1 || s.selectors[last].Using != "css selector" {
-		return &Selection{s.Driver, append(s.selectors, types.Selector{"css selector", selector})}
+		newSelector := types.Selector{Using: "css selector", Value: selector}
+		return &Selection{s.Driver, append(s.selectors, newSelector)}
 	}
 
-	newSelector := types.Selector{"css selector", s.selectors[last].Value + " " + selector}
+	newSelectorValue := s.selectors[last].Value + " " + selector
+	newSelector := types.Selector{Using: "css selector", Value: newSelectorValue}
 	newSelectors := append(append([]types.Selector(nil), s.selectors[:last]...), newSelector)
 	return &Selection{s.Driver, newSelectors}
 }
 
 func (s *Selection) FindXPath(selector string) types.Selection {
-	return &Selection{s.Driver, append(s.selectors, types.Selector{"xpath", selector})}
+	newSelector := types.Selector{Using: "xpath", Value: selector}
+	return &Selection{s.Driver, append(s.selectors, newSelector)}
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {

@@ -28,7 +28,7 @@ var _ = Describe("Webdriver", func() {
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
-			elements, err = driver.GetElements(types.Selector{"css selector", "#selector"})
+			elements, err = driver.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
 		})
 
 		It("makes a POST request", func() {
@@ -59,7 +59,7 @@ var _ = Describe("Webdriver", func() {
 		Context("when the session indicates a failure", func() {
 			It("returns an error indicating the session failed to retrieve the elements", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err = driver.GetElements(types.Selector{"css selector", "#selector"})
+				_, err = driver.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -441,7 +441,7 @@ var _ = Describe("Webdriver", func() {
 
 		Context("when an XY point is provided", func() {
 			It("encodes the element into the request JSON", func() {
-				driver.MoveTo(nil, types.XYPoint{300, 400})
+				driver.MoveTo(nil, types.XYPoint{XPos: 300, YPos: 400})
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
 			})
 		})

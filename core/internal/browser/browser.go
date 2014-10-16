@@ -58,6 +58,6 @@ func (b *Browser) Page(browserName ...string) (types.Page, error) {
 	}
 
 	b.sessions = append(b.sessions, pageSession)
-	pageDriver := &webdriver.Driver{pageSession}
-	return &page.Page{pageDriver}, nil
+	pageDriver := &webdriver.Driver{Session: pageSession}
+	return &page.Page{Driver: pageDriver}, nil
 }
