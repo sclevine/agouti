@@ -301,7 +301,12 @@ func (s *Selection) EqualsElement(comparable interface{}) (bool, error) {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
 
-	otherElement, err := comparable.(*Selection).getSingleElement()
+	selection, ok := comparable.(*Selection)
+	if !ok {
+		return false, errors.New("provided object is not a selection")
+	}
+
+	otherElement, err := selection.getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", comparable, err)
 	}

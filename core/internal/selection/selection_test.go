@@ -807,7 +807,14 @@ var _ = Describe("Selection", func() {
 			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
 		})
 
-		Context("if the the driver fails to compare the elements", func() {
+		Context("if the provided element is not a *Selection", func() {
+			It("returns an error", func() {
+				_, err := selection.EqualsElement("not a selection")
+				Expect(err).To(MatchError("provided object is not a selection"))
+			})
+		})
+
+		Context("if the driver fails to compare the elements", func() {
 			It("returns an error", func() {
 				element.IsEqualToCall.Err = errors.New("some error")
 				_, err := selection.EqualsElement(otherSelection)
