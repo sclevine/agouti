@@ -2,7 +2,7 @@ package element
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
+	"github.com/sclevine/agouti/core/internal/types"
 	"strings"
 )
 

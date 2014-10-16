@@ -1,6 +1,6 @@
 package mocks
 
-import "github.com/sclevine/agouti/core/internal/webdriver/types"
+import "github.com/sclevine/agouti/core/internal/types"
 
 type Element struct {
 	GetIDCall struct {
@@ -66,9 +66,9 @@ type Element struct {
 	}
 
 	IsEqualToCall struct {
-		Element types.Element
+		Element      types.Element
 		ReturnEquals bool
-		Err     error
+		Err          error
 	}
 }
 

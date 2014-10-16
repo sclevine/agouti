@@ -3,21 +3,20 @@ package core
 import (
 	"fmt"
 	"github.com/sclevine/agouti/core/internal/browser"
-	"github.com/sclevine/agouti/core/internal/page"
-	"github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/service"
+	"github.com/sclevine/agouti/core/internal/types"
 	"net"
 	"strings"
 	"time"
 )
 
-type Selection selection.Selection
-type Page page.Page
+type Selection types.Selection
+type Page types.Page
 
 type Browser interface {
 	Start() error
 	Stop() (nonFatal error)
-	Page(browserName ...string) (page.Page, error)
+	Page(browserName ...string) (types.Page, error)
 }
 
 func Chrome() (Browser, error) {

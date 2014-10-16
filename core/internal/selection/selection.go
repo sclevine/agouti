@@ -1,35 +1,14 @@
 package selection
 
 import (
+	"errors"
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
+	"github.com/sclevine/agouti/core/internal/types"
 	"strings"
 )
 
-type Selection interface {
-	Find(selector string) Selection
-	FindXPath(selector string) Selection
-	FindByLabel(text string) Selection
-	String() string
-	Count() (int, error)
-	Click() error
-	DoubleClick() error
-	Fill(text string) error
-	Text() (string, error)
-	Attribute(attribute string) (string, error)
-	CSS(property string) (string, error)
-	Check() error
-	Uncheck() error
-	Selected() (bool, error)
-	Visible() (bool, error)
-	Enabled() (bool, error)
-	Select(text string) error
-	Submit() error
-	EqualsElement(comparable interface{}) (bool, error)
-}
-
-type selection struct {
-	driver    driver
+type Selection struct {
+	Driver    driver
 	selectors []types.Selector
 }
 
@@ -39,32 +18,28 @@ type driver interface {
 	MoveTo(element types.Element, point types.Point) error
 }
 
-func New(driver driver, selector types.Selector) Selection {
-	return &selection{driver, []types.Selector{selector}}
-}
-
-func (s *selection) Find(selector string) Selection {
+func (s *Selection) Find(selector string) types.Selection {
 	last := len(s.selectors) - 1
 
-	if s.selectors[last].Using != "css selector" {
-		return &selection{s.driver, append(s.selectors, types.Selector{"css selector", selector})}
+	if last == -1 || s.selectors[last].Using != "css selector" {
+		return &Selection{s.Driver, append(s.selectors, types.Selector{"css selector", selector})}
 	}
 
 	newSelector := types.Selector{"css selector", s.selectors[last].Value + " " + selector}
 	newSelectors := append(append([]types.Selector(nil), s.selectors[:last]...), newSelector)
-	return &selection{s.driver, newSelectors}
+	return &Selection{s.Driver, newSelectors}
 }
 
-func (s *selection) FindXPath(selector string) Selection {
-	return &selection{s.driver, append(s.selectors, types.Selector{"xpath", selector})}
+func (s *Selection) FindXPath(selector string) types.Selection {
+	return &Selection{s.Driver, append(s.selectors, types.Selector{"xpath", selector})}
 }
 
-func (s *selection) FindByLabel(text string) Selection {
+func (s *Selection) FindByLabel(text string) types.Selection {
 	selector := fmt.Sprintf(`//input[@id=(//label[text()="%s"]/@for)] | //label[text()="%s"]/input`, text, text)
 	return s.FindXPath(selector)
 }
 
-func (s *selection) String() string {
+func (s *Selection) String() string {
 	var tags []string
 
 	for _, selector := range s.selectors {
@@ -74,8 +49,12 @@ func (s *selection) String() string {
 	return strings.Join(tags, " | ")
 }
 
-func (s *selection) getElements() ([]types.Element, error) {
-	lastElements, err := s.driver.GetElements(s.selectors[0])
+func (s *Selection) getElements() ([]types.Element, error) {
+	if len(s.selectors) == 0 {
+		return nil, errors.New("empty selection")
+	}
+
+	lastElements, err := s.Driver.GetElements(s.selectors[0])
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +73,7 @@ func (s *selection) getElements() ([]types.Element, error) {
 	return lastElements, nil
 }
 
-func (s *selection) getSingleElement() (types.Element, error) {
+func (s *Selection) getSingleElement() (types.Element, error) {
 	elements, err := s.getElements()
 	if err != nil {
 		return nil, err
@@ -110,7 +89,7 @@ func (s *selection) getSingleElement() (types.Element, error) {
 	return elements[0], nil
 }
 
-func (s *selection) Count() (int, error) {
+func (s *Selection) Count() (int, error) {
 	elements, err := s.getElements()
 	if err != nil {
 		return 0, fmt.Errorf("failed to retrieve elements for '%s': %s", s, err)
@@ -119,7 +98,7 @@ func (s *selection) Count() (int, error) {
 	return len(elements), nil
 }
 
-func (s *selection) Click() error {
+func (s *Selection) Click() error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -131,23 +110,23 @@ func (s *selection) Click() error {
 	return nil
 }
 
-func (s *selection) DoubleClick() error {
+func (s *Selection) DoubleClick() error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
 
-	if err := s.driver.MoveTo(element, nil); err != nil {
+	if err := s.Driver.MoveTo(element, nil); err != nil {
 		return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
 	}
 
-	if err := s.driver.DoubleClick(); err != nil {
+	if err := s.Driver.DoubleClick(); err != nil {
 		return fmt.Errorf("failed to double-click on '%s': %s", s, err)
 	}
 	return nil
 }
 
-func (s *selection) Fill(text string) error {
+func (s *Selection) Fill(text string) error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -163,15 +142,15 @@ func (s *selection) Fill(text string) error {
 	return nil
 }
 
-func (s *selection) Check() error {
+func (s *Selection) Check() error {
 	return s.setChecked(true)
 }
 
-func (s *selection) Uncheck() error {
+func (s *Selection) Uncheck() error {
 	return s.setChecked(false)
 }
 
-func (s *selection) setChecked(checked bool) error {
+func (s *Selection) setChecked(checked bool) error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -200,7 +179,7 @@ func (s *selection) setChecked(checked bool) error {
 	return nil
 }
 
-func (s *selection) Text() (string, error) {
+func (s *Selection) Text() (string, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -213,7 +192,7 @@ func (s *selection) Text() (string, error) {
 	return text, nil
 }
 
-func (s *selection) Attribute(attribute string) (string, error) {
+func (s *Selection) Attribute(attribute string) (string, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -226,7 +205,7 @@ func (s *selection) Attribute(attribute string) (string, error) {
 	return value, nil
 }
 
-func (s *selection) CSS(property string) (string, error) {
+func (s *Selection) CSS(property string) (string, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -239,7 +218,7 @@ func (s *selection) CSS(property string) (string, error) {
 	return value, nil
 }
 
-func (s *selection) Selected() (bool, error) {
+func (s *Selection) Selected() (bool, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -253,7 +232,7 @@ func (s *selection) Selected() (bool, error) {
 	return selected, nil
 }
 
-func (s *selection) Visible() (bool, error) {
+func (s *Selection) Visible() (bool, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -267,7 +246,7 @@ func (s *selection) Visible() (bool, error) {
 	return visible, nil
 }
 
-func (s *selection) Enabled() (bool, error) {
+func (s *Selection) Enabled() (bool, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -281,8 +260,8 @@ func (s *selection) Enabled() (bool, error) {
 	return enabled, nil
 }
 
-func (s *selection) Select(text string) error {
-	elements, err := s.Find("option").(*selection).getElements()
+func (s *Selection) Select(text string) error {
+	elements, err := s.Find("option").(*Selection).getElements()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve options for '%s': %s", s, err)
 	}
@@ -304,7 +283,7 @@ func (s *selection) Select(text string) error {
 	return fmt.Errorf(`no options with text "%s" found for '%s'`, text, s)
 }
 
-func (s *selection) Submit() error {
+func (s *Selection) Submit() error {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
@@ -316,13 +295,13 @@ func (s *selection) Submit() error {
 	return nil
 }
 
-func (s *selection) EqualsElement(comparable interface{}) (bool, error) {
+func (s *Selection) EqualsElement(comparable interface{}) (bool, error) {
 	element, err := s.getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
 
-	otherElement, err := comparable.(*selection).getSingleElement()
+	otherElement, err := comparable.(*Selection).getSingleElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", comparable, err)
 	}

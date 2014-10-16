@@ -1,17 +1,17 @@
 package selection_test
 
 import (
-	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/selection"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"errors"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
+	. "github.com/sclevine/agouti/matchers/internal/selection"
 )
 
 var _ = Describe("EqualElementMatcher", func() {
 	var (
-		matcher   *EqualElementMatcher
-		selection *mocks.Selection
+		matcher        *EqualElementMatcher
+		selection      *mocks.Selection
 		equalSelection *mocks.Selection
 	)
 

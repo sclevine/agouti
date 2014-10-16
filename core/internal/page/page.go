@@ -3,32 +3,14 @@ package page
 import (
 	"fmt"
 	"github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
+	"github.com/sclevine/agouti/core/internal/types"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-type Page interface {
-	Navigate(url string) error
-	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
-	DeleteCookie(name string) error
-	ClearCookies() error
-	URL() (string, error)
-	Size(width, height int) error
-	Screenshot(filename string) error
-	Title() (string, error)
-	RunScript(body string, arguments map[string]interface{}, result interface{}) error
-	Forward() error
-	Back() error
-	Refresh() error
-	Find(selector string) selection.Selection
-	FindXPath(selector string) selection.Selection
-	FindByLabel(text string) selection.Selection
-}
-
-type page struct {
-	driver driver
+type Page struct {
+	Driver driver
 }
 
 type driver interface {
@@ -49,49 +31,45 @@ type driver interface {
 	Refresh() error
 }
 
-func New(driver driver) Page {
-	return &page{driver}
-}
-
-func (p *page) Navigate(url string) error {
-	if err := p.driver.SetURL(url); err != nil {
+func (p *Page) Navigate(url string) error {
+	if err := p.Driver.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil
 }
 
-func (p *page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
+func (p *Page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
 	cookie := types.Cookie{name, value, path, domain, secure, httpOnly, expiry}
-	if err := p.driver.SetCookie(&cookie); err != nil {
+	if err := p.Driver.SetCookie(&cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil
 }
 
-func (p *page) DeleteCookie(name string) error {
-	if err := p.driver.DeleteCookie(name); err != nil {
+func (p *Page) DeleteCookie(name string) error {
+	if err := p.Driver.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}
 	return nil
 }
 
-func (p *page) ClearCookies() error {
-	if err := p.driver.DeleteCookies(); err != nil {
+func (p *Page) ClearCookies() error {
+	if err := p.Driver.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }
 
-func (p *page) URL() (string, error) {
-	url, err := p.driver.GetURL()
+func (p *Page) URL() (string, error) {
+	url, err := p.Driver.GetURL()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve URL: %s", err)
 	}
 	return url, nil
 }
 
-func (p *page) Size(width, height int) error {
-	window, err := p.driver.GetWindow()
+func (p *Page) Size(width, height int) error {
+	window, err := p.Driver.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
 	}
@@ -103,7 +81,7 @@ func (p *page) Size(width, height int) error {
 	return nil
 }
 
-func (p *page) Screenshot(filename string) error {
+func (p *Page) Screenshot(filename string) error {
 	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 		return fmt.Errorf("failed to create directory for screenshot: %s", err)
 	}
@@ -114,7 +92,7 @@ func (p *page) Screenshot(filename string) error {
 	}
 	defer file.Close()
 
-	screenshot, err := p.driver.GetScreenshot()
+	screenshot, err := p.Driver.GetScreenshot()
 	if err != nil {
 		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
@@ -127,15 +105,15 @@ func (p *page) Screenshot(filename string) error {
 	return nil
 }
 
-func (p *page) Title() (string, error) {
-	title, err := p.driver.GetTitle()
+func (p *Page) Title() (string, error) {
+	title, err := p.Driver.GetTitle()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
 	return title, nil
 }
 
-func (p *page) RunScript(body string, arguments map[string]interface{}, result interface{}) error {
+func (p *Page) RunScript(body string, arguments map[string]interface{}, result interface{}) error {
 	var (
 		keys   []string
 		values []interface{}
@@ -149,42 +127,45 @@ func (p *page) RunScript(body string, arguments map[string]interface{}, result i
 	argumentList := strings.Join(keys, ", ")
 	cleanBody := fmt.Sprintf("return (function(%s) { %s; }).apply(this, arguments);", argumentList, body)
 
-	if err := p.driver.Execute(cleanBody, values, result); err != nil {
+	if err := p.Driver.Execute(cleanBody, values, result); err != nil {
 		return fmt.Errorf("failed to run script: %s", err)
 	}
 
 	return nil
 }
 
-func (p *page) Forward() error {
-	if err := p.driver.Forward(); err != nil {
+func (p *Page) Forward() error {
+	if err := p.Driver.Forward(); err != nil {
 		return fmt.Errorf("failed to navigate forward in history: %s", err)
 	}
 	return nil
 }
 
-func (p *page) Back() error {
-	if err := p.driver.Back(); err != nil {
+func (p *Page) Back() error {
+	if err := p.Driver.Back(); err != nil {
 		return fmt.Errorf("failed to navigate backwards in history: %s", err)
 	}
 	return nil
 }
 
-func (p *page) Refresh() error {
-	if err := p.driver.Refresh(); err != nil {
+func (p *Page) Refresh() error {
+	if err := p.Driver.Refresh(); err != nil {
 		return fmt.Errorf("failed to refresh page: %s", err)
 	}
 	return nil
 }
 
-func (p *page) Find(selector string) selection.Selection {
-	return selection.New(p.driver, types.Selector{"css selector", selector})
+func (p *Page) Find(selector string) types.Selection {
+	selection := &selection.Selection{Driver: p.Driver}
+	return selection.Find(selector)
 }
 
-func (p *page) FindXPath(selector string) selection.Selection {
-	return selection.New(p.driver, types.Selector{"xpath", selector})
+func (p *Page) FindXPath(selector string) types.Selection {
+	selection := &selection.Selection{Driver: p.Driver}
+	return selection.FindXPath(selector)
 }
 
-func (p *page) FindByLabel(text string) selection.Selection {
-	return p.Find("body").FindByLabel(text)
+func (p *Page) FindByLabel(text string) types.Selection {
+	selection := &selection.Selection{Driver: p.Driver}
+	return selection.FindByLabel(text)
 }

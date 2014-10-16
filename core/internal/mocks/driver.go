@@ -2,7 +2,7 @@ package mocks
 
 import (
 	"encoding/json"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Driver struct {

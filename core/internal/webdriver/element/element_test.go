@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
+	"github.com/sclevine/agouti/core/internal/types"
 	. "github.com/sclevine/agouti/core/internal/webdriver/element"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
 )
 
 var _ = Describe("Element", func() {
@@ -397,7 +397,7 @@ var _ = Describe("Element", func() {
 
 	Describe("#Equals", func() {
 		var (
-			equal bool
+			equal        bool
 			otherElement *Element
 		)
 

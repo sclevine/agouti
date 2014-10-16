@@ -6,12 +6,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Selection", func() {
 	var (
-		selection Selection
+		selection types.Selection
 		driver    *mocks.Driver
 		element   *mocks.Element
 	)
@@ -19,7 +19,8 @@ var _ = Describe("Selection", func() {
 	BeforeEach(func() {
 		driver = &mocks.Driver{}
 		element = &mocks.Element{}
-		selection = New(driver, types.Selector{"css selector", "#selector"})
+		selection = &Selection{Driver: driver}
+		selection = selection.Find("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
@@ -31,7 +32,7 @@ var _ = Describe("Selection", func() {
 		})
 	}
 
-	Describe("all methods: retrieving elements", func() {
+	Describe("most methods: retrieving elements", func() {
 		var (
 			parentOne *mocks.Element
 			parentTwo *mocks.Element
@@ -63,6 +64,17 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
+		Context("when there is no selection", func() {
+			BeforeEach(func() {
+				selection = &Selection{Driver: driver}
+			})
+
+			It("returns an error", func() {
+				_, err := selection.Count()
+				Expect(err).To(MatchError("failed to retrieve elements for '': empty selection"))
+			})
+		})
+
 		Context("when retrieving the parent elements fails", func() {
 			BeforeEach(func() {
 				driver.GetElementsCall.Err = errors.New("some error")
@@ -86,7 +98,7 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
-	Describe("all methods: retrieving a single element", func() {
+	Describe("most methods: retrieving a single element", func() {
 		It("requests an element from the driver using the element's selector", func() {
 			selection.Click()
 			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{"css selector", "#selector"}))
@@ -124,6 +136,13 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#Find", func() {
+		Context("when there is no selection", func() {
+			It("adds a new css selector to the selection", func() {
+				selection := &Selection{Driver: driver}
+				Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector"))
+			})
+		})
+
 		Context("when the selection ends with an xpath selector", func() {
 			It("adds a new css selector to the selection", func() {
 				xpath := selection.FindXPath("//subselector")
@@ -759,15 +778,15 @@ var _ = Describe("Selection", func() {
 
 	Describe("#EqualsElement", func() {
 		var (
-			otherDriver *mocks.Driver
-			otherSelection Selection
-			otherElement *mocks.Element
+			otherDriver    *mocks.Driver
+			otherSelection types.Selection
+			otherElement   *mocks.Element
 		)
 
 		BeforeEach(func() {
 			driver.GetElementsCall.ReturnElements = []types.Element{element}
 			otherDriver = &mocks.Driver{}
-			otherSelection = New(otherDriver, types.Selector{"css selector", "#other_selector"})
+			otherSelection = (&Selection{Driver: otherDriver}).Find("#other_selector")
 			otherElement = &mocks.Element{}
 			otherDriver.GetElementsCall.ReturnElements = []types.Element{otherElement}
 		})

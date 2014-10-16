@@ -5,9 +5,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
+	"github.com/sclevine/agouti/core/internal/types"
 	. "github.com/sclevine/agouti/core/internal/webdriver"
 	"github.com/sclevine/agouti/core/internal/webdriver/element"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
 	"github.com/sclevine/agouti/core/internal/webdriver/window"
 )
 

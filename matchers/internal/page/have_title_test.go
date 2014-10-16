@@ -21,7 +21,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 	})
 
 	Describe("#Match", func() {
-		Context("when the actual object is a page.PageOnly", func() {
+		Context("when the actual object is a types.PageOnly", func() {
 			Context("when the expected title matches the actual title", func() {
 				BeforeEach(func() {
 					page.TitleCall.ReturnTitle = "Some Title"
@@ -55,7 +55,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 			})
 		})
 
-		Context("when the actual object is not a page.PageOnly", func() {
+		Context("when the actual object is not a types.PageOnly", func() {
 			It("returns an error", func() {
 				_, err := matcher.Match("not a page")
 				Expect(err).To(MatchError("HaveTitle matcher requires a Page.  Got:\n    <string>: not a page"))

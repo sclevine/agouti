@@ -2,8 +2,8 @@ package webdriver
 
 import (
 	"encoding/base64"
+	"github.com/sclevine/agouti/core/internal/types"
 	"github.com/sclevine/agouti/core/internal/webdriver/element"
-	"github.com/sclevine/agouti/core/internal/webdriver/types"
 	"github.com/sclevine/agouti/core/internal/webdriver/window"
 )
 

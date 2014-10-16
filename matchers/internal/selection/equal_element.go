@@ -32,5 +32,5 @@ func (m *EqualElementMatcher) FailureMessage(actual interface{}) (message string
 }
 
 func (m *EqualElementMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return binarySelectorMessage(actual, "not to equal element",  m.ExpectedSelection)
+	return binarySelectorMessage(actual, "not to equal element", m.ExpectedSelection)
 }

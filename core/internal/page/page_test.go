@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Page", func() {
 	var (
-		page    Page
+		page    *Page
 		driver  *mocks.Driver
 		element *mocks.Element
 		window  *mocks.Window
@@ -23,7 +23,7 @@ var _ = Describe("Page", func() {
 		driver = &mocks.Driver{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = New(driver)
+		page = &Page{driver}
 	})
 
 	Describe("#Navigate", func() {
@@ -401,7 +401,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#FindByLabel", func() {
 		It("defers to selection#FindByLabel on the body of the page", func() {
-			Expect(page.FindByLabel("label name").String()).To(Equal(`CSS: body | XPath: //input[@id=(//label[text()="label name"]/@for)] | //label[text()="label name"]/input`))
+			Expect(page.FindByLabel("label name").String()).To(Equal(`XPath: //input[@id=(//label[text()="label name"]/@for)] | //label[text()="label name"]/input`))
 		})
 	})
 })

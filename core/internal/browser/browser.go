@@ -6,6 +6,7 @@ import (
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/core/internal/types"
 	"github.com/sclevine/agouti/core/internal/webdriver"
 )
 
@@ -43,7 +44,7 @@ func (b *Browser) Stop() (nonFatal error) {
 	return
 }
 
-func (b *Browser) Page(browserName ...string) (page.Page, error) {
+func (b *Browser) Page(browserName ...string) (types.Page, error) {
 	capabilites := &service.Capabilities{}
 	if len(browserName) == 1 {
 		capabilites.BrowserName = browserName[0]
@@ -58,5 +59,5 @@ func (b *Browser) Page(browserName ...string) (page.Page, error) {
 
 	b.sessions = append(b.sessions, pageSession)
 	pageDriver := &webdriver.Driver{pageSession}
-	return page.New(pageDriver), nil
+	return &page.Page{pageDriver}, nil
 }
