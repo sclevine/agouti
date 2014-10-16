@@ -32,12 +32,16 @@ type Selection struct {
 		Err           error
 	}
 
+	EnabledCall struct {
+		ReturnEnabled bool
+		Err           error
+	}
+
 	CountCall struct {
 		ReturnCount int
 		Err         error
 	}
 }
-
 
 func (s *Selection) String() string {
 	return s.StringCall.ReturnString
@@ -63,6 +67,10 @@ func (s *Selection) Selected() (bool, error) {
 
 func (s *Selection) Visible() (bool, error) {
 	return s.VisibleCall.ReturnVisible, s.VisibleCall.Err
+}
+
+func (s *Selection) Enabled() (bool, error) {
+	return s.EnabledCall.ReturnEnabled, s.EnabledCall.Err
 }
 
 func (s *Selection) Count() (int, error) {

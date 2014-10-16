@@ -22,6 +22,7 @@ type Selection interface {
 	Uncheck() error
 	Selected() (bool, error)
 	Visible() (bool, error)
+	Enabled() (bool, error)
 	Select(text string) error
 	Submit() error
 }
@@ -263,6 +264,20 @@ func (s *selection) Visible() (bool, error) {
 	}
 
 	return visible, nil
+}
+
+func (s *selection) Enabled() (bool, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
+	}
+
+	enabled, err := element.IsEnabled()
+	if err != nil {
+		return false, fmt.Errorf("failed to determine whether '%s' is enabled: %s", s, err)
+	}
+
+	return enabled, nil
 }
 
 func (s *selection) Select(text string) error {

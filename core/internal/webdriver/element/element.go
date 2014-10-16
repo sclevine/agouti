@@ -90,6 +90,14 @@ func (e *Element) IsDisplayed() (bool, error) {
 	return displayed, nil
 }
 
+func (e *Element) IsEnabled() (bool, error) {
+	var enabled bool
+	if err := e.Session.Execute(e.url()+"/enabled", "GET", nil, &enabled); err != nil {
+		return false, err
+	}
+	return enabled, nil
+}
+
 func (e *Element) Submit() error {
 	return e.Session.Execute(e.url()+"/submit", "POST", nil, &struct{}{})
 }

@@ -332,6 +332,41 @@ var _ = Describe("Element", func() {
 		})
 	})
 
+	Describe("#IsEnabled", func() {
+		var value bool
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `true`
+			value, err = element.IsEnabled()
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/enabled endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("element/some-id/enabled"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("returns the enabled status", func() {
+				Expect(value).To(BeTrue())
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to retrieve the enabled status", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = element.IsEnabled()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#Submit", func() {
 		BeforeEach(func() {
 			err = element.Submit()

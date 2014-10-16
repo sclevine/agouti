@@ -604,6 +604,44 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Enabled", func() {
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.Enabled()
+			return err
+		})
+
+		Context("if the the driver fails to retrieve the element's enabled status", func() {
+			It("returns an error", func() {
+				element.IsEnabledCall.Err = errors.New("some error")
+				_, err := selection.Enabled()
+				Expect(err).To(MatchError("failed to determine whether 'CSS: #selector' is enabled: some error"))
+			})
+		})
+
+		Context("if the driver succeeds in retrieving the element's enabled status", func() {
+			It("returns the enabled status when enabled", func() {
+				element.IsEnabledCall.ReturnEnabled = true
+				value, _ := selection.Enabled()
+				Expect(value).To(BeTrue())
+			})
+
+			It("returns the enabled status when not enabled", func() {
+				element.IsEnabledCall.ReturnEnabled = false
+				value, _ := selection.Enabled()
+				Expect(value).To(BeFalse())
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.Enabled()
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("#Select", func() {
 		var (
 			optionOne   *mocks.Element

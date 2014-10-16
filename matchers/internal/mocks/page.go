@@ -10,4 +10,3 @@ type Page struct {
 func (p *Page) Title() (string, error) {
 	return p.TitleCall.ReturnTitle, p.TitleCall.Err
 }
-

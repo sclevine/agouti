@@ -8,6 +8,7 @@ type Element interface {
 	GetCSS(property string) (string, error)
 	IsSelected() (bool, error)
 	IsDisplayed() (bool, error)
+	IsEnabled() (bool, error)
 	Click() error
 	Clear() error
 	Value(text string) error
