@@ -97,7 +97,7 @@ var _ = Describe("Page", func() {
 	Describe("#ClearCookies", func() {
 		It("instructs the driver to delete all cookies", func() {
 			page.ClearCookies()
-			Expect(driver.DeleteCookiesCall.WasCalled).To(BeTrue())
+			Expect(driver.DeleteCookiesCall.Called).To(BeTrue())
 		})
 
 		Context("when deleteing all cookies succeeds", func() {
@@ -317,6 +317,72 @@ var _ = Describe("Page", func() {
 			It("returns the driver error", func() {
 				err = page.RunScript("", map[string]interface{}{}, &result)
 				Expect(err).To(MatchError("failed to run script: some error"))
+			})
+		})
+	})
+
+	Describe("#Forward", func() {
+		It("instructs the driver to move forward in history", func() {
+			page.Forward()
+			Expect(driver.ForwardCall.Called).To(BeTrue())
+		})
+
+		Context("when navigating forward succeeds", func() {
+			It("does not return an error", func() {
+				err := page.Forward()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when navigating forward fails", func() {
+			It("returns an error", func() {
+				driver.ForwardCall.Err = errors.New("some error")
+				err := page.Forward()
+				Expect(err).To(MatchError("failed to navigate forward in history: some error"))
+			})
+		})
+	})
+
+	Describe("#Back", func() {
+		It("instructs the driver to move back in history", func() {
+			page.Back()
+			Expect(driver.BackCall.Called).To(BeTrue())
+		})
+
+		Context("when navigating back succeeds", func() {
+			It("does not return an error", func() {
+				err := page.Back()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when navigating back fails", func() {
+			It("returns an error", func() {
+				driver.BackCall.Err = errors.New("some error")
+				err := page.Back()
+				Expect(err).To(MatchError("failed to navigate backwards in history: some error"))
+			})
+		})
+	})
+
+	Describe("#Refresh", func() {
+		It("instructs the driver to refresh", func() {
+			page.Refresh()
+			Expect(driver.RefreshCall.Called).To(BeTrue())
+		})
+
+		Context("when navigating refresh succeeds", func() {
+			It("does not return an error", func() {
+				err := page.Refresh()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when refreshing the page fails", func() {
+			It("returns an error", func() {
+				driver.RefreshCall.Err = errors.New("some error")
+				err := page.Refresh()
+				Expect(err).To(MatchError("failed to refresh page: some error"))
 			})
 		})
 	})

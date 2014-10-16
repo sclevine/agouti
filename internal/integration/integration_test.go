@@ -14,7 +14,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		page.Size(640, 480)
 		page.Navigate(Server.URL)
 
-		Step("find the title of the page", func() {
+		Step("finds the title of the page", func() {
 			Expect(page).To(HaveTitle("Page Title"))
 		})
 
@@ -69,11 +69,6 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(page.Find("#some_element")).To(HaveCSS("color", "rgba(0, 0, 255, 1)"))
 		})
 
-		Step("allows clicking on a link", func() {
-			Expect(page.Find("a").Click()).To(Succeed())
-			Expect(page.URL()).To(ContainSubstring("#new_page"))
-		})
-
 		Step("allows double-clicking on an element", func() {
 			selection := page.Find("#double_click")
 			Expect(selection.DoubleClick()).To(Succeed())
@@ -86,7 +81,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(checkbox).To(BeSelected())
 		})
 
-		Step("allows selecting an option", func() {
+		Step("allows selecting an option by text", func() {
 			selection := page.Find("#some_select")
 			Expect(selection.Select("second option")).To(Succeed())
 			Expect(selection.Find("option:last-child")).To(BeSelected())
@@ -102,6 +97,25 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		Step("allows submitting a form", func() {
 			Expect(page.Find("#some_form").Submit()).To(Succeed())
 			Eventually(Submitted).Should(BeTrue())
+		})
+
+		Step("allows clicking on a link", func() {
+			Expect(page.Find("a").Click()).To(Succeed())
+			Expect(page.URL()).To(ContainSubstring("#new_page"))
+		})
+
+		Step("allows navigating through browser history", func() {
+			Expect(page.Back()).To(Succeed())
+			Expect(page.URL()).NotTo(ContainSubstring("#new_page"))
+			Expect(page.Forward()).To(Succeed())
+			Expect(page.URL()).To(ContainSubstring("#new_page"))
+		})
+
+		Step("allows refreshing the page", func() {
+			checkbox := page.Find("#some_checkbox")
+			Expect(checkbox.Check()).To(Succeed())
+			Expect(page.Refresh()).To(Succeed())
+			Expect(checkbox).NotTo(BeSelected())
 		})
 	})
 })

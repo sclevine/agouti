@@ -126,3 +126,15 @@ func (d *Driver) Execute(body string, arguments []interface{}, result interface{
 
 	return nil
 }
+
+func (d *Driver) Forward() error {
+	return d.Session.Execute("forward", "POST", nil, &struct{}{})
+}
+
+func (d *Driver) Back() error {
+	return d.Session.Execute("back", "POST", nil, &struct{}{})
+}
+
+func (d *Driver) Refresh() error {
+	return d.Session.Execute("refresh", "POST", nil, &struct{}{})
+}

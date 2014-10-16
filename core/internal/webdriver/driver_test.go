@@ -488,4 +488,89 @@ var _ = Describe("Webdriver", func() {
 			})
 		})
 	})
+
+	Describe("#Forward", func() {
+		BeforeEach(func() {
+			err = driver.Forward()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /forward endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("forward"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to go forward in history", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.Forward()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Back", func() {
+		BeforeEach(func() {
+			err = driver.Back()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /back endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("back"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to go back in history", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.Back()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Refresh", func() {
+		BeforeEach(func() {
+			err = driver.Refresh()
+		})
+
+		It("makes a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("hits the /refresh endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("refresh"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to refresh the page", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.Refresh()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 })

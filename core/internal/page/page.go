@@ -19,6 +19,9 @@ type Page interface {
 	Screenshot(filename string) error
 	Title() (string, error)
 	RunScript(body string, arguments map[string]interface{}, result interface{}) error
+	Forward() error
+	Back() error
+	Refresh() error
 	Find(selector string) selection.Selection
 	FindXPath(selector string) selection.Selection
 	FindByLabel(text string) selection.Selection
@@ -41,6 +44,9 @@ type driver interface {
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
 	Execute(body string, arguments []interface{}, result interface{}) error
+	Forward() error
+	Back() error
+	Refresh() error
 }
 
 func New(driver driver) Page {
@@ -147,6 +153,27 @@ func (p *page) RunScript(body string, arguments map[string]interface{}, result i
 		return fmt.Errorf("failed to run script: %s", err)
 	}
 
+	return nil
+}
+
+func (p *page) Forward() error {
+	if err := p.driver.Forward(); err != nil {
+		return fmt.Errorf("failed to navigate forward in history: %s", err)
+	}
+	return nil
+}
+
+func (p *page) Back() error {
+	if err := p.driver.Back(); err != nil {
+		return fmt.Errorf("failed to navigate backwards in history: %s", err)
+	}
+	return nil
+}
+
+func (p *page) Refresh() error {
+	if err := p.driver.Refresh(); err != nil {
+		return fmt.Errorf("failed to refresh page: %s", err)
+	}
 	return nil
 }
 

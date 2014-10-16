@@ -33,8 +33,8 @@ type Driver struct {
 	}
 
 	DeleteCookiesCall struct {
-		WasCalled bool
-		Err       error
+		Called bool
+		Err    error
 	}
 
 	GetURLCall struct {
@@ -69,6 +69,21 @@ type Driver struct {
 		Result    string
 		Err       error
 	}
+
+	ForwardCall struct {
+		Called bool
+		Err    error
+	}
+
+	BackCall struct {
+		Called bool
+		Err    error
+	}
+
+	RefreshCall struct {
+		Called bool
+		Err    error
+	}
 }
 
 func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {
@@ -95,7 +110,7 @@ func (d *Driver) DeleteCookie(name string) error {
 }
 
 func (d *Driver) DeleteCookies() error {
-	d.DeleteCookiesCall.WasCalled = true
+	d.DeleteCookiesCall.Called = true
 	return d.DeleteCookiesCall.Err
 }
 
@@ -128,4 +143,19 @@ func (d *Driver) Execute(body string, arguments []interface{}, result interface{
 	d.ExecuteCall.Arguments = arguments
 	json.Unmarshal([]byte(d.ExecuteCall.Result), result)
 	return d.ExecuteCall.Err
+}
+
+func (d *Driver) Forward() error {
+	d.ForwardCall.Called = true
+	return d.ForwardCall.Err
+}
+
+func (d *Driver) Back() error {
+	d.BackCall.Called = true
+	return d.BackCall.Err
+}
+
+func (d *Driver) Refresh() error {
+	d.RefreshCall.Called = true
+	return d.RefreshCall.Err
 }
