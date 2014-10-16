@@ -64,6 +64,12 @@ type Element struct {
 		Called bool
 		Err    error
 	}
+
+	IsEqualToCall struct {
+		Element types.Element
+		ReturnEquals bool
+		Err     error
+	}
 }
 
 func (e *Element) GetID() string {
@@ -119,4 +125,9 @@ func (e *Element) IsEnabled() (bool, error) {
 func (e *Element) Submit() error {
 	e.SubmitCall.Called = true
 	return e.SubmitCall.Err
+}
+
+func (e *Element) IsEqualTo(other types.Element) (bool, error) {
+	e.IsEqualToCall.Element = other
+	return e.IsEqualToCall.ReturnEquals, e.IsEqualToCall.Err
 }

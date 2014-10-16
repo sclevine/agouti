@@ -94,6 +94,10 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(result).To(Equal("some text"))
 		})
 
+		Step("allows comparing two selections for equality", func() {
+			Expect(page.Find("#some_element")).To(EqualElement(page.FindXPath("//div[@class='some-element']")))
+		})
+
 		Step("allows submitting a form", func() {
 			Expect(page.Find("#some_form").Submit()).To(Succeed())
 			Eventually(Submitted).Should(BeTrue())

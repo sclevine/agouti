@@ -23,7 +23,7 @@ var _ = Describe("Selection", func() {
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
-		Context("enures a single element is returned", func() {
+		Context("ensures a single element is returned", func() {
 			It("returns an error with the number of elements", func() {
 				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
@@ -753,6 +753,65 @@ var _ = Describe("Selection", func() {
 
 			It("returns nil", func() {
 				Expect(selection.Submit()).To(BeNil())
+			})
+		})
+	})
+
+	Describe("#EqualsElement", func() {
+		var (
+			otherDriver *mocks.Driver
+			otherSelection Selection
+			otherElement *mocks.Element
+		)
+
+		BeforeEach(func() {
+			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			otherDriver = &mocks.Driver{}
+			otherSelection = New(otherDriver, types.Selector{"css selector", "#other_selector"})
+			otherElement = &mocks.Element{}
+			otherDriver.GetElementsCall.ReturnElements = []types.Element{otherElement}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.EqualsElement(otherSelection)
+			return err
+		})
+
+		It("ensures that the other selection is a single element", func() {
+			otherDriver.GetElementsCall.ReturnElements = []types.Element{element, element}
+			_, err := selection.EqualsElement(otherSelection)
+			Expect(err).To(MatchError("failed to retrieve element with 'CSS: #other_selector': mutiple elements (2) were selected"))
+		})
+
+		It("compares the selection elements for equality", func() {
+			selection.EqualsElement(otherSelection)
+			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
+		})
+
+		Context("if the the driver fails to compare the elements", func() {
+			It("returns an error", func() {
+				element.IsEqualToCall.Err = errors.New("some error")
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to compare 'CSS: #selector' to 'CSS: #other_selector': some error"))
+			})
+		})
+
+		Context("if the driver succeeds in comparing the elements", func() {
+			It("returns true if they are equal", func() {
+				element.IsEqualToCall.ReturnEquals = true
+				equal, _ := selection.EqualsElement(otherSelection)
+				Expect(equal).To(BeTrue())
+			})
+
+			It("returns false if they are not equal", func() {
+				element.IsEqualToCall.ReturnEquals = false
+				equal, _ := selection.EqualsElement(otherSelection)
+				Expect(equal).To(BeFalse())
+			})
+
+			It("does not return an error", func() {
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})

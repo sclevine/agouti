@@ -41,6 +41,12 @@ type Selection struct {
 		ReturnCount int
 		Err         error
 	}
+
+	EqualsElementCall struct {
+		Selection    interface{}
+		ReturnEquals bool
+		Err          error
+	}
 }
 
 func (s *Selection) String() string {
@@ -75,4 +81,9 @@ func (s *Selection) Enabled() (bool, error) {
 
 func (s *Selection) Count() (int, error) {
 	return s.CountCall.ReturnCount, s.CountCall.Err
+}
+
+func (s *Selection) EqualsElement(selection interface{}) (bool, error) {
+	s.EqualsElementCall.Selection = selection
+	return s.EqualsElementCall.ReturnEquals, s.EqualsElementCall.Err
 }

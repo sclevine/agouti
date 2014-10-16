@@ -266,7 +266,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `true`
+			session.ExecuteCall.Result = "true"
 			value, err = element.IsSelected()
 		})
 
@@ -301,7 +301,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `true`
+			session.ExecuteCall.Result = "true"
 			value, err = element.IsDisplayed()
 		})
 
@@ -336,7 +336,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `true`
+			session.ExecuteCall.Result = "true"
 			value, err = element.IsEnabled()
 		})
 
@@ -390,6 +390,52 @@ var _ = Describe("Element", func() {
 			It("returns an error indicating the session failed to submit", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				err = element.Submit()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Equals", func() {
+		var (
+			equal bool
+			otherElement *Element
+		)
+
+		BeforeEach(func() {
+			otherElement = &Element{"other-id", session}
+			equal, err = element.IsEqualTo(otherElement)
+		})
+
+		It("makes a GET request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
+		})
+
+		It("hits the /element/:id/equals/:other endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("element/some-id/equals/other-id"))
+		})
+
+		Context("when the session indicates a success", func() {
+			It("when the comparison returns true it returns true", func() {
+				session.ExecuteCall.Result = "true"
+				equal, _ = element.IsEqualTo(otherElement)
+				Expect(equal).To(BeTrue())
+			})
+
+			It("when the comparison returns false it returns false", func() {
+				session.ExecuteCall.Result = "false"
+				equal, _ = element.IsEqualTo(otherElement)
+				Expect(equal).To(BeFalse())
+			})
+
+			It("does not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the session failed to compare the elements", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = element.IsEqualTo(otherElement)
 				Expect(err).To(MatchError("some error"))
 			})
 		})

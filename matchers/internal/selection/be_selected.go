@@ -12,12 +12,12 @@ type Selectable interface {
 }
 
 func (m *BeSelectedMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(Selectable)
+	actualSelection, ok := actual.(Selectable)
 	if !ok {
 		return false, fmt.Errorf("BeSelected matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	selected, err := actualPage.Selected()
+	selected, err := actualSelection.Selected()
 	if err != nil {
 		return false, err
 	}

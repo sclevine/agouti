@@ -9,6 +9,7 @@ type Element interface {
 	IsSelected() (bool, error)
 	IsDisplayed() (bool, error)
 	IsEnabled() (bool, error)
+	IsEqualTo(other Element) (bool, error)
 	Click() error
 	Clear() error
 	Value(text string) error

@@ -25,6 +25,7 @@ type Selection interface {
 	Enabled() (bool, error)
 	Select(text string) error
 	Submit() error
+	EqualsElement(comparable interface{}) (bool, error)
 }
 
 type selection struct {
@@ -313,4 +314,23 @@ func (s *selection) Submit() error {
 		return fmt.Errorf("failed to submit '%s': %s", s, err)
 	}
 	return nil
+}
+
+func (s *selection) EqualsElement(comparable interface{}) (bool, error) {
+	element, err := s.getSingleElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
+	}
+
+	otherElement, err := comparable.(*selection).getSingleElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve element with '%s': %s", comparable, err)
+	}
+
+	equal, err := element.IsEqualTo(otherElement)
+	if err != nil {
+		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, comparable, err)
+	}
+
+	return equal, nil
 }

@@ -105,3 +105,11 @@ func (e *Element) Submit() error {
 func (e *Element) url() string {
 	return "element/" + e.ID
 }
+
+func (e *Element) IsEqualTo(other types.Element) (bool, error) {
+	var equal bool
+	if err := e.Session.Execute(e.url()+"/equals/"+other.GetID(), "GET", nil, &equal); err != nil {
+		return false, err
+	}
+	return equal, nil
+}

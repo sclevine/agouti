@@ -12,12 +12,12 @@ type Visible interface {
 }
 
 func (m *BeVisibleMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(Visible)
+	actualSelection, ok := actual.(Visible)
 	if !ok {
 		return false, fmt.Errorf("BeVisible matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	visible, err := actualPage.Visible()
+	visible, err := actualSelection.Visible()
 	if err != nil {
 		return false, err
 	}

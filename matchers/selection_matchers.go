@@ -28,3 +28,7 @@ func BeVisible() types.GomegaMatcher {
 func BeFound() types.GomegaMatcher {
 	return &selection.BeFoundMatcher{}
 }
+
+func EqualElement(comparable interface{}) types.GomegaMatcher {
+	return &selection.EqualElementMatcher{ExpectedSelection: comparable}
+}

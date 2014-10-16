@@ -12,12 +12,12 @@ type Counter interface {
 }
 
 func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(Counter)
+	actualSelection, ok := actual.(Counter)
 	if !ok {
 		return false, fmt.Errorf("BeFound matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	count, err := actualPage.Count()
+	count, err := actualSelection.Count()
 	if err != nil {
 		return false, err
 	}

@@ -64,4 +64,13 @@ var _ = Describe("Selection Matchers", func() {
 			Expect(selection).NotTo(BeFound())
 		})
 	})
+
+	Describe("#EqualElement", func() {
+		It("calls the selection#EqualElement matcher", func() {
+			selection.EqualsElementCall.ReturnEquals = true
+			Expect(selection).To(EqualElement(selection))
+			selection.EqualsElementCall.ReturnEquals = false
+			Expect(selection).NotTo(EqualElement(selection))
+		})
+	})
 })

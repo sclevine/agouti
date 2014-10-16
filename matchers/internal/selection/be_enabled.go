@@ -12,12 +12,12 @@ type Enablable interface {
 }
 
 func (m *BeEnabledMatcher) Match(actual interface{}) (success bool, err error) {
-	actualPage, ok := actual.(Enablable)
+	actualSelection, ok := actual.(Enablable)
 	if !ok {
 		return false, fmt.Errorf("BeEnabled matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	enabled, err := actualPage.Enabled()
+	enabled, err := actualSelection.Enabled()
 	if err != nil {
 		return false, err
 	}

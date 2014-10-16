@@ -3,28 +3,36 @@ package selection_test
 import (
 	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/selection"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"errors"
 )
 
-var _ = Describe("BeFoundMatcher", func() {
+var _ = Describe("EqualElementMatcher", func() {
 	var (
-		matcher   *BeFoundMatcher
+		matcher   *EqualElementMatcher
 		selection *mocks.Selection
+		equalSelection *mocks.Selection
 	)
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
+		equalSelection = &mocks.Selection{}
 		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &BeFoundMatcher{}
+		equalSelection.StringCall.ReturnString = "XPath: //selector"
+		matcher = &EqualElementMatcher{ExpectedSelection: equalSelection}
 	})
 
 	Describe("#Match", func() {
 		Context("when the actual object is a selection", func() {
-			Context("when the element is found", func() {
+			It("compares the selections for element equality", func() {
+				matcher.Match(selection)
+				Expect(selection.EqualsElementCall.Selection).To(Equal(equalSelection))
+			})
+
+			Context("when the expected element equals the actual element", func() {
 				BeforeEach(func() {
-					selection.CountCall.ReturnCount = 1
+					selection.EqualsElementCall.ReturnEquals = true
 				})
 
 				It("returns true", func() {
@@ -38,9 +46,9 @@ var _ = Describe("BeFoundMatcher", func() {
 				})
 			})
 
-			Context("when the element is not found", func() {
+			Context("when the expected element does not equal the actual element", func() {
 				BeforeEach(func() {
-					selection.CountCall.ReturnCount = 0
+					selection.EqualsElementCall.ReturnEquals = false
 				})
 
 				It("returns false", func() {
@@ -58,26 +66,34 @@ var _ = Describe("BeFoundMatcher", func() {
 		Context("when the actual object is not a selection", func() {
 			It("returns an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("BeFound matcher requires a Selection.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("EqualElement matcher requires a Selection.  Got:\n    <string>: not a selection"))
+			})
+		})
+
+		Context("when the comparison fails", func() {
+			It("returns an error", func() {
+				selection.EqualsElementCall.Err = errors.New("some error")
+				_, err := matcher.Match(selection)
+				Expect(err).To(MatchError("EqualElement matcher failed to compare Selections: some error"))
 			})
 		})
 	})
 
 	Describe("#FailureMessage", func() {
 		It("returns a failure message", func() {
-			selection.CountCall.ReturnCount = 0
+			selection.EqualsElementCall.ReturnEquals = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
-			Expect(message).To(Equal("Expected selection 'CSS: #selector' to be found"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to equal element\n    XPath: //selector"))
 		})
 	})
 
 	Describe("#NegatedFailureMessage", func() {
 		It("returns a negated failure message", func() {
-			selection.CountCall.ReturnCount = 1
+			selection.EqualsElementCall.ReturnEquals = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
-			Expect(message).To(Equal("Expected selection 'CSS: #selector' not to be found"))
+			Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to equal element\n    XPath: //selector"))
 		})
 	})
 })
