@@ -134,6 +134,10 @@ Feature("Agouti", func() {
 			Consistently(page.Find("#some_element")).Should(HaveText("some text"))
 		})
 
+		Step("allows serializing the current page HTML", func() {
+			Expect(page.HTML()).To(ContainSubstring(`<div id="some_element" class="some-element" style="color: blue;">some text</div>`))
+		})
+
 		Step("allows entering values into fields", func() {
 			Expect(page.Find("#some_input").Fill("some other value")).To(Succeed())
 		})
@@ -169,6 +173,10 @@ Feature("Agouti", func() {
 			var result string
 			Expect(page.RunScript("return document.getElementById(elementID).innerHTML;", arguments, &result)).To(Succeed())
 			Expect(result).To(Equal("some text"))
+		})
+
+		Step("allows comparing two selections for equality", func() {
+			Expect(page.Find("#some_element")).To(EqualElement(page.FindXPath("//div[@class='some-element']")))
 		})
 
 		Step("allows submitting a form", func() {
