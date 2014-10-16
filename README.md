@@ -85,7 +85,7 @@ import (
 
 ...
 
-Feature("Agouti running on PhantomJS", func() {
+Feature("Agouti", func() {
 	Scenario("Loading a page", func() {
 		page := CreatePage()
 		page.Size(640, 480)
@@ -95,16 +95,37 @@ Feature("Agouti running on PhantomJS", func() {
 			Expect(page).To(HaveTitle("Page Title"))
 		})
 
-		Step("finds text in a page", func() {
+		Step("finds a header in the page", func() {
+			Expect(page.Find("header")).To(BeFound())
+		})
+
+		Step("finds text in the header", func() {
 			Expect(page.Find("header")).To(HaveText("Title"))
+		})
+
+		Step("finds an element by label text", func() {
+			Expect(page.Find("body").FindByLabel("Some Label")).To(HaveAttribute("value", "some labeled value"))
+		})
+
+		Step("finds an element embedded in a label", func() {
+			Expect(page.Find("body").FindByLabel("Some Container Label")).To(HaveAttribute("value", "some embedded value"))
 		})
 
 		Step("asserts that text is not in the header", func() {
 			Expect(page.Find("header")).NotTo(HaveText("Not-Title"))
 		})
 
+		Step("asserts on the visibility of elements", func() {
+			Expect(page.Find("header h1")).To(BeVisible())
+			Expect(page.Find("header h2")).NotTo(BeVisible())
+		})
+
 		Step("allows tests to be scoped by chaining", func() {
 			Expect(page.Find("header").Find("h1")).To(HaveText("Title"))
+		})
+
+		Step("allows locating elements by XPath", func() {
+			Expect(page.Find("header").FindXPath("//h1")).To(HaveText("Title"))
 		})
 
 		Step("allows assertions that wait for matchers to be true", func() {
@@ -130,6 +151,12 @@ Feature("Agouti running on PhantomJS", func() {
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 
+		Step("allows double-clicking on an element", func() {
+			selection := page.Find("#double_click")
+			Expect(selection.DoubleClick()).To(Succeed())
+			Expect(selection).To(HaveText("double-click success"))
+		})
+
 		Step("allows checking a checkbox", func() {
 			checkbox := page.Find("#some_checkbox")
 			Expect(checkbox.Check()).To(Succeed())
@@ -140,6 +167,13 @@ Feature("Agouti running on PhantomJS", func() {
 			selection := page.Find("#some_select")
 			Expect(selection.Select("second option")).To(Succeed())
 			Expect(selection.Find("option:last-child")).To(BeSelected())
+		})
+
+		Step("allows executing arbitrary javascript", func() {
+			arguments := map[string]interface{}{"elementID": "some_element"}
+			var result string
+			Expect(page.RunScript("return document.getElementById(elementID).innerHTML;", arguments, &result)).To(Succeed())
+			Expect(result).To(Equal("some text"))
 		})
 
 		Step("allows submitting a form", func() {
