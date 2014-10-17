@@ -73,21 +73,23 @@ func (s *Selection) At(index int) types.Selection {
 func (s *Selection) Find(selector string) types.Selection {
 	last := len(s.selectors) - 1
 
-	// TODO: fix double append bug!
 	if last == -1 || s.selectors[last].Using != "css selector" {
 		newSelector := types.Selector{Using: "css selector", Value: selector}
-		return &Selection{s.Driver, append(s.selectors, newSelector), s.index, s.indexed}
+		selectorsCopy := append([]types.Selector(nil), s.selectors...)
+		return &Selection{s.Driver, append(selectorsCopy, newSelector), s.index, s.indexed}
 	}
 
 	newSelectorValue := s.selectors[last].Value + " " + selector
 	newSelector := types.Selector{Using: "css selector", Value: newSelectorValue}
-	newSelectors := append(append([]types.Selector(nil), s.selectors[:last]...), newSelector)
+	copyWithoutLast := append([]types.Selector(nil), s.selectors[:last]...)
+	newSelectors := append(copyWithoutLast, newSelector)
 	return &Selection{s.Driver, newSelectors, s.index, s.indexed}
 }
 
 func (s *Selection) FindXPath(selector string) types.Selection {
 	newSelector := types.Selector{Using: "xpath", Value: selector}
-	return &Selection{s.Driver, append(s.selectors, newSelector), s.index, s.indexed}
+	selectorsCopy := append([]types.Selector(nil), s.selectors...)
+	return &Selection{s.Driver, append(selectorsCopy, newSelector), s.index, s.indexed}
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {
