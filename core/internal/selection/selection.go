@@ -18,39 +18,46 @@ type driver interface {
 	MoveTo(element types.Element, point types.Point) error
 }
 
+
+type getElementser interface {
+	GetElements(types.Selector) ([]types.Element, error)
+}
+
+func getElementsForSelector(getElementser getElementser, selector types.Selector) ([]types.Element, error) {
+	elements, err := getElementser.GetElements(selector)
+	if err != nil {
+		return nil, err
+	}
+
+	if selector.Indexed {
+		if selector.Index < len(elements) {
+			elements = []types.Element{elements[selector.Index]}
+		} else {
+			return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", selector.Index, selector, len(elements)-1)
+		}
+	}
+
+	return elements, nil
+}
+
 func (s *Selection) getElements() ([]types.Element, error) {
 	if len(s.selectors) == 0 {
 		return nil, errors.New("empty selection")
 	}
 
-	lastElements, err := s.Driver.GetElements(s.selectors[0])
+	lastElements, err := getElementsForSelector(s.Driver, s.selectors[0])
 	if err != nil {
 		return nil, err
-	}
-
-	if s.selectors[0].Indexed {
-		if s.selectors[0].Index < len(lastElements) {
-			lastElements = []types.Element{lastElements[s.selectors[0].Index]}
-		} else {
-			return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", s.selectors[0].Index, s.selectors[0], len(lastElements)-1)
-		}
 	}
 
 	for _, selector := range s.selectors[1:] {
 		elements := []types.Element{}
 		for _, element := range lastElements {
-			subElements, err := element.GetElements(selector)
+			subElements, err := getElementsForSelector(element, selector)
 			if err != nil {
 				return nil, err
 			}
 
-			if selector.Indexed {
-				if selector.Index < len(subElements) {
-					subElements = []types.Element{subElements[selector.Index]}
-				} else {
-					return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", selector.Index, selector, len(subElements)-1)
-				}
-			}
 			elements = append(elements, subElements...)
 		}
 		lastElements = elements

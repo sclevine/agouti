@@ -27,7 +27,7 @@ var _ = Describe("Selection", func() {
 		Context("ensures a single element is returned", func() {
 			It("returns an error with the number of elements", func() {
 				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
+				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
 	}
@@ -121,7 +121,7 @@ var _ = Describe("Selection", func() {
 		Context("when the driver retrieves more than one element and indexing is disabled", func() {
 			It("returns an error with the number of elements", func() {
 				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
+				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
 
