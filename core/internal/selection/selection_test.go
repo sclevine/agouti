@@ -98,39 +98,47 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
-	Describe("most methods: retrieving a single element", func() {
+	Describe("#At & most methods: retrieving the selected element", func() {
 		It("requests an element from the driver using the element's selector", func() {
 			selection.Click()
 			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 		})
 
 		Context("when the driver fails to retrieve any elements", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.Err = errors.New("some error")
-			})
-
 			It("returns error from the driver", func() {
+				driver.GetElementsCall.Err = errors.New("some error")
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': some error"))
 			})
 		})
 
-		Context("when the driver retrieves more than one element", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+		Context("when the driver retrieves zero elements", func() {
+			It("fails with an error indicating there were no elements", func() {
+				driver.GetElementsCall.ReturnElements = []types.Element{}
+				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': no element found"))
 			})
+		})
 
+		Context("when the driver retrieves more than one element and indexing is disabled", func() {
 			It("returns an error with the number of elements", func() {
+				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': mutiple elements (2) were selected"))
 			})
 		})
 
-		Context("when the driver retrieves zero elements", func() {
-			BeforeEach(func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{}
+		Context("when the selection index is out of range", func() {
+			It("returns an error with the index and total number of elements", func() {
+				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': element index (2) out of range (>1)"))
 			})
+		})
 
-			It("fails with an error indicating there were no elements", func() {
-				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': no element found"))
+		Context("when the index refers to a selected element", func() {
+			It("processes only that element", func() {
+				selectedElement := &mocks.Element{}
+				driver.GetElementsCall.ReturnElements = []types.Element{element, element, selectedElement}
+				selection.At(2).Click()
+				Expect(element.ClickCall.Called).To(BeFalse())
+				Expect(selectedElement.ClickCall.Called).To(BeTrue())
 			})
 		})
 	})

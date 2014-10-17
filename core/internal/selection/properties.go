@@ -3,7 +3,7 @@ package selection
 import "fmt"
 
 func (s *Selection) Text() (string, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -16,7 +16,7 @@ func (s *Selection) Text() (string, error) {
 }
 
 func (s *Selection) Attribute(attribute string) (string, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -29,7 +29,7 @@ func (s *Selection) Attribute(attribute string) (string, error) {
 }
 
 func (s *Selection) CSS(property string) (string, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -42,7 +42,7 @@ func (s *Selection) CSS(property string) (string, error) {
 }
 
 func (s *Selection) Selected() (bool, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -56,7 +56,7 @@ func (s *Selection) Selected() (bool, error) {
 }
 
 func (s *Selection) Visible() (bool, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -70,7 +70,7 @@ func (s *Selection) Visible() (bool, error) {
 }
 
 func (s *Selection) Enabled() (bool, error) {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}

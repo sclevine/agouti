@@ -3,7 +3,7 @@ package selection
 import "fmt"
 
 func (s *Selection) Click() error {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -15,7 +15,7 @@ func (s *Selection) Click() error {
 }
 
 func (s *Selection) DoubleClick() error {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -31,7 +31,7 @@ func (s *Selection) DoubleClick() error {
 }
 
 func (s *Selection) Fill(text string) error {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -55,7 +55,7 @@ func (s *Selection) Uncheck() error {
 }
 
 func (s *Selection) setChecked(checked bool) error {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
@@ -107,7 +107,7 @@ func (s *Selection) Select(text string) error {
 }
 
 func (s *Selection) Submit() error {
-	element, err := s.getSingleElement()
+	element, err := s.getSelectedElement()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}

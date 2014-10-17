@@ -4,6 +4,7 @@ type Selection interface {
 	Find(selector string) Selection
 	FindXPath(selector string) Selection
 	FindByLabel(text string) Selection
+	At(index int) Selection
 	String() string
 	Count() (int, error)
 	Click() error
