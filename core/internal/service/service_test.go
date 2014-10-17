@@ -91,6 +91,10 @@ var _ = Describe("Service", func() {
 			_, err := http.Get(url + "/status")
 			Expect(err).To(HaveOccurred())
 		})
+
+		It("does nothing if the service has not been started", func() {
+			service.Stop()
+		})
 	})
 
 	Describe("#CreateSession", func() {
