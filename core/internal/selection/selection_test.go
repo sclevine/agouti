@@ -128,7 +128,7 @@ var _ = Describe("Selection", func() {
 		Context("when the selection index is out of range", func() {
 			It("returns an error with the index and total number of elements", func() {
 				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': element index (2) out of range (>1)"))
+				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': element index (2) for selection 'CSS: #selector' out of range (>1)"))
 			})
 		})
 
@@ -158,9 +158,15 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("when the selection ends with a CSS selector", func() {
+		Context("when the selection ends with an unindexed CSS selector", func() {
 			It("modifies the terminal css selector to include the new selector", func() {
 				Expect(selection.Find("#subselector").String()).To(Equal("CSS: #selector #subselector"))
+			})
+		})
+
+		Context("when the selection ends with an indexed CSS selector", func() {
+			It("adds a new css selector to the selection", func() {
+				Expect(selection.At(0).Find("#subselector").String()).To(Equal("CSS: #selector | CSS: #subselector"))
 			})
 		})
 
@@ -261,7 +267,7 @@ var _ = Describe("Selection", func() {
 		It("ensures that the other selection is a single element", func() {
 			otherDriver.GetElementsCall.ReturnElements = []types.Element{element, element}
 			_, err := selection.EqualsElement(otherSelection)
-			Expect(err).To(MatchError("failed to retrieve element with 'CSS: #other_selector': mutiple elements (2) were selected"))
+			Expect(err).To(MatchError("failed to retrieve element with 'CSS: #other_selector': multiple elements (2) were selected"))
 		})
 
 		It("compares the selection elements for equality", func() {

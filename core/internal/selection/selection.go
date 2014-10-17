@@ -10,8 +10,6 @@ import (
 type Selection struct {
 	Driver    driver
 	selectors []types.Selector
-	index     int
-	indexed   bool
 }
 
 type driver interface {
@@ -30,12 +28,28 @@ func (s *Selection) getElements() ([]types.Element, error) {
 		return nil, err
 	}
 
+	if s.selectors[0].Indexed {
+		if s.selectors[0].Index < len(lastElements) {
+			lastElements = []types.Element{lastElements[s.selectors[0].Index]}
+		} else {
+			return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", s.selectors[0].Index, s.selectors[0], len(lastElements)-1)
+		}
+	}
+
 	for _, selector := range s.selectors[1:] {
 		elements := []types.Element{}
 		for _, element := range lastElements {
 			subElements, err := element.GetElements(selector)
 			if err != nil {
 				return nil, err
+			}
+
+			if selector.Indexed {
+				if selector.Index < len(subElements) {
+					subElements = []types.Element{subElements[selector.Index]}
+				} else {
+					return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", selector.Index, selector, len(subElements)-1)
+				}
 			}
 			elements = append(elements, subElements...)
 		}
@@ -54,42 +68,47 @@ func (s *Selection) getSelectedElement() (types.Element, error) {
 		return nil, fmt.Errorf("no element found")
 	}
 
-	if !s.indexed && len(elements) > 1  {
-		return nil, fmt.Errorf("mutiple elements (%d) were selected", len(elements))
+	if len(elements) > 1  {
+		return nil, fmt.Errorf("multiple elements (%d) were selected", len(elements))
 	}
 
-	if s.index >= len(elements) {
-		return nil, fmt.Errorf("element index (%d) out of range (>%d)", s.index, len(elements)-1)
-	}
-
-	return elements[s.index], nil
+	return elements[0], nil
 }
 
-// TODO: fix mid-selection index
 func (s *Selection) At(index int) types.Selection {
-	return &Selection{s.Driver, s.selectors, index, true}
+	last := len(s.selectors) - 1
+
+	if last != -1 {
+		newSelector := s.selectors[last]
+		newSelector.Index = index
+		newSelector.Indexed = true
+		return &Selection{s.Driver, appendSelector(s.selectors[:last], newSelector)}
+	}
+
+	return &Selection{s.Driver, s.selectors}
+}
+
+func appendSelector(selectors []types.Selector, selector types.Selector) []types.Selector {
+	selectorsCopy := append([]types.Selector(nil), selectors...)
+	return append(selectorsCopy, selector)
 }
 
 func (s *Selection) Find(selector string) types.Selection {
 	last := len(s.selectors) - 1
 
-	if last == -1 || s.selectors[last].Using != "css selector" {
+	if last == -1 || s.selectors[last].Using != "css selector" || s.selectors[last].Indexed {
 		newSelector := types.Selector{Using: "css selector", Value: selector}
-		selectorsCopy := append([]types.Selector(nil), s.selectors...)
-		return &Selection{s.Driver, append(selectorsCopy, newSelector), s.index, s.indexed}
+		return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
 	}
 
 	newSelectorValue := s.selectors[last].Value + " " + selector
 	newSelector := types.Selector{Using: "css selector", Value: newSelectorValue}
-	copyWithoutLast := append([]types.Selector(nil), s.selectors[:last]...)
-	newSelectors := append(copyWithoutLast, newSelector)
-	return &Selection{s.Driver, newSelectors, s.index, s.indexed}
+	return &Selection{s.Driver, appendSelector(s.selectors[:last], newSelector)}
 }
 
 func (s *Selection) FindXPath(selector string) types.Selection {
 	newSelector := types.Selector{Using: "xpath", Value: selector}
-	selectorsCopy := append([]types.Selector(nil), s.selectors...)
-	return &Selection{s.Driver, append(selectorsCopy, newSelector), s.index, s.indexed}
+	return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {

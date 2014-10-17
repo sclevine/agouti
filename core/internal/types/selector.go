@@ -3,6 +3,8 @@ package types
 type Selector struct {
 	Using string `json:"using"`
 	Value string `json:"value"`
+	Index int `json:"-"`
+	Indexed bool `json:"-"`
 }
 
 func (s Selector) String() string {

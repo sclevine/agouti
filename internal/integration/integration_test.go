@@ -50,7 +50,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 
 		Step("allows referring to an element by selection index", func() {
 			Expect(page.Find("option").At(0)).To(HaveText("first option"))
-			Expect(page.Find("label").At(1)).To(HaveText("Some Container Label"))
+			Expect(page.Find("select").At(1).Find("option").At(0)).To(HaveText("third option"))
 		})
 
 		Step("allows tests to be scoped by chaining", func() {
