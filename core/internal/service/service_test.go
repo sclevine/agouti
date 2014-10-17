@@ -29,7 +29,7 @@ var _ = Describe("Service", func() {
 		url = "http://" + address
 		service = &Service{
 			URL:     url,
-			Timeout: 3 * time.Second,
+			Timeout: 5 * time.Second,
 			Command: []string{"phantomjs", "--webdriver=" + address},
 		}
 	})
