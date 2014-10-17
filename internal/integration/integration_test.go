@@ -1,11 +1,12 @@
 package integration_test
 
 import (
+	"time"
+
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
 	. "github.com/sclevine/agouti/internal/integration"
 	. "github.com/sclevine/agouti/matchers"
-	"time"
 )
 
 var _ = Feature("Agouti running on PhantomJS", func() {
@@ -75,6 +76,8 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 
 		Step("allows asserting on whether a CSS style exists", func() {
 			Expect(page.Find("#some_element")).To(HaveCSS("color", "rgba(0, 0, 255, 1)"))
+			Expect(page.Find("#some_element")).To(HaveCSS("color", "rgb(0, 0, 255)"))
+			Expect(page.Find("#some_element")).To(HaveCSS("color", "blue"))
 		})
 
 		Step("allows double-clicking on an element", func() {
