@@ -13,28 +13,27 @@ type Selection struct {
 }
 
 type driver interface {
-	GetElements(selector types.Selector) ([]types.Element, error)
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
+	retriever
 }
 
-
-type getElementser interface {
-	GetElements(types.Selector) ([]types.Element, error)
+type retriever interface {
+	GetElements(selector types.Selector) ([]types.Element, error)
 }
 
-func getElementsForSelector(getElementser getElementser, selector types.Selector) ([]types.Element, error) {
-	elements, err := getElementser.GetElements(selector)
+func getElements(retriever retriever, selector types.Selector) ([]types.Element, error) {
+	elements, err := retriever.GetElements(selector)
 	if err != nil {
 		return nil, err
 	}
 
 	if selector.Indexed {
-		if selector.Index < len(elements) {
-			elements = []types.Element{elements[selector.Index]}
-		} else {
-			return nil, fmt.Errorf("element index (%d) for selection '%s' out of range (>%d)", selector.Index, selector, len(elements)-1)
+		if selector.Index >= len(elements) {
+			return nil, fmt.Errorf("element index out of range (>%d)", len(elements)-1)
 		}
+
+		elements = []types.Element{elements[selector.Index]}
 	}
 
 	return elements, nil
@@ -45,7 +44,7 @@ func (s *Selection) getElements() ([]types.Element, error) {
 		return nil, errors.New("empty selection")
 	}
 
-	lastElements, err := getElementsForSelector(s.Driver, s.selectors[0])
+	lastElements, err := getElements(s.Driver, s.selectors[0])
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (s *Selection) getElements() ([]types.Element, error) {
 	for _, selector := range s.selectors[1:] {
 		elements := []types.Element{}
 		for _, element := range lastElements {
-			subElements, err := getElementsForSelector(element, selector)
+			subElements, err := getElements(element, selector)
 			if err != nil {
 				return nil, err
 			}

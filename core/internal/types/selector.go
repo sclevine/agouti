@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type Selector struct {
 	Using string `json:"using"`
 	Value string `json:"value"`
@@ -8,11 +10,16 @@ type Selector struct {
 }
 
 func (s Selector) String() string {
+	text := s.Value
+	if s.Indexed {
+		text = text + fmt.Sprintf(" [%d]", s.Index)
+	}
+
 	switch s.Using {
 	case "css selector":
-		return "CSS: " + s.Value
+		return "CSS: " + text
 	case "xpath":
-		return "XPath: " + s.Value
+		return "XPath: " + text
 	default:
 		return "Invalid selector"
 	}

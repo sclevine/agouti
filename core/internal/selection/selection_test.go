@@ -40,16 +40,19 @@ var _ = Describe("Selection", func() {
 		)
 
 		BeforeEach(func() {
-			selection = selection.FindXPath("children")
 			parentOne = &mocks.Element{}
 			parentTwo = &mocks.Element{}
 			parentOne.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
 			parentTwo.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
 			driver.GetElementsCall.ReturnElements = []types.Element{parentOne, parentTwo}
-			count, _ = selection.Count()
 		})
 
-		Context("when successful", func() {
+		Context("when successful without indices", func() {
+			BeforeEach(func() {
+				selection = selection.FindXPath("children")
+				count, _ = selection.Count()
+			})
+
 			It("retrieves the parent elements using the driver", func() {
 				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 			})
@@ -61,6 +64,26 @@ var _ = Describe("Selection", func() {
 
 			It("returns all child elements of the terminal selector", func() {
 				Expect(count).To(Equal(4))
+			})
+		})
+
+		Context("when successful with indices", func() {
+			BeforeEach(func() {
+				selection.At(1).FindXPath("children").At(1).Click()
+			})
+
+			It("retrieves the parent elements using the driver", func() {
+				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector", Index: 1, Indexed: true}))
+			})
+
+			It("retrieves the child elements of the parent selector", func() {
+				Expect(parentOne.GetElementsCall.Selector.Using).To(BeEmpty())
+				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children", Index: 1, Indexed: true}))
+			})
+
+			It("returns all child elements of the terminal selector", func() {
+				clickedElement := parentTwo.GetElementsCall.ReturnElements[1].(*mocks.Element)
+				Expect(clickedElement.ClickCall.Called).To(BeTrue())
 			})
 		})
 
@@ -77,6 +100,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when retrieving the parent elements fails", func() {
 			BeforeEach(func() {
+				selection = selection.FindXPath("children")
 				driver.GetElementsCall.Err = errors.New("some error")
 			})
 
@@ -88,12 +112,25 @@ var _ = Describe("Selection", func() {
 
 		Context("when retrieving any of the child elements fails", func() {
 			BeforeEach(func() {
+				selection = selection.FindXPath("children")
 				parentTwo.GetElementsCall.Err = errors.New("some error")
 			})
 
 			It("returns the error", func() {
 				_, err := selection.Count()
 				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector | XPath: children': some error"))
+			})
+		})
+
+		Context("when the first selection index is out of range", func() {
+			It("returns an error with the index and total number of elements", func() {
+				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector [2]': element index out of range (>1)"))
+			})
+		})
+
+		Context("when subsequent selection indices are out of range", func() {
+			It("returns an error with the index and total number of elements", func() {
+				Expect(selection.At(0).Find("#selector").At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector [0] | CSS: #selector [2]': element index out of range (>1)"))
 			})
 		})
 	})
@@ -124,23 +161,6 @@ var _ = Describe("Selection", func() {
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
-
-		Context("when the selection index is out of range", func() {
-			It("returns an error with the index and total number of elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': element index (2) for selection 'CSS: #selector' out of range (>1)"))
-			})
-		})
-
-		Context("when the index refers to a selected element", func() {
-			It("processes only that element", func() {
-				selectedElement := &mocks.Element{}
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element, selectedElement}
-				selection.At(2).Click()
-				Expect(element.ClickCall.Called).To(BeFalse())
-				Expect(selectedElement.ClickCall.Called).To(BeTrue())
-			})
-		})
 	})
 
 	Describe("#Find", func() {
@@ -166,7 +186,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when the selection ends with an indexed CSS selector", func() {
 			It("adds a new css selector to the selection", func() {
-				Expect(selection.At(0).Find("#subselector").String()).To(Equal("CSS: #selector | CSS: #subselector"))
+				Expect(selection.At(0).Find("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
 			})
 		})
 
@@ -206,6 +226,11 @@ var _ = Describe("Selection", func() {
 	Describe("#String", func() {
 		It("returns the separated selectors", func() {
 			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
+		})
+		Context("when indexed via At(index)", func() {
+			It("appends [index] to the indexed selectors", func() {
+				Expect(selection.At(2).FindXPath("//subselector").At(1).String()).To(Equal("CSS: #selector [2] | XPath: //subselector [1]"))
+			})
 		})
 	})
 
