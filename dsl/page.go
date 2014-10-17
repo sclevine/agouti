@@ -8,6 +8,7 @@ import (
 
 var browser core.Browser
 
+// StartPhantomJS starts a PhantomJS WebDriver service for use with CreatePage.
 func StartPhantomJS() {
 	var err error
 	checkBrowser()
@@ -16,6 +17,7 @@ func StartPhantomJS() {
 	checkFailure(browser.Start())
 }
 
+// StartChrome starts a ChromeDriver WebDriver service for use with CreatePage.
 func StartChrome() {
 	var err error
 	checkBrowser()
@@ -24,6 +26,7 @@ func StartChrome() {
 	checkFailure(browser.Start())
 }
 
+// StartSelenium starts a Selenium WebDriver service for use with CreatePage.
 func StartSelenium() {
 	var err error
 	checkBrowser()
@@ -32,6 +35,7 @@ func StartSelenium() {
 	checkFailure(browser.Start())
 }
 
+// StopWebdriver stops the current running WebDriver.
 func StopWebdriver() {
 	if browser == nil {
 		ginkgo.Fail("browser not started", 1)
@@ -42,6 +46,8 @@ func StopWebdriver() {
 	browser = nil
 }
 
+// CreatePage creates a new session using the current running WebDriver.
+// For Selenium, the browserName argument determines which browser to start the session in.
 func CreatePage(browserName ...string) core.Page {
 	newPage, err := browser.Page(browserName...)
 	checkFailure(err)

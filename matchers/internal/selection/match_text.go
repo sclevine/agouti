@@ -7,7 +7,7 @@ import (
 )
 
 type MatchTextMatcher struct {
-	ExpectedText string
+	Regexp string
 	actualText   string
 }
 
@@ -25,13 +25,13 @@ func (m *MatchTextMatcher) Match(actual interface{}) (success bool, err error) {
 		return false, err
 	}
 
-	return regexp.MatchString(m.ExpectedText, m.actualText)
+	return regexp.MatchString(m.Regexp, m.actualText)
 }
 
 func (m *MatchTextMatcher) FailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "to have text matching", m.ExpectedText, m.actualText)
+	return selectorMessage(actual, "to have text matching", m.Regexp, m.actualText)
 }
 
 func (m *MatchTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "not to have text matching", m.ExpectedText, m.actualText)
+	return selectorMessage(actual, "not to have text matching", m.Regexp, m.actualText)
 }

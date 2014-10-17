@@ -17,7 +17,7 @@ var _ = Describe("MatchTextMatcher", func() {
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &MatchTextMatcher{ExpectedText: "s[^t]+text"}
+		matcher = &MatchTextMatcher{Regexp: "s[^t]+text"}
 	})
 
 	Describe("#Match", func() {
@@ -64,7 +64,7 @@ var _ = Describe("MatchTextMatcher", func() {
 
 		Context("when the regular expression is invalid", func() {
 			It("returns an error", func() {
-				matcher.ExpectedText = "#$(%&#Y"
+				matcher.Regexp = "#$(%&#Y"
 				_, err := matcher.Match(selection)
 				Expect(err).To(MatchError("error parsing regexp: missing closing ): `#$(%&#Y`"))
 			})
