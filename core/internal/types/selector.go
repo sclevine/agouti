@@ -3,10 +3,10 @@ package types
 import "fmt"
 
 type Selector struct {
-	Using string `json:"using"`
-	Value string `json:"value"`
-	Index int `json:"-"`
-	Indexed bool `json:"-"`
+	Using   string `json:"using"`
+	Value   string `json:"value"`
+	Index   int    `json:"-"`
+	Indexed bool   `json:"-"`
 }
 
 func (s Selector) String() string {

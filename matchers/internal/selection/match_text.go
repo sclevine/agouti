@@ -7,8 +7,8 @@ import (
 )
 
 type MatchTextMatcher struct {
-	Regexp string
-	actualText   string
+	Regexp     string
+	actualText string
 }
 
 func (m *MatchTextMatcher) Match(actual interface{}) (success bool, err error) {

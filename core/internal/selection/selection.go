@@ -74,7 +74,7 @@ func (s *Selection) getSelectedElement() (types.Element, error) {
 		return nil, fmt.Errorf("no element found")
 	}
 
-	if len(elements) > 1  {
+	if len(elements) > 1 {
 		return nil, fmt.Errorf("multiple elements (%d) were selected", len(elements))
 	}
 
