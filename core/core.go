@@ -1,3 +1,4 @@
+// Agouti core is a general-purpose WebDriver API for Golang
 package core
 
 import (
@@ -13,12 +14,20 @@ import (
 type Selection types.Selection
 type Page types.Page
 
+// Browser represents a Selenium, PhantomJS, or Chrome (via ChromeDriver) WebDriver process
 type Browser interface {
+	// Start launches the WebDriver process
 	Start() error
+
+	// Stop ends all sessions and stops the WebDriver process
 	Stop() (nonFatal error)
+
+	// Page returns a new WebDriver session.
+	// For Selenium, browserName is the type of browser ("firefox", "safari", "chrome", etc.)
 	Page(browserName ...string) (types.Page, error)
 }
 
+// Chrome returns an instance of a Chrome Browser via ChromeDriver
 func Chrome() (Browser, error) {
 	address, err := freeAddress()
 	if err != nil {
@@ -33,6 +42,7 @@ func Chrome() (Browser, error) {
 	return &browser.Browser{Service: service}, nil
 }
 
+// PhantomJS returns an instance of a PhantomJS Browser
 func PhantomJS() (Browser, error) {
 	address, err := freeAddress()
 	if err != nil {
@@ -46,6 +56,7 @@ func PhantomJS() (Browser, error) {
 	return &browser.Browser{Service: service}, nil
 }
 
+// Selenium returns an instance of a Selenium Browser
 func Selenium() (Browser, error) {
 	address, err := freeAddress()
 	if err != nil {
