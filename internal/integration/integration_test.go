@@ -31,11 +31,11 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 
 		Step("finds an element by label text", func() {
-			Expect(page.Find("body").FindByLabel("Some Label")).To(HaveAttribute("value", "some labeled value"))
+			Expect(page.FindByLabel("Some Label")).To(HaveAttribute("value", "some labeled value"))
 		})
 
 		Step("finds an element embedded in a label", func() {
-			Expect(page.Find("body").FindByLabel("Some Container Label")).To(HaveAttribute("value", "some embedded value"))
+			Expect(page.FindByLabel("Some Container Label")).To(HaveAttribute("value", "some embedded value"))
 		})
 
 		Step("asserts that text is not in the header", func() {
