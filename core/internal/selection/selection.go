@@ -117,6 +117,11 @@ func (s *Selection) FindXPath(selector string) types.Selection {
 	return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
 }
 
+func (s *Selection) FindLink(text string) types.Selection {
+	newSelector := types.Selector{Using: "link text", Value: text}
+	return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
+}
+
 func (s *Selection) FindByLabel(text string) types.Selection {
 	selector := fmt.Sprintf(`//input[@id=(//label[normalize-space(text())="%s"]/@for)] | //label[normalize-space(text())="%s"]/input`, text, text)
 	return s.FindXPath(selector)

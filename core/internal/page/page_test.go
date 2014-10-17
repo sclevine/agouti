@@ -418,19 +418,25 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Find", func() {
-		It("returns a selection", func() {
+		It("defers to selection#Find", func() {
 			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector"))
 		})
 	})
 
 	Describe("#FindXPath", func() {
-		It("returns a selection", func() {
+		It("defers to selection#FindXPath", func() {
 			Expect(page.FindXPath("//selector").String()).To(Equal("XPath: //selector"))
 		})
 	})
 
+	Describe("#FindLink", func() {
+		It("defers to selection#FindLink", func() {
+			Expect(page.FindLink("some text").String()).To(Equal(`Link: "some text"`))
+		})
+	})
+
 	Describe("#FindByLabel", func() {
-		It("defers to selection#FindByLabel on the body of the page", func() {
+		It("defers to selection#FindByLabel", func() {
 			Expect(page.FindByLabel("label name").String()).To(ContainSubstring(`XPath: //input`))
 		})
 	})

@@ -205,15 +205,11 @@ var _ = Describe("Selection", func() {
 		It("adds a new XPath selector to the selection", func() {
 			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
 		})
+	})
 
-		Context("when two XPath selections are created from any parent", func() {
-			It("does not overwrite the first created child", func() {
-				selection := &Selection{Driver: driver}
-				parent := selection.Find("#one").FindXPath("//two").Find("#parent")
-				firstChild := parent.FindXPath("//firstChild")
-				parent.FindXPath("//secondChild")
-				Expect(firstChild.String()).To(Equal("CSS: #one | XPath: //two | CSS: #parent | XPath: //firstChild"))
-			})
+	Describe("#FindLink", func() {
+		It("adds a new 'link text' selector to the selection", func() {
+			Expect(selection.FindLink("some text").String()).To(Equal(`CSS: #selector | Link: "some text"`))
 		})
 	})
 

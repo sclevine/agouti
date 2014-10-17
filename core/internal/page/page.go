@@ -174,6 +174,11 @@ func (p *Page) FindXPath(selector string) types.Selection {
 	return selection.FindXPath(selector)
 }
 
+func (p *Page) FindLink(text string) types.Selection {
+	selection := &selection.Selection{Driver: p.Driver}
+	return selection.FindLink(text)
+}
+
 func (p *Page) FindByLabel(text string) types.Selection {
 	selection := &selection.Selection{Driver: p.Driver}
 	return selection.FindByLabel(text)

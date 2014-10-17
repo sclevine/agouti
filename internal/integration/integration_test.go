@@ -135,7 +135,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 
 	Scenario("links and navigation", func() {
 		Step("allows clicking on a link", func() {
-			Click(page.Find("a"))
+			Click(page.FindLink("Click Me"))
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 

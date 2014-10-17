@@ -20,6 +20,8 @@ func (s Selector) String() string {
 		return "CSS: " + text
 	case "xpath":
 		return "XPath: " + text
+	case "link text":
+		return fmt.Sprintf(`Link: "%s"`, text)
 	default:
 		return "Invalid selector"
 	}
