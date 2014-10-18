@@ -32,7 +32,7 @@ var _ = Describe("Service", func() {
 		service = &Service{
 			URL:     fakeServer.URL,
 			Timeout: 1500 * time.Millisecond,
-			Command: []string{"read"},
+			Command: []string{"cat"},
 		}
 	})
 
@@ -43,7 +43,7 @@ var _ = Describe("Service", func() {
 				started = true
 				Expect(service.Start()).To(Succeed())
 				err := service.Start()
-				Expect(err).To(MatchError("read is already running"))
+				Expect(err).To(MatchError("cat is already running"))
 			})
 		})
 
@@ -75,7 +75,7 @@ var _ = Describe("Service", func() {
 					started = true
 				}()
 				err := service.Start()
-				Expect(err).To(MatchError("read webdriver failed to start"))
+				Expect(err).To(MatchError("cat webdriver failed to start"))
 			})
 		})
 	})
@@ -101,7 +101,7 @@ var _ = Describe("Service", func() {
 		Context("when the server is not running", func() {
 			It("returns an error", func() {
 				_, err := service.CreateSession(capabilities)
-				Expect(err).To(MatchError("read not running"))
+				Expect(err).To(MatchError("cat not running"))
 			})
 		})
 
