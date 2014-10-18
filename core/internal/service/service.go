@@ -61,7 +61,7 @@ func (s *Service) waitForServer() error {
 	case <-timeoutChan:
 		failedChan <- struct{}{}
 		s.Stop()
-		return fmt.Errorf("%s webdriver failed to start", s.name())
+		return fmt.Errorf("%s failed to start", s.name())
 	case <-startedChan:
 		return nil
 	}

@@ -12,21 +12,21 @@ import (
 var _ = Describe("Selection", func() {
 	var (
 		selection types.Selection
-		driver    *mocks.Driver
+		client    *mocks.Client
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
-		driver = &mocks.Driver{}
+		client = &mocks.Client{}
 		element = &mocks.Element{}
-		selection = &Selection{Driver: driver}
+		selection = &Selection{Client: client}
 		selection = selection.Find("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
 		Context("ensures a single element is returned", func() {
 			It("returns an error with the number of elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
@@ -34,7 +34,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Click", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -65,7 +65,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#DoubleClick", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -74,13 +74,13 @@ var _ = Describe("Selection", func() {
 
 		It("moves the mouse to the middle of the selected element", func() {
 			selection.DoubleClick()
-			Expect(driver.MoveToCall.Element).To(Equal(element))
-			Expect(driver.MoveToCall.Point).To(BeNil())
+			Expect(client.MoveToCall.Element).To(Equal(element))
+			Expect(client.MoveToCall.Point).To(BeNil())
 		})
 
 		Context("when moving over the element fails", func() {
 			BeforeEach(func() {
-				driver.MoveToCall.Err = errors.New("some error")
+				client.MoveToCall.Err = errors.New("some error")
 			})
 
 			It("retuns an error", func() {
@@ -90,12 +90,12 @@ var _ = Describe("Selection", func() {
 
 		It("double-clicks on an element", func() {
 			selection.DoubleClick()
-			Expect(driver.DoubleClickCall.Called).To(BeTrue())
+			Expect(client.DoubleClickCall.Called).To(BeTrue())
 		})
 
 		Context("when the double-clicking the element fails", func() {
 			BeforeEach(func() {
-				driver.DoubleClickCall.Err = errors.New("some error")
+				client.DoubleClickCall.Err = errors.New("some error")
 			})
 
 			It("returns an error", func() {
@@ -112,7 +112,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Fill", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -158,7 +158,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Check", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -170,7 +170,7 @@ var _ = Describe("Selection", func() {
 			Expect(element.GetAttributeCall.Attribute).To(Equal("type"))
 		})
 
-		Context("when the the driver fails to retrieve the 'type' attribute", func() {
+		Context("when the the client fails to retrieve the 'type' attribute", func() {
 			BeforeEach(func() {
 				element.GetAttributeCall.Err = errors.New("some error")
 			})
@@ -241,7 +241,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Uncheck", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 			element.GetAttributeCall.ReturnValue = "checkbox"
 			element.IsSelectedCall.ReturnSelected = true
 		})
@@ -263,30 +263,30 @@ var _ = Describe("Selection", func() {
 			optionOne = &mocks.Element{}
 			optionTwo = &mocks.Element{}
 			optionThree = &mocks.Element{}
-			driver.GetElementsCall.ReturnElements = []types.Element{optionOne, optionTwo, optionThree}
+			client.GetElementsCall.ReturnElements = []types.Element{optionOne, optionTwo, optionThree}
 		})
 
-		It("request child option elements from the driver", func() {
+		It("request child option elements from the client", func() {
 			selection.Select("some text")
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector option"}))
+			Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector option"}))
 		})
 
-		Context("when the driver fails to retrieve any elements", func() {
+		Context("when the client fails to retrieve any elements", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.Err = errors.New("some error")
+				client.GetElementsCall.Err = errors.New("some error")
 			})
 
-			It("returns error from the driver", func() {
+			It("returns error from the client", func() {
 				Expect(selection.Select("some text")).To(MatchError("failed to retrieve options for 'CSS: #selector': some error"))
 			})
 		})
 
-		Context("when the driver fails to retrieve text for an element", func() {
+		Context("when the client fails to retrieve text for an element", func() {
 			BeforeEach(func() {
 				optionOne.GetTextCall.Err = errors.New("some error")
 			})
 
-			It("returns error from the driver", func() {
+			It("returns error from the client", func() {
 				Expect(selection.Select("some text")).To(MatchError("failed to retrieve option text for 'CSS: #selector': some error"))
 			})
 		})
@@ -338,7 +338,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Submit", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {

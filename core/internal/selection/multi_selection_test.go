@@ -13,16 +13,16 @@ var _ = Describe("Selection", func() {
 	var (
 		selection      types.Selection
 		multiSelection types.MultiSelection
-		driver         *mocks.Driver
+		client         *mocks.Client
 		firstElement   *mocks.Element
 		secondElement  *mocks.Element
 	)
 
 	BeforeEach(func() {
-		driver = &mocks.Driver{}
+		client = &mocks.Client{}
 		firstElement = &mocks.Element{}
 		secondElement = &mocks.Element{}
-		selection = &Selection{Driver: driver}
+		selection = &Selection{Client: client}
 		multiSelection = selection.Find("#selector").All()
 	})
 
@@ -34,12 +34,12 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Visible", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{firstElement, secondElement}
+			client.GetElementsCall.ReturnElements = []types.Element{firstElement, secondElement}
 		})
 
 		Context("when we fail to retrieve the list of elements", func() {
 			It("returns an error", func() {
-				driver.GetElementsCall.Err = errors.New("some error")
+				client.GetElementsCall.Err = errors.New("some error")
 				_, err := multiSelection.Visible()
 				Expect(err).To(MatchError("failed to retrieve elements with 'CSS: #selector - All': some error"))
 			})
@@ -47,13 +47,13 @@ var _ = Describe("Selection", func() {
 
 		Context("when no elements are returned", func() {
 			It("returns an error", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{}
+				client.GetElementsCall.ReturnElements = []types.Element{}
 				_, err := multiSelection.Visible()
 				Expect(err).To(MatchError("no elements found for 'CSS: #selector - All'"))
 			})
 		})
 
-		Context("when the driver fails to retrieve any element's visible status", func() {
+		Context("when the client fails to retrieve any element's visible status", func() {
 			It("returns an error", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.Err = errors.New("some error")
@@ -62,7 +62,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("when the driver succeeds in retrieving all elements' visible status", func() {
+		Context("when the client succeeds in retrieving all elements' visible status", func() {
 			It("returns true when all elements are visible", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.ReturnDisplayed = true

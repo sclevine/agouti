@@ -20,11 +20,11 @@ func (s *Selection) DoubleClick() error {
 		return fmt.Errorf("failed to retrieve element with '%s': %s", s, err)
 	}
 
-	if err := s.Driver.MoveTo(element, nil); err != nil {
+	if err := s.Client.MoveTo(element, nil); err != nil {
 		return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
 	}
 
-	if err := s.Driver.DoubleClick(); err != nil {
+	if err := s.Client.DoubleClick(); err != nil {
 		return fmt.Errorf("failed to double-click on '%s': %s", s, err)
 	}
 	return nil

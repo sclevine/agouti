@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestDriver(t *testing.T) {
+func TestWebdriver(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Driver Suite")
+	RunSpecs(t, "WebDriver Suite")
 }

@@ -12,21 +12,21 @@ import (
 var _ = Describe("Selection", func() {
 	var (
 		selection types.Selection
-		driver    *mocks.Driver
+		client    *mocks.Client
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
-		driver = &mocks.Driver{}
+		client = &mocks.Client{}
 		element = &mocks.Element{}
-		selection = &Selection{Driver: driver}
+		selection = &Selection{Client: client}
 		selection = selection.Find("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
 		Context("ensures a single element is returned", func() {
 			It("returns an error with the number of elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
@@ -44,7 +44,7 @@ var _ = Describe("Selection", func() {
 			parentTwo = &mocks.Element{}
 			parentOne.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
 			parentTwo.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
-			driver.GetElementsCall.ReturnElements = []types.Element{parentOne, parentTwo}
+			client.GetElementsCall.ReturnElements = []types.Element{parentOne, parentTwo}
 		})
 
 		Context("when successful without indices", func() {
@@ -53,8 +53,8 @@ var _ = Describe("Selection", func() {
 				count, _ = selection.Count()
 			})
 
-			It("retrieves the parent elements using the driver", func() {
-				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
+			It("retrieves the parent elements using the client", func() {
+				Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 			})
 
 			It("retrieves the child elements of the parent selector", func() {
@@ -72,8 +72,8 @@ var _ = Describe("Selection", func() {
 				selection.At(1).FindXPath("children").At(1).Click()
 			})
 
-			It("retrieves the parent elements using the driver", func() {
-				Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector", Index: 1, Indexed: true}))
+			It("retrieves the parent elements using the client", func() {
+				Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector", Index: 1, Indexed: true}))
 			})
 
 			It("retrieves the child elements of the parent selector", func() {
@@ -89,7 +89,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when there is no selection", func() {
 			BeforeEach(func() {
-				selection = &Selection{Driver: driver}
+				selection = &Selection{Client: client}
 			})
 
 			It("returns an error", func() {
@@ -101,7 +101,7 @@ var _ = Describe("Selection", func() {
 		Context("when retrieving the parent elements fails", func() {
 			BeforeEach(func() {
 				selection = selection.FindXPath("children")
-				driver.GetElementsCall.Err = errors.New("some error")
+				client.GetElementsCall.Err = errors.New("some error")
 			})
 
 			It("returns the error", func() {
@@ -136,28 +136,28 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#At & most methods: retrieving the selected element", func() {
-		It("requests an element from the driver using the element's selector", func() {
+		It("requests an element from the client using the element's selector", func() {
 			selection.Click()
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
+			Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 		})
 
-		Context("when the driver fails to retrieve any elements", func() {
-			It("returns error from the driver", func() {
-				driver.GetElementsCall.Err = errors.New("some error")
+		Context("when the client fails to retrieve any elements", func() {
+			It("returns error from the client", func() {
+				client.GetElementsCall.Err = errors.New("some error")
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': some error"))
 			})
 		})
 
-		Context("when the driver retrieves zero elements", func() {
+		Context("when the client retrieves zero elements", func() {
 			It("fails with an error indicating there were no elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{}
+				client.GetElementsCall.ReturnElements = []types.Element{}
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': no element found"))
 			})
 		})
 
-		Context("when the driver retrieves more than one element and indexing is disabled", func() {
+		Context("when the client retrieves more than one element and indexing is disabled", func() {
 			It("returns an error with the number of elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
@@ -166,7 +166,7 @@ var _ = Describe("Selection", func() {
 	Describe("#Find", func() {
 		Context("when there is no selection", func() {
 			It("adds a new css selector to the selection", func() {
-				selection := &Selection{Driver: driver}
+				selection := &Selection{Client: client}
 				Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector"))
 			})
 		})
@@ -192,7 +192,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when two CSS selections are created from the same XPath parent", func() {
 			It("does not overwrite the first created child", func() {
-				selection := &Selection{Driver: driver}
+				selection := &Selection{Client: client}
 				parent := selection.FindXPath("//one").FindXPath("//two").FindXPath("//parent")
 				firstChild := parent.Find("#firstChild")
 				parent.Find("#secondChild")
@@ -239,15 +239,15 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Count", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+			client.GetElementsCall.ReturnElements = []types.Element{element, element}
 		})
 
-		It("requests elements from the driver using the provided selector", func() {
+		It("requests elements from the client using the provided selector", func() {
 			selection.Count()
-			Expect(driver.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
+			Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
 		})
 
-		Context("when the driver succeeds in retrieving the elements", func() {
+		Context("when the client succeeds in retrieving the elements", func() {
 			It("returns the text", func() {
 				count, _ := selection.Count()
 				Expect(count).To(Equal(2))
@@ -259,9 +259,9 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("when the the driver fails to retrieve the elements", func() {
+		Context("when the the client fails to retrieve the elements", func() {
 			BeforeEach(func() {
-				driver.GetElementsCall.Err = errors.New("some error")
+				client.GetElementsCall.Err = errors.New("some error")
 			})
 
 			It("returns an error", func() {
@@ -273,18 +273,18 @@ var _ = Describe("Selection", func() {
 
 	Describe("#EqualsElement", func() {
 		var (
-			otherDriver    *mocks.Driver
+			otherClient    *mocks.Client
 			otherSelection types.Selection
 			otherElement   *mocks.Element
 		)
 
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
-			otherDriver = &mocks.Driver{}
-			otherSelection = &Selection{Driver: otherDriver}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
+			otherClient = &mocks.Client{}
+			otherSelection = &Selection{Client: otherClient}
 			otherSelection = otherSelection.Find("#other_selector")
 			otherElement = &mocks.Element{}
-			otherDriver.GetElementsCall.ReturnElements = []types.Element{otherElement}
+			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -293,7 +293,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("ensures that the other selection is a single element", func() {
-			otherDriver.GetElementsCall.ReturnElements = []types.Element{element, element}
+			otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
 			_, err := selection.EqualsElement(otherSelection)
 			Expect(err).To(MatchError("failed to retrieve element with 'CSS: #other_selector': multiple elements (2) were selected"))
 		})
@@ -310,7 +310,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver fails to compare the elements", func() {
+		Context("if the client fails to compare the elements", func() {
 			It("returns an error", func() {
 				element.IsEqualToCall.Err = errors.New("some error")
 				_, err := selection.EqualsElement(otherSelection)
@@ -318,7 +318,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in comparing the elements", func() {
+		Context("if the client succeeds in comparing the elements", func() {
 			It("returns true if they are equal", func() {
 				element.IsEqualToCall.ReturnEquals = true
 				equal, _ := selection.EqualsElement(otherSelection)

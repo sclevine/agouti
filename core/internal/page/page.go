@@ -10,10 +10,10 @@ import (
 )
 
 type Page struct {
-	Driver driver
+	Client client
 }
 
-type driver interface {
+type client interface {
 	DeleteSession() error
 	GetWindow() (types.Window, error)
 	GetScreenshot() ([]byte, error)
@@ -34,14 +34,14 @@ type driver interface {
 }
 
 func (p *Page) Destroy() error {
-	if err := p.Driver.DeleteSession(); err != nil {
+	if err := p.Client.DeleteSession(); err != nil {
 		return fmt.Errorf("failed to destroy session: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Navigate(url string) error {
-	if err := p.Driver.SetURL(url); err != nil {
+	if err := p.Client.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil
@@ -49,28 +49,28 @@ func (p *Page) Navigate(url string) error {
 
 func (p *Page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
 	cookie := types.Cookie{Name: name, Value: value, Path: path, Domain: domain, Secure: secure, HTTPOnly: httpOnly, Expiry: expiry}
-	if err := p.Driver.SetCookie(&cookie); err != nil {
+	if err := p.Client.SetCookie(&cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) DeleteCookie(name string) error {
-	if err := p.Driver.DeleteCookie(name); err != nil {
+	if err := p.Client.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}
 	return nil
 }
 
 func (p *Page) ClearCookies() error {
-	if err := p.Driver.DeleteCookies(); err != nil {
+	if err := p.Client.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) URL() (string, error) {
-	url, err := p.Driver.GetURL()
+	url, err := p.Client.GetURL()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve URL: %s", err)
 	}
@@ -78,7 +78,7 @@ func (p *Page) URL() (string, error) {
 }
 
 func (p *Page) Size(width, height int) error {
-	window, err := p.Driver.GetWindow()
+	window, err := p.Client.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
 	}
@@ -101,7 +101,7 @@ func (p *Page) Screenshot(filename string) error {
 	}
 	defer file.Close()
 
-	screenshot, err := p.Driver.GetScreenshot()
+	screenshot, err := p.Client.GetScreenshot()
 	if err != nil {
 		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
@@ -115,7 +115,7 @@ func (p *Page) Screenshot(filename string) error {
 }
 
 func (p *Page) Title() (string, error) {
-	title, err := p.Driver.GetTitle()
+	title, err := p.Client.GetTitle()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
@@ -123,7 +123,7 @@ func (p *Page) Title() (string, error) {
 }
 
 func (p *Page) HTML() (string, error) {
-	html, err := p.Driver.GetSource()
+	html, err := p.Client.GetSource()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page HTML: %s", err)
 	}
@@ -144,7 +144,7 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 	argumentList := strings.Join(keys, ", ")
 	cleanBody := fmt.Sprintf("return (function(%s) { %s; }).apply(this, arguments);", argumentList, body)
 
-	if err := p.Driver.Execute(cleanBody, values, result); err != nil {
+	if err := p.Client.Execute(cleanBody, values, result); err != nil {
 		return fmt.Errorf("failed to run script: %s", err)
 	}
 
@@ -152,42 +152,42 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 }
 
 func (p *Page) Forward() error {
-	if err := p.Driver.Forward(); err != nil {
+	if err := p.Client.Forward(); err != nil {
 		return fmt.Errorf("failed to navigate forward in history: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Back() error {
-	if err := p.Driver.Back(); err != nil {
+	if err := p.Client.Back(); err != nil {
 		return fmt.Errorf("failed to navigate backwards in history: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Refresh() error {
-	if err := p.Driver.Refresh(); err != nil {
+	if err := p.Client.Refresh(); err != nil {
 		return fmt.Errorf("failed to refresh page: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Find(selector string) types.Selection {
-	selection := &selection.Selection{Driver: p.Driver}
+	selection := &selection.Selection{Client: p.Client}
 	return selection.Find(selector)
 }
 
 func (p *Page) FindXPath(selector string) types.Selection {
-	selection := &selection.Selection{Driver: p.Driver}
+	selection := &selection.Selection{Client: p.Client}
 	return selection.FindXPath(selector)
 }
 
 func (p *Page) FindLink(text string) types.Selection {
-	selection := &selection.Selection{Driver: p.Driver}
+	selection := &selection.Selection{Client: p.Client}
 	return selection.FindLink(text)
 }
 
 func (p *Page) FindByLabel(text string) types.Selection {
-	selection := &selection.Selection{Driver: p.Driver}
+	selection := &selection.Selection{Client: p.Client}
 	return selection.FindByLabel(text)
 }

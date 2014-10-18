@@ -3,9 +3,9 @@ package core
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/browser"
 	"github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/types"
+	"github.com/sclevine/agouti/core/internal/webdriver"
 	"net"
 	"strings"
 	"time"
@@ -14,8 +14,8 @@ import (
 type Selection types.Selection
 type Page types.Page
 
-// Browser represents a Selenium, PhantomJS, or Chrome (via ChromeDriver) WebDriver process
-type Browser interface {
+// WebDriver represents a Selenium, PhantomJS, or Chrome (via ChromeDriver) WebDriver process
+type WebDriver interface {
 	// Start launches the WebDriver process
 	Start() error
 
@@ -27,8 +27,8 @@ type Browser interface {
 	Page(browserName ...string) (types.Page, error)
 }
 
-// Chrome returns an instance of a Chrome Browser via ChromeDriver
-func Chrome() (Browser, error) {
+// Chrome returns an instance of a Chrome WebDriver via ChromeDriver
+func Chrome() (WebDriver, error) {
 	address, err := freeAddress()
 	if err != nil {
 		return nil, fmt.Errorf("failed to locate a free port: %s", err)
@@ -39,11 +39,11 @@ func Chrome() (Browser, error) {
 	command := []string{"chromedriver", "--silent", "--port=" + port}
 	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
 
-	return &browser.Browser{Service: service}, nil
+	return &webdriver.Driver{Service: service}, nil
 }
 
-// PhantomJS returns an instance of a PhantomJS Browser
-func PhantomJS() (Browser, error) {
+// PhantomJS returns an instance of a PhantomJS WebDriver
+func PhantomJS() (WebDriver, error) {
 	address, err := freeAddress()
 	if err != nil {
 		return nil, fmt.Errorf("failed to locate a free port: %s", err)
@@ -53,11 +53,11 @@ func PhantomJS() (Browser, error) {
 	command := []string{"phantomjs", fmt.Sprintf("--webdriver=%s", address)}
 	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
 
-	return &browser.Browser{Service: service}, nil
+	return &webdriver.Driver{Service: service}, nil
 }
 
-// Selenium returns an instance of a Selenium Browser
-func Selenium() (Browser, error) {
+// Selenium returns an instance of a Selenium WebDriver
+func Selenium() (WebDriver, error) {
 	address, err := freeAddress()
 	if err != nil {
 		return nil, fmt.Errorf("failed to locate a free port: %s", err)
@@ -68,7 +68,7 @@ func Selenium() (Browser, error) {
 	command := []string{"selenium-server", "-port", port}
 	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
 
-	return &browser.Browser{Service: service}, nil
+	return &webdriver.Driver{Service: service}, nil
 }
 
 func freeAddress() (string, error) {

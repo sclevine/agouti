@@ -74,7 +74,7 @@ var _ = Describe("Service", func() {
 					started = true
 				}()
 				err := service.Start()
-				Expect(err).To(MatchError("cat webdriver failed to start"))
+				Expect(err).To(MatchError("cat failed to start"))
 			})
 		})
 	})

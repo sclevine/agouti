@@ -12,21 +12,21 @@ import (
 var _ = Describe("Selection", func() {
 	var (
 		selection types.Selection
-		driver    *mocks.Driver
+		client    *mocks.Client
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
-		driver = &mocks.Driver{}
+		client = &mocks.Client{}
 		element = &mocks.Element{}
-		selection = &Selection{Driver: driver}
+		selection = &Selection{Client: client}
 		selection = selection.Find("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {
 		Context("ensures a single element is returned", func() {
 			It("returns an error with the number of elements", func() {
-				driver.GetElementsCall.ReturnElements = []types.Element{element, element}
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
 				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
 			})
 		})
@@ -34,7 +34,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Text", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -42,7 +42,7 @@ var _ = Describe("Selection", func() {
 			return err
 		})
 
-		Context("if the the driver fails to retrieve the element text", func() {
+		Context("if the the client fails to retrieve the element text", func() {
 			BeforeEach(func() {
 				element.GetTextCall.Err = errors.New("some error")
 			})
@@ -53,7 +53,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the element text", func() {
+		Context("if the client succeeds in retrieving the element text", func() {
 			BeforeEach(func() {
 				element.GetTextCall.ReturnText = "some text"
 			})
@@ -72,7 +72,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Attribute", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -85,7 +85,7 @@ var _ = Describe("Selection", func() {
 			Expect(element.GetAttributeCall.Attribute).To(Equal("some-attribute"))
 		})
 
-		Context("if the the driver fails to retrieve the requested element attribute", func() {
+		Context("if the the client fails to retrieve the requested element attribute", func() {
 			It("returns an error", func() {
 				element.GetAttributeCall.Err = errors.New("some error")
 				_, err := selection.Attribute("some-attribute")
@@ -93,7 +93,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the requested element attribute", func() {
+		Context("if the client succeeds in retrieving the requested element attribute", func() {
 			BeforeEach(func() {
 				element.GetAttributeCall.ReturnValue = "some value"
 			})
@@ -112,7 +112,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#CSS", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -125,7 +125,7 @@ var _ = Describe("Selection", func() {
 			Expect(element.GetCSSCall.Property).To(Equal("some-property"))
 		})
 
-		Context("if the the driver fails to retrieve the requested element CSS property", func() {
+		Context("if the the client fails to retrieve the requested element CSS property", func() {
 			It("returns an error", func() {
 				element.GetCSSCall.Err = errors.New("some error")
 				_, err := selection.CSS("some-property")
@@ -133,7 +133,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the requested element CSS property", func() {
+		Context("if the client succeeds in retrieving the requested element CSS property", func() {
 			BeforeEach(func() {
 				element.GetCSSCall.ReturnValue = "some value"
 			})
@@ -152,7 +152,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Selected", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -160,7 +160,7 @@ var _ = Describe("Selection", func() {
 			return err
 		})
 
-		Context("if the the driver fails to retrieve the element's selected status", func() {
+		Context("if the the client fails to retrieve the element's selected status", func() {
 			It("returns an error", func() {
 				element.IsSelectedCall.Err = errors.New("some error")
 				_, err := selection.Selected()
@@ -168,7 +168,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the element's selected status", func() {
+		Context("if the client succeeds in retrieving the element's selected status", func() {
 			It("returns the selected status when selected", func() {
 				element.IsSelectedCall.ReturnSelected = true
 				value, _ := selection.Selected()
@@ -190,7 +190,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Visible", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -198,7 +198,7 @@ var _ = Describe("Selection", func() {
 			return err
 		})
 
-		Context("if the the driver fails to retrieve the element's visible status", func() {
+		Context("if the the client fails to retrieve the element's visible status", func() {
 			It("returns an error", func() {
 				element.IsDisplayedCall.Err = errors.New("some error")
 				_, err := selection.Visible()
@@ -206,7 +206,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the element's visible status", func() {
+		Context("if the client succeeds in retrieving the element's visible status", func() {
 			It("returns the visible status when visible", func() {
 				element.IsDisplayedCall.ReturnDisplayed = true
 				value, _ := selection.Visible()
@@ -228,7 +228,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Enabled", func() {
 		BeforeEach(func() {
-			driver.GetElementsCall.ReturnElements = []types.Element{element}
+			client.GetElementsCall.ReturnElements = []types.Element{element}
 		})
 
 		ItShouldEnsureASingleElement(func() error {
@@ -236,7 +236,7 @@ var _ = Describe("Selection", func() {
 			return err
 		})
 
-		Context("if the the driver fails to retrieve the element's enabled status", func() {
+		Context("if the the client fails to retrieve the element's enabled status", func() {
 			It("returns an error", func() {
 				element.IsEnabledCall.Err = errors.New("some error")
 				_, err := selection.Enabled()
@@ -244,7 +244,7 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		Context("if the driver succeeds in retrieving the element's enabled status", func() {
+		Context("if the client succeeds in retrieving the element's enabled status", func() {
 			It("returns the enabled status when enabled", func() {
 				element.IsEnabledCall.ReturnEnabled = true
 				value, _ := selection.Enabled()

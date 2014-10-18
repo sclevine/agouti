@@ -8,11 +8,11 @@ import (
 )
 
 type Selection struct {
-	Driver    driver
+	Client    client
 	selectors []types.Selector
 }
 
-type driver interface {
+type client interface {
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
 	retriever
@@ -44,7 +44,7 @@ func (s *Selection) getElements() ([]types.Element, error) {
 		return nil, errors.New("empty selection")
 	}
 
-	lastElements, err := getElements(s.Driver, s.selectors[0])
+	lastElements, err := getElements(s.Client, s.selectors[0])
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +88,10 @@ func (s *Selection) At(index int) types.Selection {
 		newSelector := s.selectors[last]
 		newSelector.Index = index
 		newSelector.Indexed = true
-		return &Selection{s.Driver, appendSelector(s.selectors[:last], newSelector)}
+		return &Selection{s.Client, appendSelector(s.selectors[:last], newSelector)}
 	}
 
-	return &Selection{s.Driver, s.selectors}
+	return &Selection{s.Client, s.selectors}
 }
 
 func appendSelector(selectors []types.Selector, selector types.Selector) []types.Selector {
@@ -104,22 +104,22 @@ func (s *Selection) Find(selector string) types.Selection {
 
 	if last == -1 || s.selectors[last].Using != "css selector" || s.selectors[last].Indexed {
 		newSelector := types.Selector{Using: "css selector", Value: selector}
-		return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
+		return &Selection{s.Client, appendSelector(s.selectors, newSelector)}
 	}
 
 	newSelectorValue := s.selectors[last].Value + " " + selector
 	newSelector := types.Selector{Using: "css selector", Value: newSelectorValue}
-	return &Selection{s.Driver, appendSelector(s.selectors[:last], newSelector)}
+	return &Selection{s.Client, appendSelector(s.selectors[:last], newSelector)}
 }
 
 func (s *Selection) FindXPath(selector string) types.Selection {
 	newSelector := types.Selector{Using: "xpath", Value: selector}
-	return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
+	return &Selection{s.Client, appendSelector(s.selectors, newSelector)}
 }
 
 func (s *Selection) FindLink(text string) types.Selection {
 	newSelector := types.Selector{Using: "link text", Value: text}
-	return &Selection{s.Driver, appendSelector(s.selectors, newSelector)}
+	return &Selection{s.Client, appendSelector(s.selectors, newSelector)}
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {

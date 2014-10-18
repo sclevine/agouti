@@ -14,23 +14,23 @@ import (
 var _ = Describe("Page", func() {
 	var (
 		page    *Page
-		driver  *mocks.Driver
+		client  *mocks.Client
 		element *mocks.Element
 		window  *mocks.Window
 	)
 
 	BeforeEach(func() {
-		driver = &mocks.Driver{}
+		client = &mocks.Client{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = &Page{driver}
+		page = &Page{client}
 	})
 
 	Describe("#Destroy", func() {
 		Context("when deleting the session succeeds", func() {
-			It("directs the driver to delete the session", func() {
+			It("directs the client to delete the session", func() {
 				page.Destroy()
-				Expect(driver.DeleteSessionCall.Called).To(BeTrue())
+				Expect(client.DeleteSessionCall.Called).To(BeTrue())
 			})
 
 			It("does not return an error", func() {
@@ -40,8 +40,8 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when deleting the session fails", func() {
-			It("returns the driver error", func() {
-				driver.DeleteSessionCall.Err = errors.New("some error")
+			It("returns the client error", func() {
+				client.DeleteSessionCall.Err = errors.New("some error")
 				Expect(page.Destroy()).To(MatchError("failed to destroy session: some error"))
 			})
 		})
@@ -49,9 +49,9 @@ var _ = Describe("Page", func() {
 
 	Describe("#Navigate", func() {
 		Context("when the navigate succeeds", func() {
-			It("directs the driver to navigate to the provided URL", func() {
+			It("directs the client to navigate to the provided URL", func() {
 				page.Navigate("http://example.com")
-				Expect(driver.SetURLCall.URL).To(Equal("http://example.com"))
+				Expect(client.SetURLCall.URL).To(Equal("http://example.com"))
 			})
 
 			It("returns nil", func() {
@@ -61,18 +61,18 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when the navigate fails", func() {
-			It("returns the driver error", func() {
-				driver.SetURLCall.Err = errors.New("some error")
+			It("returns the client error", func() {
+				client.SetURLCall.Err = errors.New("some error")
 				Expect(page.Navigate("http://example.com")).To(MatchError("failed to navigate: some error"))
 			})
 		})
 	})
 
 	Describe("#SetCookie", func() {
-		It("instructs the driver to add the cookie to the session", func() {
+		It("instructs the client to add the cookie to the session", func() {
 			page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
-			Expect(driver.SetCookieCall.Cookie.Name).To(Equal("some-name"))
-			Expect(driver.SetCookieCall.Cookie.Value).To(Equal(42))
+			Expect(client.SetCookieCall.Cookie.Name).To(Equal("some-name"))
+			Expect(client.SetCookieCall.Cookie.Value).To(Equal(42))
 		})
 
 		Context("when setting the cookie succeeds", func() {
@@ -82,9 +82,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to set the cookie", func() {
+		Context("when the client fails to set the cookie", func() {
 			It("returns an error", func() {
-				driver.SetCookieCall.Err = errors.New("some error")
+				client.SetCookieCall.Err = errors.New("some error")
 				err := page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
 				Expect(err).To(MatchError("failed to set cookie: some error"))
 			})
@@ -92,9 +92,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#DeleteCookie", func() {
-		It("instructs the driver to delete a named cookie", func() {
+		It("instructs the client to delete a named cookie", func() {
 			page.DeleteCookie("some-name")
-			Expect(driver.DeleteCookieCall.Name).To(Equal("some-name"))
+			Expect(client.DeleteCookieCall.Name).To(Equal("some-name"))
 		})
 
 		Context("when deleteing the named cookie succeeds", func() {
@@ -106,7 +106,7 @@ var _ = Describe("Page", func() {
 
 		Context("when deleting the named cookie fails", func() {
 			It("returns an error", func() {
-				driver.DeleteCookieCall.Err = errors.New("some error")
+				client.DeleteCookieCall.Err = errors.New("some error")
 				err := page.DeleteCookie("some-name")
 				Expect(err).To(MatchError("failed to delete cookie some-name: some error"))
 			})
@@ -114,9 +114,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#ClearCookies", func() {
-		It("instructs the driver to delete all cookies", func() {
+		It("instructs the client to delete all cookies", func() {
 			page.ClearCookies()
-			Expect(driver.DeleteCookiesCall.Called).To(BeTrue())
+			Expect(client.DeleteCookiesCall.Called).To(BeTrue())
 		})
 
 		Context("when deleteing all cookies succeeds", func() {
@@ -128,7 +128,7 @@ var _ = Describe("Page", func() {
 
 		Context("when deleting all cookies fails", func() {
 			It("returns an error", func() {
-				driver.DeleteCookiesCall.Err = errors.New("some error")
+				client.DeleteCookiesCall.Err = errors.New("some error")
 				err := page.ClearCookies()
 				Expect(err).To(MatchError("failed to clear cookies: some error"))
 			})
@@ -143,7 +143,7 @@ var _ = Describe("Page", func() {
 			)
 
 			BeforeEach(func() {
-				driver.GetURLCall.ReturnURL = "http://example.com"
+				client.GetURLCall.ReturnURL = "http://example.com"
 				url, err = page.URL()
 			})
 
@@ -156,9 +156,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to retrieve the URL", func() {
+		Context("when the client fails to retrieve the URL", func() {
 			It("returns an error", func() {
-				driver.GetURLCall.Err = errors.New("some error")
+				client.GetURLCall.Err = errors.New("some error")
 				_, err := page.URL()
 				Expect(err).To(MatchError("failed to retrieve URL: some error"))
 			})
@@ -167,7 +167,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#Size", func() {
 		BeforeEach(func() {
-			driver.GetWindowCall.ReturnWindow = window
+			client.GetWindowCall.ReturnWindow = window
 		})
 
 		Context("when the size setting succeeds", func() {
@@ -182,9 +182,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to retrieve a window", func() {
+		Context("when the client fails to retrieve a window", func() {
 			It("returns an error", func() {
-				driver.GetWindowCall.Err = errors.New("some error")
+				client.GetWindowCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to retrieve window: some error"))
 			})
 		})
@@ -219,9 +219,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to retrieve a screenshot", func() {
+		Context("when the client fails to retrieve a screenshot", func() {
 			BeforeEach(func() {
-				driver.GetScreenshotCall.Err = errors.New("some error")
+				client.GetScreenshotCall.Err = errors.New("some error")
 			})
 
 			It("returns an error indicating so", func() {
@@ -244,7 +244,7 @@ var _ = Describe("Page", func() {
 			var err error
 
 			BeforeEach(func() {
-				driver.GetScreenshotCall.ReturnImage = []byte("some-image")
+				client.GetScreenshotCall.ReturnImage = []byte("some-image")
 				err = page.Screenshot(filename)
 			})
 
@@ -271,7 +271,7 @@ var _ = Describe("Page", func() {
 			)
 
 			BeforeEach(func() {
-				driver.GetTitleCall.ReturnTitle = "Some Title"
+				client.GetTitleCall.ReturnTitle = "Some Title"
 				title, err = page.Title()
 			})
 
@@ -284,9 +284,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to retrieve the page title", func() {
+		Context("when the client fails to retrieve the page title", func() {
 			It("returns an error", func() {
-				driver.GetTitleCall.Err = errors.New("some error")
+				client.GetTitleCall.Err = errors.New("some error")
 				_, err := page.Title()
 				Expect(err).To(MatchError("failed to retrieve page title: some error"))
 			})
@@ -301,7 +301,7 @@ var _ = Describe("Page", func() {
 			)
 
 			BeforeEach(func() {
-				driver.GetSourceCall.ReturnSource = "Some HTML"
+				client.GetSourceCall.ReturnSource = "Some HTML"
 				html, err = page.HTML()
 			})
 
@@ -314,9 +314,9 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the driver fails to retrieve the page HTML", func() {
+		Context("when the client fails to retrieve the page HTML", func() {
 			It("returns an error", func() {
-				driver.GetSourceCall.Err = errors.New("some error")
+				client.GetSourceCall.Err = errors.New("some error")
 				_, err := page.HTML()
 				Expect(err).To(MatchError("failed to retrieve page HTML: some error"))
 			})
@@ -330,16 +330,16 @@ var _ = Describe("Page", func() {
 		)
 
 		BeforeEach(func() {
-			driver.ExecuteCall.Result = `{"some": "result"}`
+			client.ExecuteCall.Result = `{"some": "result"}`
 			err = page.RunScript("some javascript code", map[string]interface{}{"argument": "value"}, &result)
 		})
 
-		It("provides the driver with an argument-provided javascript function", func() {
-			Expect(driver.ExecuteCall.Body).To(Equal("return (function(argument) { some javascript code; }).apply(this, arguments);"))
+		It("provides the client with an argument-provided javascript function", func() {
+			Expect(client.ExecuteCall.Body).To(Equal("return (function(argument) { some javascript code; }).apply(this, arguments);"))
 		})
 
-		It("provides the driver with arguments to call the provided function with", func() {
-			Expect(driver.ExecuteCall.Arguments).To(Equal([]interface{}{"value"}))
+		It("provides the client with arguments to call the provided function with", func() {
+			Expect(client.ExecuteCall.Arguments).To(Equal([]interface{}{"value"}))
 		})
 
 		It("unmarshalls the returned result into the provided result interface", func() {
@@ -353,8 +353,8 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when running the script fails", func() {
-			It("returns the driver error", func() {
-				driver.ExecuteCall.Err = errors.New("some error")
+			It("returns the client error", func() {
+				client.ExecuteCall.Err = errors.New("some error")
 				err = page.RunScript("", map[string]interface{}{}, &result)
 				Expect(err).To(MatchError("failed to run script: some error"))
 			})
@@ -362,9 +362,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Forward", func() {
-		It("instructs the driver to move forward in history", func() {
+		It("instructs the client to move forward in history", func() {
 			page.Forward()
-			Expect(driver.ForwardCall.Called).To(BeTrue())
+			Expect(client.ForwardCall.Called).To(BeTrue())
 		})
 
 		Context("when navigating forward succeeds", func() {
@@ -376,7 +376,7 @@ var _ = Describe("Page", func() {
 
 		Context("when navigating forward fails", func() {
 			It("returns an error", func() {
-				driver.ForwardCall.Err = errors.New("some error")
+				client.ForwardCall.Err = errors.New("some error")
 				err := page.Forward()
 				Expect(err).To(MatchError("failed to navigate forward in history: some error"))
 			})
@@ -384,9 +384,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Back", func() {
-		It("instructs the driver to move back in history", func() {
+		It("instructs the client to move back in history", func() {
 			page.Back()
-			Expect(driver.BackCall.Called).To(BeTrue())
+			Expect(client.BackCall.Called).To(BeTrue())
 		})
 
 		Context("when navigating back succeeds", func() {
@@ -398,7 +398,7 @@ var _ = Describe("Page", func() {
 
 		Context("when navigating back fails", func() {
 			It("returns an error", func() {
-				driver.BackCall.Err = errors.New("some error")
+				client.BackCall.Err = errors.New("some error")
 				err := page.Back()
 				Expect(err).To(MatchError("failed to navigate backwards in history: some error"))
 			})
@@ -406,9 +406,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Refresh", func() {
-		It("instructs the driver to refresh", func() {
+		It("instructs the client to refresh", func() {
 			page.Refresh()
-			Expect(driver.RefreshCall.Called).To(BeTrue())
+			Expect(client.RefreshCall.Called).To(BeTrue())
 		})
 
 		Context("when navigating refresh succeeds", func() {
@@ -420,7 +420,7 @@ var _ = Describe("Page", func() {
 
 		Context("when refreshing the page fails", func() {
 			It("returns an error", func() {
-				driver.RefreshCall.Err = errors.New("some error")
+				client.RefreshCall.Err = errors.New("some error")
 				err := page.Refresh()
 				Expect(err).To(MatchError("failed to refresh page: some error"))
 			})

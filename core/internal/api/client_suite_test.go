@@ -1,4 +1,4 @@
-package browser_test
+package api_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestBrowser(t *testing.T) {
+func TestClient(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Browser Suite")
+	RunSpecs(t, "API Suite")
 }
