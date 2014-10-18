@@ -219,10 +219,17 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#All", func() {
+		It("returns a MultiSelection created from the Selection", func() {
+			Expect(selection.All().String()).To(Equal(`CSS: #selector - All`))
+		})
+	})
+
 	Describe("#String", func() {
 		It("returns the separated selectors", func() {
 			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
 		})
+
 		Context("when indexed via At(index)", func() {
 			It("appends [index] to the indexed selectors", func() {
 				Expect(selection.At(2).FindXPath("//subselector").At(1).String()).To(Equal("CSS: #selector [2] | XPath: //subselector [1]"))

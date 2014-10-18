@@ -127,6 +127,10 @@ func (s *Selection) FindByLabel(text string) types.Selection {
 	return s.FindXPath(selector)
 }
 
+func (s *Selection) All() types.MultiSelection {
+	return &MultiSelection{s}
+}
+
 func (s *Selection) String() string {
 	var tags []string
 
