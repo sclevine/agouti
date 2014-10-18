@@ -23,20 +23,20 @@ var _ = Describe("Driver", func() {
 	})
 
 	Describe("#Start", func() {
-		It("starts the service", func() {
+		It("should start the service", func() {
 			driver.Start()
 			Expect(service.StartCall.Called).To(BeTrue())
 		})
 
 		Context("when starting the service fails", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				service.StartCall.Err = errors.New("some error")
 				Expect(driver.Start()).To(MatchError("failed to start service: some error"))
 			})
 		})
 
 		Context("when starting the service succeeds", func() {
-			It("returns nil", func() {
+			It("should return nil", func() {
 				err := driver.Start()
 				Expect(err).NotTo(HaveOccurred())
 			})
@@ -64,12 +64,12 @@ var _ = Describe("Driver", func() {
 			fakeServer.Close()
 		})
 
-		It("attempts to destroy all sessions", func() {
+		It("should attempt to destroy all sessions", func() {
 			driver.Stop()
 			Expect(deletedSessions).To(Equal(2))
 		})
 
-		It("stops the service", func() {
+		It("should stop the service", func() {
 			driver.Stop()
 			Expect(service.StopCall.Called).To(BeTrue())
 		})
@@ -77,7 +77,7 @@ var _ = Describe("Driver", func() {
 
 	Describe("#Page", func() {
 		Context("with zero arguments", func() {
-			It("creates a session with no browser name", func() {
+			It("should create a session with no browser name", func() {
 				_, err := driver.Page()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(BeNil())
@@ -85,7 +85,7 @@ var _ = Describe("Driver", func() {
 		})
 
 		Context("with one argument", func() {
-			It("creates a session with the provided browser name", func() {
+			It("should create a session with the provided browser name", func() {
 				_, err := driver.Page("some-name")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(Equal("some-name"))
@@ -93,21 +93,21 @@ var _ = Describe("Driver", func() {
 		})
 
 		Context("with more than one argument", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := driver.Page("one", "two")
 				Expect(err).To(MatchError("too many arguments"))
 			})
 		})
 
 		Context("when creating the session fails", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				service.CreateSessionCall.Err = errors.New("some error")
 				_, err := driver.Page()
 				Expect(err).To(MatchError("failed to generate page: some error"))
 			})
 		})
 
-		It("returns a page with a client with the created session", func() {
+		It("should return a page with a client with the created session", func() {
 			var sessionInPage bool
 			fakeServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 				sessionInPage = true

@@ -15,7 +15,7 @@ var _ = Describe("Page Matchers", func() {
 	})
 
 	Describe("#HaveTitle", func() {
-		It("calls the page#HaveTitle matcher", func() {
+		It("should call the page#HaveTitle matcher", func() {
 			page.TitleCall.ReturnTitle = "Some Title"
 			Expect(page).To(HaveTitle("Some Title"))
 			Expect(page).NotTo(HaveTitle("Some Other Title"))

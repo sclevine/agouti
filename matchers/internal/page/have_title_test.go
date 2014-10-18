@@ -27,12 +27,12 @@ var _ = Describe("HaveTitleMatcher", func() {
 					page.TitleCall.ReturnTitle = "Some Title"
 				})
 
-				It("returns true", func() {
+				It("should return true", func() {
 					success, _ := matcher.Match(page)
 					Expect(success).To(BeTrue())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(page)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -43,12 +43,12 @@ var _ = Describe("HaveTitleMatcher", func() {
 					page.TitleCall.ReturnTitle = "Some Other Title"
 				})
 
-				It("returns false", func() {
+				It("should return false", func() {
 					success, _ := matcher.Match(page)
 					Expect(success).To(BeFalse())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(page)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -56,7 +56,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 		})
 
 		Context("when the actual object is not a types.PageOnly", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := matcher.Match("not a page")
 				Expect(err).To(MatchError("HaveTitle matcher requires a Page.  Got:\n    <string>: not a page"))
 			})
@@ -64,7 +64,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("returns a failure message", func() {
+		It("should return a failure message", func() {
 			page.TitleCall.ReturnTitle = "Some Other Title"
 			matcher.Match(page)
 			message := matcher.FailureMessage(page)
@@ -74,7 +74,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("returns a negated failure message", func() {
+		It("should return a negated failure message", func() {
 			page.TitleCall.ReturnTitle = "Some Title"
 			matcher.Match(page)
 			message := matcher.NegatedFailureMessage(page)

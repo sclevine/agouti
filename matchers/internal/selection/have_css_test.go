@@ -22,7 +22,7 @@ var _ = Describe("HaveCSS", func() {
 
 	Describe("#Match", func() {
 		Context("when the actual object is a selection", func() {
-			It("requests the provided page property", func() {
+			It("should request the provided page property", func() {
 				matcher.Match(selection)
 				Expect(selection.CSSCall.Property).To(Equal("some-property"))
 			})
@@ -32,12 +32,12 @@ var _ = Describe("HaveCSS", func() {
 					selection.CSSCall.ReturnValue = "some value"
 				})
 
-				It("returns true", func() {
+				It("should return true", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeTrue())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -48,12 +48,12 @@ var _ = Describe("HaveCSS", func() {
 					selection.CSSCall.ReturnValue = "some other value"
 				})
 
-				It("returns false", func() {
+				It("should return false", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -76,7 +76,7 @@ var _ = Describe("HaveCSS", func() {
 					})
 
 					Describe("#NegatedFailureMessage", func() {
-						It("returns a negated failure message", func() {
+						It("should return a negated failure message", func() {
 							matcher.Match(selection)
 							message := matcher.NegatedFailureMessage(selection)
 							Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' not to have CSS matching\n    some-property: Color{R:0, G:0, B:255, A:1.00}"))
@@ -97,7 +97,7 @@ var _ = Describe("HaveCSS", func() {
 					})
 
 					Describe("#FailureMessage", func() {
-						It("returns a failure message", func() {
+						It("should return a failure message", func() {
 							matcher.Match(selection)
 							message := matcher.FailureMessage(selection)
 							Expect(message).To(ContainSubstring("Expected selection 'CSS: #selector' to have CSS matching\n    some-property: Color{R:0, G:0, B:255, A:1.00}"))
@@ -121,7 +121,7 @@ var _ = Describe("HaveCSS", func() {
 		})
 
 		Context("when the actual object is not a selection", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
 				Expect(err).To(MatchError("HaveCSS matcher requires a Selection.  Got:\n    <string>: not a selection"))
 			})
@@ -129,7 +129,7 @@ var _ = Describe("HaveCSS", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("returns a failure message", func() {
+		It("should return a failure message", func() {
 			selection.CSSCall.ReturnValue = "some other value"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -139,7 +139,7 @@ var _ = Describe("HaveCSS", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("returns a negated failure message", func() {
+		It("should return a negated failure message", func() {
 			selection.CSSCall.ReturnValue = "some value"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

@@ -37,7 +37,7 @@ var _ = Describe("Service", func() {
 
 	Describe("#Start", func() {
 		Context("when the service is started multiple times", func() {
-			It("returns an error indicating that service is already running", func() {
+			It("should return an error indicating that service is already running", func() {
 				defer service.Stop()
 				started = true
 				Expect(service.Start()).To(Succeed())
@@ -47,7 +47,7 @@ var _ = Describe("Service", func() {
 		})
 
 		Context("when the binary is not available in PATH", func() {
-			It("returns an error indicating the binary needs to be installed", func() {
+			It("should return an error indicating the binary needs to be installed", func() {
 				service.Command = []string{"not-in-path"}
 				err := service.Start()
 				Expect(err).To(MatchError("unable to run not-in-path: exec: \"not-in-path\": executable file not found in $PATH"))
@@ -55,7 +55,7 @@ var _ = Describe("Service", func() {
 		})
 
 		Context("when the service starts before the provided timeout", func() {
-			It("does not return an error", func() {
+			It("should not return an error", func() {
 				defer service.Stop()
 				go func() {
 					time.Sleep(200 * time.Millisecond)
@@ -67,7 +67,7 @@ var _ = Describe("Service", func() {
 		})
 
 		Context("when the service does not start before the provided timeout", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				defer service.Stop()
 				go func() {
 					time.Sleep(3000 * time.Millisecond)
@@ -80,7 +80,7 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("#Stop", func() {
-		It("stops a running server", func() {
+		It("should stop a running server", func() {
 			defer service.Stop()
 			started = true
 			service.Start()
@@ -98,14 +98,14 @@ var _ = Describe("Service", func() {
 		})
 
 		Context("when the server is not running", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := service.CreateSession(capabilities)
 				Expect(err).To(MatchError("cat not running"))
 			})
 		})
 
 		Context("when the server is running", func() {
-			It("attempts to open a session using the desired capabilties", func() {
+			It("should attempt to open a session using the desired capabilties", func() {
 				defer service.Stop()
 				started = true
 				service.Start()
@@ -124,7 +124,7 @@ var _ = Describe("Service", func() {
 			})
 
 			Context("when opening a new session fails", func() {
-				It("returns the session error", func() {
+				It("should return the session error", func() {
 					defer service.Stop()
 					started = true
 					service.Start()

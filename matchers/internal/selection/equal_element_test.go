@@ -25,7 +25,7 @@ var _ = Describe("EqualElementMatcher", func() {
 
 	Describe("#Match", func() {
 		Context("when the actual object is a selection", func() {
-			It("compares the selections for element equality", func() {
+			It("should compare the selections for element equality", func() {
 				matcher.Match(selection)
 				Expect(selection.EqualsElementCall.Selection).To(Equal(equalSelection))
 			})
@@ -35,12 +35,12 @@ var _ = Describe("EqualElementMatcher", func() {
 					selection.EqualsElementCall.ReturnEquals = true
 				})
 
-				It("returns true", func() {
+				It("should return true", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeTrue())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -51,12 +51,12 @@ var _ = Describe("EqualElementMatcher", func() {
 					selection.EqualsElementCall.ReturnEquals = false
 				})
 
-				It("returns false", func() {
+				It("should return false", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -64,14 +64,14 @@ var _ = Describe("EqualElementMatcher", func() {
 		})
 
 		Context("when the actual object is not a selection", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
 				Expect(err).To(MatchError("EqualElement matcher requires a Selection.  Got:\n    <string>: not a selection"))
 			})
 		})
 
 		Context("when the comparison fails", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				selection.EqualsElementCall.Err = errors.New("some error")
 				_, err := matcher.Match(selection)
 				Expect(err).To(MatchError("EqualElement matcher failed to compare Selections: some error"))
@@ -80,7 +80,7 @@ var _ = Describe("EqualElementMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("returns a failure message", func() {
+		It("should return a failure message", func() {
 			selection.EqualsElementCall.ReturnEquals = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -89,7 +89,7 @@ var _ = Describe("EqualElementMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("returns a negated failure message", func() {
+		It("should return a negated failure message", func() {
 			selection.EqualsElementCall.ReturnEquals = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

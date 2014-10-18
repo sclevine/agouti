@@ -27,7 +27,7 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#String", func() {
-		It("returns selection#String with '- All' appended", func() {
+		It("should return selection#String with '- All' appended", func() {
 			Expect(multiSelection.String()).To(Equal("CSS: #selector - All"))
 		})
 	})
@@ -38,7 +38,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when we fail to retrieve the list of elements", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				client.GetElementsCall.Err = errors.New("some error")
 				_, err := multiSelection.Visible()
 				Expect(err).To(MatchError("failed to retrieve elements with 'CSS: #selector - All': some error"))
@@ -46,7 +46,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when no elements are returned", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				client.GetElementsCall.ReturnElements = []types.Element{}
 				_, err := multiSelection.Visible()
 				Expect(err).To(MatchError("no elements found for 'CSS: #selector - All'"))
@@ -54,7 +54,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client fails to retrieve any element's visible status", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.Err = errors.New("some error")
 				_, err := multiSelection.Visible()
@@ -63,28 +63,28 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client succeeds in retrieving all elements' visible status", func() {
-			It("returns true when all elements are visible", func() {
+			It("should return true when all elements are visible", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.ReturnDisplayed = true
 				value, _ := multiSelection.Visible()
 				Expect(value).To(BeTrue())
 			})
 
-			It("returns false when not all elements are visible", func() {
+			It("should return false when not all elements are visible", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.ReturnDisplayed = false
 				value, _ := multiSelection.Visible()
 				Expect(value).To(BeFalse())
 			})
 
-			It("returns false when no elements are visible", func() {
+			It("should return false when no elements are visible", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = false
 				secondElement.IsDisplayedCall.ReturnDisplayed = false
 				value, _ := multiSelection.Visible()
 				Expect(value).To(BeFalse())
 			})
 
-			It("does not return an error", func() {
+			It("should not return an error", func() {
 				_, err := multiSelection.Visible()
 				Expect(err).NotTo(HaveOccurred())
 			})

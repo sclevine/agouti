@@ -15,7 +15,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#HaveText", func() {
-		It("calls the selection#HaveText matcher", func() {
+		It("should call the selection#HaveText matcher", func() {
 			selection.TextCall.ReturnText = "some text"
 			Expect(selection).To(HaveText("some text"))
 			Expect(selection).NotTo(HaveText("some other text"))
@@ -23,7 +23,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#MatchText", func() {
-		It("calls the selection#MatchText matcher", func() {
+		It("should call the selection#MatchText matcher", func() {
 			selection.TextCall.ReturnText = "some text"
 			Expect(selection).To(MatchText("s[^t]+text"))
 			Expect(selection).NotTo(MatchText("so*text"))
@@ -31,7 +31,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#HaveAttribute", func() {
-		It("calls the selection#HaveAttribute matcher", func() {
+		It("should call the selection#HaveAttribute matcher", func() {
 			selection.AttributeCall.ReturnValue = "some value"
 			Expect(selection).To(HaveAttribute("some-attribute", "some value"))
 			Expect(selection).NotTo(HaveAttribute("some-attribute", "some other value"))
@@ -39,7 +39,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#HaveCSS", func() {
-		It("calls the selection#HaveCSS matcher", func() {
+		It("should call the selection#HaveCSS matcher", func() {
 			selection.CSSCall.ReturnValue = "some value"
 			Expect(selection).To(HaveCSS("some-property", "some value"))
 			Expect(selection).NotTo(HaveCSS("some-property", "some other value"))
@@ -47,7 +47,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#BeSelected", func() {
-		It("calls the selection#BeSelected matcher", func() {
+		It("should call the selection#BeSelected matcher", func() {
 			selection.SelectedCall.ReturnSelected = true
 			Expect(selection).To(BeSelected())
 			selection.SelectedCall.ReturnSelected = false
@@ -56,7 +56,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#BeVisible", func() {
-		It("calls the selection#BeVisible matcher", func() {
+		It("should call the selection#BeVisible matcher", func() {
 			selection.VisibleCall.ReturnVisible = true
 			Expect(selection).To(BeVisible())
 			selection.VisibleCall.ReturnVisible = false
@@ -65,7 +65,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#BeFound", func() {
-		It("calls the selection#BeFound matcher", func() {
+		It("should call the selection#BeFound matcher", func() {
 			selection.CountCall.ReturnCount = 1
 			Expect(selection).To(BeFound())
 			selection.CountCall.ReturnCount = 0
@@ -74,7 +74,7 @@ var _ = Describe("Selection Matchers", func() {
 	})
 
 	Describe("#EqualElement", func() {
-		It("calls the selection#EqualElement matcher", func() {
+		It("should call the selection#EqualElement matcher", func() {
 			selection.EqualsElementCall.ReturnEquals = true
 			Expect(selection).To(EqualElement(selection))
 			selection.EqualsElementCall.ReturnEquals = false

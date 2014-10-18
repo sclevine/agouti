@@ -27,12 +27,12 @@ var _ = Describe("BeSelectedMatcher", func() {
 					selection.SelectedCall.ReturnSelected = true
 				})
 
-				It("returns true", func() {
+				It("should return true", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeTrue())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -43,12 +43,12 @@ var _ = Describe("BeSelectedMatcher", func() {
 					selection.SelectedCall.ReturnSelected = false
 				})
 
-				It("returns false", func() {
+				It("should return false", func() {
 					success, _ := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 				})
 
-				It("does not return an error", func() {
+				It("should not return an error", func() {
 					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
@@ -56,7 +56,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 		})
 
 		Context("when the actual object is not a selection", func() {
-			It("returns an error", func() {
+			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
 				Expect(err).To(MatchError("BeSelected matcher requires a Selection.  Got:\n    <string>: not a selection"))
 			})
@@ -64,7 +64,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("returns a failure message", func() {
+		It("should return a failure message", func() {
 			selection.SelectedCall.ReturnSelected = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -73,7 +73,7 @@ var _ = Describe("BeSelectedMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("returns a negated failure message", func() {
+		It("should return a negated failure message", func() {
 			selection.SelectedCall.ReturnSelected = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

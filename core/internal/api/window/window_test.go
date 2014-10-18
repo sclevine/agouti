@@ -25,26 +25,26 @@ var _ = Describe("Window", func() {
 			err = window.SetSize(640, 480)
 		})
 
-		It("makes a POST request", func() {
+		It("should make a POST request", func() {
 			Expect(session.ExecuteCall.Method).To(Equal("POST"))
 		})
 
-		It("hits the /window/:id/size endpoint", func() {
+		It("should hit the /window/:id/size endpoint", func() {
 			Expect(session.ExecuteCall.Endpoint).To(Equal("window/some-id/size"))
 		})
 
-		It("sends the width and height as the post body", func() {
+		It("should send the width and height as the post body", func() {
 			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"width":640,"height":480}`))
 		})
 
 		Context("when the session indicates a success", func() {
-			It("does not return an error", func() {
+			It("should not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("returns an error indicating the session failed to retrieve the text", func() {
+			It("should return an error indicating the session failed to retrieve the text", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				err = window.SetSize(640, 480)
 				Expect(err).To(MatchError("some error"))
