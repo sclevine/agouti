@@ -58,6 +58,13 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 	})
 
+	Scenario("selecting multiple elements", func() {
+		Step("currently only works for element visiblity", func() {
+			Expect(page.Find("select").At(0).Find("option").All()).To(BeVisible())
+			Expect(page.Find("h1,h2").All()).NotTo(BeVisible())
+		})
+	})
+
 	Scenario("finding form elements by label", func() {
 		Step("finding an element by label text", func() {
 			Expect(page.FindByLabel("Some Label")).To(HaveAttribute("value", "some labeled value"))

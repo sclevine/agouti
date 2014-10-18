@@ -14,6 +14,7 @@ var _ = Describe("Parsing CSS Colors", func() {
 			Expect(c.String()).To(Equal("Color{R:128, G:255, B:35, A:0.30}"))
 		})
 	})
+
 	Context("with hex notation", func() {
 		Context("with #XXX hex notation", func() {
 			It("should parse the color correctly", func() {
@@ -198,7 +199,7 @@ var _ = Describe("Parsing CSS Colors", func() {
 			})
 		})
 
-		Describe("nubmers that aren't numbers", func() {
+		Describe("numbers that aren't numbers", func() {
 			It("should error", func() {
 				invalidInteger := "11111111111111111111111111111111111"
 				invalidFloat := "1.0.0"
