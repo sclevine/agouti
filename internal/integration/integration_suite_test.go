@@ -14,7 +14,7 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	StartPhantomJS()
+	StartChrome()
 	Server.Start()
 })
 

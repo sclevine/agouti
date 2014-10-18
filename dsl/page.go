@@ -1,7 +1,6 @@
 package dsl
 
 import (
-	"fmt"
 	"github.com/onsi/ginkgo"
 	"github.com/sclevine/agouti/core"
 )
@@ -40,9 +39,7 @@ func StopWebdriver() {
 	if browser == nil {
 		ginkgo.Fail("browser not started", 1)
 	}
-	if err := browser.Stop(); err != nil {
-		fmt.Println(err)
-	}
+	browser.Stop()
 	browser = nil
 }
 

@@ -26,6 +26,27 @@ var _ = Describe("Page", func() {
 		page = &Page{driver}
 	})
 
+	Describe("#Destroy", func() {
+		Context("when deleting the session succeeds", func() {
+			It("directs the driver to delete the session", func() {
+				page.Destroy()
+				Expect(driver.DeleteSessionCall.Called).To(BeTrue())
+			})
+
+			It("does not return an error", func() {
+				err := page.Destroy()
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when deleting the session fails", func() {
+			It("returns the driver error", func() {
+				driver.DeleteSessionCall.Err = errors.New("some error")
+				Expect(page.Destroy()).To(MatchError("failed to destroy session: some error"))
+			})
+		})
+	})
+
 	Describe("#Navigate", func() {
 		Context("when the navigate succeeds", func() {
 			It("directs the driver to navigate to the provided URL", func() {
@@ -34,16 +55,14 @@ var _ = Describe("Page", func() {
 			})
 
 			It("returns nil", func() {
-				Expect(page.Navigate("http://example.com")).ToNot(HaveOccurred())
+				err := page.Navigate("http://example.com")
+				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 
 		Context("when the navigate fails", func() {
-			BeforeEach(func() {
-				driver.SetURLCall.Err = errors.New("some error")
-			})
-
 			It("returns the driver error", func() {
+				driver.SetURLCall.Err = errors.New("some error")
 				Expect(page.Navigate("http://example.com")).To(MatchError("failed to navigate: some error"))
 			})
 		})
@@ -164,21 +183,15 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when the driver fails to retrieve a window", func() {
-			BeforeEach(func() {
-				driver.GetWindowCall.Err = errors.New("some error")
-			})
-
 			It("returns an error", func() {
+				driver.GetWindowCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to retrieve window: some error"))
 			})
 		})
 
 		Context("when the window fails to retrieve its size", func() {
-			BeforeEach(func() {
-				window.SizeCall.Err = errors.New("some error")
-			})
-
 			It("returns an error", func() {
+				window.SizeCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
 			})
 		})
@@ -340,11 +353,8 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when running the script fails", func() {
-			BeforeEach(func() {
-				driver.ExecuteCall.Err = errors.New("some error")
-			})
-
 			It("returns the driver error", func() {
+				driver.ExecuteCall.Err = errors.New("some error")
 				err = page.RunScript("", map[string]interface{}{}, &result)
 				Expect(err).To(MatchError("failed to run script: some error"))
 			})

@@ -12,6 +12,11 @@ type Driver struct {
 		Err            error
 	}
 
+	DeleteSessionCall struct {
+		Called bool
+		Err    error
+	}
+
 	GetWindowCall struct {
 		ReturnWindow types.Window
 		Err          error
@@ -89,6 +94,11 @@ type Driver struct {
 		Called bool
 		Err    error
 	}
+}
+
+func (d *Driver) DeleteSession() error {
+	d.DeleteSessionCall.Called = true
+	return d.DeleteSessionCall.Err
 }
 
 func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {

@@ -1,12 +1,12 @@
 package window
 
-type Executable interface {
-	Execute(endpoint, method string, body, result interface{}) error
-}
-
 type Window struct {
 	ID      string
-	Session Executable
+	Session session
+}
+
+type session interface {
+	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
 func (w *Window) SetSize(width, height int) error {

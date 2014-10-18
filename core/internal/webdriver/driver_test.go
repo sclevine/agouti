@@ -23,6 +23,34 @@ var _ = Describe("Webdriver", func() {
 		driver = &Driver{session}
 	})
 
+	Describe("#DeleteSession", func() {
+		BeforeEach(func() {
+			err = driver.DeleteSession()
+		})
+
+		It("makes a DELETE request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("DELETE"))
+		})
+
+		It("hits the / endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal(""))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("doesn't return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("returns an error indicating the page failed to delete the cookies", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = driver.DeleteSession()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetElements", func() {
 		var elements []types.Element
 

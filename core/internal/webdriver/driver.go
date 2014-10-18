@@ -8,11 +8,15 @@ import (
 )
 
 type Driver struct {
-	Session executable
+	Session session
 }
 
-type executable interface {
-	Execute(endpoint, method string, body, result interface{}) error
+type session interface {
+	Execute(endpoint, method string, body interface{}, result ...interface{}) error
+}
+
+func (d *Driver) DeleteSession() error {
+	return d.Session.Execute("", "DELETE", nil)
 }
 
 func (d *Driver) GetElements(selector types.Selector) ([]types.Element, error) {
@@ -43,15 +47,15 @@ func (d *Driver) SetCookie(cookie *types.Cookie) error {
 		Cookie *types.Cookie `json:"cookie"`
 	}{cookie}
 
-	return d.Session.Execute("cookie", "POST", request, &struct{}{})
+	return d.Session.Execute("cookie", "POST", request)
 }
 
 func (d *Driver) DeleteCookie(cookieName string) error {
-	return d.Session.Execute("cookie/"+cookieName, "DELETE", nil, &struct{}{})
+	return d.Session.Execute("cookie/"+cookieName, "DELETE", nil)
 }
 
 func (d *Driver) DeleteCookies() error {
-	return d.Session.Execute("cookie", "DELETE", nil, &struct{}{})
+	return d.Session.Execute("cookie", "DELETE", nil)
 }
 
 func (d *Driver) GetScreenshot() ([]byte, error) {
@@ -78,7 +82,7 @@ func (d *Driver) SetURL(url string) error {
 		URL string `json:"url"`
 	}{url}
 
-	return d.Session.Execute("url", "POST", request, &struct{}{})
+	return d.Session.Execute("url", "POST", request)
 }
 
 func (d *Driver) GetTitle() (string, error) {
@@ -100,7 +104,7 @@ func (d *Driver) GetSource() (string, error) {
 }
 
 func (d *Driver) DoubleClick() error {
-	return d.Session.Execute("doubleclick", "POST", nil, &struct{}{})
+	return d.Session.Execute("doubleclick", "POST", nil)
 }
 
 func (d *Driver) MoveTo(element types.Element, point types.Point) error {
@@ -120,7 +124,7 @@ func (d *Driver) MoveTo(element types.Element, point types.Point) error {
 		}
 	}
 
-	return d.Session.Execute("moveto", "POST", request, &struct{}{})
+	return d.Session.Execute("moveto", "POST", request)
 }
 
 func (d *Driver) Execute(body string, arguments []interface{}, result interface{}) error {
@@ -137,13 +141,13 @@ func (d *Driver) Execute(body string, arguments []interface{}, result interface{
 }
 
 func (d *Driver) Forward() error {
-	return d.Session.Execute("forward", "POST", nil, &struct{}{})
+	return d.Session.Execute("forward", "POST", nil)
 }
 
 func (d *Driver) Back() error {
-	return d.Session.Execute("back", "POST", nil, &struct{}{})
+	return d.Session.Execute("back", "POST", nil)
 }
 
 func (d *Driver) Refresh() error {
-	return d.Session.Execute("refresh", "POST", nil, &struct{}{})
+	return d.Session.Execute("refresh", "POST", nil)
 }

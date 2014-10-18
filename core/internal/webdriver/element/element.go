@@ -8,11 +8,11 @@ import (
 
 type Element struct {
 	ID      string
-	Session executable
+	Session session
 }
 
-type executable interface {
-	Execute(endpoint, method string, body, result interface{}) error
+type session interface {
+	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
 func (e *Element) GetID() string {

@@ -45,66 +45,94 @@ var _ = Describe("Session", func() {
 	})
 
 	Describe("#Execute", func() {
+		Context("with an invalid request body", func() {
+			It("returns an invalid request body error", func() {
+				err = session.Execute("some/endpoint", "POST", func() {})
+				Expect(err).To(MatchError("invalid request body: json: unsupported type: func()"))
+			})
+		})
+
+		Context("with a valid request body", func() {
+			It("makes a request with the provided body", func() {
+				body := struct{ SomeValue string }{"some request value"}
+				session.Execute("some/endpoint", "POST", body)
+				Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))
+			})
+		})
+
+		Context("when the provided body is nil", func() {
+			It("makes a request without a body", func() {
+				err := session.Execute("some/endpoint", "POST", nil)
+				Expect(requestBody).To(BeEmpty())
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
 		It("makes a request with the full session endpoint", func() {
-			session.Execute("some/endpoint", "GET", nil, &result)
+			session.Execute("some/endpoint", "GET", nil)
 			Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
 		})
 
+		Context("when the session endpoint is empty", func() {
+			It("makes a request to the session itself", func() {
+				session.Execute("", "GET", nil)
+				Expect(requestPath).To(Equal("/session/some-id"))
+			})
+		})
+
 		It("makes a request with the given method", func() {
-			session.Execute("some/endpoint", "GET", nil, &result)
+			session.Execute("some/endpoint", "GET", nil)
 			Expect(requestMethod).To(Equal("GET"))
 		})
 
 		Context("with an invalid URL", func() {
 			It("returns an invalid request error", func() {
 				session.URL = "%@#$%"
-				err = session.Execute("some/endpoint", "GET", nil, &result)
+				err = session.Execute("some/endpoint", "GET", nil)
 				Expect(err).To(MatchError(`invalid request: parse %@: invalid URL escape "%@"`))
 			})
 		})
 
-		Context("for a GET request", func() {
-			BeforeEach(func() {
-				err = session.Execute("some/endpoint", "GET", nil, &result)
-			})
-
-			It("makes a request without a body", func() {
-				Expect(requestBody).To(BeEmpty())
-			})
-
-			It("makes a request without a content type", func() {
-				Expect(requestContentType).To(BeEmpty())
-			})
-
-			It("does not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
+		Context("for a POST request", func() {
+			It("makes a request with content type application/json", func() {
+				session.Execute("some/endpoint", "POST", nil)
+				Expect(requestContentType).To(Equal("application/json"))
 			})
 		})
 
-		Context("for a POST request", func() {
-			Context("with a valid request body", func() {
-				BeforeEach(func() {
-					body := struct{ SomeValue string }{"some request value"}
-					err = session.Execute("some/endpoint", "POST", body, &result)
-				})
+		Context("when the request fails entirely", func() {
+			It("returns an error indicating that the request failed", func() {
+				server.Close()
+				err = session.Execute("some/endpoint", "GET", nil)
+				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
+			})
+		})
 
-				It("makes a request with the provided body", func() {
-					Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))
-				})
-
-				It("makes a request with content type application/json", func() {
-					Expect(requestContentType).To(Equal("application/json"))
-				})
-
-				It("does not return an error", func() {
-					Expect(err).NotTo(HaveOccurred())
+		Context("when the server responds with a non-2xx status code", func() {
+			Context("when the server has a valid error message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{"value": {"message": "{\"errorMessage\": \"some error\"}"}}`
+					err = session.Execute("some/endpoint", "GET", nil)
+					Expect(err).To(MatchError("request unsuccessful: some error"))
 				})
 			})
 
-			Context("with an invalid request body", func() {
-				It("returns an invalid request body error", func() {
-					err = session.Execute("some/endpoint", "POST", func() {}, &result)
-					Expect(err).To(MatchError("invalid request body: json: unsupported type: func()"))
+			Context("when the server does not have a valid message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{}}`
+					err = session.Execute("some/endpoint", "GET", nil)
+					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
+				})
+			})
+
+			Context("when the server does not have a valid error message", func() {
+				It("returns an error from the server indicating that the request failed", func() {
+					responseStatus = 400
+					responseBody = `{"value": {"message": "{}}"}}`
+					err = session.Execute("some/endpoint", "GET", nil)
+					Expect(err).To(MatchError("request unsuccessful: error message unreadable"))
 				})
 			})
 		})
@@ -115,7 +143,7 @@ var _ = Describe("Session", func() {
 					err = session.Execute("some/endpoint", "GET", nil, &result)
 				})
 
-				It("unmashals the returned JSON into the provided result", func() {
+				It("unmashals the returned JSON into the result, if provided", func() {
 					Expect(result.Some).To(Equal("response value"))
 				})
 
@@ -130,89 +158,6 @@ var _ = Describe("Session", func() {
 					err = session.Execute("some/endpoint", "GET", nil, &result)
 					Expect(err).To(MatchError("failed to parse response value: json: cannot unmarshal string into Go value of type struct { Some string }"))
 				})
-			})
-		})
-
-		Context("when the request fails entirely", func() {
-			It("returns an error indicating that the request failed", func() {
-				server.Close()
-				err = session.Execute("some/endpoint", "GET", nil, &result)
-				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
-			})
-		})
-
-		Context("when the server responds with a non-2xx status code", func() {
-			Context("when the server has a valid error message", func() {
-				It("returns an error from the server indicating that the request failed", func() {
-					responseStatus = 400
-					responseBody = `{"value": {"message": "{\"errorMessage\": \"some error\"}"}}`
-					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("request unsuccessful: some error"))
-				})
-			})
-
-			Context("when the server does not have a valid message", func() {
-				It("returns an error from the server indicating that the request failed", func() {
-					responseStatus = 400
-					responseBody = `{}}`
-					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
-				})
-			})
-
-			Context("when the server does not have a valid error message", func() {
-				It("returns an error from the server indicating that the request failed", func() {
-					responseStatus = 400
-					responseBody = `{"value": {"message": "{}}"}}`
-					err = session.Execute("some/endpoint", "GET", nil, &result)
-					Expect(err).To(MatchError("request unsuccessful: error message unreadable"))
-				})
-			})
-		})
-	})
-
-	Describe("#Destroy", func() {
-		BeforeEach(func() {
-			err = session.Destroy()
-		})
-
-		It("makes a request to the session ID", func() {
-			Expect(requestPath).To(Equal("/session/some-id"))
-		})
-
-		It("makes a request with the DELETE method", func() {
-			Expect(requestMethod).To(Equal("DELETE"))
-		})
-
-		It("makes a request without a body", func() {
-			Expect(requestBody).To(BeEmpty())
-		})
-
-		It("does not return an error when successful", func() {
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		Context("with an invalid URL", func() {
-			It("returns an invalid request error", func() {
-				session.URL = "%@#$%"
-				err = session.Destroy()
-				Expect(err).To(MatchError(`invalid request: parse %@: invalid URL escape "%@"`))
-			})
-		})
-
-		Context("when the request fails entirely", func() {
-			It("returns an error indicating that the request failed", func() {
-				server.Close()
-				err = session.Destroy()
-				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
-			})
-		})
-
-		Context("when the server responds with a non-2xx status code", func() {
-			It("returns an error from the server indicating that the request failed", func() {
-				responseStatus = 400
-				err = session.Destroy()
-				Expect(err).To(MatchError("failed to delete session"))
 			})
 		})
 	})

@@ -19,8 +19,8 @@ type Browser interface {
 	// Start launches the WebDriver process
 	Start() error
 
-	// Stop ends all sessions and stops the WebDriver process
-	Stop() (nonFatal error)
+	// Stop ends all remaining sessions and stops the WebDriver process
+	Stop()
 
 	// Page returns a new WebDriver session.
 	// For Selenium, browserName is the type of browser ("firefox", "safari", "chrome", etc.)

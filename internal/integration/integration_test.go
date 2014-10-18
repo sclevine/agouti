@@ -3,6 +3,7 @@ package integration_test
 import (
 	"time"
 
+	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
 	. "github.com/sclevine/agouti/dsl"
@@ -17,6 +18,10 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		page = CreatePage()
 		page.Size(640, 480)
 		page.Navigate(Server.URL)
+	})
+
+	AfterEach(func() {
+		page.Destroy()
 	})
 
 	Scenario("finding the page title", func() {

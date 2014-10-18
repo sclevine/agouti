@@ -11,18 +11,14 @@ import (
 )
 
 type Browser struct {
-	Service  browserService
-	sessions []destroyable
+	Service browserService
+	pages   []types.Page
 }
 
 type browserService interface {
 	Start() error
 	Stop()
 	CreateSession(capabilities *service.Capabilities) (*session.Session, error)
-}
-
-type destroyable interface {
-	Destroy() error
 }
 
 func (b *Browser) Start() error {
@@ -33,11 +29,9 @@ func (b *Browser) Start() error {
 	return nil
 }
 
-func (b *Browser) Stop() (nonFatal error) {
-	for _, pageSession := range b.sessions {
-		if err := pageSession.Destroy(); err != nil {
-			nonFatal = errors.New("failed to destroy all running sessions")
-		}
+func (b *Browser) Stop() {
+	for _, browserPage := range b.pages {
+		browserPage.Destroy()
 	}
 
 	b.Service.Stop()
@@ -57,7 +51,8 @@ func (b *Browser) Page(browserName ...string) (types.Page, error) {
 		return nil, fmt.Errorf("failed to generate page: %s", err)
 	}
 
-	b.sessions = append(b.sessions, pageSession)
 	pageDriver := &webdriver.Driver{Session: pageSession}
-	return &page.Page{Driver: pageDriver}, nil
+	newPage := &page.Page{Driver: pageDriver}
+	b.pages = append(b.pages, newPage)
+	return newPage, nil
 }

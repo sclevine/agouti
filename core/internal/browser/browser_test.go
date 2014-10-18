@@ -47,14 +47,13 @@ var _ = Describe("Browser", func() {
 		var (
 			fakeServer      *httptest.Server
 			deletedSessions int
-			destroyStatus   int
 		)
 
 		BeforeEach(func() {
-			destroyStatus = http.StatusOK
-			fakeServer = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, _ *http.Request) {
-				deletedSessions += 1
-				response.WriteHeader(destroyStatus)
+			fakeServer = httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, request *http.Request) {
+				if request.Method == "DELETE" && request.URL.Path == "/" {
+					deletedSessions += 1
+				}
 			}))
 			service.CreateSessionCall.ReturnSession = &session.Session{URL: fakeServer.URL}
 			browser.Page()
@@ -70,27 +69,9 @@ var _ = Describe("Browser", func() {
 			Expect(deletedSessions).To(Equal(2))
 		})
 
-		Context("when all session destroys succeed", func() {
-			It("stops the service", func() {
-				browser.Stop()
-				Expect(service.StopCall.Called).To(BeTrue())
-			})
-		})
-
-		Context("when any session destroys fail", func() {
-			BeforeEach(func() {
-				destroyStatus = http.StatusBadRequest
-			})
-
-			It("returns a non-fatal error", func() {
-				err := browser.Stop()
-				Expect(err).To(MatchError("failed to destroy all running sessions"))
-			})
-
-			It("stops the service regardless", func() {
-				browser.Stop()
-				Expect(service.StopCall.Called).To(BeTrue())
-			})
+		It("stops the service", func() {
+			browser.Stop()
+			Expect(service.StopCall.Called).To(BeTrue())
 		})
 	})
 
@@ -115,6 +96,14 @@ var _ = Describe("Browser", func() {
 			It("returns an error", func() {
 				_, err := browser.Page("one", "two")
 				Expect(err).To(MatchError("too many arguments"))
+			})
+		})
+
+		Context("when creating the session fails", func() {
+			It("returns an error", func() {
+				service.CreateSessionCall.Err = errors.New("some error")
+				_, err := browser.Page()
+				Expect(err).To(MatchError("failed to generate page: some error"))
 			})
 		})
 

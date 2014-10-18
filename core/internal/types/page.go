@@ -1,6 +1,7 @@
 package types
 
 type Page interface {
+	Destroy() error
 	Navigate(url string) error
 	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
 	DeleteCookie(name string) error

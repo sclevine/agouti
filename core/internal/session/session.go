@@ -3,18 +3,18 @@ package session
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type Session struct {
 	URL string
 }
 
-func (s *Session) Execute(endpoint, method string, body, result interface{}) error {
+func (s *Session) Execute(endpoint, method string, body interface{}, result ...interface{}) error {
 	client := &http.Client{}
 
 	var bodyReader io.Reader
@@ -26,7 +26,7 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 		bodyReader = bytes.NewReader(bodyJSON)
 	}
 
-	request, err := http.NewRequest(method, s.URL+"/"+endpoint, bodyReader)
+	request, err := http.NewRequest(method, strings.TrimSuffix(s.URL+"/"+endpoint, "/"), bodyReader)
 	if err != nil {
 		return fmt.Errorf("invalid request: %s", err)
 	}
@@ -56,29 +56,12 @@ func (s *Session) Execute(endpoint, method string, body, result interface{}) err
 		return fmt.Errorf("request unsuccessful: %s", errMessage.ErrorMessage)
 	}
 
-	bodyValue := struct{ Value interface{} }{result}
+	if len(result) > 0 {
+		bodyValue := struct{ Value interface{} }{result[0]}
 
-	if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
-		return fmt.Errorf("failed to parse response value: %s", err)
-	}
-
-	return nil
-}
-
-func (s *Session) Destroy() error {
-	client := &http.Client{}
-	request, err := http.NewRequest("DELETE", s.URL, nil)
-	if err != nil {
-		return fmt.Errorf("invalid request: %s", err)
-	}
-
-	response, err := client.Do(request)
-	if err != nil {
-		return fmt.Errorf("request failed: %s", err)
-	}
-
-	if response.StatusCode != 200 {
-		return errors.New("failed to delete session")
+		if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
+			return fmt.Errorf("failed to parse response value: %s", err)
+		}
 	}
 
 	return nil

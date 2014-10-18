@@ -14,6 +14,7 @@ type Page struct {
 }
 
 type driver interface {
+	DeleteSession() error
 	GetWindow() (types.Window, error)
 	GetScreenshot() ([]byte, error)
 	SetCookie(cookie *types.Cookie) error
@@ -30,6 +31,13 @@ type driver interface {
 	Forward() error
 	Back() error
 	Refresh() error
+}
+
+func (p *Page) Destroy() error {
+	if err := p.Driver.DeleteSession(); err != nil {
+		return fmt.Errorf("failed to destroy session: %s", err)
+	}
+	return nil
 }
 
 func (p *Page) Navigate(url string) error {
