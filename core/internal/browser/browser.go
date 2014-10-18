@@ -17,7 +17,7 @@ type Browser struct {
 type browserService interface {
 	Start() error
 	Stop()
-	CreateSession(capabilities *session.Capabilities) (*session.Session, error)
+	CreateSession(capabilities map[string]interface{}) (*session.Session, error)
 }
 
 func (b *Browser) Start() error {
@@ -38,9 +38,9 @@ func (b *Browser) Stop() {
 }
 
 func (b *Browser) Page(browserName ...string) (types.Page, error) {
-	capabilites := &session.Capabilities{}
+	capabilites := map[string]interface{}{}
 	if len(browserName) == 1 {
-		capabilites.BrowserName = browserName[0]
+		capabilites["browserName"] = browserName[0]
 	} else if len(browserName) > 1 {
 		return nil, errors.New("too many arguments")
 	}

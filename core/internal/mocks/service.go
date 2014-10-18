@@ -15,7 +15,7 @@ type Service struct {
 	}
 
 	CreateSessionCall struct {
-		Capabilities  *session.Capabilities
+		Capabilities  map[string]interface{}
 		ReturnSession *session.Session
 		Err           error
 	}
@@ -30,7 +30,7 @@ func (s *Service) Stop() {
 	s.StopCall.Called = true
 }
 
-func (s *Service) CreateSession(capabilities *session.Capabilities) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities map[string]interface{}) (*session.Session, error) {
 	s.CreateSessionCall.Capabilities = capabilities
 	return s.CreateSessionCall.ReturnSession, s.CreateSessionCall.Err
 }

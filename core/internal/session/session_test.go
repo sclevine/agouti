@@ -163,10 +163,10 @@ var _ = Describe("Session", func() {
 	})
 
 	Describe(".Open", func() {
-		var capabilities *Capabilities
+		var capabilities map[string]interface{}
 
 		BeforeEach(func() {
-			capabilities = &Capabilities{}
+			capabilities = map[string]interface{}{}
 		})
 
 		It("makes a POST request using the desired browser name", func() {
@@ -177,9 +177,9 @@ var _ = Describe("Session", func() {
 				requestBody = string(requestBodyBytes)
 			}))
 			defer fakeServer.Close()
-			capabilities.BrowserName = "some-browser"
+			capabilities["browserName"] = "some-browser"
 			Open(fakeServer.URL, capabilities)
-			Expect(requestBody).To(Equal(`{"desiredCapabilities": {"browserName":"some-browser"}}`))
+			Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
 		})
 
 		Context("when the request is invalid", func() {

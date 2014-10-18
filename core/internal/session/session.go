@@ -15,12 +15,6 @@ type Session struct {
 	URL string
 }
 
-type Capabilities struct {
-	BrowserName string `json:"browserName,omitempty"`
-	Version     string `json:"version,omitempty"`
-	Platform    string `json:"platform,omitempty"`
-}
-
 func (s *Session) Execute(endpoint, method string, body interface{}, result ...interface{}) error {
 	client := &http.Client{}
 
@@ -74,10 +68,13 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	return nil
 }
 
-func Open(url string, capabilities *Capabilities) (*Session, error) {
-	capabilitiesJSON, _ := json.Marshal(capabilities)
-	desiredCapabilities := fmt.Sprintf(`{"desiredCapabilities": %s}`, capabilitiesJSON)
-	postBody := strings.NewReader(desiredCapabilities)
+func Open(url string, capabilities map[string]interface{}) (*Session, error) {
+	desiredCapabilities := struct {
+		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
+	}{capabilities}
+
+	desiredCapabilitiesJSON, _ := json.Marshal(desiredCapabilities)
+	postBody := bytes.NewReader(desiredCapabilitiesJSON)
 
 	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", url), postBody)
 	if err != nil {

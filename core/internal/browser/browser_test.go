@@ -80,7 +80,7 @@ var _ = Describe("Browser", func() {
 			It("creates a session with no browser name", func() {
 				_, err := browser.Page()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(service.CreateSessionCall.Capabilities.BrowserName).To(Equal(""))
+				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(BeNil())
 			})
 		})
 
@@ -88,7 +88,7 @@ var _ = Describe("Browser", func() {
 			It("creates a session with the provided browser name", func() {
 				_, err := browser.Page("some-name")
 				Expect(err).NotTo(HaveOccurred())
-				Expect(service.CreateSessionCall.Capabilities.BrowserName).To(Equal("some-name"))
+				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(Equal("some-name"))
 			})
 		})
 

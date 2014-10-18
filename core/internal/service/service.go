@@ -86,7 +86,7 @@ func (s *Service) Stop() {
 	s.process = nil
 }
 
-func (s *Service) CreateSession(capabilities *session.Capabilities) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities map[string]interface{}) (*session.Session, error) {
 	if s.process == nil {
 		return nil, fmt.Errorf("%s not running", s.name())
 	}

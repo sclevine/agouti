@@ -9,7 +9,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/service"
-	"github.com/sclevine/agouti/core/internal/session"
 )
 
 var _ = Describe("Service", func() {
@@ -92,10 +91,10 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("#CreateSession", func() {
-		var capabilities *session.Capabilities
+		var capabilities map[string]interface{}
 
 		BeforeEach(func() {
-			capabilities = &session.Capabilities{BrowserName: "some-browser"}
+			capabilities = map[string]interface{}{"browserName": "some-browser"}
 		})
 
 		Context("when the server is not running", func() {
@@ -120,7 +119,7 @@ var _ = Describe("Service", func() {
 				service.URL = fakeServer.URL
 				newSession, err := service.CreateSession(capabilities)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(requestBody).To(Equal(`{"desiredCapabilities": {"browserName":"some-browser"}}`))
+				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
 				Expect(newSession.URL).To(ContainSubstring("/session/some-id"))
 			})
 
