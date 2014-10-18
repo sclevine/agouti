@@ -161,4 +161,62 @@ var _ = Describe("Session", func() {
 			})
 		})
 	})
+
+	Describe(".Open", func() {
+		var capabilities *Capabilities
+
+		BeforeEach(func() {
+			capabilities = &Capabilities{}
+		})
+
+		It("makes a POST request using the desired browser name", func() {
+			var requestBody string
+
+			fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
+				requestBody = string(requestBodyBytes)
+			}))
+			defer fakeServer.Close()
+			capabilities.BrowserName = "some-browser"
+			Open(fakeServer.URL, capabilities)
+			Expect(requestBody).To(Equal(`{"desiredCapabilities": {"browserName":"some-browser"}}`))
+		})
+
+		Context("when the request is invalid", func() {
+			It("returns the invalid request error", func() {
+				_, err := Open("%@#$%", capabilities)
+				Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
+			})
+		})
+
+		Context("when the request fails", func() {
+			It("returns the failed request error", func() {
+				_, err := Open("http://#", capabilities)
+				Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
+			})
+		})
+
+		Context("if the request does not contain a session ID", func() {
+			It("returns an error indicating that it failed to receive a session ID", func() {
+				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+					response.Write([]byte("{}"))
+				}))
+				defer fakeServer.Close()
+				_, err := Open(fakeServer.URL, capabilities)
+				Expect(err).To(MatchError("failed to retrieve a session ID"))
+			})
+		})
+
+		Context("if the request succeeds", func() {
+			It("returns a session with session URL", func() {
+				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+					response.Write([]byte(`{"sessionId": "some-id"}`))
+				}))
+				defer fakeServer.Close()
+				session, err := Open(fakeServer.URL, capabilities)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(session.URL).To(ContainSubstring("/session/some-id"))
+			})
+		})
+	})
 })

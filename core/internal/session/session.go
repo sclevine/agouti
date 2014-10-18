@@ -3,6 +3,7 @@ package session
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +13,12 @@ import (
 
 type Session struct {
 	URL string
+}
+
+type Capabilities struct {
+	BrowserName string `json:"browserName,omitempty"`
+	Version     string `json:"version,omitempty"`
+	Platform    string `json:"platform,omitempty"`
 }
 
 func (s *Session) Execute(endpoint, method string, body interface{}, result ...interface{}) error {
@@ -65,4 +72,33 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	}
 
 	return nil
+}
+
+func Open(url string, capabilities *Capabilities) (*Session, error) {
+	capabilitiesJSON, _ := json.Marshal(capabilities)
+	desiredCapabilities := fmt.Sprintf(`{"desiredCapabilities": %s}`, capabilitiesJSON)
+	postBody := strings.NewReader(desiredCapabilities)
+
+	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", url), postBody)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	var sessionResponse struct{ SessionID string }
+
+	body, _ := ioutil.ReadAll(response.Body)
+	json.Unmarshal(body, &sessionResponse)
+
+	if sessionResponse.SessionID == "" {
+		return nil, errors.New("failed to retrieve a session ID")
+	}
+
+	sessionURL := fmt.Sprintf("%s/session/%s", url, sessionResponse.SessionID)
+	return &Session{sessionURL}, nil
 }

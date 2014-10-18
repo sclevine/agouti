@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sclevine/agouti/core/internal/page"
-	"github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/session"
 	"github.com/sclevine/agouti/core/internal/types"
 	"github.com/sclevine/agouti/core/internal/webdriver"
@@ -18,7 +17,7 @@ type Browser struct {
 type browserService interface {
 	Start() error
 	Stop()
-	CreateSession(capabilities *service.Capabilities) (*session.Session, error)
+	CreateSession(capabilities *session.Capabilities) (*session.Session, error)
 }
 
 func (b *Browser) Start() error {
@@ -39,7 +38,7 @@ func (b *Browser) Stop() {
 }
 
 func (b *Browser) Page(browserName ...string) (types.Page, error) {
-	capabilites := &service.Capabilities{}
+	capabilites := &session.Capabilities{}
 	if len(browserName) == 1 {
 		capabilites.BrowserName = browserName[0]
 	} else if len(browserName) > 1 {

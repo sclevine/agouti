@@ -1,7 +1,6 @@
 package mocks
 
 import (
-	"github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/session"
 )
 
@@ -16,7 +15,7 @@ type Service struct {
 	}
 
 	CreateSessionCall struct {
-		Capabilities  *service.Capabilities
+		Capabilities  *session.Capabilities
 		ReturnSession *session.Session
 		Err           error
 	}
@@ -31,7 +30,7 @@ func (s *Service) Stop() {
 	s.StopCall.Called = true
 }
 
-func (s *Service) CreateSession(capabilities *service.Capabilities) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities *session.Capabilities) (*session.Session, error) {
 	s.CreateSessionCall.Capabilities = capabilities
 	return s.CreateSessionCall.ReturnSession, s.CreateSessionCall.Err
 }

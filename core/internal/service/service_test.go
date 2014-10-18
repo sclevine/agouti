@@ -1,36 +1,38 @@
 package service_test
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/service"
-	"io/ioutil"
-	"net"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"time"
+	"github.com/sclevine/agouti/core/internal/session"
 )
-
-func freeAddress() string {
-	listener, _ := net.Listen("tcp", "127.0.0.1:0")
-	defer listener.Close()
-	return listener.Addr().String()
-}
 
 var _ = Describe("Service", func() {
 	var (
 		service *Service
-		url     string
+		started bool
 	)
 
 	BeforeEach(func() {
-		address := freeAddress()
-		url = "http://" + address
+		started = false
+
+		fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+			if started && request.URL.Path == "/status" {
+				response.WriteHeader(200)
+			} else {
+				response.WriteHeader(400)
+			}
+		}))
+
 		service = &Service{
-			URL:     url,
-			Timeout: 5 * time.Second,
-			Command: []string{"phantomjs", "--webdriver=" + address},
+			URL:     fakeServer.URL,
+			Timeout: 1500 * time.Millisecond,
+			Command: []string{"read"},
 		}
 	})
 
@@ -38,138 +40,99 @@ var _ = Describe("Service", func() {
 		Context("when the service is started multiple times", func() {
 			It("returns an error indicating that service is already running", func() {
 				defer service.Stop()
+				started = true
 				Expect(service.Start()).To(Succeed())
 				err := service.Start()
-				Expect(err).To(MatchError("phantomjs is already running"))
-			})
-		})
-
-		Context("when the binary is available in PATH", func() {
-			var err error
-
-			BeforeEach(func() {
-				err = service.Start()
-			})
-
-			AfterEach(func() {
-				service.Stop()
-			})
-
-			It("does not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
-			})
-
-			It("starts a webdriver server on the provided port", func() {
-				response, _ := http.Get(url + "/status")
-				body, _ := ioutil.ReadAll(response.Body)
-				Expect(string(body)).To(ContainSubstring(`"status":0`))
+				Expect(err).To(MatchError("read is already running"))
 			})
 		})
 
 		Context("when the binary is not available in PATH", func() {
 			It("returns an error indicating the binary needs to be installed", func() {
-				oldPATH := os.Getenv("PATH")
-				os.Setenv("PATH", "")
+				service.Command = []string{"not-in-path"}
 				err := service.Start()
-				Expect(err).To(MatchError("unable to run phantomjs: exec: \"phantomjs\": executable file not found in $PATH"))
-				os.Setenv("PATH", oldPATH)
+				Expect(err).To(MatchError("unable to run not-in-path: exec: \"not-in-path\": executable file not found in $PATH"))
 			})
 		})
 
-		Context("when the service fails to start after the provided timeout", func() {
-			It("returns an error indicating that it failed to start", func() {
-				service.Timeout = 0
-				Expect(service.Start()).To(MatchError("phantomjs webdriver failed to start"))
+		Context("when the service starts before the provided timeout", func() {
+			It("does not return an error", func() {
+				defer service.Stop()
+				go func() {
+					time.Sleep(200 * time.Millisecond)
+					started = true
+				}()
+				err := service.Start()
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the service does not start before the provided timeout", func() {
+			It("returns an error", func() {
+				defer service.Stop()
+				go func() {
+					time.Sleep(3000 * time.Millisecond)
+					started = true
+				}()
+				err := service.Start()
+				Expect(err).To(MatchError("read webdriver failed to start"))
 			})
 		})
 	})
 
 	Describe("#Stop", func() {
 		It("stops a running server", func() {
+			defer service.Stop()
+			started = true
 			service.Start()
 			service.Stop()
-			_, err := http.Get(url + "/status")
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("does nothing if the service has not been started", func() {
-			service.Stop()
+			err := service.Start()
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
 	Describe("#CreateSession", func() {
-		var capabilities *Capabilities
+		var capabilities *session.Capabilities
 
 		BeforeEach(func() {
-			capabilities = &Capabilities{}
+			capabilities = &session.Capabilities{BrowserName: "some-browser"}
 		})
 
-		Context("with a running server", func() {
-			BeforeEach(func() {
+		Context("when the server is not running", func() {
+			It("returns an error", func() {
+				_, err := service.CreateSession(capabilities)
+				Expect(err).To(MatchError("read not running"))
+			})
+		})
+
+		Context("when the server is running", func() {
+			It("attempts to open a session using the desired capabilties", func() {
+				defer service.Stop()
+				started = true
 				service.Start()
-			})
-
-			AfterEach(func() {
-				service.Stop()
-			})
-
-			It("makes a POST request using the desired browser name", func() {
 				var requestBody string
-
 				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 					requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 					requestBody = string(requestBodyBytes)
+					response.Write([]byte(`{"sessionId": "some-id"}`))
 				}))
 				defer fakeServer.Close()
 				service.URL = fakeServer.URL
-				capabilities.BrowserName = "some-browser"
-				service.CreateSession(capabilities)
+				newSession, err := service.CreateSession(capabilities)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(requestBody).To(Equal(`{"desiredCapabilities": {"browserName":"some-browser"}}`))
+				Expect(newSession.URL).To(ContainSubstring("/session/some-id"))
 			})
 
-			Context("if the request is invalid", func() {
-				It("returns the invalid request error", func() {
+			Context("when opening a new session fails", func() {
+				It("returns the session error", func() {
+					defer service.Stop()
+					started = true
+					service.Start()
 					service.URL = "%@#$%"
 					_, err := service.CreateSession(capabilities)
 					Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
 				})
-			})
-
-			Context("if the request fails", func() {
-				It("returns the failed request error", func() {
-					service.URL = "http://#"
-					_, err := service.CreateSession(capabilities)
-					Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
-				})
-			})
-
-			Context("if the request does not contain a session ID", func() {
-				It("returns an error indicating that it failed to receive a session ID", func() {
-					fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-						response.Write([]byte("{}"))
-					}))
-					defer fakeServer.Close()
-					service.URL = fakeServer.URL
-					_, err := service.CreateSession(capabilities)
-					Expect(err).To(MatchError("phantomjs webdriver failed to return a session ID"))
-				})
-			})
-
-			Context("if the request succeeds", func() {
-				It("returns a session with session URL", func() {
-					session, err := service.CreateSession(capabilities)
-					Expect(err).NotTo(HaveOccurred())
-					Expect(session.URL).To(MatchRegexp(`http://127\.0\.0\.1:[0-9]+/session/([0-9a-f]+-)+[0-9a-f]+`))
-				})
-			})
-		})
-
-		Context("without a running server", func() {
-			It("returns an error", func() {
-				service.Start()
-				service.Stop()
-				_, err := service.CreateSession(capabilities)
-				Expect(err).To(MatchError("phantomjs not running"))
 			})
 		})
 	})

@@ -1,16 +1,14 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/session"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 	"syscall"
 	"time"
+
+	"github.com/sclevine/agouti/core/internal/session"
 )
 
 type Service struct {
@@ -18,12 +16,6 @@ type Service struct {
 	Timeout time.Duration
 	Command []string
 	process *os.Process
-}
-
-type Capabilities struct {
-	BrowserName string `json:"browserName,omitempty"`
-	Version     string `json:"version,omitempty"`
-	Platform    string `json:"platform,omitempty"`
 }
 
 func (s *Service) name() string {
@@ -47,22 +39,19 @@ func (s *Service) Start() error {
 }
 
 func (s *Service) waitForServer() error {
-	client := &http.Client{}
-	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.URL), nil)
-
 	timeoutChan := time.After(s.Timeout)
 	failedChan := make(chan struct{}, 1)
 	startedChan := make(chan struct{})
 
 	go func() {
-		_, err := client.Do(request)
-		for err != nil {
+		up := s.checkStatus()
+		for !up {
 			select {
 			case <-failedChan:
 				return
 			default:
 				time.Sleep(500 * time.Millisecond)
-				_, err = client.Do(request)
+				up = s.checkStatus()
 			}
 		}
 		startedChan <- struct{}{}
@@ -78,6 +67,16 @@ func (s *Service) waitForServer() error {
 	}
 }
 
+func (s *Service) checkStatus() bool {
+	client := &http.Client{}
+	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.URL), nil)
+	response, err := client.Do(request)
+	if err == nil && response.StatusCode == 200 {
+		return true
+	}
+	return false
+}
+
 func (s *Service) Stop() {
 	if s.process == nil {
 		return
@@ -87,35 +86,10 @@ func (s *Service) Stop() {
 	s.process = nil
 }
 
-func (s *Service) CreateSession(capabilities *Capabilities) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities *session.Capabilities) (*session.Session, error) {
 	if s.process == nil {
 		return nil, fmt.Errorf("%s not running", s.name())
 	}
 
-	capabilitiesJSON, _ := json.Marshal(capabilities)
-	desiredCapabilities := fmt.Sprintf(`{"desiredCapabilities": %s}`, capabilitiesJSON)
-	postBody := strings.NewReader(desiredCapabilities)
-
-	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", s.URL), postBody)
-	if err != nil {
-		return nil, err
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-
-	var sessionResponse struct{ SessionID string }
-
-	body, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal(body, &sessionResponse)
-
-	if sessionResponse.SessionID == "" {
-		return nil, fmt.Errorf("%s webdriver failed to return a session ID", s.name())
-	}
-
-	sessionURL := fmt.Sprintf("%s/session/%s", s.URL, sessionResponse.SessionID)
-	return &session.Session{URL: sessionURL}, nil
+	return session.Open(s.URL, capabilities)
 }
