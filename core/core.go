@@ -3,18 +3,22 @@ package core
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/service"
-	"github.com/sclevine/agouti/core/internal/types"
-	"github.com/sclevine/agouti/core/internal/webdriver"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/sclevine/agouti/core/internal/service"
+	"github.com/sclevine/agouti/core/internal/types"
+	"github.com/sclevine/agouti/core/internal/webdriver"
+	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/core/internal/page"
+	"github.com/sclevine/agouti/core/internal/api"
 )
 
 type Selection types.Selection
 type Page types.Page
 
-// WebDriver represents a Selenium, PhantomJS, or Chrome (via ChromeDriver) WebDriver process
+// WebDriver represents a Selenium, PhantomJS, or ChromeDriver process
 type WebDriver interface {
 	// Start launches the WebDriver process
 	Start() error
@@ -27,7 +31,7 @@ type WebDriver interface {
 	Page(browserName ...string) (types.Page, error)
 }
 
-// Chrome returns an instance of a Chrome WebDriver via ChromeDriver
+// Chrome returns an instance of a ChromeDriver WebDriver
 func Chrome() (WebDriver, error) {
 	address, err := freeAddress()
 	if err != nil {
@@ -69,6 +73,26 @@ func Selenium() (WebDriver, error) {
 	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
 
 	return &webdriver.Driver{Service: service}, nil
+}
+
+// SauceLabs returns a Page with a Sauce Labs session
+func SauceLabs(name, platform, browser, version, username, key string) (Page, error) {
+	url := "http://ondemand.saucelabs.com/wd/hub"
+	capabilities := map[string]interface{}{
+		"name": name,
+		"platform": platform,
+		"browserName": browser,
+		"version": version,
+		"username": username,
+		"accessKey": key,
+	}
+	pageSession, err := session.Open(url, capabilities)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open connection to Sauce Labs: %s", err)
+	}
+
+	client := &api.Client{Session: pageSession}
+	return &page.Page{Client: client}, nil
 }
 
 func freeAddress() (string, error) {
