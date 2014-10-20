@@ -2,11 +2,13 @@ package types
 
 type Selection interface {
 	Find(selector string) Selection
-	FindXPath(selector string) Selection
-	FindLink(text string) Selection
+	FindByXPath(selector string) Selection
+	FindByLink(text string) Selection
 	FindByLabel(text string) Selection
-	All() MultiSelection
-	At(index int) Selection
+	All(selector string) MultiSelection
+	AllByXPath(selector string) MultiSelection
+	AllByLink(text string) MultiSelection
+	AllByLabel(text string) MultiSelection
 	String() string
 	Count() (int, error)
 	Click() error
@@ -26,6 +28,6 @@ type Selection interface {
 }
 
 type MultiSelection interface {
-	String() string
-	Visible() (bool, error)
+	Selection
+	At(index int) Selection
 }

@@ -85,7 +85,7 @@ import (
 
 ...
 
-Feature("Agouti", func() {
+Feature("Agouti running on PhantomJS", func() {
 	var page Page
 
 	Background(func() {
@@ -116,8 +116,8 @@ Feature("Agouti", func() {
 		})
 
 		Step("referring to an element by selection index", func() {
-			Expect(page.Find("option").At(0)).To(HaveText("first option"))
-			Expect(page.Find("select").At(1).Find("option").At(0)).To(HaveText("third option"))
+			Expect(page.All("option").At(0)).To(HaveText("first option"))
+			Expect(page.All("select").At(1).Find("option")).To(HaveText("third option"))
 		})
 
 		Step("matching text in the header", func() {
@@ -129,18 +129,18 @@ Feature("Agouti", func() {
 		})
 
 		Step("locating elements by XPath", func() {
-			Expect(page.Find("header").FindXPath("//h1")).To(HaveText("Title"))
+			Expect(page.Find("header").FindByXPath("//h1")).To(HaveText("Title"))
 		})
 
 		Step("comparing two selections for equality", func() {
-			Expect(page.Find("#some_element")).To(EqualElement(page.FindXPath("//div[@class='some-element']")))
+			Expect(page.Find("#some_element")).To(EqualElement(page.FindByXPath("//div[@class='some-element']")))
 		})
 	})
 
 	Scenario("selecting multiple elements", func() {
-		Step("currently only works for element visiblity", func() {
-			Expect(page.Find("select").At(0).Find("option").All()).To(BeVisible())
-			Expect(page.Find("h1,h2").All()).NotTo(BeVisible())
+		Step("asserting on their state", func() {
+			Expect(page.Find("select").All("option")).To(BeVisible())
+			Expect(page.All("h1,h2")).NotTo(BeVisible())
 		})
 	})
 
@@ -221,7 +221,7 @@ Feature("Agouti", func() {
 
 	Scenario("links and navigation", func() {
 		Step("allows clicking on a link", func() {
-			Click(page.FindLink("Click Me"))
+			Click(page.FindByLink("Click Me"))
 			Expect(page.URL()).To(ContainSubstring("#new_page"))
 		})
 

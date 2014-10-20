@@ -7,15 +7,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/service"
+	"github.com/sclevine/agouti/core/internal/session"
 	"github.com/sclevine/agouti/core/internal/types"
 	"github.com/sclevine/agouti/core/internal/webdriver"
-	"github.com/sclevine/agouti/core/internal/session"
-	"github.com/sclevine/agouti/core/internal/page"
-	"github.com/sclevine/agouti/core/internal/api"
 )
 
 type Selection types.Selection
+type MultiSelection types.MultiSelection
 type Page types.Page
 
 // WebDriver represents a Selenium, PhantomJS, or ChromeDriver process
@@ -79,12 +80,12 @@ func Selenium() (WebDriver, error) {
 func SauceLabs(name, platform, browser, version, username, key string) (Page, error) {
 	url := "http://ondemand.saucelabs.com/wd/hub"
 	capabilities := map[string]interface{}{
-		"name": name,
-		"platform": platform,
+		"name":        name,
+		"platform":    platform,
 		"browserName": browser,
-		"version": version,
-		"username": username,
-		"accessKey": key,
+		"version":     version,
+		"username":    username,
+		"accessKey":   key,
 	}
 	pageSession, err := session.Open(url, capabilities)
 	if err != nil {

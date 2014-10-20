@@ -10,18 +10,18 @@ type Selector struct {
 }
 
 func (s Selector) String() string {
-	text := s.Value
+	var index string
 	if s.Indexed {
-		text = text + fmt.Sprintf(" [%d]", s.Index)
+		index = fmt.Sprintf(" [%d]", s.Index)
 	}
 
 	switch s.Using {
 	case "css selector":
-		return "CSS: " + text
+		return "CSS: " + s.Value + index
 	case "xpath":
-		return "XPath: " + text
+		return "XPath: " + s.Value + index
 	case "link text":
-		return fmt.Sprintf(`Link: "%s"`, text)
+		return fmt.Sprintf(`Link: "%s"`, s.Value) + index
 	default:
 		return "Invalid selector"
 	}

@@ -11,228 +11,107 @@ import (
 
 var _ = Describe("Selection", func() {
 	var (
-		selection types.Selection
 		client    *mocks.Client
+		selection types.Selection
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		element = &mocks.Element{}
 		selection = &Selection{Client: client}
-		selection = selection.Find("#selector")
+		element = &mocks.Element{}
 	})
 
-	ItShouldEnsureASingleElement := func(matcher func() error) {
-		Context("ensures a single element is returned", func() {
-			It("should return an error with the number of elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(matcher()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
-			})
-		})
-	}
-
-	Describe("most methods: retrieving elements", func() {
-		var (
-			parentOne *mocks.Element
-			parentTwo *mocks.Element
-			count     int
-		)
-
-		BeforeEach(func() {
-			parentOne = &mocks.Element{}
-			parentTwo = &mocks.Element{}
-			parentOne.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
-			parentTwo.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
-			client.GetElementsCall.ReturnElements = []types.Element{parentOne, parentTwo}
-		})
-
-		Context("when successful without indices", func() {
-			BeforeEach(func() {
-				selection = selection.FindXPath("children")
-				count, _ = selection.Count()
-			})
-
-			It("should retrieve the parent elements using the client", func() {
-				Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
-			})
-
-			It("should retrieve the child elements of the parent selector", func() {
-				Expect(parentOne.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children"}))
-				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children"}))
-			})
-
-			It("should return all child elements of the terminal selector", func() {
-				Expect(count).To(Equal(4))
+	Describe("#At", func() {
+		Context("when called on a selection with no selectors", func() {
+			It("should return an empty selection", func() {
+				Expect(selection.(types.MultiSelection).At(1).String()).To(Equal(""))
 			})
 		})
 
-		Context("when successful with indices", func() {
-			BeforeEach(func() {
-				selection.At(1).FindXPath("children").At(1).Click()
-			})
-
-			It("should retrieve the parent elements using the client", func() {
-				Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector", Index: 1, Indexed: true}))
-			})
-
-			It("should retrieve the child elements of the parent selector", func() {
-				Expect(parentOne.GetElementsCall.Selector.Using).To(BeEmpty())
-				Expect(parentTwo.GetElementsCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children", Index: 1, Indexed: true}))
-			})
-
-			It("should return all child elements of the terminal selector", func() {
-				clickedElement := parentTwo.GetElementsCall.ReturnElements[1].(*mocks.Element)
-				Expect(clickedElement.ClickCall.Called).To(BeTrue())
-			})
-		})
-
-		Context("when there is no selection", func() {
-			BeforeEach(func() {
-				selection = &Selection{Client: client}
-			})
-
-			It("should return an error", func() {
-				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to retrieve elements for '': empty selection"))
-			})
-		})
-
-		Context("when retrieving the parent elements fails", func() {
-			BeforeEach(func() {
-				selection = selection.FindXPath("children")
-				client.GetElementsCall.Err = errors.New("some error")
-			})
-
-			It("should return the error", func() {
-				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector | XPath: children': some error"))
-			})
-		})
-
-		Context("when retrieving any of the child elements fails", func() {
-			BeforeEach(func() {
-				selection = selection.FindXPath("children")
-				parentTwo.GetElementsCall.Err = errors.New("some error")
-			})
-
-			It("should return the error", func() {
-				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector | XPath: children': some error"))
-			})
-		})
-
-		Context("when the first selection index is out of range", func() {
-			It("should return an error with the index and total number of elements", func() {
-				Expect(selection.At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector [2]': element index out of range (>1)"))
-			})
-		})
-
-		Context("when subsequent selection indices are out of range", func() {
-			It("should return an error with the index and total number of elements", func() {
-				Expect(selection.At(0).Find("#selector").At(2).Click()).To(MatchError("failed to retrieve element with 'CSS: #selector [0] | CSS: #selector [2]': element index out of range (>1)"))
-			})
-		})
-	})
-
-	Describe("#At & most methods: retrieving the selected element", func() {
-		It("should request an element from the client using the element's selector", func() {
-			selection.Click()
-			Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
-		})
-
-		Context("when the client fails to retrieve any elements", func() {
-			It("should return error from the client", func() {
-				client.GetElementsCall.Err = errors.New("some error")
-				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': some error"))
-			})
-		})
-
-		Context("when the client retrieves zero elements", func() {
-			It("should fail with an error indicating there were no elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{}
-				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': no element found"))
-			})
-		})
-
-		Context("when the client retrieves more than one element and indexing is disabled", func() {
-			It("should return an error with the number of elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{element, element}
-				Expect(selection.Click()).To(MatchError("failed to retrieve element with 'CSS: #selector': multiple elements (2) were selected"))
+		Context("when called on a selection with selectors ", func() {
+			It("should select an index of the current selectino", func() {
+				Expect(selection.All("#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
 			})
 		})
 	})
 
 	Describe("#Find", func() {
-		Context("when there is no selection", func() {
-			It("should add a new css selector to the selection", func() {
-				selection := &Selection{Client: client}
-				Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector"))
-			})
-		})
-
-		Context("when the selection ends with an xpath selector", func() {
-			It("should add a new css selector to the selection", func() {
-				xpath := selection.FindXPath("//subselector")
-				Expect(xpath.Find("#subselector").String()).To(Equal("CSS: #selector | XPath: //subselector | CSS: #subselector"))
-			})
-		})
-
-		Context("when the selection ends with an unindexed CSS selector", func() {
-			It("should modifie the terminal css selector to include the new selector", func() {
-				Expect(selection.Find("#subselector").String()).To(Equal("CSS: #selector #subselector"))
-			})
-		})
-
-		Context("when the selection ends with an indexed CSS selector", func() {
-			It("should add a new css selector to the selection", func() {
-				Expect(selection.At(0).Find("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
-			})
-		})
-
-		Context("when two CSS selections are created from the same XPath parent", func() {
-			It("should not overwrite the first created child", func() {
-				selection := &Selection{Client: client}
-				parent := selection.FindXPath("//one").FindXPath("//two").FindXPath("//parent")
-				firstChild := parent.Find("#firstChild")
-				parent.Find("#secondChild")
-				Expect(firstChild.String()).To(Equal("XPath: //one | XPath: //two | XPath: //parent | CSS: #firstChild"))
-			})
+		It("should select the first of all of the elements by CSS", func() {
+			Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector [0]"))
 		})
 	})
 
-	Describe("#FindXPath", func() {
-		It("should add a new XPath selector to the selection", func() {
-			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
+	Describe("#FindByXPath", func() {
+		It("should select the first of all of the elements by XPath", func() {
+			Expect(selection.FindByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
 		})
 	})
 
-	Describe("#FindLink", func() {
-		It("should add a new 'link text' selector to the selection", func() {
-			Expect(selection.FindLink("some text").String()).To(Equal(`CSS: #selector | Link: "some text"`))
+	Describe("#FindByLink", func() {
+		It("should select the first of all of the elements by link text", func() {
+			Expect(selection.FindByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
 		})
 	})
 
 	Describe("#FindByLabel", func() {
-		It("should add an XPath selector for finding by label", func() {
-			Expect(selection.FindByLabel("label name").String()).To(Equal(`CSS: #selector | XPath: //input[@id=(//label[normalize-space(text())="label name"]/@for)] | //label[normalize-space(text())="label name"]/input`))
+		It("should select the first of all of the elements by label", func() {
+			Expect(selection.FindByLabel("some label").String()).To(MatchRegexp("XPath: .+input.+ \\[0\\]"))
 		})
 	})
 
 	Describe("#All", func() {
-		It("should return a MultiSelection created from the Selection", func() {
-			Expect(selection.All().String()).To(Equal(`CSS: #selector - All`))
+		Context("when there is no selection", func() {
+			It("should add a new css selector to the selection", func() {
+				Expect(selection.All("#selector").String()).To(Equal("CSS: #selector"))
+			})
+		})
+
+		Context("when the selection ends with an non-css selector", func() {
+			It("should add a new selector to the selection", func() {
+				xpath := selection.AllByXPath("//selector")
+				Expect(xpath.All("#subselector").String()).To(Equal("XPath: //selector | CSS: #subselector"))
+			})
+		})
+
+		Context("when the selection ends with an unindexed CSS selector", func() {
+			It("should modify the last css selector to include the new selector", func() {
+				Expect(selection.All("#selector").All("#subselector").String()).To(Equal("CSS: #selector #subselector"))
+			})
+		})
+
+		Context("when the selection ends with an indexed selector", func() {
+			It("should add a new selector to the selection", func() {
+				Expect(selection.All("#selector").At(0).All("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
+			})
 		})
 	})
 
-	Describe("#String", func() {
-		It("should return the separated selectors", func() {
-			Expect(selection.FindXPath("//subselector").String()).To(Equal("CSS: #selector | XPath: //subselector"))
+	Describe("#AllByXPath", func() {
+		It("should add a new XPath selector to the selection", func() {
+			Expect(selection.AllByXPath("//selector").String()).To(Equal("XPath: //selector"))
 		})
+	})
 
-		Context("when indexed via At(index)", func() {
-			It("should append [index] to the indexed selectors", func() {
-				Expect(selection.At(2).FindXPath("//subselector").At(1).String()).To(Equal("CSS: #selector [2] | XPath: //subselector [1]"))
+	Describe("#AllByLink", func() {
+		It("should add a new 'link text' selector to the selection", func() {
+			Expect(selection.AllByLink("some text").String()).To(Equal(`Link: "some text"`))
+		})
+	})
+
+	Describe("#AllByLabel", func() {
+		It("should add an XPath selector for finding by label", func() {
+			Expect(selection.AllByLabel("label name").String()).To(Equal(`XPath: //input[@id=(//label[normalize-space(text())="label name"]/@for)] | //label[normalize-space(text())="label name"]/input`))
+		})
+	})
+
+	Describe("selectors are always copied", func() {
+		Context("when two CSS selections are created from the same XPath parent", func() {
+			It("should not overwrite the first created child", func() {
+				parent := selection.AllByXPath("//one").AllByXPath("//two").AllByXPath("//parent")
+				firstChild := parent.All("#firstChild")
+				parent.All("#secondChild")
+				Expect(firstChild.String()).To(Equal("XPath: //one | XPath: //two | XPath: //parent | CSS: #firstChild"))
 			})
 		})
 	})
@@ -240,6 +119,7 @@ var _ = Describe("Selection", func() {
 	Describe("#Count", func() {
 		BeforeEach(func() {
 			client.GetElementsCall.ReturnElements = []types.Element{element, element}
+			selection = selection.All("#selector")
 		})
 
 		It("should request elements from the client using the provided selector", func() {
@@ -266,7 +146,7 @@ var _ = Describe("Selection", func() {
 
 			It("should return an error", func() {
 				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to retrieve elements for 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -279,23 +159,29 @@ var _ = Describe("Selection", func() {
 		)
 
 		BeforeEach(func() {
+			selection = selection.All("#selector")
 			client.GetElementsCall.ReturnElements = []types.Element{element}
 			otherClient = &mocks.Client{}
 			otherSelection = &Selection{Client: otherClient}
-			otherSelection = otherSelection.Find("#other_selector")
+			otherSelection = otherSelection.All("#other_selector")
 			otherElement = &mocks.Element{}
 			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
 		})
 
-		ItShouldEnsureASingleElement(func() error {
-			_, err := selection.EqualsElement(otherSelection)
-			return err
+		Context("when multiple elements are selected from the selection", func() {
+			It("should return an error with the number of elements", func() {
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
+			})
 		})
 
-		It("should ensure that the other selection is a single element", func() {
-			otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
-			_, err := selection.EqualsElement(otherSelection)
-			Expect(err).To(MatchError("failed to retrieve element with 'CSS: #other_selector': multiple elements (2) were selected"))
+		Context("when multiple elements are selected from the other selection", func() {
+			It("should return an error with the number of elements", func() {
+				otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to select 'CSS: #other_selector': method does not support multiple elements (2)"))
+			})
 		})
 
 		It("should compare the selection elements for equality", func() {

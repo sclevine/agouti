@@ -16,7 +16,11 @@ type Page interface {
 	Back() error
 	Refresh() error
 	Find(selector string) Selection
-	FindXPath(selector string) Selection
-	FindLink(text string) Selection
+	FindByXPath(selector string) Selection
+	FindByLink(text string) Selection
 	FindByLabel(text string) Selection
+	All(selector string) MultiSelection
+	AllByXPath(selector string) MultiSelection
+	AllByLink(text string) MultiSelection
+	AllByLabel(text string) MultiSelection
 }

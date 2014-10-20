@@ -177,17 +177,37 @@ func (p *Page) Find(selector string) types.Selection {
 	return selection.Find(selector)
 }
 
-func (p *Page) FindXPath(selector string) types.Selection {
+func (p *Page) FindByXPath(selector string) types.Selection {
 	selection := &selection.Selection{Client: p.Client}
-	return selection.FindXPath(selector)
+	return selection.FindByXPath(selector)
 }
 
-func (p *Page) FindLink(text string) types.Selection {
+func (p *Page) FindByLink(text string) types.Selection {
 	selection := &selection.Selection{Client: p.Client}
-	return selection.FindLink(text)
+	return selection.FindByLink(text)
 }
 
 func (p *Page) FindByLabel(text string) types.Selection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.FindByLabel(text)
+}
+
+func (p *Page) All(selector string) types.MultiSelection {
+	selection := &selection.Selection{Client: p.Client}
+	return selection.All(selector)
+}
+
+func (p *Page) AllByXPath(selector string) types.MultiSelection {
+	selection := &selection.Selection{Client: p.Client}
+	return selection.AllByXPath(selector)
+}
+
+func (p *Page) AllByLink(text string) types.MultiSelection {
+	selection := &selection.Selection{Client: p.Client}
+	return selection.AllByLink(text)
+}
+
+func (p *Page) AllByLabel(text string) types.MultiSelection {
+	selection := &selection.Selection{Client: p.Client}
+	return selection.AllByLabel(text)
 }

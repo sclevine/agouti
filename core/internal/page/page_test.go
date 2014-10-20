@@ -429,25 +429,49 @@ var _ = Describe("Page", func() {
 
 	Describe("#Find", func() {
 		It("should defer to selection#Find", func() {
-			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector"))
+			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector [0]"))
 		})
 	})
 
-	Describe("#FindXPath", func() {
-		It("should defer to selection#FindXPath", func() {
-			Expect(page.FindXPath("//selector").String()).To(Equal("XPath: //selector"))
+	Describe("#FindByXPath", func() {
+		It("should defer to selection#FindXByPath", func() {
+			Expect(page.FindByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
 		})
 	})
 
-	Describe("#FindLink", func() {
-		It("should defer to selection#FindLink", func() {
-			Expect(page.FindLink("some text").String()).To(Equal(`Link: "some text"`))
+	Describe("#FindByLink", func() {
+		It("should defer to selection#FindByLink", func() {
+			Expect(page.FindByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
 		})
 	})
 
 	Describe("#FindByLabel", func() {
 		It("should defer to selection#FindByLabel", func() {
-			Expect(page.FindByLabel("label name").String()).To(ContainSubstring(`XPath: //input`))
+			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("//input"))
+		})
+	})
+
+	Describe("#All", func() {
+		It("should defer to selection#All", func() {
+			Expect(page.All("#selector").String()).To(Equal("CSS: #selector"))
+		})
+	})
+
+	Describe("#AllByXPath", func() {
+		It("should defer to selection#AllByXPath", func() {
+			Expect(page.AllByXPath("//selector").String()).To(Equal("XPath: //selector"))
+		})
+	})
+
+	Describe("#AllByLink", func() {
+		It("should defer to selection#AllByLink", func() {
+			Expect(page.AllByLink("some text").String()).To(Equal(`Link: "some text"`))
+		})
+	})
+
+	Describe("#AllByLabel", func() {
+		It("should defer to selection#AllByLabel", func() {
+			Expect(page.AllByLabel("label name").String()).To(ContainSubstring(`XPath: //input`))
 		})
 	})
 })
