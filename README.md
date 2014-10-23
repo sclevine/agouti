@@ -7,7 +7,7 @@ Integration testing for Go using Ginkgo and Gomega!
 
 Install:
 ```bash
-$ go get -d github.com/sclevine/agouti
+$ go get github.com/sclevine/agouti/...
 ```
 To use with PhantomJS (OS X):
 ```bash
