@@ -7,7 +7,7 @@ Integration testing for Go using Ginkgo and Gomega!
 
 Install:
 ```bash
-$ go get github.com/sclevine/agouti
+$ go get -d github.com/sclevine/agouti
 ```
 To use with PhantomJS (OS X):
 ```bash
@@ -79,19 +79,20 @@ Example:
 ```Go
 import (
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	. "github.com/sclevine/agouti/dsl"
 	. "github.com/sclevine/agouti/matchers"
 )
 
 ...
 
-Feature("Agouti running on PhantomJS", func() {
+var _ = Feature("Agouti running on PhantomJS", func() {
 	var page Page
 
 	Background(func() {
 		page = CreatePage()
 		page.Size(640, 480)
-		page.Navigate(Server.URL)
+		page.Navigate("http://example.com/")
 	})
 
 	AfterEach(func() {
