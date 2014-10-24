@@ -7,7 +7,7 @@ Integration testing for Go using Ginkgo and Gomega!
 
 Install:
 ```bash
-$ go get github.com/sclevine/agouti/...
+$ go get github.com/sclevine/agouti
 ```
 To use with PhantomJS (OS X):
 ```bash
@@ -86,7 +86,7 @@ import (
 
 ...
 
-var _ = Feature("Agouti running on PhantomJS", func() {
+var _ = Feature("Agouti", func() {
 	var page Page
 
 	Background(func() {
