@@ -2,13 +2,14 @@ package page_test
 
 import (
 	"errors"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/page"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 var _ = Describe("Page", func() {
@@ -27,16 +28,9 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Destroy", func() {
-		Context("when deleting the session succeeds", func() {
-			It("should direct the client to delete the session", func() {
-				page.Destroy()
-				Expect(client.DeleteSessionCall.Called).To(BeTrue())
-			})
-
-			It("should not return an error", func() {
-				err := page.Destroy()
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should successfully direct the client to delete the session", func() {
+			Expect(page.Destroy()).To(Succeed())
+			Expect(client.DeleteSessionCall.Called).To(BeTrue())
 		})
 
 		Context("when deleting the session fails", func() {
@@ -48,20 +42,13 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Navigate", func() {
-		Context("when the navigate succeeds", func() {
-			It("should direct the client to navigate to the provided URL", func() {
-				page.Navigate("http://example.com")
-				Expect(client.SetURLCall.URL).To(Equal("http://example.com"))
-			})
-
-			It("should return nil", func() {
-				err := page.Navigate("http://example.com")
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should successfully direct the client to navigate to the provided URL", func() {
+			Expect(page.Navigate("http://example.com")).To(Succeed())
+			Expect(client.SetURLCall.URL).To(Equal("http://example.com"))
 		})
 
 		Context("when the navigate fails", func() {
-			It("should return the client error", func() {
+			It("should return an error", func() {
 				client.SetURLCall.Err = errors.New("some error")
 				Expect(page.Navigate("http://example.com")).To(MatchError("failed to navigate: some error"))
 			})
@@ -69,17 +56,10 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#SetCookie", func() {
-		It("should instruct the client to add the cookie to the session", func() {
-			page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
+		It("should successfully instruct the client to add the cookie to the session", func() {
+			Expect(page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)).To(Succeed())
 			Expect(client.SetCookieCall.Cookie.Name).To(Equal("some-name"))
 			Expect(client.SetCookieCall.Cookie.Value).To(Equal(42))
-		})
-
-		Context("when setting the cookie succeeds", func() {
-			It("should return nil", func() {
-				err := page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when the client fails to set the cookie", func() {
@@ -92,68 +72,39 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#DeleteCookie", func() {
-		It("should instruct the client to delete a named cookie", func() {
-			page.DeleteCookie("some-name")
+		It("should successfully instruct the client to delete a named cookie", func() {
+			Expect(page.DeleteCookie("some-name")).To(Succeed())
 			Expect(client.DeleteCookieCall.Name).To(Equal("some-name"))
-		})
-
-		Context("when deleteing the named cookie succeeds", func() {
-			It("should return nil", func() {
-				err := page.DeleteCookie("some-name")
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when deleting the named cookie fails", func() {
 			It("should return an error", func() {
 				client.DeleteCookieCall.Err = errors.New("some error")
-				err := page.DeleteCookie("some-name")
-				Expect(err).To(MatchError("failed to delete cookie some-name: some error"))
+				Expect(page.DeleteCookie("some-name")).To(MatchError("failed to delete cookie some-name: some error"))
 			})
 		})
 	})
 
 	Describe("#ClearCookies", func() {
-		It("should instruct the client to delete all cookies", func() {
-			page.ClearCookies()
+		It("should successfully instruct the client to delete all cookies", func() {
+			Expect(page.ClearCookies()).To(Succeed())
 			Expect(client.DeleteCookiesCall.Called).To(BeTrue())
-		})
-
-		Context("when deleteing all cookies succeeds", func() {
-			It("should return nil", func() {
-				err := page.ClearCookies()
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when deleting all cookies fails", func() {
 			It("should return an error", func() {
 				client.DeleteCookiesCall.Err = errors.New("some error")
-				err := page.ClearCookies()
-				Expect(err).To(MatchError("failed to clear cookies: some error"))
+				Expect(page.ClearCookies()).To(MatchError("failed to clear cookies: some error"))
 			})
 		})
 	})
 
 	Describe("#URL", func() {
-		Context("when retrieving the URL is successful", func() {
-			var (
-				url string
-				err error
-			)
-
-			BeforeEach(func() {
-				client.GetURLCall.ReturnURL = "http://example.com"
-				url, err = page.URL()
-			})
-
-			It("should return the URL of the current page", func() {
-				Expect(url).To(Equal("http://example.com"))
-			})
-
-			It("should not return an error", func() {
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should successfully return the URL of the current page", func() {
+			client.GetURLCall.ReturnURL = "http://example.com"
+			url, err := page.URL()
+			Expect(url).To(Equal("http://example.com"))
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Context("when the client fails to retrieve the URL", func() {
@@ -166,20 +117,11 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Size", func() {
-		BeforeEach(func() {
+		It("should set the window width and height to the provided dimensions", func() {
 			client.GetWindowCall.ReturnWindow = window
-		})
-
-		Context("when the size setting succeeds", func() {
-			It("should set the window width and height accordingly", func() {
-				page.Size(640, 480)
-				Expect(window.SizeCall.Width).To(Equal(640))
-				Expect(window.SizeCall.Height).To(Equal(480))
-			})
-
-			It("should not return an error", func() {
-				Expect(page.Size(640, 480)).ToNot(HaveOccurred())
-			})
+			Expect(page.Size(640, 480)).To(Succeed())
+			Expect(window.SizeCall.Width).To(Equal(640))
+			Expect(window.SizeCall.Height).To(Equal(480))
 		})
 
 		Context("when the client fails to retrieve a window", func() {
@@ -191,6 +133,7 @@ var _ = Describe("Page", func() {
 
 		Context("when the window fails to retrieve its size", func() {
 			It("should return an error", func() {
+				client.GetWindowCall.ReturnWindow = window
 				window.SizeCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
 			})
@@ -206,14 +149,14 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when the file path cannot be constructed", func() {
-			It("should return an error indicating that it could not create a directory", func() {
+			It("should return an error", func() {
 				err := page.Screenshot("\000/a") // try NUL
 				Expect(err).To(MatchError("failed to create directory for screenshot: mkdir \x00: invalid argument"))
 			})
 		})
 
 		Context("when a new screenshot file cannot be created", func() {
-			It("should return an error indicating so", func() {
+			It("should return an error", func() {
 				err := page.Screenshot("")
 				Expect(err).To(MatchError("failed to create file for screenshot: open : no such file or directory"))
 			})
@@ -225,8 +168,7 @@ var _ = Describe("Page", func() {
 			})
 
 			It("should return an error indicating so", func() {
-				err := page.Screenshot(filename)
-				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
+				Expect(page.Screenshot(filename)).To(MatchError("failed to retrieve screenshot: some error"))
 			})
 
 			It("should remove the newly-created file", func() {
@@ -241,22 +183,10 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when a screenshot is successfully written to a file", func() {
-			var err error
-
-			BeforeEach(func() {
+			It("should successfully saves the screenshot", func() {
 				client.GetScreenshotCall.ReturnImage = []byte("some-image")
-				err = page.Screenshot(filename)
-			})
-
-			AfterEach(func() {
-				os.Remove(filename)
-			})
-
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
-			})
-
-			It("successfully saves the screenshot", func() {
+				Expect(page.Screenshot(filename)).To(Succeed())
+				defer os.Remove(filename)
 				result, _ := ioutil.ReadFile(filename)
 				Expect(string(result)).To(Equal("some-image"))
 			})
@@ -264,24 +194,11 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Title", func() {
-		Context("when retrieving the page title is successful", func() {
-			var (
-				title string
-				err   error
-			)
-
-			BeforeEach(func() {
-				client.GetTitleCall.ReturnTitle = "Some Title"
-				title, err = page.Title()
-			})
-
-			It("should return the title of the current page", func() {
-				Expect(title).To(Equal("Some Title"))
-			})
-
-			It("should not return an error", func() {
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should successfully return the title of the current page", func() {
+			client.GetTitleCall.ReturnTitle = "Some Title"
+			title, err := page.Title()
+			Expect(title).To(Equal("Some Title"))
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Context("when the client fails to retrieve the page title", func() {
@@ -294,24 +211,11 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#HTML", func() {
-		Context("when retrieving the page HTML is successful", func() {
-			var (
-				html string
-				err  error
-			)
-
-			BeforeEach(func() {
-				client.GetSourceCall.ReturnSource = "Some HTML"
-				html, err = page.HTML()
-			})
-
-			It("should return the HTML of the current page", func() {
-				Expect(html).To(Equal("Some HTML"))
-			})
-
-			It("should not return an error", func() {
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should return the HTML of the current page", func() {
+			client.GetSourceCall.ReturnSource = "Some HTML"
+			html, err := page.HTML()
+			Expect(html).To(Equal("Some HTML"))
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Context("when the client fails to retrieve the page HTML", func() {
@@ -346,10 +250,8 @@ var _ = Describe("Page", func() {
 			Expect(result.Some).To(Equal("result"))
 		})
 
-		Context("when executing the script succeeds", func() {
-			It("should return nil", func() {
-				Expect(err).ToNot(HaveOccurred())
-			})
+		It("should be successful", func() {
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Context("when running the script fails", func() {
@@ -421,67 +323,43 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Forward", func() {
-		It("should instruct the client to move forward in history", func() {
-			page.Forward()
+		It("should successfully instruct the client to move forward in history", func() {
+			Expect(page.Forward()).To(Succeed())
 			Expect(client.ForwardCall.Called).To(BeTrue())
-		})
-
-		Context("when navigating forward succeeds", func() {
-			It("should not return an error", func() {
-				err := page.Forward()
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when navigating forward fails", func() {
 			It("should return an error", func() {
 				client.ForwardCall.Err = errors.New("some error")
-				err := page.Forward()
-				Expect(err).To(MatchError("failed to navigate forward in history: some error"))
+				Expect(page.Forward()).To(MatchError("failed to navigate forward in history: some error"))
 			})
 		})
 	})
 
 	Describe("#Back", func() {
-		It("should instruct the client to move back in history", func() {
-			page.Back()
+		It("should successfully instruct the client to move back in history", func() {
+			Expect(page.Back()).To(Succeed())
 			Expect(client.BackCall.Called).To(BeTrue())
-		})
-
-		Context("when navigating back succeeds", func() {
-			It("should not return an error", func() {
-				err := page.Back()
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when navigating back fails", func() {
 			It("should return an error", func() {
 				client.BackCall.Err = errors.New("some error")
-				err := page.Back()
-				Expect(err).To(MatchError("failed to navigate backwards in history: some error"))
+				Expect(page.Back()).To(MatchError("failed to navigate backwards in history: some error"))
 			})
 		})
 	})
 
 	Describe("#Refresh", func() {
-		It("should instruct the client to refresh", func() {
-			page.Refresh()
+		It("should successfully instruct the client to refresh", func() {
+			Expect(page.Refresh()).To(Succeed())
 			Expect(client.RefreshCall.Called).To(BeTrue())
-		})
-
-		Context("when navigating refresh succeeds", func() {
-			It("should not return an error", func() {
-				err := page.Refresh()
-				Expect(err).ToNot(HaveOccurred())
-			})
 		})
 
 		Context("when refreshing the page fails", func() {
 			It("should return an error", func() {
 				client.RefreshCall.Err = errors.New("some error")
-				err := page.Refresh()
-				Expect(err).To(MatchError("failed to refresh page: some error"))
+				Expect(page.Refresh()).To(MatchError("failed to refresh page: some error"))
 			})
 		})
 	})
