@@ -379,7 +379,7 @@ var _ = Describe("API Client", func() {
 		Context("when the session indicates a failure", func() {
 			It("should return an error indicating the page failed to retrieve the title", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err = client.GetURL()
+				_, err = client.GetTitle()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -414,7 +414,7 @@ var _ = Describe("API Client", func() {
 		Context("when the session indicates a failure", func() {
 			It("should return an error indicating the page failed to retrieve the source", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err = client.GetURL()
+				_, err = client.GetSource()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -631,6 +631,73 @@ var _ = Describe("API Client", func() {
 			It("should return an error indicating the session failed to refresh the page", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				err = client.Refresh()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetAlertText", func() {
+		var text string
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `"some text"`
+			text, err = client.GetAlertText()
+		})
+
+		It("should make a GET request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("GET"))
+		})
+
+		It("should hit the /alert_text endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("alert_text"))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("should return the current alert text", func() {
+				Expect(text).To(Equal("some text"))
+			})
+
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err = client.GetAlertText()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#SetAlertText", func() {
+		BeforeEach(func() {
+			err = client.SetAlertText("some text")
+		})
+
+		It("should make a POST request", func() {
+			Expect(session.ExecuteCall.Method).To(Equal("POST"))
+		})
+
+		It("should hit the /alert_text endpoint", func() {
+			Expect(session.ExecuteCall.Endpoint).To(Equal("alert_text"))
+		})
+
+		It("should include the new alert text in the request body", func() {
+			Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"text": "some text"}`))
+		})
+
+		Context("when the sesssion indicates a success", func() {
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err = client.SetAlertText("some text")
 				Expect(err).To(MatchError("some error"))
 			})
 		})

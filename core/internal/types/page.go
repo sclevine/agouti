@@ -12,6 +12,10 @@ type Page interface {
 	Title() (string, error)
 	HTML() (string, error)
 	RunScript(body string, arguments map[string]interface{}, result interface{}) error
+	PopupText() (string, error)
+	EnterPopupText(text string) error
+	ConfirmPopup() error
+	CancelPopup() error
 	Forward() error
 	Back() error
 	Refresh() error

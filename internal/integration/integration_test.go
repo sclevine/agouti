@@ -165,4 +165,37 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 			Expect(checkbox).NotTo(BeSelected())
 		})
 	})
+
+	// Requires handlesAlerts capabilities
+	PScenario("popup boxes", func() {
+		Step("allows interacting with alert popups", func() {
+			Click(page.Find("#popup_alert"))
+			Expect(page).To(HavePopupText("some alert"))
+			Expect(page.ConfirmPopup()).To(Succeed())
+		})
+
+		Step("allows interacting with confirm boxes", func() {
+			var confirmed bool
+
+			Click(page.Find("#popup_confirm"))
+			Expect(page.ConfirmPopup()).To(Succeed())
+			Expect(page.RunScript("return confirmed;", nil, &confirmed)).To(Succeed())
+			Expect(confirmed).To(BeTrue())
+
+			Click(page.Find("#popup_confirm"))
+			Expect(page.RunScript("return confirmed;", nil, &confirmed)).To(Succeed())
+			Expect(page.CancelPopup()).To(Succeed())
+			Expect(confirmed).To(BeFalse())
+		})
+
+		Step("allows interacting with prompt boxes", func() {
+			var promptText string
+
+			Click(page.Find("#popup_prompt"))
+			Expect(page.EnterPopupText("banana")).To(Succeed())
+			Expect(page.ConfirmPopup()).To(Succeed())
+			Expect(page.RunScript("return promptText;", nil, &promptText)).To(Succeed())
+			Expect(promptText).To(Equal("banana"))
+		})
+	})
 })

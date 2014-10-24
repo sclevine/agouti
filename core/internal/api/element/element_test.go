@@ -395,7 +395,7 @@ var _ = Describe("Element", func() {
 		})
 	})
 
-	Describe("#Equals", func() {
+	Describe("#IsEqualTo", func() {
 		var (
 			equal        bool
 			otherElement *Element

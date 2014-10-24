@@ -59,7 +59,6 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 
 	if len(result) > 0 {
 		bodyValue := struct{ Value interface{} }{result[0]}
-
 		if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
 			return fmt.Errorf("failed to parse response value: %s", err)
 		}
@@ -72,6 +71,8 @@ func Open(url string, capabilities map[string]interface{}) (*Session, error) {
 	desiredCapabilities := struct {
 		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
 	}{capabilities}
+
+	// TODO: set content type to JSON
 
 	desiredCapabilitiesJSON, _ := json.Marshal(desiredCapabilities)
 	postBody := bytes.NewReader(desiredCapabilitiesJSON)

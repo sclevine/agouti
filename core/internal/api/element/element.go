@@ -59,11 +59,11 @@ func (e *Element) GetCSS(property string) (string, error) {
 }
 
 func (e *Element) Click() error {
-	return e.Session.Execute(e.url()+"/click", "POST", nil, &struct{}{})
+	return e.Session.Execute(e.url()+"/click", "POST", nil)
 }
 
 func (e *Element) Clear() error {
-	return e.Session.Execute(e.url()+"/clear", "POST", nil, &struct{}{})
+	return e.Session.Execute(e.url()+"/clear", "POST", nil)
 }
 
 func (e *Element) Value(text string) error {
@@ -71,7 +71,7 @@ func (e *Element) Value(text string) error {
 	request := struct {
 		Value []string `json:"value"`
 	}{splitText}
-	return e.Session.Execute(e.url()+"/value", "POST", request, &struct{}{})
+	return e.Session.Execute(e.url()+"/value", "POST", request)
 }
 
 func (e *Element) IsSelected() (bool, error) {
@@ -99,7 +99,7 @@ func (e *Element) IsEnabled() (bool, error) {
 }
 
 func (e *Element) Submit() error {
-	return e.Session.Execute(e.url()+"/submit", "POST", nil, &struct{}{})
+	return e.Session.Execute(e.url()+"/submit", "POST", nil)
 }
 
 func (e *Element) url() string {

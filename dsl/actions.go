@@ -2,6 +2,7 @@ package dsl
 
 import (
 	"fmt"
+
 	"github.com/onsi/ginkgo"
 	"github.com/sclevine/agouti/core"
 )
@@ -43,6 +44,6 @@ func Submit(selection core.Selection) {
 
 func check(err error) {
 	if err != nil {
-		ginkgo.Fail(fmt.Sprintf("Action failed: %s", err))
+		ginkgo.Fail(fmt.Sprintf("Action failed: %s", err), 2)
 	}
 }

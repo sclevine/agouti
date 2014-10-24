@@ -151,3 +151,18 @@ func (c *Client) Back() error {
 func (c *Client) Refresh() error {
 	return c.Session.Execute("refresh", "POST", nil)
 }
+
+func (c *Client) GetAlertText() (string, error) {
+	var text string
+	if err := c.Session.Execute("alert_text", "GET", nil, &text); err != nil {
+		return "", err
+	}
+	return text, nil
+}
+
+func (c *Client) SetAlertText(text string) error {
+	request := struct {
+		Text string `json:"text"`
+	}{text}
+	return c.Session.Execute("alert_text", "POST", request)
+}

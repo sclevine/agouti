@@ -94,6 +94,16 @@ type Client struct {
 		Called bool
 		Err    error
 	}
+
+	GetAlertTextCall struct {
+		ReturnText string
+		Err        error
+	}
+
+	SetAlertTextCall struct {
+		Text string
+		Err  error
+	}
 }
 
 func (c *Client) DeleteSession() error {
@@ -177,4 +187,13 @@ func (c *Client) Back() error {
 func (c *Client) Refresh() error {
 	c.RefreshCall.Called = true
 	return c.RefreshCall.Err
+}
+
+func (c *Client) GetAlertText() (string, error) {
+	return c.GetAlertTextCall.ReturnText, c.GetAlertTextCall.Err
+}
+
+func (c *Client) SetAlertText(text string) error {
+	c.SetAlertTextCall.Text = text
+	return c.SetAlertTextCall.Err
 }

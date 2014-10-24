@@ -2,11 +2,12 @@ package page
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/sclevine/agouti/core/internal/selection"
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Page struct {
@@ -31,6 +32,8 @@ type client interface {
 	Forward() error
 	Back() error
 	Refresh() error
+	GetAlertText() (string, error)
+	SetAlertText(text string) error
 }
 
 func (p *Page) Destroy() error {
@@ -148,6 +151,35 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 		return fmt.Errorf("failed to run script: %s", err)
 	}
 
+	return nil
+}
+
+func (p *Page) PopupText() (string, error) {
+	text, err := p.Client.GetAlertText()
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve popup text: %s", err)
+	}
+	return text, nil
+}
+
+func (p *Page) EnterPopupText(text string) error {
+	if err := p.Client.SetAlertText(text); err != nil {
+		return fmt.Errorf("failed to enter popup text: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) ConfirmPopup() error {
+	if err := p.Client.SetAlertText("\u000d"); err != nil {
+		return fmt.Errorf("failed to confirm popup: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) CancelPopup() error {
+	if err := p.Client.SetAlertText("\u001b"); err != nil {
+		return fmt.Errorf("failed to cancel popup: %s", err)
+	}
 	return nil
 }
 

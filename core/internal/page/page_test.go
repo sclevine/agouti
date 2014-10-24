@@ -361,6 +361,65 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#PopupText", func() {
+		It("should return the popup text of the popup and succeed", func() {
+			client.GetAlertTextCall.ReturnText = "some popup text"
+			text, err := page.PopupText()
+			Expect(text).To(Equal("some popup text"))
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("when the client fails to retrieve the page popup text", func() {
+			It("should return an error", func() {
+				client.GetAlertTextCall.Err = errors.New("some error")
+				_, err := page.PopupText()
+				Expect(err).To(MatchError("failed to retrieve popup text: some error"))
+			})
+		})
+	})
+
+	Describe("#EnterPopupText", func() {
+		It("should provide the client with the text to enter and succeed", func() {
+			Expect(page.EnterPopupText("some text")).To(Succeed())
+			Expect(client.SetAlertTextCall.Text).To(Equal("some text"))
+		})
+
+		Context("when the client fails to enter the page popup text", func() {
+			It("should return an error", func() {
+				client.SetAlertTextCall.Err = errors.New("some error")
+				Expect(page.EnterPopupText("some text")).To(MatchError("failed to enter popup text: some error"))
+			})
+		})
+	})
+
+	Describe("#ConfirmPopup", func() {
+		It("should provide the client with a carriage return and succeed", func() {
+			Expect(page.ConfirmPopup()).To(Succeed())
+			Expect(client.SetAlertTextCall.Text).To(Equal("\u000d"))
+		})
+
+		Context("when the client fails to send the carriage return", func() {
+			It("should return an error", func() {
+				client.SetAlertTextCall.Err = errors.New("some error")
+				Expect(page.ConfirmPopup()).To(MatchError("failed to confirm popup: some error"))
+			})
+		})
+	})
+
+	Describe("#CancelPopup", func() {
+		It("should provide the client with an escape and succeed", func() {
+			Expect(page.CancelPopup()).To(Succeed())
+			Expect(client.SetAlertTextCall.Text).To(Equal("\u001b"))
+		})
+
+		Context("when the client fails to send the escape", func() {
+			It("should return an error", func() {
+				client.SetAlertTextCall.Err = errors.New("some error")
+				Expect(page.CancelPopup()).To(MatchError("failed to cancel popup: some error"))
+			})
+		})
+	})
+
 	Describe("#Forward", func() {
 		It("should instruct the client to move forward in history", func() {
 			page.Forward()

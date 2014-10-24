@@ -1,11 +1,10 @@
 package page_test
 
 import (
-	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/page"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
+	. "github.com/sclevine/agouti/matchers/internal/page"
 )
 
 var _ = Describe("HaveTitleMatcher", func() {
@@ -21,7 +20,7 @@ var _ = Describe("HaveTitleMatcher", func() {
 	})
 
 	Describe("#Match", func() {
-		Context("when the actual object is a types.PageOnly", func() {
+		Context("when the actual object is a page", func() {
 			Context("when the expected title matches the actual title", func() {
 				BeforeEach(func() {
 					page.TitleCall.ReturnTitle = "Some Title"
