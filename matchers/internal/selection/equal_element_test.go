@@ -31,33 +31,19 @@ var _ = Describe("EqualElementMatcher", func() {
 			})
 
 			Context("when the expected element equals the actual element", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					selection.EqualsElementCall.ReturnEquals = true
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the expected element does not equal the actual element", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					selection.EqualsElementCall.ReturnEquals = false
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})

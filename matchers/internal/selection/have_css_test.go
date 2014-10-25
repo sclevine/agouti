@@ -28,33 +28,19 @@ var _ = Describe("HaveCSS", func() {
 			})
 
 			Context("when the expected property value matches the actual property value", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					selection.CSSCall.ReturnValue = "some value"
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the expected property value does not match the actual property value", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					selection.CSSCall.ReturnValue = "some other value"
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})

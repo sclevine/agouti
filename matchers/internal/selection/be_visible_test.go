@@ -23,33 +23,19 @@ var _ = Describe("BeVisibleMatcher", func() {
 	Describe("#Match", func() {
 		Context("when the actual object is a selection", func() {
 			Context("when the element is visible", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					selection.VisibleCall.ReturnVisible = true
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the element is not visible", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					selection.VisibleCall.ReturnVisible = false
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})

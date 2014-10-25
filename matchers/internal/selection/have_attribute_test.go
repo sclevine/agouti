@@ -28,33 +28,19 @@ var _ = Describe("HaveAttributeMatcher", func() {
 			})
 
 			Context("when the expected attribute value matches the actual attribute value", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					selection.AttributeCall.ReturnValue = "some value"
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the expected attribute value does not match the actual attribute value", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					selection.AttributeCall.ReturnValue = "some other value"
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})

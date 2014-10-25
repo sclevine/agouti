@@ -23,33 +23,19 @@ var _ = Describe("MatchTextMatcher", func() {
 	Describe("#Match", func() {
 		Context("when the actual object is a selection", func() {
 			Context("when the expected text matches the actual text", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					selection.TextCall.ReturnText = "some text"
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the expected text does not match the actual text", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					selection.TextCall.ReturnText = "some other text"
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(selection)
+					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(selection)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
