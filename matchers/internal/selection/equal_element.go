@@ -20,7 +20,7 @@ func (m *EqualElementMatcher) Match(actual interface{}) (success bool, err error
 
 	same, err := actualSelection.EqualsElement(m.ExpectedSelection)
 	if err != nil {
-		return false, fmt.Errorf("EqualElement matcher failed to compare Selections: %s", err)
+		return false, err
 	}
 
 	return same, nil

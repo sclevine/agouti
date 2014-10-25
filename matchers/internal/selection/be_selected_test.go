@@ -1,11 +1,12 @@
 package selection_test
 
 import (
-	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/selection"
+	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
+	. "github.com/sclevine/agouti/matchers/internal/selection"
 )
 
 var _ = Describe("BeSelectedMatcher", func() {
@@ -37,6 +38,14 @@ var _ = Describe("BeSelectedMatcher", func() {
 					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
+			Context("when determining whether the element is selected fails", func() {
+				It("should return an error", func() {
+					selection.SelectedCall.Err = errors.New("some error")
+					_, err := matcher.Match(selection)
+					Expect(err).To(MatchError("some error"))
 				})
 			})
 		})

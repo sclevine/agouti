@@ -1,6 +1,8 @@
 package page_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
@@ -22,39 +24,33 @@ var _ = Describe("HaveTitleMatcher", func() {
 	Describe("#Match", func() {
 		Context("when the actual object is a page", func() {
 			Context("when the expected title matches the actual title", func() {
-				BeforeEach(func() {
+				It("should successfully return true", func() {
 					page.TitleCall.ReturnTitle = "Some Title"
-				})
-
-				It("should return true", func() {
-					success, _ := matcher.Match(page)
+					success, err := matcher.Match(page)
 					Expect(success).To(BeTrue())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(page)
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 
 			Context("when the expected title does not match the actual title", func() {
-				BeforeEach(func() {
+				It("should successfully return false", func() {
 					page.TitleCall.ReturnTitle = "Some Other Title"
-				})
-
-				It("should return false", func() {
-					success, _ := matcher.Match(page)
+					success, err := matcher.Match(page)
 					Expect(success).To(BeFalse())
-				})
-
-				It("should not return an error", func() {
-					_, err := matcher.Match(page)
 					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
+			Context("when retrieving the page title fails", func() {
+				It("should return an error", func() {
+					page.TitleCall.Err = errors.New("some error")
+					_, err := matcher.Match(page)
+					Expect(err).To(MatchError("some error"))
 				})
 			})
 		})
 
-		Context("when the actual object is not a types.PageOnly", func() {
+		Context("when the actual object is not a page", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a page")
 				Expect(err).To(MatchError("HaveTitle matcher requires a Page.  Got:\n    <string>: not a page"))

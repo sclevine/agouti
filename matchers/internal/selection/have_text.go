@@ -2,6 +2,7 @@ package selection
 
 import (
 	"fmt"
+
 	"github.com/onsi/gomega/format"
 )
 

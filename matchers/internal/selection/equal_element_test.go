@@ -47,20 +47,20 @@ var _ = Describe("EqualElementMatcher", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
+
+			Context("when the comparison fails", func() {
+				It("should return an error", func() {
+					selection.EqualsElementCall.Err = errors.New("some error")
+					_, err := matcher.Match(selection)
+					Expect(err).To(MatchError("some error"))
+				})
+			})
 		})
 
 		Context("when the actual object is not a selection", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
 				Expect(err).To(MatchError("EqualElement matcher requires a Selection.  Got:\n    <string>: not a selection"))
-			})
-		})
-
-		Context("when the comparison fails", func() {
-			It("should return an error", func() {
-				selection.EqualsElementCall.Err = errors.New("some error")
-				_, err := matcher.Match(selection)
-				Expect(err).To(MatchError("EqualElement matcher failed to compare Selections: some error"))
 			})
 		})
 	})

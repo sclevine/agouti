@@ -1,6 +1,8 @@
 package page_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
@@ -38,9 +40,17 @@ var _ = Describe("HavePopupTextMatcher", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 			})
+
+			Context("when retrieving the popup text fails", func() {
+				It("should return an error", func() {
+					page.PopupTextCall.Err = errors.New("some error")
+					_, err := matcher.Match(page)
+					Expect(err).To(MatchError("some error"))
+				})
+			})
 		})
 
-		Context("when the actual object is not a types.PageOnly", func() {
+		Context("when the actual object is not a page", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a page")
 				Expect(err).To(MatchError("HavePopupText matcher requires a Page.  Got:\n    <string>: not a page"))
