@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/base64"
+
 	"github.com/sclevine/agouti/core/internal/api/element"
 	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/types"

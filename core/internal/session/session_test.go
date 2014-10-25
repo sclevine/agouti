@@ -139,16 +139,9 @@ var _ = Describe("Session", func() {
 
 		Context("when the request succeeds", func() {
 			Context("with a valid response body", func() {
-				BeforeEach(func() {
-					err = session.Execute("some/endpoint", "GET", nil, &result)
-				})
-
-				It("should unmashal the returned JSON into the result, if provided", func() {
+				It("should successfully unmashal the returned JSON into the result, if provided", func() {
+					Expect(session.Execute("some/endpoint", "GET", nil, &result)).To(Succeed())
 					Expect(result.Some).To(Equal("response value"))
-				})
-
-				It("should not return an error", func() {
-					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 

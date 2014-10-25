@@ -2,13 +2,14 @@ package webdriver_test
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	"github.com/sclevine/agouti/core/internal/session"
 	. "github.com/sclevine/agouti/core/internal/webdriver"
-	"net/http"
-	"net/http/httptest"
 )
 
 var _ = Describe("Driver", func() {
@@ -23,8 +24,8 @@ var _ = Describe("Driver", func() {
 	})
 
 	Describe("#Start", func() {
-		It("should start the service", func() {
-			driver.Start()
+		It("should successfully start the service", func() {
+			Expect(driver.Start()).To(Succeed())
 			Expect(service.StartCall.Called).To(BeTrue())
 		})
 
@@ -32,13 +33,6 @@ var _ = Describe("Driver", func() {
 			It("should return an error", func() {
 				service.StartCall.Err = errors.New("some error")
 				Expect(driver.Start()).To(MatchError("failed to start service: some error"))
-			})
-		})
-
-		Context("when starting the service succeeds", func() {
-			It("should return nil", func() {
-				err := driver.Start()
-				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -107,16 +101,17 @@ var _ = Describe("Driver", func() {
 			})
 		})
 
-		It("should return a page with a client with the created session", func() {
+		It("should successfully return a page with a client with the created session", func() {
 			var sessionInPage bool
 			fakeServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 				sessionInPage = true
 			}))
 			defer fakeServer.Close()
 			service.CreateSessionCall.ReturnSession = &session.Session{URL: fakeServer.URL}
-			page, _ := driver.Page()
+			page, err := driver.Page()
 			page.URL()
 			Expect(sessionInPage).To(BeTrue())
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

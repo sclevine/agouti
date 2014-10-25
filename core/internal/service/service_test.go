@@ -41,16 +41,14 @@ var _ = Describe("Service", func() {
 				defer service.Stop()
 				started = true
 				Expect(service.Start()).To(Succeed())
-				err := service.Start()
-				Expect(err).To(MatchError("cat is already running"))
+				Expect(service.Start()).To(MatchError("cat is already running"))
 			})
 		})
 
 		Context("when the binary is not available in PATH", func() {
 			It("should return an error indicating the binary needs to be installed", func() {
 				service.Command = []string{"not-in-path"}
-				err := service.Start()
-				Expect(err).To(MatchError("unable to run not-in-path: exec: \"not-in-path\": executable file not found in $PATH"))
+				Expect(service.Start()).To(MatchError("unable to run not-in-path: exec: \"not-in-path\": executable file not found in $PATH"))
 			})
 		})
 
@@ -61,8 +59,7 @@ var _ = Describe("Service", func() {
 					time.Sleep(200 * time.Millisecond)
 					started = true
 				}()
-				err := service.Start()
-				Expect(err).NotTo(HaveOccurred())
+				Expect(service.Start()).To(Succeed())
 			})
 		})
 
@@ -73,8 +70,7 @@ var _ = Describe("Service", func() {
 					time.Sleep(3000 * time.Millisecond)
 					started = true
 				}()
-				err := service.Start()
-				Expect(err).To(MatchError("cat failed to start"))
+				Expect(service.Start()).To(MatchError("cat failed to start"))
 			})
 		})
 	})
@@ -85,8 +81,7 @@ var _ = Describe("Service", func() {
 			started = true
 			service.Start()
 			service.Stop()
-			err := service.Start()
-			Expect(err).NotTo(HaveOccurred())
+			Expect(service.Start()).To(Succeed())
 		})
 	})
 
