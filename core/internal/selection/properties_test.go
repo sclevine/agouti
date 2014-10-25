@@ -62,17 +62,10 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client succeeds in retrieving the element text", func() {
-			BeforeEach(func() {
+			It("should successfully return the text", func() {
 				element.GetTextCall.ReturnText = "some text"
-			})
-
-			It("should return the text", func() {
-				text, _ := selection.Text()
+				text, err := selection.Text()
 				Expect(text).To(Equal("some text"))
-			})
-
-			It("should not return an error", func() {
-				_, err := selection.Text()
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
@@ -102,17 +95,10 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client succeeds in retrieving the requested element attribute", func() {
-			BeforeEach(func() {
+			It("should successfully return the attribute value", func() {
 				element.GetAttributeCall.ReturnValue = "some value"
-			})
-
-			It("should return the attribute value", func() {
-				value, _ := selection.Attribute("some-attribute")
+				value, err := selection.Attribute("some-attribute")
 				Expect(value).To(Equal("some value"))
-			})
-
-			It("should not return an error", func() {
-				_, err := selection.Attribute("some-attribute")
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
@@ -128,7 +114,7 @@ var _ = Describe("Selection", func() {
 			return err
 		})
 
-		It("should request the CSS property value using the property name", func() {
+		It("should successfully request the CSS property value using the property name", func() {
 			selection.CSS("some-property")
 			Expect(element.GetCSSCall.Property).To(Equal("some-property"))
 		})
@@ -142,17 +128,10 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client succeeds in retrieving the requested element CSS property", func() {
-			BeforeEach(func() {
+			It("should successfully return the property value", func() {
 				element.GetCSSCall.ReturnValue = "some value"
-			})
-
-			It("should return the property value", func() {
-				value, _ := selection.CSS("some-property")
+				value, err := selection.CSS("some-property")
 				Expect(value).To(Equal("some value"))
-			})
-
-			It("should not return an error", func() {
-				_, err := selection.CSS("some-property")
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

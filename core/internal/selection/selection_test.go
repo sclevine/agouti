@@ -2,6 +2,7 @@ package selection_test
 
 import (
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
@@ -128,23 +129,16 @@ var _ = Describe("Selection", func() {
 		})
 
 		Context("when the client succeeds in retrieving the elements", func() {
-			It("should return the text", func() {
-				count, _ := selection.Count()
+			It("should successfully return the text", func() {
+				count, err := selection.Count()
 				Expect(count).To(Equal(2))
-			})
-
-			It("should not return an error", func() {
-				_, err := selection.Count()
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
 		Context("when the the client fails to retrieve the elements", func() {
-			BeforeEach(func() {
-				client.GetElementsCall.Err = errors.New("some error")
-			})
-
 			It("should return an error", func() {
+				client.GetElementsCall.Err = errors.New("some error")
 				_, err := selection.Count()
 				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
 			})
@@ -168,6 +162,25 @@ var _ = Describe("Selection", func() {
 			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
 		})
 
+		It("should compare the selection elements for equality", func() {
+			selection.EqualsElement(otherSelection)
+			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
+		})
+
+		It("should successfully return true if they are equal", func() {
+			element.IsEqualToCall.ReturnEquals = true
+			equal, err := selection.EqualsElement(otherSelection)
+			Expect(equal).To(BeTrue())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should successfully return false if they are not equal", func() {
+			element.IsEqualToCall.ReturnEquals = false
+			equal, err := selection.EqualsElement(otherSelection)
+			Expect(equal).To(BeFalse())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
 		Context("when multiple elements are selected from the selection", func() {
 			It("should return an error with the number of elements", func() {
 				client.GetElementsCall.ReturnElements = []types.Element{element, element}
@@ -184,11 +197,6 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		It("should compare the selection elements for equality", func() {
-			selection.EqualsElement(otherSelection)
-			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
-		})
-
 		Context("if the provided element is not a *Selection", func() {
 			It("should return an error", func() {
 				_, err := selection.EqualsElement("not a selection")
@@ -201,25 +209,6 @@ var _ = Describe("Selection", func() {
 				element.IsEqualToCall.Err = errors.New("some error")
 				_, err := selection.EqualsElement(otherSelection)
 				Expect(err).To(MatchError("failed to compare 'CSS: #selector' to 'CSS: #other_selector': some error"))
-			})
-		})
-
-		Context("if the client succeeds in comparing the elements", func() {
-			It("should return true if they are equal", func() {
-				element.IsEqualToCall.ReturnEquals = true
-				equal, _ := selection.EqualsElement(otherSelection)
-				Expect(equal).To(BeTrue())
-			})
-
-			It("should return false if they are not equal", func() {
-				element.IsEqualToCall.ReturnEquals = false
-				equal, _ := selection.EqualsElement(otherSelection)
-				Expect(equal).To(BeFalse())
-			})
-
-			It("should not return an error", func() {
-				_, err := selection.EqualsElement(otherSelection)
-				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})

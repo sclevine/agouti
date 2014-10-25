@@ -26,7 +26,6 @@ var _ = Describe("Elements", func() {
 			firstParent  *mocks.Element
 			secondParent *mocks.Element
 			children     []*mocks.Element
-			err          error
 		)
 
 		BeforeEach(func() {
@@ -40,11 +39,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when all elements are successful retrieved", func() {
 			BeforeEach(func() {
-				err = selection.All("parents").AllByXPath("children").Click()
-			})
-
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.All("parents").AllByXPath("children").Click()).To(Succeed())
 			})
 
 			It("should retrieve the parent elements using the client", func() {
@@ -66,11 +61,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when all indexed elements are successful retrieved", func() {
 			BeforeEach(func() {
-				err = selection.All("parents").At(1).AllByXPath("children").At(1).Click()
-			})
-
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.All("parents").At(1).AllByXPath("children").At(1).Click()).To(Succeed())
 			})
 
 			It("should retrieve the parent elements using the client", func() {
@@ -92,32 +83,23 @@ var _ = Describe("Elements", func() {
 
 		Context("when there is no selection", func() {
 			It("should return an error", func() {
-				err := selection.Click()
-				Expect(err).To(MatchError("failed to select '': empty selection"))
+				Expect(selection.Click()).To(MatchError("failed to select '': empty selection"))
 			})
 		})
 
 		Context("when retrieving the parent elements fails", func() {
-			BeforeEach(func() {
+			It("should return the error", func() {
 				selection = selection.All("parents")
 				client.GetElementsCall.Err = errors.New("some error")
-			})
-
-			It("should return the error", func() {
-				err := selection.Click()
-				Expect(err).To(MatchError("failed to select 'CSS: parents': some error"))
+				Expect(selection.Click()).To(MatchError("failed to select 'CSS: parents': some error"))
 			})
 		})
 
 		Context("when retrieving any of the child elements fails", func() {
-			BeforeEach(func() {
+			It("should return the error", func() {
 				selection = selection.All("parents").AllByXPath("children")
 				secondParent.GetElementsCall.Err = errors.New("some error")
-			})
-
-			It("should return the error", func() {
-				err := selection.Click()
-				Expect(err).To(MatchError("failed to select 'CSS: parents | XPath: children': some error"))
+				Expect(selection.Click()).To(MatchError("failed to select 'CSS: parents | XPath: children': some error"))
 			})
 		})
 

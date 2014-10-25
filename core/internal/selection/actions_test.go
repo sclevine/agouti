@@ -43,8 +43,8 @@ var _ = Describe("Selection", func() {
 			return selection.Click()
 		})
 
-		It("should click on all selected elements", func() {
-			selection.Click()
+		It("should successfully click on all selected elements", func() {
+			Expect(selection.Click()).To(Succeed())
 			Expect(firstElement.ClickCall.Called).To(BeTrue())
 			Expect(secondElement.ClickCall.Called).To(BeTrue())
 		})
@@ -53,12 +53,6 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				secondElement.ClickCall.Err = errors.New("some error")
 				Expect(selection.Click()).To(MatchError("failed to click on 'CSS: #selector': some error"))
-			})
-		})
-
-		Context("when all clicks succeed", func() {
-			It("should return nil", func() {
-				Expect(selection.Click()).To(BeNil())
 			})
 		})
 	})
@@ -73,8 +67,8 @@ var _ = Describe("Selection", func() {
 			return selection.DoubleClick()
 		})
 
-		It("should move the mouse to the middle of each selected element", func() {
-			selection.DoubleClick()
+		It("should successfully move the mouse to the middle of each selected element", func() {
+			Expect(selection.DoubleClick()).To(Succeed())
 			Expect(client.MoveToCall.Element).To(Equal(secondElement))
 			Expect(client.MoveToCall.Point).To(BeNil())
 		})
@@ -86,8 +80,8 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		It("should double-click on each element", func() {
-			selection.DoubleClick()
+		It("should successfully double-click on each element", func() {
+			Expect(selection.DoubleClick()).To(Succeed())
 			Expect(client.DoubleClickCall.Called).To(BeTrue())
 		})
 
@@ -95,12 +89,6 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				client.DoubleClickCall.Err = errors.New("some error")
 				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on 'CSS: #selector': some error"))
-			})
-		})
-
-		Context("when the double-clicking all elements succeeds", func() {
-			It("should return nil", func() {
-				Expect(selection.DoubleClick()).To(BeNil())
 			})
 		})
 	})
@@ -114,6 +102,12 @@ var _ = Describe("Selection", func() {
 			return selection.Fill("some text")
 		})
 
+		It("should successfully clear each element", func() {
+			Expect(selection.Fill("some text")).To(Succeed())
+			Expect(firstElement.ClearCall.Called).To(BeTrue())
+			Expect(secondElement.ClearCall.Called).To(BeTrue())
+		})
+
 		Context("when clearing any element fails", func() {
 			It("should return an error", func() {
 				secondElement.ClearCall.Err = errors.New("some error")
@@ -121,28 +115,16 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
+		It("should successfully fill each element with the provided text", func() {
+			Expect(selection.Fill("some text")).To(Succeed())
+			Expect(firstElement.ValueCall.Text).To(Equal("some text"))
+			Expect(secondElement.ValueCall.Text).To(Equal("some text"))
+		})
+
 		Context("when entering text into any element fails", func() {
 			It("should return an error", func() {
 				secondElement.ValueCall.Err = errors.New("some error")
 				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
-			})
-		})
-
-		Context("when the fill succeeds", func() {
-			It("should clear each element", func() {
-				selection.Fill("some text")
-				Expect(firstElement.ClearCall.Called).To(BeTrue())
-				Expect(secondElement.ClearCall.Called).To(BeTrue())
-			})
-
-			It("should fill each element with the provided text", func() {
-				selection.Fill("some text")
-				Expect(firstElement.ValueCall.Text).To(Equal("some text"))
-				Expect(secondElement.ValueCall.Text).To(Equal("some text"))
-			})
-
-			It("should return nil", func() {
-				Expect(selection.Fill("some text")).To(BeNil())
 			})
 		})
 	})
@@ -156,9 +138,10 @@ var _ = Describe("Selection", func() {
 			return selection.Check()
 		})
 
-		It("should check the type of each checkbox", func() {
+		It("should successfully check the type of each checkbox", func() {
 			firstElement.GetAttributeCall.ReturnValue = "checkbox"
-			selection.Check()
+			secondElement.GetAttributeCall.ReturnValue = "checkbox"
+			Expect(selection.Check()).To(Succeed())
 			Expect(firstElement.GetAttributeCall.Attribute).To(Equal("type"))
 			Expect(secondElement.GetAttributeCall.Attribute).To(Equal("type"))
 		})
@@ -185,6 +168,18 @@ var _ = Describe("Selection", func() {
 				secondElement.GetAttributeCall.ReturnValue = "checkbox"
 			})
 
+			It("should not click on the checked checkbox successfully", func() {
+				firstElement.IsSelectedCall.ReturnSelected = true
+				Expect(selection.Check()).To(Succeed())
+				Expect(firstElement.ClickCall.Called).To(BeFalse())
+			})
+
+			It("should click on the unchecked checkboxes successfully", func() {
+				secondElement.IsSelectedCall.ReturnSelected = false
+				Expect(selection.Check()).To(Succeed())
+				Expect(secondElement.ClickCall.Called).To(BeTrue())
+			})
+
 			Context("when the determining the selected status of any element fails", func() {
 				It("should return an error", func() {
 					secondElement.IsSelectedCall.Err = errors.New("some error")
@@ -192,28 +187,9 @@ var _ = Describe("Selection", func() {
 				})
 			})
 
-			Context("when clicking succeeds", func() {
-				BeforeEach(func() {
-					firstElement.IsSelectedCall.ReturnSelected = true
-					secondElement.IsSelectedCall.ReturnSelected = false
-					selection.Check()
-				})
-
-				It("should not click on the checked checkbox", func() {
-					Expect(firstElement.ClickCall.Called).To(BeFalse())
-				})
-
-				It("should click on the unchecked checkboxes", func() {
-					Expect(secondElement.ClickCall.Called).To(BeTrue())
-				})
-			})
-
 			Context("when clicking on the checkbox fails", func() {
-				BeforeEach(func() {
-					secondElement.ClickCall.Err = errors.New("some error")
-				})
-
 				It("should return an error", func() {
+					secondElement.ClickCall.Err = errors.New("some error")
 					Expect(selection.Check()).To(MatchError("failed to click on 'CSS: #selector': some error"))
 				})
 			})
@@ -221,12 +197,12 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#Uncheck", func() {
-		It("should click on an checked checkbox", func() {
+		It("should successfully click on a checked checkbox", func() {
 			client.GetElementsCall.ReturnElements = []types.Element{firstElement, secondElement}
 			firstElement.GetAttributeCall.ReturnValue = "checkbox"
 			secondElement.GetAttributeCall.ReturnValue = "checkbox"
 			secondElement.IsSelectedCall.ReturnSelected = true
-			selection.Uncheck()
+			Expect(selection.Uncheck()).To(Succeed())
 			Expect(firstElement.ClickCall.Called).To(BeFalse())
 			Expect(secondElement.ClickCall.Called).To(BeTrue())
 		})
@@ -250,8 +226,8 @@ var _ = Describe("Selection", func() {
 			return selection.Select("some text")
 		})
 
-		It("should retrieve the options with matching text for each selected element", func() {
-			selection.Select("some text")
+		It("should successfully retrieve the options with matching text for each selected element", func() {
+			Expect(selection.Select("some text")).To(Succeed())
 			Expect(firstElement.GetElementsCall.Selector.Using).To(Equal("xpath"))
 			Expect(firstElement.GetElementsCall.Selector.Value).To(Equal(`./option[normalize-space(text())="some text"]`))
 			Expect(secondElement.GetElementsCall.Selector.Using).To(Equal("xpath"))
@@ -272,8 +248,8 @@ var _ = Describe("Selection", func() {
 			})
 		})
 
-		It("should click on all options with matching text", func() {
-			selection.Select("some text")
+		It("should successfully click on all options with matching text", func() {
+			Expect(selection.Select("some text")).To(Succeed())
 			Expect(firstOptions[0].ClickCall.Called).To(BeTrue())
 			Expect(firstOptions[1].ClickCall.Called).To(BeTrue())
 			Expect(secondOptions[0].ClickCall.Called).To(BeTrue())
@@ -284,13 +260,6 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				secondOptions[1].ClickCall.Err = errors.New("some error")
 				Expect(selection.Select("some text")).To(MatchError(`failed to click on option with text "some text" for some 'CSS: #selector': some error`))
-			})
-		})
-
-		Context("when all clicks succeed", func() {
-			It("should not return an error", func() {
-				err := selection.Select("some text")
-				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -304,8 +273,8 @@ var _ = Describe("Selection", func() {
 			return selection.Submit()
 		})
 
-		It("should submit all selected elements", func() {
-			selection.Submit()
+		It("should successfully submit all selected elements", func() {
+			Expect(selection.Submit()).To(Succeed())
 			Expect(firstElement.SubmitCall.Called).To(BeTrue())
 			Expect(secondElement.SubmitCall.Called).To(BeTrue())
 		})
@@ -314,12 +283,6 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				secondElement.SubmitCall.Err = errors.New("some error")
 				Expect(selection.Submit()).To(MatchError("failed to submit 'CSS: #selector': some error"))
-			})
-		})
-
-		Context("when all submits succeed", func() {
-			It("should return nil", func() {
-				Expect(selection.Submit()).To(BeNil())
 			})
 		})
 	})
