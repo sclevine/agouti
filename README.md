@@ -118,7 +118,7 @@ var _ = Feature("Agouti", func() {
 
 		Step("referring to an element by selection index", func() {
 			Expect(page.All("option").At(0)).To(HaveText("first option"))
-			Expect(page.All("select").At(1).Find("option")).To(HaveText("third option"))
+			Expect(page.All("select").At(1).All("option").At(0)).To(HaveText("third option"))
 		})
 
 		Step("matching text in the header", func() {
@@ -140,7 +140,7 @@ var _ = Feature("Agouti", func() {
 
 	Scenario("selecting multiple elements", func() {
 		Step("asserting on their state", func() {
-			Expect(page.Find("select").All("option")).To(BeVisible())
+			Expect(page.All("select").All("option")).To(BeVisible())
 			Expect(page.All("h1,h2")).NotTo(BeVisible())
 		})
 	})
