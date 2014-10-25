@@ -4,6 +4,7 @@ import (
 	"github.com/sclevine/agouti/matchers/internal/mocks"
 	. "github.com/sclevine/agouti/matchers/internal/selection"
 
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -45,6 +46,34 @@ var _ = Describe("BeFoundMatcher", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
 				Expect(err).To(MatchError("BeFound matcher requires a Selection.  Got:\n    <string>: not a selection"))
+			})
+		})
+
+		Context("when there is an error retrieving the count", func() {
+			Context("when the error is an 'element not found' error", func() {
+				It("should successfully return false", func() {
+					selection.CountCall.Err = errors.New("element not found")
+					success, err := matcher.Match(selection)
+					Expect(success).To(BeFalse())
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
+			Context("when the error is an 'element index out of range' error", func() {
+				It("should successfully return false", func() {
+					selection.CountCall.Err = errors.New("element index out of range")
+					success, err := matcher.Match(selection)
+					Expect(success).To(BeFalse())
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
+			Context("when the error is any other error", func() {
+				It("should return an error", func() {
+					selection.CountCall.Err = errors.New("some error")
+					_, err := matcher.Match(selection)
+					Expect(err).To(MatchError("some error"))
+				})
 			})
 		})
 	})

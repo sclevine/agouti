@@ -1,10 +1,9 @@
 package selection
 
 import (
-	"errors"
 	"fmt"
+
 	"github.com/sclevine/agouti/core/internal/types"
-	"strings"
 )
 
 type Selection struct {
@@ -18,37 +17,27 @@ type client interface {
 	retriever
 }
 
-func (s *Selection) At(index int) types.Selection {
-	last := len(s.selectors) - 1
-
-	if last < 0 {
-		return &Selection{s.Client, nil}
-	}
-
-	old := s.selectors[last]
-	newSelector := types.Selector{Using: old.Using, Value: old.Value, Index: index, Indexed: true}
-	return &Selection{s.Client, appendSelector(s.selectors[:last], newSelector)}
-}
-
 func (s *Selection) Find(selector string) types.Selection {
-	return s.All(selector).At(0)
+	return s.All(selector).Single()
 }
 
 func (s *Selection) FindByXPath(selector string) types.Selection {
-	return s.AllByXPath(selector).At(0)
+	return s.AllByXPath(selector).Single()
 }
 
 func (s *Selection) FindByLink(text string) types.Selection {
-	return s.AllByLink(text).At(0)
+	return s.AllByLink(text).Single()
 }
 
 func (s *Selection) FindByLabel(text string) types.Selection {
-	return s.AllByLabel(text).At(0)
+	return s.AllByLabel(text).Single()
 }
 
 func (s *Selection) All(selector string) types.MultiSelection {
 	last := len(s.selectors) - 1
-	if last >= 0 && s.selectors[last].Using == "css selector" && !s.selectors[last].Indexed {
+
+	lastIsCSS := last >= 0 && s.selectors[last].Using == "css selector"
+	if lastIsCSS && !s.selectors[last].Indexed && !s.selectors[last].Single {
 		return s.mergedSelection(selector)
 	}
 
@@ -68,62 +57,21 @@ func (s *Selection) AllByLabel(text string) types.MultiSelection {
 	return s.AllByXPath(selector)
 }
 
-func (s *Selection) subSelection(using, value string) *Selection {
+func (s *Selection) subSelection(using, value string) *MultiSelection {
 	newSelector := types.Selector{Using: using, Value: value}
-	return &Selection{s.Client, appendSelector(s.selectors, newSelector)}
+	selection := &Selection{s.Client, appendSelector(s.selectors, newSelector)}
+	return &MultiSelection{selection}
 }
 
-func (s *Selection) mergedSelection(value string) *Selection {
+func (s *Selection) mergedSelection(value string) *MultiSelection {
 	last := len(s.selectors) - 1
 	newSelectorValue := s.selectors[last].Value + " " + value
 	newSelector := types.Selector{Using: "css selector", Value: newSelectorValue}
-	return &Selection{s.Client, appendSelector(s.selectors[:last], newSelector)}
+	selection := &Selection{s.Client, appendSelector(s.selectors[:last], newSelector)}
+	return &MultiSelection{selection}
 }
 
 func appendSelector(selectors []types.Selector, selector types.Selector) []types.Selector {
 	selectorsCopy := append([]types.Selector(nil), selectors...)
 	return append(selectorsCopy, selector)
-}
-
-func (s *Selection) String() string {
-	var tags []string
-
-	for _, selector := range s.selectors {
-		tags = append(tags, selector.String())
-	}
-
-	return strings.Join(tags, " | ")
-}
-
-func (s *Selection) Count() (int, error) {
-	elements, err := s.getElements()
-	if err != nil {
-		return 0, fmt.Errorf("failed to select '%s': %s", s, err)
-	}
-
-	return len(elements), nil
-}
-
-func (s *Selection) EqualsElement(comparable interface{}) (bool, error) {
-	element, err := s.getSelectedElement()
-	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", s, err)
-	}
-
-	selection, ok := comparable.(*Selection)
-	if !ok {
-		return false, errors.New("provided object is not a selection")
-	}
-
-	otherElement, err := selection.getSelectedElement()
-	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", comparable, err)
-	}
-
-	equal, err := element.IsEqualTo(otherElement)
-	if err != nil {
-		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, comparable, err)
-	}
-
-	return equal, nil
 }

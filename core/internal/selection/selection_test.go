@@ -1,8 +1,6 @@
 package selection_test
 
 import (
-	"errors"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
@@ -23,41 +21,27 @@ var _ = Describe("Selection", func() {
 		element = &mocks.Element{}
 	})
 
-	Describe("#At", func() {
-		Context("when called on a selection with no selectors", func() {
-			It("should return an empty selection", func() {
-				Expect(selection.(types.MultiSelection).At(1).String()).To(Equal(""))
-			})
-		})
-
-		Context("when called on a selection with selectors ", func() {
-			It("should select an index of the current selectino", func() {
-				Expect(selection.All("#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
-			})
-		})
-	})
-
 	Describe("#Find", func() {
-		It("should select the first of all of the elements by CSS", func() {
-			Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector [0]"))
+		It("should select a single element by CSS", func() {
+			Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector [single]"))
 		})
 	})
 
 	Describe("#FindByXPath", func() {
-		It("should select the first of all of the elements by XPath", func() {
-			Expect(selection.FindByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
+		It("should select a single element by XPath", func() {
+			Expect(selection.FindByXPath("//selector").String()).To(Equal("XPath: //selector [single]"))
 		})
 	})
 
 	Describe("#FindByLink", func() {
-		It("should select the first of all of the elements by link text", func() {
-			Expect(selection.FindByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
+		It("should select a single element by link text", func() {
+			Expect(selection.FindByLink("some text").String()).To(Equal(`Link: "some text" [single]`))
 		})
 	})
 
 	Describe("#FindByLabel", func() {
-		It("should select the first of all of the elements by label", func() {
-			Expect(selection.FindByLabel("some label").String()).To(MatchRegexp("XPath: .+input.+ \\[0\\]"))
+		It("should select a single element by label", func() {
+			Expect(selection.FindByLabel("some label").String()).To(MatchRegexp("XPath: .+input.+ \\[single\\]"))
 		})
 	})
 
@@ -84,6 +68,12 @@ var _ = Describe("Selection", func() {
 		Context("when the selection ends with an indexed selector", func() {
 			It("should add a new selector to the selection", func() {
 				Expect(selection.All("#selector").At(0).All("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
+			})
+		})
+
+		Context("when the selection ends with a single-element-only selector", func() {
+			It("should add a new selector to the selection", func() {
+				Expect(selection.All("#selector").Single().All("#subselector").String()).To(Equal("CSS: #selector [single] | CSS: #subselector"))
 			})
 		})
 	})
@@ -113,102 +103,6 @@ var _ = Describe("Selection", func() {
 				firstChild := parent.All("#firstChild")
 				parent.All("#secondChild")
 				Expect(firstChild.String()).To(Equal("XPath: //one | XPath: //two | XPath: //parent | CSS: #firstChild"))
-			})
-		})
-	})
-
-	Describe("#Count", func() {
-		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element, element}
-			selection = selection.All("#selector")
-		})
-
-		It("should request elements from the client using the provided selector", func() {
-			selection.Count()
-			Expect(client.GetElementsCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "#selector"}))
-		})
-
-		Context("when the client succeeds in retrieving the elements", func() {
-			It("should successfully return the text", func() {
-				count, err := selection.Count()
-				Expect(count).To(Equal(2))
-				Expect(err).NotTo(HaveOccurred())
-			})
-		})
-
-		Context("when the the client fails to retrieve the elements", func() {
-			It("should return an error", func() {
-				client.GetElementsCall.Err = errors.New("some error")
-				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
-			})
-		})
-	})
-
-	Describe("#EqualsElement", func() {
-		var (
-			otherClient    *mocks.Client
-			otherSelection types.Selection
-			otherElement   *mocks.Element
-		)
-
-		BeforeEach(func() {
-			selection = selection.All("#selector")
-			client.GetElementsCall.ReturnElements = []types.Element{element}
-			otherClient = &mocks.Client{}
-			otherSelection = &Selection{Client: otherClient}
-			otherSelection = otherSelection.All("#other_selector")
-			otherElement = &mocks.Element{}
-			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
-		})
-
-		It("should compare the selection elements for equality", func() {
-			selection.EqualsElement(otherSelection)
-			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
-		})
-
-		It("should successfully return true if they are equal", func() {
-			element.IsEqualToCall.ReturnEquals = true
-			equal, err := selection.EqualsElement(otherSelection)
-			Expect(equal).To(BeTrue())
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("should successfully return false if they are not equal", func() {
-			element.IsEqualToCall.ReturnEquals = false
-			equal, err := selection.EqualsElement(otherSelection)
-			Expect(equal).To(BeFalse())
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		Context("when multiple elements are selected from the selection", func() {
-			It("should return an error with the number of elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{element, element}
-				_, err := selection.EqualsElement(otherSelection)
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
-			})
-		})
-
-		Context("when multiple elements are selected from the other selection", func() {
-			It("should return an error with the number of elements", func() {
-				otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
-				_, err := selection.EqualsElement(otherSelection)
-				Expect(err).To(MatchError("failed to select 'CSS: #other_selector': method does not support multiple elements (2)"))
-			})
-		})
-
-		Context("if the provided element is not a *Selection", func() {
-			It("should return an error", func() {
-				_, err := selection.EqualsElement("not a selection")
-				Expect(err).To(MatchError("provided object is not a selection"))
-			})
-		})
-
-		Context("if the client fails to compare the elements", func() {
-			It("should return an error", func() {
-				element.IsEqualToCall.Err = errors.New("some error")
-				_, err := selection.EqualsElement(otherSelection)
-				Expect(err).To(MatchError("failed to compare 'CSS: #selector' to 'CSS: #other_selector': some error"))
 			})
 		})
 	})

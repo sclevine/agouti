@@ -30,4 +30,5 @@ type Selection interface {
 type MultiSelection interface {
 	Selection
 	At(index int) Selection
+	Single() Selection
 }

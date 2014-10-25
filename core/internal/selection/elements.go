@@ -17,11 +17,18 @@ func retrieveElements(retriever retriever, selector types.Selector) ([]types.Ele
 		return nil, err
 	}
 
-	if selector.Indexed {
-		if selector.Index >= len(elements) {
-			return nil, fmt.Errorf("element index out of range (>%d)", len(elements)-1)
+	if selector.Single {
+		if len(elements) == 0 {
+			return nil, errors.New("element not found")
+		} else if len(elements) > 1 {
+			return nil, errors.New("ambiguous find")
 		}
+		elements = []types.Element{elements[0]}
 
+	} else if selector.Indexed {
+		if selector.Index >= len(elements) {
+			return nil, errors.New("element index out of range")
+		}
 		elements = []types.Element{elements[selector.Index]}
 	}
 
@@ -60,7 +67,7 @@ func (s *Selection) getSelectedElements() ([]types.Element, error) {
 	}
 
 	if len(elements) == 0 {
-		return nil, fmt.Errorf("no elements found")
+		return nil, errors.New("no elements found")
 	}
 
 	return elements, nil

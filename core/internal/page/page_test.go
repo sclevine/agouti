@@ -366,25 +366,26 @@ var _ = Describe("Page", func() {
 
 	Describe("#Find", func() {
 		It("should defer to selection#Find", func() {
-			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector [0]"))
+			Expect(page.Find("#selector").String()).To(Equal("CSS: #selector [single]"))
 		})
 	})
 
 	Describe("#FindByXPath", func() {
 		It("should defer to selection#FindXByPath", func() {
-			Expect(page.FindByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
+			Expect(page.FindByXPath("//selector").String()).To(Equal("XPath: //selector [single]"))
 		})
 	})
 
 	Describe("#FindByLink", func() {
 		It("should defer to selection#FindByLink", func() {
-			Expect(page.FindByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
+			Expect(page.FindByLink("some text").String()).To(Equal(`Link: "some text" [single]`))
 		})
 	})
 
 	Describe("#FindByLabel", func() {
 		It("should defer to selection#FindByLabel", func() {
-			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("//input"))
+			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("XPath: //input"))
+			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("[single]"))
 		})
 	})
 
@@ -408,7 +409,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#AllByLabel", func() {
 		It("should defer to selection#AllByLabel", func() {
-			Expect(page.AllByLabel("label name").String()).To(ContainSubstring(`XPath: //input`))
+			Expect(page.AllByLabel("label name").String()).To(ContainSubstring("XPath: //input"))
 		})
 	})
 })

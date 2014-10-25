@@ -18,7 +18,14 @@ func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
 
 	count, err := actualSelection.Count()
 	if err != nil {
-		return false, err
+		switch err.Error() {
+		case "element not found":
+			return false, nil
+		case "element index out of range":
+			return false, nil
+		default:
+			return false, err
+		}
 	}
 
 	return count > 0, nil
