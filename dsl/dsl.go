@@ -1,7 +1,7 @@
-// Agouti dsl implements a Capybara-like DSL for writing acceptance tests.
-// This package is provided entirely for convenience. Agouti dsl is not required
-// to write Ginkgo acceptance tests using the Agouti core and matchers packages.
-// Unlike the core package, this package only permits a single running WebDriver.
+// Agouti dsl uses Ginkgo to implement a Capybara-like DSL for writing acceptance tests.
+// This package is provided entirely for convenience. Agouti dsl is not required to write
+// Ginkgo acceptance tests using the Agouti core and matchers packages. Unlike the core
+// package, this package only permits a single running WebDriver.
 package dsl
 
 import "github.com/onsi/ginkgo"

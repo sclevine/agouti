@@ -1,4 +1,4 @@
-// Agouti core is a general-purpose WebDriver API for Golang
+// Agouti core is a WebDriver API for Go.
 package core
 
 import (
@@ -16,57 +16,165 @@ import (
 )
 
 type Selection interface {
+	// Find finds exactly one element by CSS selector.
 	Find(selector string) *selection.Selection
+
+	// FindByXPath finds exactly one element by XPath selector.
 	FindByXPath(selector string) *selection.Selection
+
+	// FindByLink finds exactly one element by anchor link text.
 	FindByLink(text string) *selection.Selection
+
+	// FindByLabel finds exactly one element by associated label text.
 	FindByLabel(text string) *selection.Selection
+
+	// All finds zero or more elements by CSS selector.
 	All(selector string) *selection.MultiSelection
+
+	// AllByXPath finds zero or more elements by XPath selector.
 	AllByXPath(selector string) *selection.MultiSelection
+
+	// AllByLink finds zero or more elements by anchor link text.
 	AllByLink(text string) *selection.MultiSelection
+
+	// AllByLabel finds zero or more elements by associated label text.
 	AllByLabel(text string) *selection.MultiSelection
+
+	// String returns a string representation of the selection, ex.
+	//    CSS: .some-class [single] | XPath: //table [3] | Link "click me"
 	String() string
+
+	// Count returns the number of elements the selection refers to.
 	Count() (int, error)
-	Click() error
-	DoubleClick() error
-	Fill(text string) error
-	Text() (string, error)
-	Attribute(attribute string) (string, error)
-	CSS(property string) (string, error)
-	Check() error
-	Uncheck() error
-	Selected() (bool, error)
-	Visible() (bool, error)
-	Enabled() (bool, error)
-	Select(text string) error
-	Submit() error
+
+	// EqualsElement returns whether or not two selections of exactly
+	// one element each refer to the same element.
 	EqualsElement(comparable interface{}) (bool, error)
+
+	// Click clicks on all of the elements the selection refers to.
+	Click() error
+
+	// DoubleClick double-clicks on all of the elements the selection refers to.
+	DoubleClick() error
+
+	// Fill fills all of the input fields the selection refers to.
+	Fill(text string) error
+
+	// Check checks all of the unchecked checkboxes that the selection refers to.
+	Check() error
+
+	// Uncheck unchecks all of the checked checkboxes that the selection refers to.
+	Uncheck() error
+
+	// Select, when called on any number of <select> elements, will select all
+	// <options> under those elements that match the provided text.
+	Select(text string) error
+
+	// Submit submits a form. The selection may refer to the form itself, or any
+	// input element contained within the form.
+	Submit() error
+
+	// Text returns text for exactly one element.
+	Text() (string, error)
+
+	// Attribute returns an attribute value for exactly one element.
+	Attribute(attribute string) (string, error)
+
+	// CSS returns a CSS style property value for exactly one element.
+	CSS(property string) (string, error)
+
+	// Selected returns true if all of the elements that the selection
+	// refers to are selected.
+	Selected() (bool, error)
+
+	// Visible returns true if all of the elements that the selection
+	// refers to are visible.
+	Visible() (bool, error)
+
+	// Enabled returns true if all of the elements that the selection
+	// refers to are enabled.
+	Enabled() (bool, error)
 }
 
 type MultiSelection interface {
-	Selection
+	// At specifies a single element to select using the provided index.
 	At(index int) Selection
+
+	// Single specifies that the selection must refer to exactly one element.
+	//    Find("#selector")
+	// is equivalent to
+	//    All("#selector").Single()
 	Single() Selection
+
+	// All Selection methods are valid MultiSelection methods.
+	Selection
 }
 
 type Page interface {
+	// Destroy closes the session and associated open browser instances
 	Destroy() error
+
+	// Navigate navigates to the provided URL.
 	Navigate(url string) error
+
+	// SetCookie sets a cookie on the page.
 	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
+
+	// DeleteCookie deletes a cookie on the page by name.
 	DeleteCookie(name string) error
+
+	// ClearCookies deletes all cookies on the page.
 	ClearCookies() error
+
+	// URL returns the current page URL.
 	URL() (string, error)
+
+	// Size sets the current page size.
 	Size(width, height int) error
+
+	// Screenshot takes a screenshot and saves it to the provided filename.
 	Screenshot(filename string) error
+
+	// Title returns the page title.
 	Title() (string, error)
+
+	// HTML returns the current contents of the DOM for the entire page.
 	HTML() (string, error)
+
+	// RunScript runs the javascript provided in the body argument. Any keys present
+	// in the arguments map will be available as variables in the body argument.
+	// Arguments values are converted into javascript objects.
+	// If the body returns a value, it will be unmarshalled into the result argument.
+	// Simple example:
+	//    var number int
+	//    page.RunScript("return test;", map[string]interface{}{"test": 100}, &number)
+	//    fmt.Println(number)
+	// -> 100
 	RunScript(body string, arguments map[string]interface{}, result interface{}) error
+
+	// PopupText returns the current alert, confirm, or prompt popup text.
 	PopupText() (string, error)
+
+	// EnterPopupText enters text into an open prompt popup.
 	EnterPopupText(text string) error
+
+	// ConfirmPopup confirms an alert, confirm, or prompt popup.
 	ConfirmPopup() error
+
+	// CancelPopup cancels an alert, confirm, or prompt popup.
 	CancelPopup() error
+
+	// Forward navigates forward in history.
 	Forward() error
+
+	// Back navigates backwards in history.
 	Back() error
+
+	// Refresh refreshes the page
 	Refresh() error
+
+	// These Find<type>() and All<type>() selectors are equivalent to their
+	// Selection counterparts but without any scoping.
 	Find(selector string) *selection.Selection
 	FindByXPath(selector string) *selection.Selection
 	FindByLink(text string) *selection.Selection
@@ -77,85 +185,7 @@ type Page interface {
 	AllByLabel(text string) *selection.MultiSelection
 }
 
-type Capabilities interface {
-	Browser(browser string) session.Capabilities
-	Version(version string) session.Capabilities
-	Platform(platform string) session.Capabilities
-	With(feature string) session.Capabilities
-	Without(feature string) session.Capabilities
-	JSON() string
-}
-
-// WebDriver represents a Selenium, PhantomJS, or ChromeDriver process
-type WebDriver interface {
-	// Start launches the WebDriver process
-	Start() error
-
-	// Stop ends all remaining sessions and stops the WebDriver process
-	Stop()
-
-	// Page returns a new WebDriver session. The optional capabilities
-	// argument allows for specification of the desired browser capabilities.
-	// For Selenium, the capabilities argument should specify a browser.
-	Page(capabilities ...session.JSONable) (*page.Page, error)
-}
-
-// Use returns a Capabilities object with the following chainable methods:
-//  Browser(string) - {chrome|firefox|safari|iphone|...} - browser name
-//  Version(string) - ex. "3.6" - browser version
-//  Platform(string) - {WINDOWS|XP|VISTA|MAC|LINUX|UNIX} - browser platform
-//  With(feature string) - enable the specified feature
-//  Without(feature string) - disable the specified feature
-// The Map() method returns a map[string]interface{}
-func Use() Capabilities {
-	return session.Capabilities{}
-}
-
-// Chrome returns an instance of a ChromeDriver WebDriver
-func Chrome() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
-	}
-
-	port := strings.SplitN(address, ":", 2)[1]
-	url := fmt.Sprintf("http://%s", address)
-	command := []string{"chromedriver", "--silent", "--port=" + port}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &webdriver.Driver{Service: service}, nil
-}
-
-// PhantomJS returns an instance of a PhantomJS WebDriver
-func PhantomJS() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
-	}
-
-	url := fmt.Sprintf("http://%s", address)
-	command := []string{"phantomjs", fmt.Sprintf("--webdriver=%s", address)}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &webdriver.Driver{Service: service}, nil
-}
-
-// Selenium returns an instance of a Selenium WebDriver
-func Selenium() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
-	}
-
-	port := strings.SplitN(address, ":", 2)[1]
-	url := fmt.Sprintf("http://%s/wd/hub", address)
-	command := []string{"selenium-server", "-port", port}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &webdriver.Driver{Service: service}, nil
-}
-
-// SauceLabs returns a Page with a Sauce Labs session
+// SauceLabs returns a Page with a Sauce Labs session. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, key string) (Page, error) {
 	url := "http://ondemand.saucelabs.com/wd/hub"
 	capabilities := session.Capabilities{
@@ -176,7 +206,7 @@ func SauceLabs(name, platform, browser, version, username, key string) (Page, er
 	return &page.Page{Client: client}, nil
 }
 
-// Connect returns a Page with a generic session open on the provided URL
+// Connect returns a Page with a session opened on the provided WebDriver URL.
 func Connect(capabilities Capabilities, url string) (Page, error) {
 	pageSession, err := session.Open(url, capabilities)
 	if err != nil {
@@ -185,6 +215,90 @@ func Connect(capabilities Capabilities, url string) (Page, error) {
 
 	client := &api.Client{Session: pageSession}
 	return &page.Page{Client: client}, nil
+}
+
+type Capabilities interface {
+	// Browser sets the desired browser name - {chrome|firefox|safari|iphone|...}.
+	Browser(browser string) session.Capabilities
+
+	// Version sets the desired browser version (ex. "3.6").
+	Version(version string) session.Capabilities
+
+	// Platform sets the desired browser platform - {WINDOWS|XP|VISTA|MAC|LINUX|UNIX}.
+	Platform(platform string) session.Capabilities
+
+	// With enables the provided feature (ex. "handlesAlerts").
+	With(feature string) session.Capabilities
+
+	// Without disables the provided feature (ex. "javascriptEnabled").
+	Without(feature string) session.Capabilities
+
+	// JSON returns a JSON string representing the desired capabilities.
+	JSON() string
+}
+
+// Use returns a Capabilities object.
+func Use() Capabilities {
+	return session.Capabilities{}
+}
+
+// WebDriver represents a Selenium, PhantomJS, or ChromeDriver process.
+type WebDriver interface {
+	// Start launches the WebDriver process.
+	Start() error
+
+	// Stop ends all remaining sessions and stops the WebDriver process.
+	Stop()
+
+	// Page returns a new WebDriver session. The optional capabilities
+	// argument allows for specification of the desired browser capabilities.
+	// For Selenium, the capabilities argument should specify a browser.
+	// To generate a JSONable capabilities object, see the Use() function.
+	Page(capabilities ...session.JSONable) (*page.Page, error)
+}
+
+// Chrome returns an instance of a ChromeDriver WebDriver.
+func Chrome() (WebDriver, error) {
+	address, err := freeAddress()
+	if err != nil {
+		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	}
+
+	port := strings.SplitN(address, ":", 2)[1]
+	url := fmt.Sprintf("http://%s", address)
+	command := []string{"chromedriver", "--silent", "--port=" + port}
+	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
+
+	return &webdriver.Driver{Service: service}, nil
+}
+
+// PhantomJS returns an instance of a PhantomJS WebDriver.
+func PhantomJS() (WebDriver, error) {
+	address, err := freeAddress()
+	if err != nil {
+		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	}
+
+	url := fmt.Sprintf("http://%s", address)
+	command := []string{"phantomjs", fmt.Sprintf("--webdriver=%s", address)}
+	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
+
+	return &webdriver.Driver{Service: service}, nil
+}
+
+// Selenium returns an instance of a Selenium WebDriver.
+func Selenium() (WebDriver, error) {
+	address, err := freeAddress()
+	if err != nil {
+		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	}
+
+	port := strings.SplitN(address, ":", 2)[1]
+	url := fmt.Sprintf("http://%s/wd/hub", address)
+	command := []string{"selenium-server", "-port", port}
+	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
+
+	return &webdriver.Driver{Service: service}, nil
 }
 
 func freeAddress() (string, error) {

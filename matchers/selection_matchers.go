@@ -30,15 +30,15 @@ func HaveCSS(property string, value string) types.GomegaMatcher {
 	return &selection.HaveCSSMatcher{ExpectedProperty: property, ExpectedValue: value}
 }
 
-// BeSelected passes when the provided selection refers to a form element that is selected.
+// BeSelected passes when the provided selection refers to form elements that are selected.
 // Examples: a checked <input type="checkbox" />, or the selected <option> in a <select>
-// This matcher will fail if the provided selection refers to more than one element.
+// This matcher will fail if any of the selection's form elements are not selected.
 func BeSelected() types.GomegaMatcher {
 	return &selection.BeSelectedMatcher{}
 }
 
-// BeVisible passes when the selection refers to an element that is displayed on the page.
-// This matcher will fail if the provided selection refers to more than one element.
+// BeVisible passes when the selection refers to elements that are displayed on the page.
+// This matcher will fail if any of the selection's form elements are not visible.
 func BeVisible() types.GomegaMatcher {
 	return &selection.BeVisibleMatcher{}
 }
