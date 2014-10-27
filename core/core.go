@@ -15,6 +15,10 @@ import (
 	"github.com/sclevine/agouti/core/internal/webdriver"
 )
 
+// Selection instances refer to a single page element.
+// All Selection methods are valid MultiSelection methods.
+// Example - check all checkboxes in the third row of the only table:
+//    selection.Find("table").All("tr").At(2).All("td input[type=checkbox]").Check()
 type Selection interface {
 	// Find finds exactly one element by CSS selector.
 	Find(selector string) *selection.Selection
@@ -41,7 +45,7 @@ type Selection interface {
 	AllByLabel(text string) *selection.MultiSelection
 
 	// String returns a string representation of the selection, ex.
-	//    CSS: .some-class [single] | XPath: //table [3] | Link "click me"
+	//    CSS: .some-class | XPath: //table [3] | Link "click me" [single]
 	String() string
 
 	// Count returns the number of elements the selection refers to.
@@ -96,6 +100,7 @@ type Selection interface {
 	Enabled() (bool, error)
 }
 
+// MultiSelection instances refer to zero or more elements.
 type MultiSelection interface {
 	// At specifies a single element to select using the provided index.
 	At(index int) Selection
@@ -110,6 +115,8 @@ type MultiSelection interface {
 	Selection
 }
 
+// Page instances represent browser sessions. They can be created using the
+// WebDriver#Page methods or by calling the Connect or SauceLabs functions.
 type Page interface {
 	// Destroy closes the session and associated open browser instances
 	Destroy() error
@@ -185,7 +192,7 @@ type Page interface {
 	AllByLabel(text string) *selection.MultiSelection
 }
 
-// SauceLabs returns a Page with a Sauce Labs session. Does not support Sauce Connect.
+// SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, key string) (Page, error) {
 	url := "http://ondemand.saucelabs.com/wd/hub"
 	capabilities := session.Capabilities{
@@ -206,7 +213,7 @@ func SauceLabs(name, platform, browser, version, username, key string) (Page, er
 	return &page.Page{Client: client}, nil
 }
 
-// Connect returns a Page with a session opened on the provided WebDriver URL.
+// Connect opens a session using the provided WebDriver URL and returns a Page.
 func Connect(capabilities Capabilities, url string) (Page, error) {
 	pageSession, err := session.Open(url, capabilities)
 	if err != nil {
@@ -217,6 +224,9 @@ func Connect(capabilities Capabilities, url string) (Page, error) {
 	return &page.Page{Client: client}, nil
 }
 
+// Capabilities is generated via the Use() function and defines a Page's desired
+// capabilities. It conforms to the session.JSONable interface and is intended
+// to be used with Webdriver#Page()
 type Capabilities interface {
 	// Browser sets the desired browser name - {chrome|firefox|safari|iphone|...}.
 	Browser(browser string) session.Capabilities
@@ -237,7 +247,7 @@ type Capabilities interface {
 	JSON() string
 }
 
-// Use returns a Capabilities object.
+// Use returns a Capabilities instance.
 func Use() Capabilities {
 	return session.Capabilities{}
 }
@@ -253,7 +263,7 @@ type WebDriver interface {
 	// Page returns a new WebDriver session. The optional capabilities
 	// argument allows for specification of the desired browser capabilities.
 	// For Selenium, the capabilities argument should specify a browser.
-	// To generate a JSONable capabilities object, see the Use() function.
+	// To generate a JSONable capabilities instance, see the Use() function.
 	Page(capabilities ...session.JSONable) (*page.Page, error)
 }
 
