@@ -42,7 +42,9 @@ Feel free to import Ginkgo and use any of its container blocks instead! Agouti i
 
 The `core` package is a flexible, general-purpose WebDriver API for Go. Unlike the `dsl` package, `core` allows unlimited and simultaneous usage of PhantomJS, ChromeDriver, and Selenium. Using `core` and `matchers` with Ginkgo and Gomega (and without the `dsl` package) is the recommended way to use Agouti. The `dsl` package exists primarily to provide a familiar environment for Capybara users.
 
-Godoc is available for (`core`)[https://godoc.org/github.com/sclevine/agouti/core], (`dsl`)[https://godoc.org/github.com/sclevine/agouti/dsl], and (`matchers`)[https://godoc.org/github.com/sclevine/agouti/matchers].
+Godoc is available for
+[`core`](https://godoc.org/github.com/sclevine/agouti/core),
+[`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl), and [`matchers`](https://godoc.org/github.com/sclevine/agouti/matchers).
 
 If you plan to use Agouti `dsl` to write Ginkgo tests, add the start and stop commands for your choice of WebDriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
 
