@@ -5,13 +5,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("MultiSelection", func() {
 	var (
 		client         *mocks.Client
-		multiSelection types.MultiSelection
+		multiSelection *MultiSelection
 	)
 
 	BeforeEach(func() {

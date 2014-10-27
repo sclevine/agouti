@@ -1,16 +1,14 @@
 package selection
 
-import "github.com/sclevine/agouti/core/internal/types"
-
 type MultiSelection struct {
 	*Selection
 }
 
-func (m *MultiSelection) At(index int) types.Selection {
+func (m *MultiSelection) At(index int) *Selection {
 	return m.modifiedSelection(false, true, index)
 }
 
-func (m *MultiSelection) Single() types.Selection {
+func (m *MultiSelection) Single() *Selection {
 	return m.modifiedSelection(true, false)
 }
 

@@ -13,20 +13,20 @@ import (
 var _ = Describe("Utils", func() {
 	var (
 		client    *mocks.Client
-		selection types.Selection
+		selection *MultiSelection
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		selection = &Selection{Client: client}
+		emptySelection := &Selection{Client: client}
+		selection = emptySelection.All("#selector")
 		element = &mocks.Element{}
 	})
 
 	Describe("#Count", func() {
 		BeforeEach(func() {
 			client.GetElementsCall.ReturnElements = []types.Element{element, element}
-			selection = selection.All("#selector")
 		})
 
 		It("should request elements from the client using the provided selector", func() {
@@ -54,13 +54,12 @@ var _ = Describe("Utils", func() {
 	Describe("#EqualsElement", func() {
 		var (
 			otherClient         *mocks.Client
-			otherSelection      types.Selection
-			otherMultiSelection types.MultiSelection
+			otherSelection      *Selection
+			otherMultiSelection *MultiSelection
 			otherElement        *mocks.Element
 		)
 
 		BeforeEach(func() {
-			selection = selection.All("#selector")
 			client.GetElementsCall.ReturnElements = []types.Element{element}
 			otherClient = &mocks.Client{}
 			emptySelection := &Selection{Client: otherClient}

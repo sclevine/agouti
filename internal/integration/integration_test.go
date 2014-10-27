@@ -15,7 +15,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 	var page Page
 
 	Background(func() {
-		page = CreatePage()
+		page = CustomPage(Use().With("handlesAlerts"))
 		page.Size(640, 480)
 		page.Navigate(Server.URL)
 	})
@@ -166,7 +166,6 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 	})
 
-	// Requires handlesAlerts capabilities
 	PScenario("popup boxes", func() {
 		Step("allows interacting with alert popups", func() {
 			Click(page.Find("#popup_alert"))

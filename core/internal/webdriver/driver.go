@@ -3,21 +3,39 @@ package webdriver
 import (
 	"errors"
 	"fmt"
+
 	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/session"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Driver struct {
-	Service service
-	pages   []types.Page
+	Service Service
+	pages   []*page.Page
 }
 
-type service interface {
+type Service interface {
 	Start() error
 	Stop()
-	CreateSession(capabilities map[string]interface{}) (*session.Session, error)
+	CreateSession(capabilities session.JSONable) (*session.Session, error)
+}
+
+func (d *Driver) Page(capabilities ...session.JSONable) (*page.Page, error) {
+	if len(capabilities) == 0 {
+		capabilities = append(capabilities, session.Capabilities{})
+	} else if len(capabilities) > 1 {
+		return nil, errors.New("too many arguments")
+	}
+
+	pageSession, err := d.Service.CreateSession(capabilities[0])
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate page: %s", err)
+	}
+
+	pageClient := &api.Client{Session: pageSession}
+	newPage := &page.Page{Client: pageClient}
+	d.pages = append(d.pages, newPage)
+	return newPage, nil
 }
 
 func (d *Driver) Start() error {
@@ -35,23 +53,4 @@ func (d *Driver) Stop() {
 
 	d.Service.Stop()
 	return
-}
-
-func (d *Driver) Page(browserName ...string) (types.Page, error) {
-	capabilites := map[string]interface{}{}
-	if len(browserName) == 1 {
-		capabilites["browserName"] = browserName[0]
-	} else if len(browserName) > 1 {
-		return nil, errors.New("too many arguments")
-	}
-
-	pageSession, err := d.Service.CreateSession(capabilites)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate page: %s", err)
-	}
-
-	pageClient := &api.Client{Session: pageSession}
-	newPage := &page.Page{Client: pageClient}
-	d.pages = append(d.pages, newPage)
-	return newPage, nil
 }

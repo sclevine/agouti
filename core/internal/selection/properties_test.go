@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Selection", func() {
 	var (
-		selection     types.Selection
+		selection     *MultiSelection
 		client        *mocks.Client
 		element       *mocks.Element
 		secondElement *mocks.Element
@@ -21,8 +21,8 @@ var _ = Describe("Selection", func() {
 		client = &mocks.Client{}
 		element = &mocks.Element{}
 		secondElement = &mocks.Element{}
-		selection = &Selection{Client: client}
-		selection = selection.All("#selector")
+		emptySelection := &Selection{Client: client}
+		selection = emptySelection.All("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {

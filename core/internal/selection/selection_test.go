@@ -5,13 +5,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Selection", func() {
 	var (
 		client    *mocks.Client
-		selection types.Selection
+		selection *Selection
 		element   *mocks.Element
 	)
 

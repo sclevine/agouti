@@ -18,8 +18,12 @@ type Service struct {
 	process *os.Process
 }
 
-func (s *Service) name() string {
-	return s.Command[0]
+func (s *Service) CreateSession(capabilities session.JSONable) (*session.Session, error) {
+	if s.process == nil {
+		return nil, fmt.Errorf("%s not running", s.name())
+	}
+
+	return session.Open(s.URL, capabilities)
 }
 
 func (s *Service) Start() error {
@@ -36,6 +40,10 @@ func (s *Service) Start() error {
 	s.process = command.Process
 
 	return s.waitForServer()
+}
+
+func (s *Service) name() string {
+	return s.Command[0]
 }
 
 func (s *Service) waitForServer() error {
@@ -84,12 +92,4 @@ func (s *Service) Stop() {
 	s.process.Signal(syscall.SIGINT)
 	s.process.Wait()
 	s.process = nil
-}
-
-func (s *Service) CreateSession(capabilities map[string]interface{}) (*session.Session, error) {
-	if s.process == nil {
-		return nil, fmt.Errorf("%s not running", s.name())
-	}
-
-	return session.Open(s.URL, capabilities)
 }

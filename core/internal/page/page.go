@@ -11,10 +11,10 @@ import (
 )
 
 type Page struct {
-	Client client
+	Client Client
 }
 
-type client interface {
+type Client interface {
 	DeleteSession() error
 	GetWindow() (types.Window, error)
 	GetScreenshot() ([]byte, error)
@@ -204,42 +204,42 @@ func (p *Page) Refresh() error {
 	return nil
 }
 
-func (p *Page) Find(selector string) types.Selection {
+func (p *Page) Find(selector string) *selection.Selection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.Find(selector)
 }
 
-func (p *Page) FindByXPath(selector string) types.Selection {
+func (p *Page) FindByXPath(selector string) *selection.Selection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.FindByXPath(selector)
 }
 
-func (p *Page) FindByLink(text string) types.Selection {
+func (p *Page) FindByLink(text string) *selection.Selection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.FindByLink(text)
 }
 
-func (p *Page) FindByLabel(text string) types.Selection {
+func (p *Page) FindByLabel(text string) *selection.Selection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.FindByLabel(text)
 }
 
-func (p *Page) All(selector string) types.MultiSelection {
+func (p *Page) All(selector string) *selection.MultiSelection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.All(selector)
 }
 
-func (p *Page) AllByXPath(selector string) types.MultiSelection {
+func (p *Page) AllByXPath(selector string) *selection.MultiSelection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.AllByXPath(selector)
 }
 
-func (p *Page) AllByLink(text string) types.MultiSelection {
+func (p *Page) AllByLink(text string) *selection.MultiSelection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.AllByLink(text)
 }
 
-func (p *Page) AllByLabel(text string) types.MultiSelection {
+func (p *Page) AllByLabel(text string) *selection.MultiSelection {
 	selection := &selection.Selection{Client: p.Client}
 	return selection.AllByLabel(text)
 }

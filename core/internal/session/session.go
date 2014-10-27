@@ -67,15 +67,14 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	return nil
 }
 
-func Open(url string, capabilities map[string]interface{}) (*Session, error) {
-	desiredCapabilities := struct {
-		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
-	}{capabilities}
+type JSONable interface {
+	JSON() string
+}
+
+func Open(url string, capabilities JSONable) (*Session, error) {
+	postBody := strings.NewReader(capabilities.JSON())
 
 	// TODO: set content type to JSON
-
-	desiredCapabilitiesJSON, _ := json.Marshal(desiredCapabilities)
-	postBody := bytes.NewReader(desiredCapabilitiesJSON)
 
 	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", url), postBody)
 	if err != nil {

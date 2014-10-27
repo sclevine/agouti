@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/service"
+	"github.com/sclevine/agouti/core/internal/session"
 )
 
 var _ = Describe("Service", func() {
@@ -33,6 +34,52 @@ var _ = Describe("Service", func() {
 			Timeout: 1500 * time.Millisecond,
 			Command: []string{"cat"},
 		}
+	})
+
+	Describe("#CreateSession", func() {
+		var capabilities session.Capabilities
+
+		BeforeEach(func() {
+			capabilities = session.Capabilities{"browserName": "some-browser"}
+		})
+
+		Context("when the server is not running", func() {
+			It("should return an error", func() {
+				_, err := service.CreateSession(capabilities)
+				Expect(err).To(MatchError("cat not running"))
+			})
+		})
+
+		Context("when the server is running", func() {
+			It("should attempt to open a session using the desired capabilties", func() {
+				defer service.Stop()
+				started = true
+				service.Start()
+				var requestBody string
+				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+					requestBodyBytes, _ := ioutil.ReadAll(request.Body)
+					requestBody = string(requestBodyBytes)
+					response.Write([]byte(`{"sessionId": "some-id"}`))
+				}))
+				defer fakeServer.Close()
+				service.URL = fakeServer.URL
+				newSession, err := service.CreateSession(capabilities)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
+				Expect(newSession.URL).To(ContainSubstring("/session/some-id"))
+			})
+
+			Context("when opening a new session fails", func() {
+				It("should return the session error", func() {
+					defer service.Stop()
+					started = true
+					service.Start()
+					service.URL = "%@#$%"
+					_, err := service.CreateSession(capabilities)
+					Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
+				})
+			})
+		})
 	})
 
 	Describe("#Start", func() {
@@ -82,52 +129,6 @@ var _ = Describe("Service", func() {
 			service.Start()
 			service.Stop()
 			Expect(service.Start()).To(Succeed())
-		})
-	})
-
-	Describe("#CreateSession", func() {
-		var capabilities map[string]interface{}
-
-		BeforeEach(func() {
-			capabilities = map[string]interface{}{"browserName": "some-browser"}
-		})
-
-		Context("when the server is not running", func() {
-			It("should return an error", func() {
-				_, err := service.CreateSession(capabilities)
-				Expect(err).To(MatchError("cat not running"))
-			})
-		})
-
-		Context("when the server is running", func() {
-			It("should attempt to open a session using the desired capabilties", func() {
-				defer service.Stop()
-				started = true
-				service.Start()
-				var requestBody string
-				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-					requestBodyBytes, _ := ioutil.ReadAll(request.Body)
-					requestBody = string(requestBodyBytes)
-					response.Write([]byte(`{"sessionId": "some-id"}`))
-				}))
-				defer fakeServer.Close()
-				service.URL = fakeServer.URL
-				newSession, err := service.CreateSession(capabilities)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
-				Expect(newSession.URL).To(ContainSubstring("/session/some-id"))
-			})
-
-			Context("when opening a new session fails", func() {
-				It("should return the session error", func() {
-					defer service.Stop()
-					started = true
-					service.Start()
-					service.URL = "%@#$%"
-					_, err := service.CreateSession(capabilities)
-					Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
-				})
-			})
 		})
 	})
 })

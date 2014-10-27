@@ -9,9 +9,9 @@ import (
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
-var _ = Describe("Selection", func() {
+var _ = Describe("Actions", func() {
 	var (
-		selection     types.Selection
+		selection     *MultiSelection
 		client        *mocks.Client
 		firstElement  *mocks.Element
 		secondElement *mocks.Element
@@ -21,8 +21,8 @@ var _ = Describe("Selection", func() {
 		client = &mocks.Client{}
 		firstElement = &mocks.Element{}
 		secondElement = &mocks.Element{}
-		selection = &Selection{Client: client}
-		selection = selection.All("#selector")
+		emptySelection := &Selection{Client: client}
+		selection = emptySelection.All("#selector")
 	})
 
 	ItShouldEnsureAtLeastOneElement := func(matcher func() error) {

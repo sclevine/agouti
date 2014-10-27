@@ -156,10 +156,10 @@ var _ = Describe("Session", func() {
 	})
 
 	Describe(".Open", func() {
-		var capabilities map[string]interface{}
+		var capabilities Capabilities
 
 		BeforeEach(func() {
-			capabilities = map[string]interface{}{}
+			capabilities = Capabilities{}
 		})
 
 		It("should make a POST request using the desired browser name", func() {

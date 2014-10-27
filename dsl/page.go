@@ -44,9 +44,22 @@ func StopWebdriver() {
 }
 
 // CreatePage creates a new session using the current running WebDriver.
-// For Selenium, the browserName argument determines which driver to start the session in.
+// For Selenium, the browserName determines which browser to use for the session.
 func CreatePage(browserName ...string) core.Page {
-	newPage, err := driver.Page(browserName...)
+	capabilities := core.Use()
+	if len(browserName) > 0 {
+		capabilities.Browser(browserName[0])
+	}
+	newPage, err := driver.Page(capabilities)
+	checkFailure(err)
+	return newPage
+}
+
+// CustomPage creates a new session with a custom set of desired capabilities
+// using the current running WebDriver. The core.Use() function may be used
+// to generate this set of capabilities.
+func CustomPage(capabilities core.Capabilities) core.Page {
+	newPage, err := driver.Page(capabilities)
 	checkFailure(err)
 	return newPage
 }

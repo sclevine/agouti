@@ -7,33 +7,33 @@ import (
 )
 
 type Selection struct {
-	Client    client
+	Client    Client
 	selectors []types.Selector
 }
 
-type client interface {
+type Client interface {
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
-	retriever
+	GetElements(selector types.Selector) ([]types.Element, error)
 }
 
-func (s *Selection) Find(selector string) types.Selection {
+func (s *Selection) Find(selector string) *Selection {
 	return s.All(selector).Single()
 }
 
-func (s *Selection) FindByXPath(selector string) types.Selection {
+func (s *Selection) FindByXPath(selector string) *Selection {
 	return s.AllByXPath(selector).Single()
 }
 
-func (s *Selection) FindByLink(text string) types.Selection {
+func (s *Selection) FindByLink(text string) *Selection {
 	return s.AllByLink(text).Single()
 }
 
-func (s *Selection) FindByLabel(text string) types.Selection {
+func (s *Selection) FindByLabel(text string) *Selection {
 	return s.AllByLabel(text).Single()
 }
 
-func (s *Selection) All(selector string) types.MultiSelection {
+func (s *Selection) All(selector string) *MultiSelection {
 	last := len(s.selectors) - 1
 
 	lastIsCSS := last >= 0 && s.selectors[last].Using == "css selector"
@@ -44,15 +44,15 @@ func (s *Selection) All(selector string) types.MultiSelection {
 	return s.subSelection("css selector", selector)
 }
 
-func (s *Selection) AllByXPath(selector string) types.MultiSelection {
+func (s *Selection) AllByXPath(selector string) *MultiSelection {
 	return s.subSelection("xpath", selector)
 }
 
-func (s *Selection) AllByLink(text string) types.MultiSelection {
+func (s *Selection) AllByLink(text string) *MultiSelection {
 	return s.subSelection("link text", text)
 }
 
-func (s *Selection) AllByLabel(text string) types.MultiSelection {
+func (s *Selection) AllByLabel(text string) *MultiSelection {
 	selector := fmt.Sprintf(`//input[@id=(//label[normalize-space(text())="%s"]/@for)] | //label[normalize-space(text())="%s"]/input`, text, text)
 	return s.AllByXPath(selector)
 }

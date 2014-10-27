@@ -9,10 +9,10 @@ import (
 )
 
 type Client struct {
-	Session session
+	Session Session
 }
 
-type session interface {
+type Session interface {
 	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
 

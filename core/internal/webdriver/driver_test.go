@@ -71,24 +71,24 @@ var _ = Describe("Driver", func() {
 
 	Describe("#Page", func() {
 		Context("with zero arguments", func() {
-			It("should create a session with no browser name", func() {
+			It("should create a session with default capabilties", func() {
 				_, err := driver.Page()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(BeNil())
+				Expect(service.CreateSessionCall.Capabilities.JSON()).To(MatchJSON(`{"desiredCapabilities": {}}`))
 			})
 		})
 
 		Context("with one argument", func() {
-			It("should create a session with the provided browser name", func() {
-				_, err := driver.Page("some-name")
+			It("should create a session with the provided capabilities", func() {
+				_, err := driver.Page(session.Capabilities{}.Browser("some-name"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(service.CreateSessionCall.Capabilities["browserName"]).To(Equal("some-name"))
+				Expect(service.CreateSessionCall.Capabilities.JSON()).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-name"}}`))
 			})
 		})
 
 		Context("with more than one argument", func() {
 			It("should return an error", func() {
-				_, err := driver.Page("one", "two")
+				_, err := driver.Page(nil, nil)
 				Expect(err).To(MatchError("too many arguments"))
 			})
 		})
