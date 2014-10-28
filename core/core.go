@@ -15,11 +15,21 @@ import (
 	"github.com/sclevine/agouti/core/internal/webdriver"
 )
 
-// Selection instances refer to a single page element.
+// Selection instances refer to a selection of elements.
 // All Selection methods are valid MultiSelection methods.
-// Example - check all checkboxes in the third row of the only table:
-//    selection.Find("table").All("tr").At(2).All("td input[type=checkbox]").Check()
+// Examples:
+// Check the first checkbox in the third row of the only table:
+//    selection.Find("table").All("tr").At(2).First("td input[type=checkbox]").Check()
+// Check all checkboxes in the first-and-only cell of each row in the only table:
+//    selection.Find("table").All("tr").Find("td").All("input[type=checkbox]").Check()
 type Selection interface {
+	// The Find<X>(), First<X>(), and All<X>() methods apply their selectors to
+	// each element in the selection they are called on. If the selection they are
+	// called on refers to multiple elements, the resulting selection will refer
+	// to at least that many elements.
+
+	// Therefore, for each element in the current selection:
+
 	// Find finds exactly one element by CSS selector.
 	Find(selector string) *selection.Selection
 
@@ -31,6 +41,18 @@ type Selection interface {
 
 	// FindByLabel finds exactly one element by associated label text.
 	FindByLabel(text string) *selection.Selection
+
+	// First finds the first element by CSS selector.
+	First(selector string) *selection.Selection
+
+	// FirstByXPath finds the first element by XPath selector.
+	FirstByXPath(selector string) *selection.Selection
+
+	// FirstByLink finds the first element by anchor link text.
+	FirstByLink(text string) *selection.Selection
+
+	// FirstByLabel finds the first element by associated label text.
+	FirstByLabel(text string) *selection.Selection
 
 	// All finds zero or more elements by CSS selector.
 	All(selector string) *selection.MultiSelection
@@ -100,16 +122,23 @@ type Selection interface {
 	Enabled() (bool, error)
 }
 
-// MultiSelection instances refer to zero or more elements.
+// MultiSelection instances are Selection instances that can be indexed by element.
+// A Selection returned by At(int) or Single() may still refer to multiple
+// elements if any parent of the MultiSelection refers to multiple elements.
+// Example:
+// Submits the second form in each section:
+//    selection.All("section").All("form").At(1).Submit()
+// Clicks the only h1 in each div, failing if any div does not contain exactly one h1:
+//    selection.All("div").Find("h1").Click()
 type MultiSelection interface {
 	// At specifies a single element to select using the provided index.
-	At(index int) Selection
+	At(index int) *selection.Selection
 
 	// Single specifies that the selection must refer to exactly one element.
-	//    Find("#selector")
+	//    selection.Find("#selector")
 	// is equivalent to
-	//    All("#selector").Single()
-	Single() Selection
+	//    selection.All("#selector").Single()
+	Single() *selection.Selection
 
 	// All Selection methods are valid MultiSelection methods.
 	Selection

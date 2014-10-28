@@ -34,6 +34,22 @@ func (s *Selection) FindByLabel(text string) *Selection {
 	return s.AllByLabel(text).Single()
 }
 
+func (s *Selection) First(selector string) *Selection {
+	return s.All(selector).At(0)
+}
+
+func (s *Selection) FirstByXPath(selector string) *Selection {
+	return s.AllByXPath(selector).At(0)
+}
+
+func (s *Selection) FirstByLink(text string) *Selection {
+	return s.AllByLink(text).At(0)
+}
+
+func (s *Selection) FirstByLabel(text string) *Selection {
+	return s.AllByLabel(text).At(0)
+}
+
 func (s *Selection) All(selector string) *MultiSelection {
 	last := len(s.selectors) - 1
 

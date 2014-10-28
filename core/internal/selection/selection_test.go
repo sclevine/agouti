@@ -21,7 +21,7 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#Find", func() {
-		It("should select a single element by CSS", func() {
+		It("should select a single element by CSS selector", func() {
 			Expect(selection.Find("#selector").String()).To(Equal("CSS: #selector [single]"))
 		})
 	})
@@ -44,14 +44,38 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#First", func() {
+		It("should select the first element by CSS selector", func() {
+			Expect(selection.First("#selector").String()).To(Equal("CSS: #selector [0]"))
+		})
+	})
+
+	Describe("#FirstByXPath", func() {
+		It("should select the first element by XPath", func() {
+			Expect(selection.FirstByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
+		})
+	})
+
+	Describe("#FirstByLink", func() {
+		It("should select the first element by link text", func() {
+			Expect(selection.FirstByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
+		})
+	})
+
+	Describe("#FirstByLabel", func() {
+		It("should select the first element by label", func() {
+			Expect(selection.FirstByLabel("some label").String()).To(MatchRegexp("XPath: .+input.+ \\[0\\]"))
+		})
+	})
+
 	Describe("#All", func() {
 		Context("when there is no selection", func() {
-			It("should add a new css selector to the selection", func() {
+			It("should add a new CSS selector to the selection", func() {
 				Expect(selection.All("#selector").String()).To(Equal("CSS: #selector"))
 			})
 		})
 
-		Context("when the selection ends with an non-css selector", func() {
+		Context("when the selection ends with an non-CSS selector", func() {
 			It("should add a new selector to the selection", func() {
 				xpath := selection.AllByXPath("//selector")
 				Expect(xpath.All("#subselector").String()).To(Equal("XPath: //selector | CSS: #subselector"))

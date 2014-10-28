@@ -43,7 +43,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 
 		Step("referring to an element by selection index", func() {
 			Expect(page.All("option").At(0)).To(HaveText("first option"))
-			Expect(page.All("select").At(1).All("option").At(0)).To(HaveText("third option"))
+			Expect(page.All("select").At(1).First("option")).To(HaveText("third option"))
 		})
 
 		Step("matching text in the header", func() {
