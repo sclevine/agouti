@@ -20,6 +20,16 @@ func (c *Client) DeleteSession() error {
 	return c.Session.Execute("", "DELETE", nil)
 }
 
+func (c *Client) GetElement(selector types.Selector) (types.Element, error) {
+	var result struct{ Element string }
+
+	if err := c.Session.Execute("element", "POST", selector, &result); err != nil {
+		return nil, err
+	}
+
+	return &element.Element{ID: result.Element, Session: c.Session}, nil
+}
+
 func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {
 	var results []struct{ Element string }
 

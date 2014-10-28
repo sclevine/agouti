@@ -25,6 +25,7 @@ type Client interface {
 	SetURL(url string) error
 	GetTitle() (string, error)
 	GetSource() (string, error)
+	GetElement(selector types.Selector) (types.Element, error)
 	GetElements(selector types.Selector) ([]types.Element, error)
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error

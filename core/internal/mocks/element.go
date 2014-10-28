@@ -7,6 +7,12 @@ type Element struct {
 		ReturnID string
 	}
 
+	GetElementCall struct {
+		Selector      types.Selector
+		ReturnElement types.Element
+		Err           error
+	}
+
 	GetElementsCall struct {
 		Selector       types.Selector
 		ReturnElements []types.Element
@@ -74,6 +80,11 @@ type Element struct {
 
 func (e *Element) GetID() string {
 	return e.GetIDCall.ReturnID
+}
+
+func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
+	e.GetElementCall.Selector = selector
+	return e.GetElementCall.ReturnElement, e.GetElementCall.Err
 }
 
 func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {

@@ -6,6 +6,12 @@ import (
 )
 
 type Client struct {
+	GetElementCall struct {
+		Selector      types.Selector
+		ReturnElement types.Element
+		Err           error
+	}
+
 	GetElementsCall struct {
 		Selector       types.Selector
 		ReturnElements []types.Element
@@ -109,6 +115,11 @@ type Client struct {
 func (c *Client) DeleteSession() error {
 	c.DeleteSessionCall.Called = true
 	return c.DeleteSessionCall.Err
+}
+
+func (c *Client) GetElement(selector types.Selector) (types.Element, error) {
+	c.GetElementCall.Selector = selector
+	return c.GetElementCall.ReturnElement, c.GetElementCall.Err
 }
 
 func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {

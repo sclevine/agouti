@@ -14,6 +14,7 @@ type Selection struct {
 type Client interface {
 	DoubleClick() error
 	MoveTo(element types.Element, point types.Point) error
+	GetElement(selector types.Selector) (types.Element, error)
 	GetElements(selector types.Selector) ([]types.Element, error)
 }
 

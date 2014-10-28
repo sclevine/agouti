@@ -48,6 +48,30 @@ var _ = Describe("Element", func() {
 		})
 	})
 
+	Describe("#GetElement", func() {
+		var singleElement types.Element
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
+			singleElement, err = element.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+		})
+
+		ItShouldMakeAnElementRequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
+
+		It("should return an element with an ID and session", func() {
+			Expect(singleElement.(*Element).ID).To(Equal("some-id"))
+			Expect(singleElement.(*Element).Session).To(Equal(session))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := element.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetElements", func() {
 		var elements []types.Element
 
@@ -66,7 +90,7 @@ var _ = Describe("Element", func() {
 		})
 
 		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the elements", func() {
+			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				_, err := element.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
 				Expect(err).To(MatchError("some error"))

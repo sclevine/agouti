@@ -37,7 +37,7 @@ var _ = Describe("Elements", func() {
 			client.GetElementsCall.ReturnElements = []types.Element{firstParent, secondParent}
 		})
 
-		Context("when all elements are successful retrieved", func() {
+		Context("when all elements are successfully retrieved", func() {
 			BeforeEach(func() {
 				Expect(selection.All("parents").AllByXPath("children").Click()).To(Succeed())
 			})
@@ -59,7 +59,7 @@ var _ = Describe("Elements", func() {
 			})
 		})
 
-		Context("when all indexed elements are successful retrieved", func() {
+		Context("when all non-zero-indexed elements are successfully retrieved", func() {
 			BeforeEach(func() {
 				Expect(selection.All("parents").At(1).AllByXPath("children").At(1).Click()).To(Succeed())
 			})
@@ -78,6 +78,29 @@ var _ = Describe("Elements", func() {
 				Expect(children[1].ClickCall.Called).To(BeFalse())
 				Expect(children[2].ClickCall.Called).To(BeFalse())
 				Expect(children[3].ClickCall.Called).To(BeTrue())
+			})
+		})
+
+		Context("when all zero-indexed elements are successfully retrieved", func() {
+			BeforeEach(func() {
+				firstParent.GetElementCall.ReturnElement = children[0]
+				client.GetElementCall.ReturnElement = firstParent
+				Expect(selection.All("parents").At(0).AllByXPath("children").At(0).Click()).To(Succeed())
+			})
+
+			It("should retrieve the first parent element using the client", func() {
+				Expect(client.GetElementCall.Selector).To(Equal(types.Selector{Using: "css selector", Value: "parents", Index: 0, Indexed: true}))
+			})
+
+			It("should retrieve the first child element of the parent selector", func() {
+				Expect(firstParent.GetElementCall.Selector).To(Equal(types.Selector{Using: "xpath", Value: "children", Index: 0, Indexed: true}))
+			})
+
+			It("should click on only the selected child elements", func() {
+				Expect(children[0].ClickCall.Called).To(BeTrue())
+				Expect(children[1].ClickCall.Called).To(BeFalse())
+				Expect(children[2].ClickCall.Called).To(BeFalse())
+				Expect(children[3].ClickCall.Called).To(BeFalse())
 			})
 		})
 
@@ -163,8 +186,25 @@ var _ = Describe("Elements", func() {
 
 		Context("when child selection indices are out of range", func() {
 			It("should return an error", func() {
-				noChild := selection.All("parents").At(0).All("children").At(2)
-				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents [0] | CSS: children [2]': element index out of range"))
+				noChild := selection.All("parents").At(1).All("children").At(2)
+				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents [1] | CSS: children [2]': element index out of range"))
+			})
+		})
+
+		Context("when a zero-indexed parent selection element does not exist", func() {
+			It("should return an error", func() {
+				client.GetElementCall.Err = errors.New("some error")
+				noParent := selection.All("parents").At(0)
+				Expect(noParent.Click()).To(MatchError("failed to select 'CSS: parents [0]': some error"))
+			})
+		})
+
+		Context("when a zero-indexed child selection element does not exist", func() {
+			It("should return an error", func() {
+				firstParent.GetElementCall.Err = errors.New("some error")
+				client.GetElementCall.ReturnElement = firstParent
+				noChild := selection.All("parents").At(0).All("children").At(0)
+				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents [0] | CSS: children [0]': some error"))
 			})
 		})
 	})

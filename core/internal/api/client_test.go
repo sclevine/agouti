@@ -59,6 +59,30 @@ var _ = Describe("API Client", func() {
 		})
 	})
 
+	Describe("#GetElement", func() {
+		var singleElement types.Element
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
+			singleElement, err = client.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+		})
+
+		ItShouldMakeARequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
+
+		It("should return an element with an ID and session", func() {
+			Expect(singleElement.(*element.Element).ID).To(Equal("some-id"))
+			Expect(singleElement.(*element.Element).Session).To(Equal(session))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := client.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetElements", func() {
 		var elements []types.Element
 

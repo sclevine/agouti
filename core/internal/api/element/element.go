@@ -8,15 +8,25 @@ import (
 
 type Element struct {
 	ID      string
-	Session session
+	Session Session
 }
 
-type session interface {
+type Session interface {
 	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
 func (e *Element) GetID() string {
 	return e.ID
+}
+
+func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
+	var result struct{ Element string }
+
+	if err := e.Session.Execute(e.url()+"/element", "POST", selector, &result); err != nil {
+		return nil, err
+	}
+
+	return &Element{result.Element, e.Session}, nil
 }
 
 func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {
