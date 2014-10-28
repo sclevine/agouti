@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/css/bootstrap.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/css/bootstrap-theme.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/css/style.css" media="screen">
+    <script src="//code.jquery.com/jquery.js"></script>
+    <script src="{{ site.baseurl }}/js/bootstrap.min.js"></script>
+</head>
+<body data-spy="scroll" data-target="#sidebar" data-offset="40">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="sidebar">
+                    <div class="sidebar-section">
+                        {% include agouti_sidebar.html %}
+                    </div>
+                    <div class="sidebar-section footer">
+                        <ul class="nav">
+                            <li>
+                                <a href="http://onsi.github.io/ginkgo/">
+                                    <img src="images/ginkgo_small.png" class="img-responsive header_logo">
+                                    <p class="center">
+                                        Ginkgo is a BDD Testing Framework for Golang.
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav">
+                            <li>
+                                <a href="http://onsi.github.io/gomega/">
+                                    <img src="images/gomega_small.png" class="img-responsive header_logo">
+                                    <p class="center">
+                                        Gomega is Ginkgo's preferred matcher library.
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="copy">
+                        <p>Agouti is MIT-Licensed</p>
+                        <p>© Stephen Levine</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 content">
+                <img src="images/agouti.png" class="img-responsive logo">
+                {{ content }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

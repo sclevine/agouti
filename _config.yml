@@ -1,0 +1,5 @@
+baseurl: /agouti
+safe: true
+lsi: false
+highlighter: true
+markdown: kramdown
