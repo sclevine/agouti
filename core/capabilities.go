@@ -1,0 +1,66 @@
+package core
+
+import "encoding/json"
+
+// Capabilities defines the desired capabilities used to configure a Page.
+type Capabilities interface {
+	// Browser sets the desired browser name - {chrome|firefox|safari|iphone|...}.
+	Browser(browser string) Capabilities
+
+	// Version sets the desired browser version (ex. "3.6").
+	Version(version string) Capabilities
+
+	// Platform sets the desired browser platform - {WINDOWS|XP|VISTA|MAC|LINUX|UNIX}.
+	Platform(platform string) Capabilities
+
+	// With enables the provided feature (ex. "handlesAlerts").
+	With(feature string) Capabilities
+
+	// Without disables the provided feature (ex. "javascriptEnabled").
+	Without(feature string) Capabilities
+
+	// JSON returns a JSON string representing the desired capabilities.
+	JSON() string
+}
+
+// Use returns a Capabilities instance to be used for Page configuration.
+func Use() Capabilities {
+	return capabilities{}
+}
+
+type capabilities map[string]interface{}
+
+func (c capabilities) Browser(browser string) Capabilities {
+	c["browserName"] = browser
+	return c
+}
+
+func (c capabilities) Version(version string) Capabilities {
+	c["version"] = version
+	return c
+}
+
+func (c capabilities) Platform(platform string) Capabilities {
+	c["platform"] = platform
+	return c
+}
+
+func (c capabilities) With(feature string) Capabilities {
+	c[feature] = true
+	return c
+}
+
+func (c capabilities) Without(feature string) Capabilities {
+	c[feature] = false
+	return c
+}
+
+func (c capabilities) JSON() string {
+	desiredCapabilities := struct {
+		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
+	}{c}
+
+	json, _ := json.Marshal(desiredCapabilities)
+
+	return string(json)
+}

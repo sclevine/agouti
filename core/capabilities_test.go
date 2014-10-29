@@ -1,16 +1,16 @@
-package session_test
+package core_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core/internal/session"
+	. "github.com/sclevine/agouti/core"
 )
 
 var _ = Describe("Capabilities", func() {
 	var capabilities Capabilities
 
 	BeforeEach(func() {
-		capabilities = Capabilities{}
+		capabilities = Use()
 	})
 
 	Describe("#Browser", func() {

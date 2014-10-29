@@ -1,8 +1,6 @@
 package mocks
 
-import (
-	"github.com/sclevine/agouti/core/internal/session"
-)
+import "github.com/sclevine/agouti/core/internal/types"
 
 type Service struct {
 	StartCall struct {
@@ -15,8 +13,8 @@ type Service struct {
 	}
 
 	CreateSessionCall struct {
-		Capabilities  session.JSONable
-		ReturnSession *session.Session
+		Capabilities  types.JSON
+		ReturnSession types.Session
 		Err           error
 	}
 }
@@ -30,7 +28,7 @@ func (s *Service) Stop() {
 	s.StopCall.Called = true
 }
 
-func (s *Service) CreateSession(capabilities session.JSONable) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities types.JSON) (types.Session, error) {
 	s.CreateSessionCall.Capabilities = capabilities
 	return s.CreateSessionCall.ReturnSession, s.CreateSessionCall.Err
 }

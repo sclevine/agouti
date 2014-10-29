@@ -9,11 +9,7 @@ import (
 )
 
 type Client struct {
-	Session Session
-}
-
-type Session interface {
-	Execute(endpoint, method string, body interface{}, result ...interface{}) error
+	Session types.Session
 }
 
 func (c *Client) DeleteSession() error {

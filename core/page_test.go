@@ -1,4 +1,4 @@
-package page_test
+package core_test
 
 import (
 	"errors"
@@ -8,13 +8,13 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	. "github.com/sclevine/agouti/core/internal/page"
 )
 
 var _ = Describe("Page", func() {
 	var (
-		page    *Page
+		page    Page
 		client  *mocks.Client
 		element *mocks.Element
 		window  *mocks.Window
@@ -24,7 +24,7 @@ var _ = Describe("Page", func() {
 		client = &mocks.Client{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = &Page{client}
+		page = TestingPage(client)
 	})
 
 	Describe("#Destroy", func() {
@@ -386,6 +386,31 @@ var _ = Describe("Page", func() {
 		It("should defer to selection#FindByLabel", func() {
 			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("XPath: //input"))
 			Expect(page.FindByLabel("label name").String()).To(ContainSubstring("[single]"))
+		})
+	})
+
+	Describe("#First", func() {
+		It("should defer to selection#First", func() {
+			Expect(page.First("#selector").String()).To(Equal("CSS: #selector [0]"))
+		})
+	})
+
+	Describe("#FirstByXPath", func() {
+		It("should defer to selection#FirstXByPath", func() {
+			Expect(page.FirstByXPath("//selector").String()).To(Equal("XPath: //selector [0]"))
+		})
+	})
+
+	Describe("#FirstByLink", func() {
+		It("should defer to selection#FirstByLink", func() {
+			Expect(page.FirstByLink("some text").String()).To(Equal(`Link: "some text" [0]`))
+		})
+	})
+
+	Describe("#FirstByLabel", func() {
+		It("should defer to selection#FirstByLabel", func() {
+			Expect(page.FirstByLabel("label name").String()).To(ContainSubstring("XPath: //input"))
+			Expect(page.FirstByLabel("label name").String()).To(ContainSubstring("[0]"))
 		})
 	})
 

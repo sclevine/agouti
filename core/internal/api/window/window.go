@@ -1,12 +1,10 @@
 package window
 
+import "github.com/sclevine/agouti/core/internal/types"
+
 type Window struct {
 	ID      string
-	Session Session
-}
-
-type Session interface {
-	Execute(endpoint, method string, body interface{}, result ...interface{}) error
+	Session types.Session
 }
 
 func (w *Window) SetSize(width, height int) error {

@@ -1,23 +1,21 @@
-package selection_test
+package core_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	. "github.com/sclevine/agouti/core/internal/selection"
 )
 
 var _ = Describe("MultiSelection", func() {
 	var (
 		client         *mocks.Client
-		multiSelection *MultiSelection
+		multiSelection MultiSelection
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		selection := &Selection{Client: client}
-		multiSelection = &MultiSelection{selection}
-
+		multiSelection = TestingMultiSelection(client)
 	})
 
 	Describe("#At", func() {

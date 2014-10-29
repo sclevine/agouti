@@ -1,17 +1,18 @@
-package selection_test
+package core_test
 
 import (
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	. "github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Selection", func() {
 	var (
-		selection     *MultiSelection
+		selection     MultiSelection
 		client        *mocks.Client
 		element       *mocks.Element
 		secondElement *mocks.Element
@@ -21,8 +22,7 @@ var _ = Describe("Selection", func() {
 		client = &mocks.Client{}
 		element = &mocks.Element{}
 		secondElement = &mocks.Element{}
-		emptySelection := &Selection{Client: client}
-		selection = emptySelection.All("#selector")
+		selection = TestingSelection(client).All("#selector")
 	})
 
 	ItShouldEnsureASingleElement := func(matcher func() error) {

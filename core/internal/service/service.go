@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Service struct {
@@ -18,7 +19,7 @@ type Service struct {
 	process *os.Process
 }
 
-func (s *Service) CreateSession(capabilities session.JSONable) (*session.Session, error) {
+func (s *Service) CreateSession(capabilities types.JSON) (types.Session, error) {
 	if s.process == nil {
 		return nil, fmt.Errorf("%s not running", s.name())
 	}

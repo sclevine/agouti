@@ -2,17 +2,14 @@ package element
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/types"
 	"strings"
+
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Element struct {
 	ID      string
-	Session Session
-}
-
-type Session interface {
-	Execute(endpoint, method string, body interface{}, result ...interface{}) error
+	Session types.Session
 }
 
 func (e *Element) GetID() string {

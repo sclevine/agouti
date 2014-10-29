@@ -1,4 +1,4 @@
-package webdriver_test
+package core_test
 
 import (
 	"errors"
@@ -7,20 +7,20 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	"github.com/sclevine/agouti/core/internal/session"
-	. "github.com/sclevine/agouti/core/internal/webdriver"
 )
 
 var _ = Describe("Driver", func() {
 	var (
-		driver  *Driver
+		driver  WebDriver
 		service *mocks.Service
 	)
 
 	BeforeEach(func() {
 		service = &mocks.Service{}
-		driver = &Driver{Service: service}
+		driver = TestingDriver(service)
 	})
 
 	Describe("#Start", func() {
@@ -46,7 +46,7 @@ var _ = Describe("Driver", func() {
 		BeforeEach(func() {
 			fakeServer = httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, request *http.Request) {
 				if request.Method == "DELETE" && request.URL.Path == "/" {
-					deletedSessions += 1
+					deletedSessions++
 				}
 			}))
 			service.CreateSessionCall.ReturnSession = &session.Session{URL: fakeServer.URL}
@@ -80,7 +80,7 @@ var _ = Describe("Driver", func() {
 
 		Context("with one argument", func() {
 			It("should create a session with the provided capabilities", func() {
-				_, err := driver.Page(session.Capabilities{}.Browser("some-name"))
+				_, err := driver.Page(Use().Browser("some-name"))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(service.CreateSessionCall.Capabilities.JSON()).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-name"}}`))
 			})

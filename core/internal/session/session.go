@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Session struct {
@@ -67,11 +69,7 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	return nil
 }
 
-type JSONable interface {
-	JSON() string
-}
-
-func Open(url string, capabilities JSONable) (*Session, error) {
+func Open(url string, capabilities types.JSON) (*Session, error) {
 	postBody := strings.NewReader(capabilities.JSON())
 
 	// TODO: set content type to JSON

@@ -1,4 +1,4 @@
-package selection
+package core
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ type retriever interface {
 	GetElement(selector types.Selector) (types.Element, error)
 }
 
-func (s *Selection) getSelectedElements() ([]types.Element, error) {
+func (s *selection) getSelectedElements() ([]types.Element, error) {
 	elements, err := s.getElements()
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (s *Selection) getSelectedElements() ([]types.Element, error) {
 	return elements, nil
 }
 
-func (s *Selection) getSelectedElement() (types.Element, error) {
+func (s *selection) getSelectedElement() (types.Element, error) {
 	elements, err := s.getSelectedElements()
 	if err != nil {
 		return nil, err
@@ -38,12 +38,12 @@ func (s *Selection) getSelectedElement() (types.Element, error) {
 	return elements[0], nil
 }
 
-func (s *Selection) getElements() ([]types.Element, error) {
+func (s *selection) getElements() ([]types.Element, error) {
 	if len(s.selectors) == 0 {
 		return nil, errors.New("empty selection")
 	}
 
-	lastElements, err := retrieveElements(s.Client, s.selectors[0])
+	lastElements, err := retrieveElements(s.client, s.selectors[0])
 	if err != nil {
 		return nil, err
 	}

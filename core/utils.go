@@ -1,4 +1,4 @@
-package selection
+package core
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (s *Selection) String() string {
+func (s *selection) String() string {
 	var tags []string
 
 	for _, selector := range s.selectors {
@@ -16,7 +16,7 @@ func (s *Selection) String() string {
 	return strings.Join(tags, " | ")
 }
 
-func (s *Selection) Count() (int, error) {
+func (s *selection) Count() (int, error) {
 	elements, err := s.getElements()
 	if err != nil {
 		return 0, fmt.Errorf("failed to select '%s': %s", s, err)
@@ -25,23 +25,23 @@ func (s *Selection) Count() (int, error) {
 	return len(elements), nil
 }
 
-func (s *Selection) EqualsElement(comparable interface{}) (bool, error) {
+func (s *selection) EqualsElement(comparable interface{}) (bool, error) {
 	element, err := s.getSelectedElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to select '%s': %s", s, err)
 	}
 
-	var selection *Selection
+	var other *selection
 	switch selectable := comparable.(type) {
-	case *Selection:
-		selection = selectable
-	case *MultiSelection:
-		selection = selectable.Selection
+	case *selection:
+		other = selectable
+	case *multiSelection:
+		other = selectable.selection
 	default:
 		return false, errors.New("provided object is not a selection")
 	}
 
-	otherElement, err := selection.getSelectedElement()
+	otherElement, err := other.getSelectedElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to select '%s': %s", comparable, err)
 	}

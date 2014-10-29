@@ -1,13 +1,14 @@
 package session_test
 
 import (
-	. "github.com/sclevine/agouti/core/internal/session"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
+	. "github.com/sclevine/agouti/core/internal/session"
 )
 
 var _ = Describe("Session", func() {
@@ -35,7 +36,7 @@ var _ = Describe("Session", func() {
 			response.Write([]byte(responseBody))
 		}))
 
-		session = &Session{server.URL + "/session/some-id"}
+		session = &Session{URL: server.URL + "/session/some-id"}
 		responseBody = `{"value": {"some": "response value"}}`
 		responseStatus = 200
 	})
@@ -156,13 +157,13 @@ var _ = Describe("Session", func() {
 	})
 
 	Describe(".Open", func() {
-		var capabilities Capabilities
+		var capabilities *mocks.JSON
 
 		BeforeEach(func() {
-			capabilities = Capabilities{}
+			capabilities = &mocks.JSON{ReturnJSON: `{"some": "json"}`}
 		})
 
-		It("should make a POST request using the desired browser name", func() {
+		It("should make a POST request with the provided configuration", func() {
 			var requestBody string
 
 			fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
@@ -170,9 +171,8 @@ var _ = Describe("Session", func() {
 				requestBody = string(requestBodyBytes)
 			}))
 			defer fakeServer.Close()
-			capabilities["browserName"] = "some-browser"
 			Open(fakeServer.URL, capabilities)
-			Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
+			Expect(requestBody).To(MatchJSON(`{"some": "json"}`))
 		})
 
 		Context("when the request is invalid", func() {

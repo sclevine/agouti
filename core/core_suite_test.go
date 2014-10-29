@@ -1,4 +1,4 @@
-package page_test
+package core_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestPage(t *testing.T) {
+func TestCore(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Page Suite")
+	RunSpecs(t, "Core Suite")
 }

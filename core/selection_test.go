@@ -1,22 +1,22 @@
-package selection_test
+package core_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	. "github.com/sclevine/agouti/core/internal/selection"
 )
 
 var _ = Describe("Selection", func() {
 	var (
+		selection Selection
 		client    *mocks.Client
-		selection *Selection
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		selection = &Selection{Client: client}
+		selection = TestingSelection(client)
 		element = &mocks.Element{}
 	})
 

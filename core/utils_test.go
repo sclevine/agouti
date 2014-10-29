@@ -1,26 +1,25 @@
-package selection_test
+package core_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	. "github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Utils", func() {
 	var (
+		selection MultiSelection
 		client    *mocks.Client
-		selection *MultiSelection
 		element   *mocks.Element
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		emptySelection := &Selection{Client: client}
-		selection = emptySelection.All("#selector")
+		selection = TestingSelection(client).All("#selector")
 		element = &mocks.Element{}
 	})
 
@@ -54,15 +53,15 @@ var _ = Describe("Utils", func() {
 	Describe("#EqualsElement", func() {
 		var (
 			otherClient         *mocks.Client
-			otherSelection      *Selection
-			otherMultiSelection *MultiSelection
+			otherSelection      Selection
+			otherMultiSelection MultiSelection
 			otherElement        *mocks.Element
 		)
 
 		BeforeEach(func() {
 			client.GetElementsCall.ReturnElements = []types.Element{element}
 			otherClient = &mocks.Client{}
-			emptySelection := &Selection{Client: otherClient}
+			emptySelection := TestingSelection(otherClient)
 			otherSelection = emptySelection.Find("#other_selector")
 			otherMultiSelection = emptySelection.All("#other_selector")
 			otherElement = &mocks.Element{}
@@ -109,7 +108,7 @@ var _ = Describe("Utils", func() {
 			})
 		})
 
-		Context("when the provided element is not a *Selection or *MultiSelection", func() {
+		Context("when the provided element is not a selection or multi-selection", func() {
 			It("should return an error", func() {
 				_, err := selection.EqualsElement("not a selection")
 				Expect(err).To(MatchError("provided object is not a selection"))

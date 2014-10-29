@@ -8,6 +8,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/session"
 )
@@ -37,10 +38,10 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("#CreateSession", func() {
-		var capabilities session.Capabilities
+		var capabilities *mocks.JSON
 
 		BeforeEach(func() {
-			capabilities = session.Capabilities{"browserName": "some-browser"}
+			capabilities = &mocks.JSON{ReturnJSON: `{"some": "json"}`}
 		})
 
 		Context("when the server is not running", func() {
@@ -65,8 +66,8 @@ var _ = Describe("Service", func() {
 				service.URL = fakeServer.URL
 				newSession, err := service.CreateSession(capabilities)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"browserName": "some-browser"}}`))
-				Expect(newSession.URL).To(ContainSubstring("/session/some-id"))
+				Expect(requestBody).To(MatchJSON(`{"some": "json"}`))
+				Expect(newSession.(*session.Session).URL).To(ContainSubstring("/session/some-id"))
 			})
 
 			Context("when opening a new session fails", func() {
