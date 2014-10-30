@@ -1,13 +1,14 @@
-package core
+package selection
 
 import (
 	"fmt"
+
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type actionsFunc func(types.Element) error
 
-func (s *selection) forEachElement(actions actionsFunc) error {
+func (s *Selection) forEachElement(actions actionsFunc) error {
 	elements, err := s.getSelectedElements()
 	if err != nil {
 		return fmt.Errorf("failed to select '%s': %s", s, err)
@@ -21,7 +22,7 @@ func (s *selection) forEachElement(actions actionsFunc) error {
 	return nil
 }
 
-func (s *selection) Click() error {
+func (s *Selection) Click() error {
 	return s.forEachElement(func(element types.Element) error {
 		if err := element.Click(); err != nil {
 			return fmt.Errorf("failed to click on '%s': %s", s, err)
@@ -30,19 +31,19 @@ func (s *selection) Click() error {
 	})
 }
 
-func (s *selection) DoubleClick() error {
+func (s *Selection) DoubleClick() error {
 	return s.forEachElement(func(element types.Element) error {
-		if err := s.client.MoveTo(element, nil); err != nil {
+		if err := s.Client.MoveTo(element, nil); err != nil {
 			return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
 		}
-		if err := s.client.DoubleClick(); err != nil {
+		if err := s.Client.DoubleClick(); err != nil {
 			return fmt.Errorf("failed to double-click on '%s': %s", s, err)
 		}
 		return nil
 	})
 }
 
-func (s *selection) Fill(text string) error {
+func (s *Selection) Fill(text string) error {
 	return s.forEachElement(func(element types.Element) error {
 		if err := element.Clear(); err != nil {
 			return fmt.Errorf("failed to clear '%s': %s", s, err)
@@ -54,15 +55,15 @@ func (s *selection) Fill(text string) error {
 	})
 }
 
-func (s *selection) Check() error {
+func (s *Selection) Check() error {
 	return s.setChecked(true)
 }
 
-func (s *selection) Uncheck() error {
+func (s *Selection) Uncheck() error {
 	return s.setChecked(false)
 }
 
-func (s *selection) setChecked(checked bool) error {
+func (s *Selection) setChecked(checked bool) error {
 	return s.forEachElement(func(element types.Element) error {
 		elementType, err := element.GetAttribute("type")
 		if err != nil {
@@ -87,7 +88,7 @@ func (s *selection) setChecked(checked bool) error {
 	})
 }
 
-func (s *selection) Select(text string) error {
+func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(element types.Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space(text())="%s"]`, text)
 		optionToSelect := types.Selector{Using: "xpath", Value: optionXPath}
@@ -109,7 +110,7 @@ func (s *selection) Select(text string) error {
 	})
 }
 
-func (s *selection) Submit() error {
+func (s *Selection) Submit() error {
 	return s.forEachElement(func(element types.Element) error {
 		if err := element.Submit(); err != nil {
 			return fmt.Errorf("failed to submit '%s': %s", s, err)

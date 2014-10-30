@@ -1,24 +1,24 @@
-package core_test
+package selection_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
+	. "github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Elements", func() {
 	var (
 		client    *mocks.Client
-		selection Selection
+		selection *Selection
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		selection = TestingSelection(client)
+		selection = &Selection{Client: client}
 	})
 
 	Describe("retrieving any number of elements", func() {
@@ -39,7 +39,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when all elements are successfully retrieved", func() {
 			BeforeEach(func() {
-				Expect(selection.All("parents").AllByXPath("children").Click()).To(Succeed())
+				Expect(selection.AppendCSS("parents").AppendXPath("children").Click()).To(Succeed())
 			})
 
 			It("should retrieve the parent elements using the client", func() {
@@ -61,7 +61,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when all non-zero-indexed elements are successfully retrieved", func() {
 			BeforeEach(func() {
-				Expect(selection.All("parents").At(1).AllByXPath("children").At(1).Click()).To(Succeed())
+				Expect(selection.AppendCSS("parents").AtIndex(1).AppendXPath("children").AtIndex(1).Click()).To(Succeed())
 			})
 
 			It("should retrieve the parent elements using the client", func() {
@@ -85,7 +85,7 @@ var _ = Describe("Elements", func() {
 			BeforeEach(func() {
 				firstParent.GetElementCall.ReturnElement = children[0]
 				client.GetElementCall.ReturnElement = firstParent
-				Expect(selection.All("parents").At(0).AllByXPath("children").At(0).Click()).To(Succeed())
+				Expect(selection.AppendCSS("parents").AtIndex(0).AppendXPath("children").AtIndex(0).Click()).To(Succeed())
 			})
 
 			It("should retrieve the first parent element using the client", func() {
@@ -108,7 +108,7 @@ var _ = Describe("Elements", func() {
 			BeforeEach(func() {
 				firstParent.GetElementsCall.ReturnElements = []types.Element{children[0]}
 				client.GetElementsCall.ReturnElements = []types.Element{firstParent}
-				Expect(selection.All("parents").Single().AllByXPath("children").Single().Click()).To(Succeed())
+				Expect(selection.AppendCSS("parents").SingleOnly().AppendXPath("children").SingleOnly().Click()).To(Succeed())
 			})
 
 			It("should retrieve the parent element using the client", func() {
@@ -132,7 +132,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when retrieving the parent elements fails", func() {
 			It("should return an error", func() {
-				bothParents := selection.All("parents")
+				bothParents := selection.AppendCSS("parents")
 				client.GetElementsCall.Err = errors.New("some error")
 				Expect(bothParents.Click()).To(MatchError("failed to select 'CSS: parents': some error"))
 			})
@@ -140,7 +140,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when retrieving any of the child elements fails", func() {
 			It("should return an error", func() {
-				allChildren := selection.All("parents").AllByXPath("children")
+				allChildren := selection.AppendCSS("parents").AppendXPath("children")
 				secondParent.GetElementsCall.Err = errors.New("some error")
 				Expect(allChildren.Click()).To(MatchError("failed to select 'CSS: parents | XPath: children': some error"))
 			})
@@ -148,14 +148,14 @@ var _ = Describe("Elements", func() {
 
 		Context("when a single-element-only parent selection refers to multiple parents", func() {
 			It("should return an error", func() {
-				allChildren := selection.All("parents").Single().AllByXPath("children")
+				allChildren := selection.AppendCSS("parents").SingleOnly().AppendXPath("children")
 				Expect(allChildren.Click()).To(MatchError("failed to select 'CSS: parents [single] | XPath: children': ambiguous find"))
 			})
 		})
 
 		Context("when a single-element-only parent selection refers to no parents", func() {
 			It("should return an error", func() {
-				noChildren := selection.All("parents").Single().AllByXPath("children")
+				noChildren := selection.AppendCSS("parents").SingleOnly().AppendXPath("children")
 				client.GetElementsCall.ReturnElements = []types.Element{}
 				Expect(noChildren.Click()).To(MatchError("failed to select 'CSS: parents [single] | XPath: children': element not found"))
 			})
@@ -163,7 +163,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when any single-element-only child selection refers to multiple child elements", func() {
 			It("should return an error", func() {
-				allChildren := selection.All("parents").AllByXPath("children").Single()
+				allChildren := selection.AppendCSS("parents").AppendXPath("children").SingleOnly()
 				firstParent.GetElementsCall.ReturnElements = []types.Element{children[0]}
 				Expect(allChildren.Click()).To(MatchError("failed to select 'CSS: parents | XPath: children [single]': ambiguous find"))
 			})
@@ -171,7 +171,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when any single-element-only child selection refers to no child elements", func() {
 			It("should return an error", func() {
-				noChild := selection.All("parents").AllByXPath("children").Single()
+				noChild := selection.AppendCSS("parents").AppendXPath("children").SingleOnly()
 				firstParent.GetElementsCall.ReturnElements = []types.Element{}
 				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents | XPath: children [single]': element not found"))
 			})
@@ -179,14 +179,14 @@ var _ = Describe("Elements", func() {
 
 		Context("when the parent selection index is out of range", func() {
 			It("should return an error", func() {
-				noParent := selection.All("parents").At(2)
+				noParent := selection.AppendCSS("parents").AtIndex(2)
 				Expect(noParent.Click()).To(MatchError("failed to select 'CSS: parents [2]': element index out of range"))
 			})
 		})
 
 		Context("when child selection indices are out of range", func() {
 			It("should return an error", func() {
-				noChild := selection.All("parents").At(1).All("children").At(2)
+				noChild := selection.AppendCSS("parents").AtIndex(1).AppendCSS("children").AtIndex(2)
 				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents [1] | CSS: children [2]': element index out of range"))
 			})
 		})
@@ -194,7 +194,7 @@ var _ = Describe("Elements", func() {
 		Context("when a zero-indexed parent selection element does not exist", func() {
 			It("should return an error", func() {
 				client.GetElementCall.Err = errors.New("some error")
-				noParent := selection.All("parents").At(0)
+				noParent := selection.AppendCSS("parents").AtIndex(0)
 				Expect(noParent.Click()).To(MatchError("failed to select 'CSS: parents [0]': some error"))
 			})
 		})
@@ -203,7 +203,7 @@ var _ = Describe("Elements", func() {
 			It("should return an error", func() {
 				firstParent.GetElementCall.Err = errors.New("some error")
 				client.GetElementCall.ReturnElement = firstParent
-				noChild := selection.All("parents").At(0).All("children").At(0)
+				noChild := selection.AppendCSS("parents").AtIndex(0).AppendCSS("children").AtIndex(0)
 				Expect(noChild.Click()).To(MatchError("failed to select 'CSS: parents [0] | CSS: children [0]': some error"))
 			})
 		})
@@ -212,7 +212,7 @@ var _ = Describe("Elements", func() {
 	Describe("retrieving at least one element", func() {
 		Context("when the client retrieves zero elements", func() {
 			It("should fail with an error", func() {
-				empty := selection.All("#selector")
+				empty := selection.AppendCSS("#selector")
 				client.GetElementsCall.ReturnElements = []types.Element{}
 				Expect(empty.Click()).To(MatchError("failed to select 'CSS: #selector': no elements found"))
 			})
@@ -222,7 +222,7 @@ var _ = Describe("Elements", func() {
 	Describe("retrieving exactly one element", func() {
 		Context("when the client retrieves zero elements", func() {
 			It("should return an error", func() {
-				empty := selection.All("#selector")
+				empty := selection.AppendCSS("#selector")
 				client.GetElementsCall.ReturnElements = []types.Element{}
 				_, err := empty.Text()
 				Expect(err).To(MatchError("failed to select 'CSS: #selector': no elements found"))
@@ -231,7 +231,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when the client retrieves more than one element", func() {
 			It("should return an error", func() {
-				multiple := selection.All("#selector")
+				multiple := selection.AppendCSS("#selector")
 				client.GetElementsCall.ReturnElements = []types.Element{&mocks.Element{}, &mocks.Element{}}
 				_, err := multiple.Text()
 				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))

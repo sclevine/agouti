@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
@@ -39,8 +40,9 @@ func (d *driver) Page(config ...Capabilities) (Page, error) {
 		return nil, fmt.Errorf("failed to generate page: %s", err)
 	}
 
-	pageClient := &api.Client{Session: pageSession}
-	newPage := &page{client: pageClient}
+	client := &api.Client{Session: pageSession}
+	selection := &baseSelection{&selection.Selection{Client: client}}
+	newPage := &page{selection}
 	d.pages = append(d.pages, newPage)
 	return newPage, nil
 }
