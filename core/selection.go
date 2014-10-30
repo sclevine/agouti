@@ -147,16 +147,11 @@ type baseSelection struct {
 }
 
 func (s *baseSelection) EqualsElement(comparable interface{}) (bool, error) {
-	var other *selection.Selection
-	switch comparable := comparable.(type) {
-	case *baseSelection:
-		other = comparable.Selection
-	case *multiSelection:
-		other = comparable.baseSelection.Selection
-	default:
+	other, ok := comparable.(*baseSelection)
+	if !ok {
 		return false, errors.New("provided object is not a Selection")
 	}
-	return s.Selection.EqualsElement(other)
+	return s.Selection.EqualsElement(other.Selection)
 }
 
 func (s *baseSelection) Find(selector string) Selection {
@@ -192,29 +187,25 @@ func (s *baseSelection) FirstByLabel(text string) Selection {
 }
 
 func (s *baseSelection) All(selector string) MultiSelection {
-	return &multiSelection{&baseSelection{s.AppendCSS(selector)}}
+	return &baseSelection{s.AppendCSS(selector)}
 }
 
 func (s *baseSelection) AllByXPath(selector string) MultiSelection {
-	return &multiSelection{&baseSelection{s.AppendXPath(selector)}}
+	return &baseSelection{s.AppendXPath(selector)}
 }
 
 func (s *baseSelection) AllByLink(text string) MultiSelection {
-	return &multiSelection{&baseSelection{s.AppendLink(text)}}
+	return &baseSelection{s.AppendLink(text)}
 }
 
 func (s *baseSelection) AllByLabel(text string) MultiSelection {
-	return &multiSelection{&baseSelection{s.AppendLabeled(text)}}
+	return &baseSelection{s.AppendLabeled(text)}
 }
 
-type multiSelection struct {
-	*baseSelection
-}
-
-func (m *multiSelection) At(index int) Selection {
+func (m *baseSelection) At(index int) Selection {
 	return &baseSelection{m.AtIndex(index)}
 }
 
-func (m *multiSelection) Single() Selection {
+func (m *baseSelection) Single() Selection {
 	return &baseSelection{m.SingleOnly()}
 }
