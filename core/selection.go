@@ -12,6 +12,7 @@ import "github.com/sclevine/agouti/core/internal/selection"
 //    selection.Find("table").All("tr").Find("td").All("input[type=checkbox]").Check()
 // Will check all checkboxes in the first-and-only cell of each row in the only table.
 type Selection interface {
+	// Selections have Find*, All*, and First* methods to create new Selections
 	Selectable
 
 	// String returns a string representation of the selection, ex.

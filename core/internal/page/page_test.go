@@ -1,4 +1,4 @@
-package core_test
+package page_test
 
 import (
 	"errors"
@@ -8,13 +8,13 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
 	"github.com/sclevine/agouti/core/internal/mocks"
+	. "github.com/sclevine/agouti/core/internal/page"
 )
 
 var _ = Describe("Page", func() {
 	var (
-		page    Page
+		page    *Page
 		client  *mocks.Client
 		element *mocks.Element
 		window  *mocks.Window
@@ -24,7 +24,7 @@ var _ = Describe("Page", func() {
 		client = &mocks.Client{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = TestingPage(client)
+		page = &Page{client}
 	})
 
 	Describe("#Destroy", func() {

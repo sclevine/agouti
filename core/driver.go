@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
@@ -25,7 +24,7 @@ type WebDriver interface {
 
 type driver struct {
 	service types.Service
-	pages   []*page
+	pages   []Page
 }
 
 func (d *driver) Page(config ...Capabilities) (Page, error) {
@@ -41,8 +40,7 @@ func (d *driver) Page(config ...Capabilities) (Page, error) {
 	}
 
 	client := &api.Client{Session: pageSession}
-	selection := &baseSelection{&selection.Selection{Client: client}}
-	newPage := &page{selection}
+	newPage := newPage(client)
 	d.pages = append(d.pages, newPage)
 	return newPage, nil
 }

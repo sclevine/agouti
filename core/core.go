@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/service"
 	"github.com/sclevine/agouti/core/internal/session"
 )
@@ -74,8 +73,7 @@ func Connect(capabilities Capabilities, url string) (Page, error) {
 	}
 
 	client := &api.Client{Session: pageSession}
-	selection := &baseSelection{&selection.Selection{Client: client}}
-	return &page{selection}, nil
+	return newPage(client), nil
 }
 
 // SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
@@ -96,6 +94,5 @@ func SauceLabs(name, platform, browser, version, username, key string) (Page, er
 	}
 
 	client := &api.Client{Session: pageSession}
-	selection := &baseSelection{&selection.Selection{Client: client}}
-	return &page{selection}, nil
+	return newPage(client), nil
 }
