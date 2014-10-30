@@ -1,6 +1,9 @@
 package core
 
-import "github.com/sclevine/agouti/core/internal/selection"
+import (
+	"errors"
+	"github.com/sclevine/agouti/core/internal/selection"
+)
 
 // Selection instances refer to a selection of elements.
 // All Selection methods are valid MultiSelection methods.
@@ -24,7 +27,7 @@ type Selection interface {
 
 	// EqualsElement returns whether or not two selections of exactly
 	// one element each refer to the same element.
-	//	EqualsElement(comparable interface{}) (bool, error)
+	EqualsElement(comparable interface{}) (bool, error)
 
 	// Click clicks on all of the elements the selection refers to.
 	Click() error
@@ -141,6 +144,19 @@ type Selectable interface {
 
 type baseSelection struct {
 	*selection.Selection
+}
+
+func (s *baseSelection) EqualsElement(comparable interface{}) (bool, error) {
+	var other *selection.Selection
+	switch comparable := comparable.(type) {
+	case *baseSelection:
+		other = comparable.Selection
+	case *multiSelection:
+		other = comparable.baseSelection.Selection
+	default:
+		return false, errors.New("provided object is not a Selection")
+	}
+	return s.Selection.EqualsElement(other)
 }
 
 func (s *baseSelection) Find(selector string) Selection {

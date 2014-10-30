@@ -24,31 +24,21 @@ func (s *Selection) Count() (int, error) {
 	return len(elements), nil
 }
 
-//func (s *Selection) EqualsElement(comparable interface{}) (bool, error) {
-//	element, err := s.getSelectedElement()
-//	if err != nil {
-//		return false, fmt.Errorf("failed to select '%s': %s", s, err)
-//	}
-//
-//	var other *Selection
-//	switch selectable := comparable.(type) {
-//	case *Selection:
-//		other = selectable
-//	case *multiSelection:
-//		other = selectable.selection
-//	default:
-//		return false, errors.New("provided object is not a selection")
-//	}
-//
-//	otherElement, err := other.getSelectedElement()
-//	if err != nil {
-//		return false, fmt.Errorf("failed to select '%s': %s", comparable, err)
-//	}
-//
-//	equal, err := element.IsEqualTo(otherElement)
-//	if err != nil {
-//		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, comparable, err)
-//	}
-//
-//	return equal, nil
-//}
+func (s *Selection) EqualsElement(other *Selection) (bool, error) {
+	element, err := s.getSelectedElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to select '%s': %s", s, err)
+	}
+
+	otherElement, err := other.getSelectedElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to select '%s': %s", other, err)
+	}
+
+	equal, err := element.IsEqualTo(otherElement)
+	if err != nil {
+		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, other, err)
+	}
+
+	return equal, nil
+}

@@ -51,77 +51,63 @@ var _ = Describe("Utils", func() {
 		})
 	})
 
-	//	Describe("#EqualsElement", func() {
-	//		var (
-	//			otherClient         *mocks.Client
-	//			otherSelection      Selection
-	//			otherMultiSelection MultiSelection
-	//			otherElement        *mocks.Element
-	//		)
-	//
-	//		BeforeEach(func() {
-	//			client.GetElementsCall.ReturnElements = []types.Element{element}
-	//			otherClient = &mocks.Client{}
-	//			emptySelection := TestingSelection(otherClient)
-	//			otherSelection = emptySelection.Find("#other_selector")
-	//			otherMultiSelection = emptySelection.All("#other_selector")
-	//			otherElement = &mocks.Element{}
-	//			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
-	//		})
-	//
-	//		It("should compare the selection elements for equality if called with a selection", func() {
-	//			selection.EqualsElement(otherSelection)
-	//			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
-	//		})
-	//
-	//		It("should compare the selection elements for equality if called with a multi-selection", func() {
-	//			selection.EqualsElement(otherMultiSelection)
-	//			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
-	//		})
-	//
-	//		It("should successfully return true if they are equal", func() {
-	//			element.IsEqualToCall.ReturnEquals = true
-	//			equal, err := selection.EqualsElement(otherSelection)
-	//			Expect(equal).To(BeTrue())
-	//			Expect(err).NotTo(HaveOccurred())
-	//		})
-	//
-	//		It("should successfully return false if they are not equal", func() {
-	//			element.IsEqualToCall.ReturnEquals = false
-	//			equal, err := selection.EqualsElement(otherSelection)
-	//			Expect(equal).To(BeFalse())
-	//			Expect(err).NotTo(HaveOccurred())
-	//		})
-	//
-	//		Context("when multiple elements are selected from the selection", func() {
-	//			It("should return an error with the number of elements", func() {
-	//				client.GetElementsCall.ReturnElements = []types.Element{element, element}
-	//				_, err := selection.EqualsElement(otherSelection)
-	//				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
-	//			})
-	//		})
-	//
-	//		Context("when multiple elements are selected from the other selection", func() {
-	//			It("should return an error with the number of elements", func() {
-	//				otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
-	//				_, err := selection.EqualsElement(otherMultiSelection)
-	//				Expect(err).To(MatchError("failed to select 'CSS: #other_selector': method does not support multiple elements (2)"))
-	//			})
-	//		})
-	//
-	//		Context("when the provided element is not a selection or multi-selection", func() {
-	//			It("should return an error", func() {
-	//				_, err := selection.EqualsElement("not a selection")
-	//				Expect(err).To(MatchError("provided object is not a selection"))
-	//			})
-	//		})
-	//
-	//		Context("when the client fails to compare the elements", func() {
-	//			It("should return an error", func() {
-	//				element.IsEqualToCall.Err = errors.New("some error")
-	//				_, err := selection.EqualsElement(otherSelection)
-	//				Expect(err).To(MatchError("failed to compare 'CSS: #selector' to 'CSS: #other_selector [single]': some error"))
-	//			})
-	//		})
-	//	})
+	Describe("#EqualsElement", func() {
+		var (
+			otherClient    *mocks.Client
+			otherSelection *Selection
+			otherElement   *mocks.Element
+		)
+
+		BeforeEach(func() {
+			client.GetElementsCall.ReturnElements = []types.Element{element}
+			otherClient = &mocks.Client{}
+			emptySelection := &Selection{Client: otherClient}
+			otherSelection = emptySelection.AppendCSS("#other_selector")
+			otherElement = &mocks.Element{}
+			otherClient.GetElementsCall.ReturnElements = []types.Element{otherElement}
+		})
+
+		It("should compare the selection elements for equality", func() {
+			selection.EqualsElement(otherSelection)
+			Expect(element.IsEqualToCall.Element).To(Equal(otherElement))
+		})
+
+		It("should successfully return true if they are equal", func() {
+			element.IsEqualToCall.ReturnEquals = true
+			equal, err := selection.EqualsElement(otherSelection)
+			Expect(equal).To(BeTrue())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should successfully return false if they are not equal", func() {
+			element.IsEqualToCall.ReturnEquals = false
+			equal, err := selection.EqualsElement(otherSelection)
+			Expect(equal).To(BeFalse())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("when multiple elements are selected from the selection", func() {
+			It("should return an error with the number of elements", func() {
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
+			})
+		})
+
+		Context("when multiple elements are selected from the other selection", func() {
+			It("should return an error with the number of elements", func() {
+				otherClient.GetElementsCall.ReturnElements = []types.Element{element, element}
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to select 'CSS: #other_selector': method does not support multiple elements (2)"))
+			})
+		})
+
+		Context("when the client fails to compare the elements", func() {
+			It("should return an error", func() {
+				element.IsEqualToCall.Err = errors.New("some error")
+				_, err := selection.EqualsElement(otherSelection)
+				Expect(err).To(MatchError("failed to compare 'CSS: #selector' to 'CSS: #other_selector': some error"))
+			})
+		})
+	})
 })
