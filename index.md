@@ -2,7 +2,7 @@
 layout: default
 title: Agouti
 ---
-[Ginkgo](http://github.com/onsi/ginkgo) is a BDD-style Golang testing framework built to help you efficiently write expressive and comprehensive tests.  It is best paired with the [Gomega](http://github.com/onsi/gomega) matcher library but is designed to be matcher-agnostic.  
+[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework built to help you efficiently write expressive and comprehensive tests.  It is best paired with the [Gomega](http://github.com/onsi/gomega) matcher library but is designed to be matcher-agnostic.
 
 These docs are written assuming you'll be using Gomega with Ginkgo.  They also assume you know your way around Go and have a good mental model for how Go organizes packages under `$GOPATH`.
 
