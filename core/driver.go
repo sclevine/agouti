@@ -8,7 +8,7 @@ import (
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
-// WebDriver provides access to a Selenium, PhantomJS, or ChromeDriver process.
+// WebDriver controls a Selenium, PhantomJS, or ChromeDriver process.
 type WebDriver interface {
 	// Start launches the WebDriver process.
 	Start() error
@@ -17,8 +17,10 @@ type WebDriver interface {
 	Stop()
 
 	// Page returns a new WebDriver session. The optional config argument
-	// configures the returned page: ex. Use().Without("javascriptEnabled").
-	// For Selenium, this argument must include a browser: ex. Use().Browser("safari").
+	// configures the returned page. For instance:
+	//    driver.Page(Use().Without("javascriptEnabled"))
+	// For Selenium, this argument must include a browser. For instance:
+	//    seleniumDriver.Page(Use().Browser("safari"))
 	Page(config ...Capabilities) (Page, error)
 }
 

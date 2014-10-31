@@ -6,13 +6,13 @@ import (
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
-// A Page represents a browser session. Pages may be created using the
+// A Page represents an open browser session. Pages may be created using the
 // WebDriver#Page() method or by calling the Connect or SauceLabs functions.
 type Page interface {
-	// Selections are initiated using the Selectable page methods
+	// Selections are created using the Selectable page methods (ex. Find()).
 	Selectable
 
-	// Destroy closes the session and associated open browser instances
+	// Destroy closes the session and any open browsers processes.
 	Destroy() error
 
 	// Navigate navigates to the provided URL.
@@ -30,7 +30,7 @@ type Page interface {
 	// URL returns the current page URL.
 	URL() (string, error)
 
-	// Size sets the current page size.
+	// Size sets the current page size in pixels.
 	Size(width, height int) error
 
 	// Screenshot takes a screenshot and saves it to the provided filename.
@@ -42,9 +42,9 @@ type Page interface {
 	// HTML returns the current contents of the DOM for the entire page.
 	HTML() (string, error)
 
-	// RunScript runs the javascript provided in the body argument. Any keys present
-	// in the arguments map will be available as variables in the body argument.
-	// Arguments values are converted into javascript objects.
+	// RunScript runs the javascript provided in the body. Any keys present in
+	// the arguments map will be available as variables in the body.
+	// Values provided in arguments are converted into javascript objects.
 	// If the body returns a value, it will be unmarshalled into the result argument.
 	// Simple example:
 	//    var number int
@@ -71,7 +71,7 @@ type Page interface {
 	// Back navigates backwards in history.
 	Back() error
 
-	// Refresh refreshes the page
+	// Refresh refreshes the page.
 	Refresh() error
 }
 

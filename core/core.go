@@ -69,7 +69,7 @@ func freeAddress() (string, error) {
 func Connect(capabilities Capabilities, url string) (Page, error) {
 	pageSession, err := session.Open(url, capabilities)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open connection to Sauce Labs: %s", err)
+		return nil, fmt.Errorf("failed to open WebDriver session: %s", err)
 	}
 
 	client := &api.Client{Session: pageSession}

@@ -42,13 +42,13 @@ var _ = Describe("Selection", func() {
 
 		Context("when the selection ends with an indexed selector", func() {
 			It("should add a new selector to the selection", func() {
-				Expect(selection.AppendCSS("#selector").AtIndex(0).AppendCSS("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
+				Expect(selection.AppendCSS("#selector").At(0).AppendCSS("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
 			})
 		})
 
 		Context("when the selection ends with a single-element-only selector", func() {
 			It("should add a new selector to the selection", func() {
-				Expect(selection.AppendCSS("#selector").SingleOnly().AppendCSS("#subselector").String()).To(Equal("CSS: #selector [single] | CSS: #subselector"))
+				Expect(selection.AppendCSS("#selector").Single().AppendCSS("#subselector").String()).To(Equal("CSS: #selector [single] | CSS: #subselector"))
 			})
 		})
 	})
@@ -71,30 +71,30 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
-	Describe("#AtIndex", func() {
+	Describe("#At", func() {
 		Context("when called on a selection with no selectors", func() {
 			It("should return an empty selection", func() {
-				Expect(selection.AtIndex(1).String()).To(Equal(""))
+				Expect(selection.At(1).String()).To(Equal(""))
 			})
 		})
 
 		Context("when called on a selection with selectors", func() {
 			It("should select an index of the current selection", func() {
-				Expect(selection.AppendCSS("#selector").AtIndex(1).String()).To(Equal("CSS: #selector [1]"))
+				Expect(selection.AppendCSS("#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
 			})
 		})
 	})
 
-	Describe("#SingleOnly", func() {
+	Describe("#Single", func() {
 		Context("when called on a selection with no selectors", func() {
 			It("should return an empty selection", func() {
-				Expect(selection.SingleOnly().String()).To(Equal(""))
+				Expect(selection.Single().String()).To(Equal(""))
 			})
 		})
 
 		Context("when called on a selection with selectors", func() {
 			It("should select a single element of the current selection", func() {
-				Expect(selection.AppendCSS("#selector").SingleOnly().String()).To(Equal("CSS: #selector [single]"))
+				Expect(selection.AppendCSS("#selector").Single().String()).To(Equal("CSS: #selector [single]"))
 			})
 		})
 	})

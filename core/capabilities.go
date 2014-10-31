@@ -2,7 +2,12 @@ package core
 
 import "encoding/json"
 
-// Capabilities defines the desired capabilities used to configure a Page.
+// A Capabilities instance defines the desired capabilities the WebDriver
+// should use to configure a Page.
+//
+// For example, to open a Firefox page with JavaScript disabled:
+//    driver.Page(Use().Browser("firefox").Without("javascriptEnabled")
+// See: https://code.google.com/p/selenium/wiki/DesiredCapabilities
 type Capabilities interface {
 	// Browser sets the desired browser name - {chrome|firefox|safari|iphone|...}.
 	Browser(browser string) Capabilities
@@ -23,7 +28,8 @@ type Capabilities interface {
 	JSON() string
 }
 
-// Use returns a Capabilities instance to be used for Page configuration.
+// Use returns a Capabilities instance that can be passed to a page.
+// All methods called on this instance will modify the original instance.
 func Use() Capabilities {
 	return capabilities{}
 }

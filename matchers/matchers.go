@@ -1,2 +1,3 @@
-// Package matchers provides a set of Gomega matchers to be used with core.
+// Package matchers provides a set of Gomega-compatible matchers for use
+// with the Agouti core package.
 package matchers

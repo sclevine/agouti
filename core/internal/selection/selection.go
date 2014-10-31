@@ -45,7 +45,7 @@ func (s *Selection) AppendLabeled(text string) *Selection {
 	return s.AppendXPath(fmt.Sprintf(`//input[@id=(//label[normalize-space(text())="%s"]/@for)] | //label[normalize-space(text())="%s"]/input`, text, text))
 }
 
-func (s *Selection) SingleOnly() *Selection {
+func (s *Selection) Single() *Selection {
 	lastIndex := len(s.selectors) - 1
 	if lastIndex < 0 {
 		return &Selection{s.Client, nil}
@@ -57,7 +57,7 @@ func (s *Selection) SingleOnly() *Selection {
 	return &Selection{s.Client, appendSelector(s.selectors[:lastIndex], selector)}
 }
 
-func (s *Selection) AtIndex(index int) *Selection {
+func (s *Selection) At(index int) *Selection {
 	lastIndex := len(s.selectors) - 1
 	if lastIndex < 0 {
 		return &Selection{s.Client, nil}
