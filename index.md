@@ -2,39 +2,51 @@
 layout: default
 title: Agouti
 ---
-[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework built to help you efficiently write expressive and comprehensive tests.  It is best paired with the [Gomega](http://github.com/onsi/gomega) matcher library but is designed to be matcher-agnostic.
+[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general WebDriver API. It is best complemented by the [Ginkgo](http://github.com/onsi/ginkgo) testing framework and [Gomega](http://github.com/onsi/gomega) matcher library, but it is designed to be both testing framework and matcher library agnostic.
 
-These docs are written assuming you'll be using Gomega with Ginkgo.  They also assume you know your way around Go and have a good mental model for how Go organizes packages under `$GOPATH`.
+This document is written with the assumption that you will be using Agouti for acceptance testing with both Ginkgo and Gomega. The [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package is not used in any examples outside of the DSL section. 
 
 ---
 
-##Getting Ginkgo
+##Getting Agouti 
 
 Just `go get` it:
 
+    $ go get github.com/sclevine/agouti
+
+Or grab only the packages you plan to use:
+
+    $ go get github.com/sclevine/agouti/core
+    $ go get github.com/sclevine/agouti/matchers
+    $ go get github.com/sclevine/agouti/dsl
+
+If you plan to write acceptance tests using Ginkgo or want to use the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package:
+
     $ go get github.com/onsi/ginkgo/ginkgo
+
+If you plan to use the [`matchers`](https://godoc.org/github.com/sclevine/agouti/matchers) package, get Gomega:
+
     $ go get github.com/onsi/gomega
 
-this fetches ginkgo and installs the `ginkgo` executable under `$GOPATH/bin` -- you'll want that on your `$PATH`.
+Next, install any WebDrivers you plan to use. For OS X with [Homebrew](http://brew.sh):
 
-**Ginkgo is compatible with Golang v1.2+  Ubuntu users: apt-get currently installs v1.0 -- you'll need to upgrade!**
+    $ brew install phantomjs
+    $ brew install chromedriver
+    $ brew install selenium-server-standalone
 
 ---
 
-##Getting Started: Writing Your First Test
-Ginkgo hooks into Go's existing `testing` infrastructure.  This allows you to run a Ginkgo suite using `go test`.
+##Getting Started: Writing Your First Acceptance Test
+Agouti is best used with Ginkgo and Gomega. We'll start by setting up your package to work with them. For more information, check out the [Ginkgo docs](http://onsi.github.io/ginkgo/) and [Gomega docs](http://onsi.github.io/ginkgo/).
 
-> This also means that Ginkgo tests can live alongside traditional Golang `testing` tests.  Both `go test` and `ginkgo` will run all the tests in your suite.
+###Setting up Ginkgo to Run Agouti
 
-###Bootstrapping a Suite
-To write Ginkgo tests for a package you must first bootstrap a Ginkgo test suite.  Say you have a package named `books`:
-
-    $ cd path/to/books
+    $ cd path/to/potato
     $ ginkgo bootstrap
 
-This will generate a file named `books_suite_test.go` containing:
+This will generate a file named `potato_suite_test.go` containing:
 
-    package books_test
+    package potato_test 
 
     import (
         . "github.com/onsi/ginkgo"
@@ -43,108 +55,132 @@ This will generate a file named `books_suite_test.go` containing:
         "testing"
     )
 
-    func TestBooks(t *testing.T) {
+    func TestPotato(t *testing.T) {
         RegisterFailHandler(Fail)
-        RunSpecs(t, "Books Suite")
+        RunSpecs(t, "Potato Suite")
     }
 
-Let's break this down:
+Update this file to run your choice of WebDriver. For this example, we'll use Selenium:
 
-- Go allows us to specify the `books_test` package alongside the `books` package.  Using `books_test` instead of `books` allows us to respect the encapsulation of the `books` package: your tests will need to import `books` and access it from the outside, like any other package.  This is preferred to reaching into the package and testing its internals and leads to more behavioral tests.  You can, of course, opt out of this -- just change `package books_test` to `package books`
-- We import the `ginkgo` and `gomega` packages into the test's top-level namespace by performing a dot-import.  If you'd rather not do this, check out the [Avoiding Dot Imports](#avoiding-dot-imports) section below.
-- `TestBooks` is a `testing` test.  The Go test runner will run this function when you run `go test` or `ginkgo`.
-- `RegisterFailHandler(Fail)`: A Ginkgo test signals failure by calling Ginkgo's `Fail(description string)` function.  We pass this function to Gomega using `RegisterFailHandler`.  This is the sole connection point between Ginkgo and Gomega.
-- `RunSpecs(t *testing.T, suiteDescription string)` tells Ginkgo to start the test suite.  Ginkgo will automatically fail the `testing.T` if any of your specs fail.
+    package potato_test
 
-At this point you can run your suite:
+    import (
+        . "github.com/onsi/ginkgo"
+        . "github.com/onsi/gomega"
+        . "github.com/sclevine/agouti/core"
+
+        "testing"
+    )
+
+    func TestPotato(t *testing.T) {
+        RegisterFailHandler(Fail)
+        RunSpecs(t, "Potato Suite")
+    }
+
+    var driver WebDriver
+
+    var _ = BeforeSuite(func() {
+        var err error
+        driver, err = Selenium()
+        Expect(err).NotTo(HaveOccurred())
+        Expect(driver.Start()).To(Succeed())
+    })
+
+    var _ = AfterSuite(func() {
+        driver.Stop()
+    })
+
+Note that while this setup does not need to be in the `*_suite_test.go` file, we strongly recommend that the `WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits. (If you prefer not to use a global variable for the WebDriver, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
+
+At this point you can run your suite without any tests.
 
     $ ginkgo #or go test
 
-    === RUN TestBootstrap
+###Adding Acceptance Tests
 
-    Running Suite: Books Suite
-    ==========================
-    Random Seed: 1378936983
+Let's write an acceptance test covering user login:
 
-    Will run 0 of 0 specs
+    $ ginkgo generate user_login 
 
+This will generate a file named `user_login_test.go` containing:
 
-    Ran 0 of 0 Specs in 0.000 seconds
-    SUCCESS! -- 0 Passed | 0 Failed | 0 Pending | 0 Skipped
-
-    --- PASS: TestBootstrap (0.00 seconds)
-    PASS
-    ok      books   0.019s
-
-###Adding Specs to a Suite
-An empty test suite is not very interesting.  While you can start to add tests directly into `books_suite_test.go` you'll probably prefer to separate your tests into separate files (especially for packages with multiple files).  Let's add a test file for our `book.go` model:
-
-    $ ginkgo generate book
-
-This will generate a file named `book_test.go` containing:
-
-    package books_test
+    package potato_test 
 
     import (
-        . "/path/to/books"
+        . "/path/to/potato"
+
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
     )
 
-    var _ = Describe("Book", func() {
+    var _ = Describe("UserLogin", func() {
 
     })
 
-Let's break this down:
+Now let's start Agouti and point it at the application we want to test. Agouti can test any service that will run in a web browser, but let's assume that `mypackage` exports function `StartMyApp(port int)`, which starts your app on the provided port: 
 
-- We import the `ginkgo` and `gomega` packages into the top-level namespace.  While incredibly convenient, this is not - strictly speaking - necessary.  If youd like to avoid this check out the [Avoiding Dot Imports](#avoiding-dot-imports) section below.
-- Similarly, we import the `books` package since we are using the special `books_test` package to isolate our tests from our code.  For convenience we import the `books` package into the namespace.  You can opt out of either these decisions by editing the generated test file.
-- We add a *top-level* describe container using Ginkgo's `Describe(text string, body func()) bool` function.  The `var _ = ...` trick allows us to evaluate the Describe at the top level without having to wrap it in a `func init() {}`
+    package potato_test
 
-The function in the `Describe` will contain our specs.  Let's add a few now to test loading books from JSON:
+    import (
+        . "/path/to/potato"
 
-    var _ = Describe("Book", func() {
-        var (
-            longBook  Book
-            shortBook Book
-        )
+        . "github.com/onsi/ginkgo"
+        . "github.com/onsi/gomega"
+        . "github.com/sclevine/agouti/core"
+    )
+
+    var _ = Describe("UserLogin", func() {
+        var page Page
 
         BeforeEach(func() {
-            longBook = Book{
-                Title:  "Les Miserables",
-                Author: "Victor Hugo",
-                Pages:  1488,
-            }
+            StartMyApp(3000)
 
-            shortBook = Book{
-                Title:  "Fox In Socks",
-                Author: "Dr. Seuss",
-                Pages:  24,
-            }
+            var err error
+            page, err = driver.Page(Use().Browser("firefox"))
+            Expect(err).NotTo(HaveOccurred())
         })
 
-        Describe("Categorizing book length", func() {
-            Context("With more than 300 pages", func() {
-                It("should be a novel", func() {
-                    Expect(longBook.CategoryByLength()).To(Equal("NOVEL"))
-                })
+        It("allows a user to log in and log out", func() {
+            By("redirecting the user to the login form from the home page", func() {
+                Expect(page.Navigate("http://localhost:3000")).To(Succeed())
+                loginURL, err := page.URL()
+                Expect(err).NotTo(HaveOccurred())
+                Expect(loginURL).To(Equal("http://localhost:3000/login"))
             })
 
-            Context("With fewer than 300 pages", func() {
-                It("should be a short story", func() {
-                    Expect(shortBook.CategoryByLength()).To(Equal("SHORT STORY"))
-                })
+            By("allowing the user to fill out the login form and submit it", func() {
+                Expect(page.FindByLabel("E-mail").Fill("spud@example.com")).To(Succeed())
+                Expect(page.FindByLabel("Password").Fill("secret-password")).To(Succeed())
+                Expect(page.Find("#remember_me").Check()).To(Succeed())
+                Expect(page.Find("#login_form").Submit()).To(Succeed())
+            })
+
+            By("directing the user to the dashboard", func() {
+                Expect(page).To(HaveTitle("Dashboard"))
+            })
+
+            By("allowing the sure to view their profile", func() {
+                Expect(page.FindByLink("Profile Page").Click()).To(Succeed())
+                profile := page.Find("section.profile")
+                Expect(profile.Find(".greeting")).To(HaveText("Hello Spud!"))
+                Expect(profile.Find("img#profile_pic")).To(BeVisible())
+            })
+
+            By("allowing the user to log out", func() {
+                Expect(page.Find("#logout").Click()).To(Succeed())
+                Expect(page).To(HavePopupText("Are you sure?"))
+                Expect(page.ConfirmPopup()).To(Succeed())
+                Expect(page).To(HaveTitle("Login"))
             })
         })
     })
 
-Let's break this down:
+Note:
 
-- Ginkgo makes extensive use of closures to allow you to build descriptive test suites.
-- You should make use of `Describe` and `Context` containers to expressively organize the behavior of your code.
-- You can use `BeforeEach` to set up state for your specs.  You use `It` to specify a single spec.  
-- In order to share state between a `BeforeEach` and an `It` you use closure variables, typically defined at the top of the most relevant `Describe` or `Context` container.
-- We use Gomega's `Expect` syntax to make expectations on the `CategoryByLength()` method.
+- A new `Selection` can be created from an existing `Selection` or from the page.
+- The `Selection` interface is very rich. It supports selecting and asserting on one or more elements by CSS selector, XPath, form label, and/or link text.
+- The Agouti matchers (like `HaveTitle` and `BeVisible`) assert on public page and selection methods (lke `Title()` and `Visible()`).
+- The [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package contains actions that will fail the test automatically if the WebDriver is unable to perform them. This reduces the number of `Expect(...).To(Succeed())` assertions, if that is desired. It also renames some of the Ginkgo blocks (for instance, `It` becomes `Scenario`).
 
 Assuming a `Book` model with this behavior, running the tests will yield:
 
