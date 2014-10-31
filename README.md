@@ -2,6 +2,7 @@ Agouti
 ======
 
 [![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
+[![GoDoc](https://godoc.org/github.com/sclevine/agouti?status.svg)](https://godoc.org/github.com/sclevine/agouti)
 
 Integration testing for Go using Ginkgo and Gomega!
 
