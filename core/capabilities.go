@@ -24,7 +24,7 @@ type Capabilities interface {
 	// Without disables the provided feature (ex. "javascriptEnabled").
 	Without(feature string) Capabilities
 
-	// Custom sets a custom desired capability
+	// Custom sets a custom desired capability.
 	Custom(key string, value interface{}) Capabilities
 
 	// JSON returns a JSON string representing the desired capabilities.

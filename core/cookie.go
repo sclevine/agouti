@@ -2,12 +2,21 @@ package core
 
 import "encoding/json"
 
-// A Cookie instance defines a WebCookie for use with Page#SetCookie()
+// A WebCookie defines a cookie for use with Page#SetCookie()
 type WebCookie interface {
+	// Path sets the cookie path - defaults to "/".
 	Path(path string) WebCookie
+
+	// Domain sets the domain that the cookie is visible to.
 	Domain(domain string) WebCookie
+
+	// Secure marks the cookie as a secure cookie
 	Secure() WebCookie
+
+	// HTTPOnly marks the cookie as HTTP-only
 	HTTPOnly() WebCookie
+
+	// Expiry sets when the cookie expires in Unix time.
 	Expiry(expiry int64) WebCookie
 
 	// JSON returns a JSON string representing the cookie.
