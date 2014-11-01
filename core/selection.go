@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+
 	"github.com/sclevine/agouti/core/internal/selection"
 )
 
@@ -135,66 +136,66 @@ type Selectable interface {
 	AllByLabel(text string) MultiSelection
 }
 
-type baseSelection struct {
+type userSelection struct {
 	*selection.Selection
 }
 
-func (b *baseSelection) EqualsElement(comparable interface{}) (bool, error) {
-	other, ok := comparable.(*baseSelection)
+func (u *userSelection) EqualsElement(comparable interface{}) (bool, error) {
+	other, ok := comparable.(*userSelection)
 	if !ok {
 		return false, errors.New("provided object is not a Selection")
 	}
-	return b.Selection.EqualsElement(other.Selection)
+	return u.Selection.EqualsElement(other.Selection)
 }
 
-func (b *baseSelection) At(index int) Selection {
-	return &baseSelection{b.Selection.At(index)}
+func (u *userSelection) At(index int) Selection {
+	return &userSelection{u.Selection.At(index)}
 }
 
-func (b *baseSelection) Find(selector string) Selection {
-	return &baseSelection{b.AppendCSS(selector).Single()}
+func (u *userSelection) Find(selector string) Selection {
+	return &userSelection{u.AppendCSS(selector).Single()}
 }
 
-func (b *baseSelection) FindByXPath(selector string) Selection {
-	return &baseSelection{b.AppendXPath(selector).Single()}
+func (u *userSelection) FindByXPath(selector string) Selection {
+	return &userSelection{u.AppendXPath(selector).Single()}
 }
 
-func (b *baseSelection) FindByLink(text string) Selection {
-	return &baseSelection{b.AppendLink(text).Single()}
+func (u *userSelection) FindByLink(text string) Selection {
+	return &userSelection{u.AppendLink(text).Single()}
 }
 
-func (b *baseSelection) FindByLabel(text string) Selection {
-	return &baseSelection{b.AppendLabeled(text).Single()}
+func (u *userSelection) FindByLabel(text string) Selection {
+	return &userSelection{u.AppendLabeled(text).Single()}
 }
 
-func (b *baseSelection) First(selector string) Selection {
-	return &baseSelection{b.AppendCSS(selector).At(0)}
+func (u *userSelection) First(selector string) Selection {
+	return &userSelection{u.AppendCSS(selector).At(0)}
 }
 
-func (b *baseSelection) FirstByXPath(selector string) Selection {
-	return &baseSelection{b.AppendXPath(selector).At(0)}
+func (u *userSelection) FirstByXPath(selector string) Selection {
+	return &userSelection{u.AppendXPath(selector).At(0)}
 }
 
-func (b *baseSelection) FirstByLink(text string) Selection {
-	return &baseSelection{b.AppendLink(text).At(0)}
+func (u *userSelection) FirstByLink(text string) Selection {
+	return &userSelection{u.AppendLink(text).At(0)}
 }
 
-func (b *baseSelection) FirstByLabel(text string) Selection {
-	return &baseSelection{b.AppendLabeled(text).At(0)}
+func (u *userSelection) FirstByLabel(text string) Selection {
+	return &userSelection{u.AppendLabeled(text).At(0)}
 }
 
-func (b *baseSelection) All(selector string) MultiSelection {
-	return &baseSelection{b.AppendCSS(selector)}
+func (u *userSelection) All(selector string) MultiSelection {
+	return &userSelection{u.AppendCSS(selector)}
 }
 
-func (b *baseSelection) AllByXPath(selector string) MultiSelection {
-	return &baseSelection{b.AppendXPath(selector)}
+func (u *userSelection) AllByXPath(selector string) MultiSelection {
+	return &userSelection{u.AppendXPath(selector)}
 }
 
-func (b *baseSelection) AllByLink(text string) MultiSelection {
-	return &baseSelection{b.AppendLink(text)}
+func (u *userSelection) AllByLink(text string) MultiSelection {
+	return &userSelection{u.AppendLink(text)}
 }
 
-func (b *baseSelection) AllByLabel(text string) MultiSelection {
-	return &baseSelection{b.AppendLabeled(text)}
+func (u *userSelection) AllByLabel(text string) MultiSelection {
+	return &userSelection{u.AppendLabeled(text)}
 }

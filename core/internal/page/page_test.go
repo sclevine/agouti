@@ -57,15 +57,14 @@ var _ = Describe("Page", func() {
 
 	Describe("#SetCookie", func() {
 		It("should successfully instruct the client to add the cookie to the session", func() {
-			Expect(page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)).To(Succeed())
-			Expect(client.SetCookieCall.Cookie.Name).To(Equal("some-name"))
-			Expect(client.SetCookieCall.Cookie.Value).To(Equal(42))
+			Expect(page.SetCookie("some cookie")).To(Succeed())
+			Expect(client.SetCookieCall.Cookie).To(Equal("some cookie"))
 		})
 
 		Context("when the client fails to set the cookie", func() {
 			It("should return an error", func() {
 				client.SetCookieCall.Err = errors.New("some error")
-				err := page.SetCookie("some-name", 42, "/my-path", "example.com", false, false, 1412358590)
+				err := page.SetCookie("some cookie")
 				Expect(err).To(MatchError("failed to set cookie: some error"))
 			})
 		})

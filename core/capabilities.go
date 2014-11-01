@@ -24,8 +24,11 @@ type Capabilities interface {
 	// Without disables the provided feature (ex. "javascriptEnabled").
 	Without(feature string) Capabilities
 
+	// Custom sets a custom desired capability
+	Custom(key string, value interface{}) Capabilities
+
 	// JSON returns a JSON string representing the desired capabilities.
-	JSON() string
+	JSON() (string, error)
 }
 
 // Use returns a Capabilities instance that can be passed to a page.
@@ -61,12 +64,16 @@ func (c capabilities) Without(feature string) Capabilities {
 	return c
 }
 
-func (c capabilities) JSON() string {
+func (c capabilities) Custom(key string, value interface{}) Capabilities {
+	c[key] = value
+	return c
+}
+
+func (c capabilities) JSON() (string, error) {
 	desiredCapabilities := struct {
 		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
 	}{c}
 
-	json, _ := json.Marshal(desiredCapabilities)
-
-	return string(json)
+	capabilitiesJSON, err := json.Marshal(desiredCapabilities)
+	return string(capabilitiesJSON), err
 }

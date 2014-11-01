@@ -19,7 +19,7 @@ type Page interface {
 	Navigate(url string) error
 
 	// SetCookie sets a cookie on the page.
-	SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error
+	SetCookie(cookie WebCookie) error
 
 	// DeleteCookie deletes a cookie on the page by name.
 	DeleteCookie(name string) error
@@ -75,12 +75,18 @@ type Page interface {
 	Refresh() error
 }
 
+type userPage struct {
+	*page.Page
+	*userSelection
+}
+
+func (u *userPage) SetCookie(cookie WebCookie) error {
+	return u.SetCookie(cookie)
+}
+
 func newPage(client types.Client) Page {
-	return struct {
-		*page.Page
-		*baseSelection
-	}{
+	return &userPage{
 		&page.Page{Client: client},
-		&baseSelection{&selection.Selection{Client: client}},
+		&userSelection{&selection.Selection{Client: client}},
 	}
 }

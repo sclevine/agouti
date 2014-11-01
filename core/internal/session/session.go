@@ -70,7 +70,12 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 }
 
 func Open(url string, capabilities types.JSON) (*Session, error) {
-	postBody := strings.NewReader(capabilities.JSON())
+	capabiltiesJSON, err := capabilities.JSON()
+	if err != nil {
+		return nil, err
+	}
+
+	postBody := strings.NewReader(capabiltiesJSON)
 
 	// TODO: set content type to JSON
 

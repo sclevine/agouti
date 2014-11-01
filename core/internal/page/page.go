@@ -27,9 +27,8 @@ func (p *Page) Navigate(url string) error {
 	return nil
 }
 
-func (p *Page) SetCookie(name string, value interface{}, path, domain string, secure, httpOnly bool, expiry int64) error {
-	cookie := types.Cookie{Name: name, Value: value, Path: path, Domain: domain, Secure: secure, HTTPOnly: httpOnly, Expiry: expiry}
-	if err := p.Client.SetCookie(&cookie); err != nil {
+func (p *Page) SetCookie(cookie interface{}) error {
+	if err := p.Client.SetCookie(cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil

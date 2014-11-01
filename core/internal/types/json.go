@@ -1,5 +1,5 @@
 package types
 
 type JSON interface {
-	JSON() string
+	JSON() (string, error)
 }

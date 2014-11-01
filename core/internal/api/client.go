@@ -49,9 +49,9 @@ func (c *Client) GetWindow() (types.Window, error) {
 	return &window.Window{ID: windowID, Session: c.Session}, nil
 }
 
-func (c *Client) SetCookie(cookie *types.Cookie) error {
+func (c *Client) SetCookie(cookie interface{}) error {
 	request := struct {
-		Cookie *types.Cookie `json:"cookie"`
+		Cookie interface{} `json:"cookie"`
 	}{cookie}
 
 	return c.Session.Execute("cookie", "POST", request)

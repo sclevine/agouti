@@ -34,7 +34,7 @@ type Client struct {
 	}
 
 	SetCookieCall struct {
-		Cookie *types.Cookie
+		Cookie interface{}
 		Err    error
 	}
 
@@ -135,7 +135,7 @@ func (c *Client) GetScreenshot() ([]byte, error) {
 	return c.GetScreenshotCall.ReturnImage, c.GetScreenshotCall.Err
 }
 
-func (c *Client) SetCookie(cookie *types.Cookie) error {
+func (c *Client) SetCookie(cookie interface{}) error {
 	c.SetCookieCall.Cookie = cookie
 	return c.SetCookieCall.Err
 }

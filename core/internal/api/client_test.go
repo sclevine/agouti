@@ -134,22 +134,14 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#SetCookie", func() {
-		var cookie *types.Cookie
+		var cookie string
 
 		BeforeEach(func() {
-			cookie = &types.Cookie{
-				Name:     "some-name",
-				Value:    42,
-				Path:     "/my-path",
-				Domain:   "example.com",
-				Secure:   false,
-				HTTPOnly: false,
-				Expiry:   1412358590,
-			}
+			cookie = "some cookie"
 			err = client.SetCookie(cookie)
 		})
 
-		ItShouldMakeARequest("POST", "cookie", `{"cookie":{"name":"some-name","value":42,"path":"/my-path","domain":"example.com","secure":false,"httpOnly":false,"expiry":1412358590}}`)
+		ItShouldMakeARequest("POST", "cookie", `{"cookie": "some cookie"}`)
 
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {

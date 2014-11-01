@@ -1,6 +1,7 @@
 package session_test
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -173,6 +174,14 @@ var _ = Describe("Session", func() {
 			defer fakeServer.Close()
 			Open(fakeServer.URL, capabilities)
 			Expect(requestBody).To(MatchJSON(`{"some": "json"}`))
+		})
+
+		Context("when the capabilities are invalid", func() {
+			It("should return an error", func() {
+				capabilities.Err = errors.New("some error")
+				_, err := Open("http://example.com", capabilities)
+				Expect(err).To(MatchError("some error"))
+			})
 		})
 
 		Context("when the request is invalid", func() {
