@@ -2,7 +2,7 @@
 layout: default
 title: Agouti
 ---
-[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general WebDriver API. It is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing framework and matcher library agnostic.
+[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general-purpose WebDriver API. It is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing framework and matcher library agnostic.
 
 Most of this document is written with the assumption that you will be using Agouti for acceptance testing with both Ginkgo and Gomega. If you are unfamiliar with these libraries, we recommend consulting their documentation first. See [here](http://onsi.github.io/ginkgo/) and [here](http://onsi.github.io/gomega/).
 
