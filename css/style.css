@@ -29,7 +29,7 @@ body {
 }
 
 .nav > li > a:hover {
-    background-color: rgb(182, 83, 139, 0.8);
+    background-color: rgba(182, 83, 129, 0.5);
 }
 
 a {
