@@ -1,4 +1,4 @@
-baseurl: /agouti
+baseurl: ''
 safe: true
 lsi: false
 highlighter: true
