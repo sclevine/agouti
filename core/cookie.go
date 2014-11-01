@@ -23,9 +23,9 @@ type WebCookie interface {
 	JSON() (string, error)
 }
 
-// Cookie returns a WebCookie instance that can be passed to Page#SetCookie().
+// Cookie returns a WebCookie instance with the provided name and value.
 // All methods called on this instance will modify the original instance.
-func Cookie(name string, value interface{}) WebCookie {
+func Cookie(name string, value string) WebCookie {
 	return cookie{"name": name, "value": value}
 }
 
