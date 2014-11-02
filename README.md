@@ -83,6 +83,7 @@ Example:
 
 ```Go
 import (
+	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
 	. "github.com/sclevine/agouti/dsl"
@@ -95,7 +96,7 @@ var _ = Feature("Agouti", func() {
 	var page Page
 
 	Background(func() {
-		page = CreatePage()
+		page = CustomPage(Use().With("handlesAlerts"))
 		page.Size(640, 480)
 		page.Navigate("http://example.com/")
 	})
@@ -104,8 +105,9 @@ var _ = Feature("Agouti", func() {
 		page.Destroy()
 	})
 
-	Scenario("finding the page title", func() {
+	Scenario("finding the page title and URL", func() {
 		Expect(page).To(HaveTitle("Page Title"))
+		Expect(page).To(HaveURL("http://example.com/"))
 	})
 
 	Scenario("finding page elements", func() {
@@ -123,7 +125,7 @@ var _ = Feature("Agouti", func() {
 
 		Step("referring to an element by selection index", func() {
 			Expect(page.All("option").At(0)).To(HaveText("first option"))
-			Expect(page.All("select").At(1).All("option").At(0)).To(HaveText("third option"))
+			Expect(page.All("select").At(1).First("option")).To(HaveText("third option"))
 		})
 
 		Step("matching text in the header", func() {
@@ -160,9 +162,22 @@ var _ = Feature("Agouti", func() {
 		})
 	})
 
-	Scenario("element visibility", func() {
-		Expect(page.Find("header h1")).To(BeVisible())
-		Expect(page.Find("header h2")).NotTo(BeVisible())
+	Scenario("element properties", func() {
+		Step("finding visible elements", func() {
+			Expect(page.Find("header h1")).To(BeVisible())
+			Expect(page.Find("header h2")).NotTo(BeVisible())
+		})
+
+		Step("finding enabled elements", func() {
+			Expect(page.Find("#some_checkbox")).To(BeEnabled())
+			Expect(page.Find("#some_disabled_checkbox")).NotTo(BeEnabled())
+		})
+
+		Step("finding the active element", func() {
+			Expect(page.Find("#some_checkbox")).NotTo(BeActive())
+			Click(page.Find("#some_checkbox"))
+			Expect(page.Find("#some_checkbox")).To(BeActive())
+		})
 	})
 
 	Scenario("asynchronous javascript and DOM assertions", func() {
@@ -243,6 +258,38 @@ var _ = Feature("Agouti", func() {
 			Check(checkbox)
 			Expect(page.Refresh()).To(Succeed())
 			Expect(checkbox).NotTo(BeSelected())
+		})
+	})
+
+	Scenario("popup boxes", func() {
+		Step("allows interacting with alert popups", func() {
+			Click(page.Find("#popup_alert"))
+			Expect(page).To(HavePopupText("some alert"))
+			Expect(page.ConfirmPopup()).To(Succeed())
+		})
+
+		Step("allows interacting with confirm boxes", func() {
+			var confirmed bool
+
+			Click(page.Find("#popup_confirm"))
+			Expect(page.ConfirmPopup()).To(Succeed())
+			Expect(page.RunScript("return confirmed;", nil, &confirmed)).To(Succeed())
+			Expect(confirmed).To(BeTrue())
+
+			Click(page.Find("#popup_confirm"))
+			Expect(page.RunScript("return confirmed;", nil, &confirmed)).To(Succeed())
+			Expect(page.CancelPopup()).To(Succeed())
+			Expect(confirmed).To(BeFalse())
+		})
+
+		Step("allows interacting with prompt boxes", func() {
+			var promptText string
+
+			Click(page.Find("#popup_prompt"))
+			Expect(page.EnterPopupText("banana")).To(Succeed())
+			Expect(page.ConfirmPopup()).To(Succeed())
+			Expect(page.RunScript("return promptText;", nil, &promptText)).To(Succeed())
+			Expect(promptText).To(Equal("banana"))
 		})
 	})
 })
