@@ -149,9 +149,7 @@ Now let's start Agouti and point it at the application we want to test. Agouti c
         It("allows a user to log in and log out", func() {
             By("redirecting the user to the login form from the home page", func() {
                 Expect(page.Navigate("http://localhost:3000")).To(Succeed())
-                loginURL, err := page.URL()
-                Expect(err).NotTo(HaveOccurred())
-                Expect(loginURL).To(Equal("http://localhost:3000/login"))
+                Expect(page).To(HaveURL("http://localhost:3000/login"))
             })
 
             By("allowing the user to fill out the login form and submit it", func() {
@@ -270,9 +268,7 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
         Scenario("allows a user to log in and log out", func() {
             Step("redirecting the user to the login form from the home page", func() {
                 Expect(page.Navigate("http://localhost:3000")).To(Succeed())
-                loginURL, err := page.URL()
-                Expect(err).NotTo(HaveOccurred())
-                Expect(loginURL).To(Equal("http://localhost:3000/login"))
+                Expect(page).To(HaveURL("http://localhost:3000/login"))
             })
 
             Step("allowing the user to fill out the login form and submit it", func() {
@@ -308,7 +304,7 @@ Like Ginkgo test blocks, [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl
 
 The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega, and can even be used as a general-purpose WebDriver API for uses outside of acceptance testing.
 
-Here is an example of a test that does not depend on Ginkgo or Gomega. To make this even more Go-like, we'll import the core package as `agouti` instead of dot-importing it.
+Here is a partial login test that does not depend on Ginkgo or Gomega. To make this even more Go-like, we'll import the core package as `agouti` instead of dot-importing it.
 
     package potato_test
 
@@ -318,7 +314,7 @@ Here is an example of a test that does not depend on Ginkgo or Gomega. To make t
         "testing"
     )
 
-    func TestUserLogin(t *testing.T) {
+    func TestUserLoginPrompt(t *testing.T) {
         driver := agouti.Selenium()
         page := driver.Page(agouti.Use().Browser("firefox"))
 
