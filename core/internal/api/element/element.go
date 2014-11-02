@@ -12,10 +12,6 @@ type Element struct {
 	Session types.Session
 }
 
-func (e *Element) GetID() string {
-	return e.ID
-}
-
 func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
 	var result struct{ Element string }
 
@@ -109,14 +105,14 @@ func (e *Element) Submit() error {
 	return e.Session.Execute(e.url()+"/submit", "POST", nil)
 }
 
-func (e *Element) url() string {
-	return "element/" + e.ID
-}
-
 func (e *Element) IsEqualTo(other types.Element) (bool, error) {
 	var equal bool
-	if err := e.Session.Execute(e.url()+"/equals/"+other.GetID(), "GET", nil, &equal); err != nil {
+	if err := e.Session.Execute(e.url()+"/equals/"+other.(*Element).ID, "GET", nil, &equal); err != nil {
 		return false, err
 	}
 	return equal, nil
+}
+
+func (e *Element) url() string {
+	return "element/" + e.ID
 }

@@ -1,7 +1,6 @@
 package types
 
 type Element interface {
-	GetID() string
 	GetElement(selector Selector) (Element, error)
 	GetElements(selector Selector) ([]Element, error)
 	GetText() (string, error)

@@ -42,12 +42,6 @@ var _ = Describe("Element", func() {
 		}
 	}
 
-	Describe("#GetID", func() {
-		It("should return the stored element ID", func() {
-			Expect(element.GetID()).To(Equal("some-id"))
-		})
-	})
-
 	Describe("#GetElement", func() {
 		var singleElement types.Element
 

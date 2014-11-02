@@ -114,11 +114,12 @@ func (c *Client) DoubleClick() error {
 	return c.Session.Execute("doubleclick", "POST", nil)
 }
 
-func (c *Client) MoveTo(element types.Element, point types.Point) error {
+func (c *Client) MoveTo(region types.Element, point types.Point) error {
 	request := map[string]interface{}{}
 
-	if element != nil {
-		request["element"] = element.GetID()
+	if region != nil {
+		// TODO: return error if not an element
+		request["element"] = region.(*element.Element).ID
 	}
 
 	if point != nil {

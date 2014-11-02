@@ -329,8 +329,7 @@ var _ = Describe("API Client", func() {
 
 		Context("when an element is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				element := &mocks.Element{}
-				element.GetIDCall.ReturnID = "some-id"
+				element := &element.Element{ID: "some-id"}
 				client.MoveTo(element, nil)
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"element": "some-id"}`))
 			})

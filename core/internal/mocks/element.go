@@ -3,10 +3,6 @@ package mocks
 import "github.com/sclevine/agouti/core/internal/types"
 
 type Element struct {
-	GetIDCall struct {
-		ReturnID string
-	}
-
 	GetElementCall struct {
 		Selector      types.Selector
 		ReturnElement types.Element
@@ -76,10 +72,6 @@ type Element struct {
 		ReturnEquals bool
 		Err          error
 	}
-}
-
-func (e *Element) GetID() string {
-	return e.GetIDCall.ReturnID
 }
 
 func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
