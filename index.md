@@ -186,6 +186,7 @@ Now let's start Agouti and point it at the application we want to test. Agouti c
 - The Agouti matchers (like `HaveTitle` and `BeVisible`) rely only on public `Page` and `Selection` methods (lke `Title` and `Visible`).
 - Gomega's [asynchronous assertions](http://onsi.github.io/gomega/#making-asynchronous-assertions) such as `Eventually` may be used to wait for the page to load. This is especially useful for testing JavaScript-heavy web applications.
 - The [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package contains actions that will immediately fail the running test if they fail. This can reduce the number of `Expect(...).To(Succeed())` assertions. It also re-declares some of the Ginkgo blocks. For instance, `It` becomes `Scenario`.
+- As your test suite grows it's liable to get slow.  Ginkgo makes it easy to parallelize your test suite by spreading different `It`s across multiple test processes, and Agouti supports this.  We can make the above example support parallel tests by spinning up the app-server in the `BeforeEach` on a port unique to the Ginkgo node that is running the test: `StartMyApp(3000+GinkgoParallelNode())`.  Now you can run the tests in parallel with `ginkgo -p`.  For more on test parallelization see the [Ginkgo docs on the topic](http://onsi.github.io/ginkgo/#parallel-specs).
 
 ##Reference
 
@@ -344,3 +345,5 @@ Here is a partial login test that does not depend on Ginkgo or Gomega. To make t
 
         driver.Stop() // destroys page automatically
     }
+
+If you'd like to use the Agouti matchers without using Ginkgo, you can use Gomega's `RegisterTestingT()` function to use Gomega matchers in Go's XUnit style tests.  See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests).
