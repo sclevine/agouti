@@ -282,7 +282,7 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
                 Eventually(page).Should(HaveTitle("Dashboard"))
             })
 
-            Step("allowing the sure to view their profile", func() {
+            Step("allowing the user to view their profile", func() {
                 Click(page.FindByLink("Profile Page"))
                 profile := page.Find("section.profile")
                 Eventually(profile.Find(".greeting")).Should(HaveText("Hello Spud!"))
