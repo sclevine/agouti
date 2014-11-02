@@ -4,7 +4,7 @@ Agouti
 [![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
 [![GoDoc](https://godoc.org/github.com/sclevine/agouti?status.svg)](https://godoc.org/github.com/sclevine/agouti)
 
-Integration testing for Go using Ginkgo and Gomega!
+Acceptance testing for Golang with support for Ginkgo and Gomega!
 
 Install:
 ```bash
@@ -22,13 +22,13 @@ To use with Selenium Webdriver (OS X):
 ```bash
 $ brew install selenium-server-standalone
 ```
-If you encounter issues with Safari, [see this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933).
+If you encounter issues with Safari, [see this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933). If you are on OS X, consider running `brew update` before installing these drivers.
 
-To use the `matcher` package, which provides Gomega matchers:
+To use the `matchers` package, which provides Gomega matchers, you need Gomega:
 ```bash
 $ go get github.com/onsi/gomega
 ```
-To use the `dsl` package, which defines tests that can be run with Ginkgo:
+To use the `dsl` package, you must have Ginkgo installed:
 ```bash
 $ go get github.com/onsi/ginkgo/ginkgo
 ```
@@ -39,17 +39,10 @@ If you use the `dsl` package, note that:
  * `Background` is a Ginkgo `BeforeEach`
  * `Step` is a Ginkgo `By`
 
-Feel free to import Ginkgo and use any of its container blocks instead! Agouti is 100% compatible with Ginkgo and Gomega.
+See [agouti.org](http://agouti.org) for more information.
 
-The `core` package is a flexible, general-purpose WebDriver API for Go. Unlike the `dsl` package, `core` allows unlimited and simultaneous usage of PhantomJS, ChromeDriver, and Selenium. Using `core` and `matchers` with Ginkgo and Gomega (and without the `dsl` package) is the recommended way to use Agouti. The `dsl` package exists primarily to provide a familiar environment for Capybara users.
+Example `project_suite_test.go` file:
 
-Godoc is available for
-[`core`](https://godoc.org/github.com/sclevine/agouti/core),
-[`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl), and [`matchers`](https://godoc.org/github.com/sclevine/agouti/matchers).
-
-If you plan to use Agouti `dsl` to write Ginkgo tests, add the start and stop commands for your choice of WebDriver in Ginkgo `BeforeSuite` and `AfterSuite` blocks.
-
-See this example `project_suite_test.go` file:
 ```Go
 package project_test
 
@@ -79,7 +72,7 @@ var _ = AfterSuite(func() {
 });
 ```
 
-Example:
+Example test file:
 
 ```Go
 import (
