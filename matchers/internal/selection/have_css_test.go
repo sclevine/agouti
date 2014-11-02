@@ -109,7 +109,7 @@ var _ = Describe("HaveCSS", func() {
 					It("should error", func() {
 						success, err := matcher.Match(selection)
 						Expect(success).To(BeFalse())
-						Expect(err).To(MatchError("The expected value:\n    blue\nis a color:\nColor{R:0, G:0, B:255, A:1.00}\nBut the actual value:\n    not-a-color\nis not.\n"))
+						Expect(err).To(MatchError("The expected value:\n    blue\nis a color:\n    Color{R:0, G:0, B:255, A:1.00}\nBut the actual value:\n    not-a-color\nis not.\n"))
 					})
 				})
 			})

@@ -1,6 +1,7 @@
 package selection
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -39,7 +40,7 @@ func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
 
 	actualColor, err := colorparser.ParseCSSColor(m.actualValue)
 	if err != nil {
-		return false, fmt.Errorf("The expected value:\n    %s\nis a color:\n%    s\nBut the actual value:\n    %s\nis not.\n", m.ExpectedValue, expectedColor, m.actualValue)
+		return false, errors.New(expectedColorMessage(m.ExpectedValue, expectedColor, m.actualValue))
 	}
 
 	m.isColorComparison = true
