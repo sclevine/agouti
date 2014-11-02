@@ -181,7 +181,7 @@ Now let's start Agouti and point it at the application we want to test. Agouti c
         })
     })
 
-Things to note:
+###Notes
 
 - A new `Selection` can be created from an existing `Selection` or from the page using the `Selectable` methods defined [here](http://godoc.org/github.com/sclevine/agouti/core#Selectable).
 - The `Selection` interface is very rich. It supports selecting and asserting on one or more elements by CSS selector, XPath, label, and/or link text. A selection may combine any number of selector types.
