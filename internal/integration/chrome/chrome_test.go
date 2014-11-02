@@ -15,11 +15,11 @@ var _ = Feature("ChromeDriver", func() {
 			Expect(page.Navigate("http://example.com")).To(Succeed())
 		})
 
-		Step("finds the page title", func() {
+		Step("finding the page title", func() {
 			Expect(page).To(HaveTitle("Example Domain"))
 		})
 
-		Step("finds the header text", func() {
+		Step("finding the header text", func() {
 			Expect(page.Find("h1")).To(HaveText("Example Domain"))
 		})
 	})

@@ -24,8 +24,9 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		page.Destroy()
 	})
 
-	Scenario("finding the page title", func() {
+	Scenario("finding the page title and URL", func() {
 		Expect(page).To(HaveTitle("Page Title"))
+		Expect(page).To(HaveURL(Server.URL + "/"))
 	})
 
 	Scenario("finding page elements", func() {

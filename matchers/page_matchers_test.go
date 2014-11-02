@@ -22,6 +22,14 @@ var _ = Describe("Page Matchers", func() {
 		})
 	})
 
+	Describe("#HaveURL", func() {
+		It("should call the page#HaveURL matcher", func() {
+			page.URLCall.ReturnURL = "some/url"
+			Expect(page).To(HaveURL("some/url"))
+			Expect(page).NotTo(HaveURL("some/other/url"))
+		})
+	})
+
 	Describe("#HavePopupText", func() {
 		It("should call the page#HavePopupText matcher", func() {
 			page.PopupTextCall.ReturnText = "some text"
