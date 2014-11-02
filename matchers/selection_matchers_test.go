@@ -64,6 +64,24 @@ var _ = Describe("Selection Matchers", func() {
 		})
 	})
 
+	Describe("#BeEnabled", func() {
+		It("should call the selection#BeEnabled matcher", func() {
+			selection.EnabledCall.ReturnEnabled = true
+			Expect(selection).To(BeEnabled())
+			selection.EnabledCall.ReturnEnabled = false
+			Expect(selection).NotTo(BeEnabled())
+		})
+	})
+
+	Describe("#BeActive", func() {
+		It("should call the selection#BeActive matcher", func() {
+			selection.ActiveCall.ReturnActive = true
+			Expect(selection).To(BeActive())
+			selection.ActiveCall.ReturnActive = false
+			Expect(selection).NotTo(BeActive())
+		})
+	})
+
 	Describe("#BeFound", func() {
 		It("should call the selection#BeFound matcher", func() {
 			selection.CountCall.ReturnCount = 1

@@ -72,6 +72,58 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Active", func() {
+		BeforeEach(func() {
+			client.GetElementsCall.ReturnElements = []types.Element{element}
+		})
+
+		ItShouldEnsureASingleElement(func() error {
+			_, err := selection.Active()
+			return err
+		})
+
+		Context("when the client fails to retrieve the active element", func() {
+			It("should return an error", func() {
+				client.GetActiveElementCall.Err = errors.New("some error")
+				_, err := selection.Active()
+				Expect(err).To(MatchError("failed to retrieve active element: some error"))
+			})
+		})
+
+		It("should compare the active and selected elements", func() {
+			activeElement := &mocks.Element{}
+			client.GetActiveElementCall.ReturnElement = activeElement
+			selection.Active()
+			Expect(element.IsEqualToCall.Element).To(Equal(activeElement))
+		})
+
+		Context("when the client fails to compare active element to the selected element", func() {
+			It("should return an error", func() {
+				element.IsEqualToCall.Err = errors.New("some error")
+				_, err := selection.Active()
+				Expect(err).To(MatchError("failed to compare selection to active element: some error"))
+			})
+		})
+
+		Context("when the active element equals the selected element", func() {
+			It("should successfully return true", func() {
+				element.IsEqualToCall.ReturnEquals = true
+				equal, err := selection.Active()
+				Expect(equal).To(BeTrue())
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("when the active element does not equal the selected element", func() {
+			It("should successfully return false", func() {
+				element.IsEqualToCall.ReturnEquals = false
+				equal, err := selection.Active()
+				Expect(equal).To(BeFalse())
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("#Attribute", func() {
 		BeforeEach(func() {
 			client.GetElementsCall.ReturnElements = []types.Element{element}

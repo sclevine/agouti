@@ -37,6 +37,11 @@ type Selection struct {
 		Err           error
 	}
 
+	ActiveCall struct {
+		ReturnActive bool
+		Err          error
+	}
+
 	CountCall struct {
 		ReturnCount int
 		Err         error
@@ -77,6 +82,10 @@ func (s *Selection) Visible() (bool, error) {
 
 func (s *Selection) Enabled() (bool, error) {
 	return s.EnabledCall.ReturnEnabled, s.EnabledCall.Err
+}
+
+func (s *Selection) Active() (bool, error) {
+	return s.ActiveCall.ReturnActive, s.ActiveCall.Err
 }
 
 func (s *Selection) Count() (int, error) {

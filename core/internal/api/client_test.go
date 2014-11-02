@@ -26,20 +26,20 @@ var _ = Describe("API Client", func() {
 
 	ItShouldMakeARequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
-			ExpectWithOffset(1, session.ExecuteCall.Method).To(Equal(method))
+			Expect(session.ExecuteCall.Method).To(Equal(method))
 		})
 
 		It("should hit the desired endpoint", func() {
-			ExpectWithOffset(1, session.ExecuteCall.Endpoint).To(Equal(endpoint))
+			Expect(session.ExecuteCall.Endpoint).To(Equal(endpoint))
 		})
 
 		It("should not return an error", func() {
-			ExpectWithOffset(1, err).NotTo(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		if len(body) > 0 {
 			It("should set the request body", func() {
-				ExpectWithOffset(1, session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
 			})
 		}
 	}
@@ -104,6 +104,30 @@ var _ = Describe("API Client", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				_, err := client.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetActiveElement", func() {
+		var singleElement types.Element
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
+			singleElement, err = client.GetActiveElement()
+		})
+
+		ItShouldMakeARequest("POST", "element/active")
+
+		It("should return the active element with an ID and session", func() {
+			Expect(singleElement.(*element.Element).ID).To(Equal("some-id"))
+			Expect(singleElement.(*element.Element).Session).To(Equal(session))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := client.GetActiveElement()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

@@ -41,6 +41,16 @@ func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {
 	return elements, nil
 }
 
+func (c *Client) GetActiveElement() (types.Element, error) {
+	var result struct{ Element string }
+
+	if err := c.Session.Execute("element/active", "POST", nil, &result); err != nil {
+		return nil, err
+	}
+
+	return &element.Element{ID: result.Element, Session: c.Session}, nil
+}
+
 func (c *Client) GetWindow() (types.Window, error) {
 	var windowID string
 	if err := c.Session.Execute("window_handle", "GET", nil, &windowID); err != nil {

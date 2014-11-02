@@ -73,6 +73,9 @@ type Selection interface {
 	// Enabled returns true if all of the elements that the selection refers to
 	// are enabled.
 	Enabled() (bool, error)
+
+	// Active returns true if the single element that the selection refers to is active.
+	Active() (bool, error)
 }
 
 // A MultiSelection is a Selection that may be indexed using the At() method.

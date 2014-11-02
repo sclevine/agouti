@@ -38,9 +38,20 @@ func BeSelected() types.GomegaMatcher {
 }
 
 // BeVisible passes when the selection refers to elements that are displayed on the page.
-// This matcher will fail if any of the selection's form elements are not visible.
+// This matcher will fail if any of the selection's elements are not visible.
 func BeVisible() types.GomegaMatcher {
 	return &selection.BeVisibleMatcher{}
+}
+
+// BeEnabled passes when the selection refers to form elements that are enabled.
+// This matcher will fail if any of the selection's form elements are not enabled.
+func BeEnabled() types.GomegaMatcher {
+	return &selection.BeEnabledMatcher{}
+}
+
+// BeActive passes when the selection refers to the active page element.
+func BeActive() types.GomegaMatcher {
+	return &selection.BeActiveMatcher{}
 }
 
 // BeFound passes when the provided selection refers to one or more elements on the page.

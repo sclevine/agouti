@@ -19,6 +19,25 @@ func (s *Selection) Text() (string, error) {
 	return text, nil
 }
 
+func (s *Selection) Active() (bool, error) {
+	element, err := s.getSelectedElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to select '%s': %s", s, err)
+	}
+
+	activeElement, err := s.Client.GetActiveElement()
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve active element: %s", err)
+	}
+
+	equal, err := element.IsEqualTo(activeElement)
+	if err != nil {
+		return false, fmt.Errorf("failed to compare selection to active element: %s", err)
+	}
+
+	return equal, nil
+}
+
 type propertyMethod func(element types.Element, property string) (string, error)
 
 func (s *Selection) hasProperty(method propertyMethod, property, name string) (string, error) {

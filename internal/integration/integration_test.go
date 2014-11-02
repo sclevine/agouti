@@ -81,9 +81,22 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 	})
 
-	Scenario("element visibility", func() {
-		Expect(page.Find("header h1")).To(BeVisible())
-		Expect(page.Find("header h2")).NotTo(BeVisible())
+	Scenario("element properties", func() {
+		Step("finding visible elements", func() {
+			Expect(page.Find("header h1")).To(BeVisible())
+			Expect(page.Find("header h2")).NotTo(BeVisible())
+		})
+
+		Step("finding enabled elements", func() {
+			Expect(page.Find("#some_checkbox")).To(BeEnabled())
+			Expect(page.Find("#some_disabled_checkbox")).NotTo(BeEnabled())
+		})
+
+		Step("finding the active element", func() {
+			Expect(page.Find("#some_checkbox")).NotTo(BeActive())
+			Click(page.Find("#some_checkbox"))
+			Expect(page.Find("#some_checkbox")).To(BeActive())
+		})
 	})
 
 	Scenario("asynchronous javascript and DOM assertions", func() {

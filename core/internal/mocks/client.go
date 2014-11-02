@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"encoding/json"
+
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
@@ -16,6 +17,11 @@ type Client struct {
 		Selector       types.Selector
 		ReturnElements []types.Element
 		Err            error
+	}
+
+	GetActiveElementCall struct {
+		ReturnElement types.Element
+		Err           error
 	}
 
 	DeleteSessionCall struct {
@@ -125,6 +131,10 @@ func (c *Client) GetElement(selector types.Selector) (types.Element, error) {
 func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {
 	c.GetElementsCall.Selector = selector
 	return c.GetElementsCall.ReturnElements, c.GetElementsCall.Err
+}
+
+func (c *Client) GetActiveElement() (types.Element, error) {
+	return c.GetActiveElementCall.ReturnElement, c.GetActiveElementCall.Err
 }
 
 func (c *Client) GetWindow() (types.Window, error) {

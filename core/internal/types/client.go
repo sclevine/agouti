@@ -12,6 +12,7 @@ type Client interface {
 	GetTitle() (string, error)
 	GetSource() (string, error)
 	GetElement(selector Selector) (Element, error)
+	GetActiveElement() (Element, error)
 	GetElements(selector Selector) ([]Element, error)
 	DoubleClick() error
 	MoveTo(element Element, point Point) error
