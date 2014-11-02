@@ -30,7 +30,7 @@ var _ = Describe("Selection", func() {
 		Context("when multiple elements are returned", func() {
 			It("should return an error with the number of elements", func() {
 				client.GetElementsCall.ReturnElements = []types.Element{element, secondElement}
-				ExpectWithOffset(1, matcher()).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
+				Expect(matcher()).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
 			})
 		})
 	}
@@ -39,7 +39,7 @@ var _ = Describe("Selection", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error with the number of elements", func() {
 				client.GetElementsCall.ReturnElements = []types.Element{}
-				ExpectWithOffset(1, matcher()).To(MatchError("failed to select 'CSS: #selector': no elements found"))
+				Expect(matcher()).To(MatchError("failed to select 'CSS: #selector': no elements found"))
 			})
 		})
 	}

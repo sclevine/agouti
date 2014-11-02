@@ -23,20 +23,20 @@ var _ = Describe("Window", func() {
 
 	ItShouldMakeAWindowRequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
-			ExpectWithOffset(1, session.ExecuteCall.Method).To(Equal(method))
+			Expect(session.ExecuteCall.Method).To(Equal(method))
 		})
 
 		It("should hit the desired endpoint", func() {
-			ExpectWithOffset(1, session.ExecuteCall.Endpoint).To(Equal("window/some-id/" + endpoint))
+			Expect(session.ExecuteCall.Endpoint).To(Equal("window/some-id/" + endpoint))
 		})
 
 		It("should not return an error", func() {
-			ExpectWithOffset(1, err).NotTo(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		if len(body) > 0 {
 			It("should set the request body", func() {
-				ExpectWithOffset(1, session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
 			})
 		}
 	}
