@@ -44,7 +44,7 @@ Agouti is best used with Ginkgo and Gomega. We'll start by setting up your Go pa
 ###Setting up Ginkgo to Run Agouti Tests
 
     $ cd path/to/potato
-    $ ginkgo bootstrap
+    $ ginkgo bootstrap --agouti
 
 This will generate a file named `potato_suite_test.go` containing:
 
@@ -53,6 +53,7 @@ This will generate a file named `potato_suite_test.go` containing:
     import (
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
+        . "github.com/sclevine/agouti/core"
 
         "testing"
     )
@@ -61,6 +62,25 @@ This will generate a file named `potato_suite_test.go` containing:
         RegisterFailHandler(Fail)
         RunSpecs(t, "Potato Suite")
     }
+
+    var driver WebDriver
+
+    var _ = BeforeSuite(func() {
+        var err error
+
+        // Choose a WebDriver:
+
+        driver, err = PhantomJS()
+        // driver, err = Selenium()
+        // driver, err = Chrome()
+
+        Expect(err).NotTo(HaveOccurred())
+        Expect(driver.Start()).To(Succeed())
+    })
+
+    var _ = AfterSuite(func() {
+        driver.Stop()
+    })
 
 Update this file to run your choice of WebDriver. For this example, we'll use Selenium:
 
@@ -97,12 +117,23 @@ Note that while this setup does not need to be in the `*_suite_test.go` file, we
 At this point you can run your suite without any tests.
 
     $ ginkgo #or go test
+    Running Suite: Potato Suite
+    ===========================
+    Random Seed: 1378936983
+    Will run 0 of 0 specs
+
+
+    Ran 0 of 0 Specs in 0.000 seconds
+    SUCCESS! -- 0 Passed | 0 Failed | 0 Pending | 0 Skipped PASS
+
+    Ginkgo ran 1 suite in 1.309896055s
+    Test Suite Passed
 
 ###Adding Acceptance Tests
 
 Let's write an acceptance test covering user login:
 
-    $ ginkgo generate user_login
+    $ ginkgo generate --agouti user_login
 
 This will generate a file named `user_login_test.go` containing:
 
@@ -113,13 +144,24 @@ This will generate a file named `user_login_test.go` containing:
 
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
+        . "github.com/sclevine/agouti/core"
     )
 
     var _ = Describe("UserLogin", func() {
+        var page Page
 
+        BeforeEach(func() {
+            var err error
+            page, err = driver.Page()
+            Expect(err).NotTo(HaveOccurred())
+        })
+
+        AfterEach(func() {
+            page.Destroy()
+        })
     })
 
-Now let's start Agouti and point it at the application we want to test. Agouti can test any service that runs in a web browser, but let's assume that `potato` exports `StartMyApp(port int)`, which starts your app on the provided port:
+Now let's start your app and tell Agouti to navigate to it. Agouti can test any service that runs in a web browser, but let's assume that `potato` exports `StartMyApp(port int)`, which starts your app on the provided port. We'll also tell Agouti to use Firefox for these tests.
 
     package potato_test
 
