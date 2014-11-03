@@ -24,7 +24,8 @@ func HaveAttribute(attribute string, value string) types.GomegaMatcher {
 }
 
 // HaveCSS passes when the expected CSS property and value are present on the element.
-// This matcher only matches exact, calculated CSS values. Example: rgba(0, 0, 255, 1) not "blue".
+// This matcher only matches exact, calculated CSS values, though there is support for parsing colors.
+// Example: "blue" and "#00f" will both match rgba(0, 0, 255, 1)
 // This matcher will fail if the provided selection refers to more than one element.
 func HaveCSS(property string, value string) types.GomegaMatcher {
 	return &selection.HaveCSSMatcher{ExpectedProperty: property, ExpectedValue: value}
