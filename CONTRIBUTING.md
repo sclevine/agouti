@@ -20,7 +20,7 @@
 
 ### Page Level
 
-* `Name` - Methods that retrieve data or perform some action should not start with "Is" or "Set".
+* `Name` - Methods that retrieve data or perform some action should not start with "Get", "Is", or "Set".
 * `SetName` - Methods that set data and have a corresponding `Name` method should start with "Set".
 
 ### API level
