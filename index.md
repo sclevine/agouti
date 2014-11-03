@@ -63,23 +63,23 @@ This will generate a file named `potato_suite_test.go` containing:
         RunSpecs(t, "Potato Suite")
     }
 
-    var driver WebDriver
+    var agoutiDriver WebDriver
 
     var _ = BeforeSuite(func() {
         var err error
 
         // Choose a WebDriver:
 
-        driver, err = PhantomJS()
-        // driver, err = Selenium()
-        // driver, err = Chrome()
+        agoutiDriver, err = PhantomJS()
+        // agoutiDriver, err = Selenium()
+        // agoutiDriver, err = Chrome()
 
         Expect(err).NotTo(HaveOccurred())
-        Expect(driver.Start()).To(Succeed())
+        Expect(agoutiDriver.Start()).To(Succeed())
     })
 
     var _ = AfterSuite(func() {
-        driver.Stop()
+        agoutiDriver.Stop()
     })
 
 Update this file to run your choice of WebDriver. For this example, we'll use Selenium:
@@ -99,17 +99,17 @@ Update this file to run your choice of WebDriver. For this example, we'll use Se
         RunSpecs(t, "Potato Suite")
     }
 
-    var driver WebDriver
+    var agoutiDriver WebDriver
 
     var _ = BeforeSuite(func() {
         var err error
-        driver, err = Selenium()
+        agoutiDriver, err = Selenium()
         Expect(err).NotTo(HaveOccurred())
-        Expect(driver.Start()).To(Succeed())
+        Expect(agoutiDriver.Start()).To(Succeed())
     })
 
     var _ = AfterSuite(func() {
-        driver.Stop()
+        agoutiDriver.Stop()
     })
 
 Note that while this setup does not need to be in the `*_suite_test.go` file, we strongly recommend that the `WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits. (If you prefer not to use a global variable for the WebDriver, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
@@ -152,7 +152,7 @@ This will generate a file named `user_login_test.go` containing:
 
         BeforeEach(func() {
             var err error
-            page, err = driver.Page()
+            page, err = agoutiDriver.Page()
             Expect(err).NotTo(HaveOccurred())
         })
 
@@ -180,7 +180,7 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
             StartMyApp(3000)
 
             var err error
-            page, err = driver.Page(Use().Browser("firefox"))
+            page, err = agoutiDriver.Page(Use().Browser("firefox"))
             Expect(err).NotTo(HaveOccurred())
         })
 
