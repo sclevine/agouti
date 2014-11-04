@@ -2,11 +2,11 @@
 layout: default
 title: Agouti
 ---
-[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general-purpose WebDriver API. It is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing framework and matcher library agnostic.
+[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general-purpose WebDriver API. It is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing-framework- and matcher-library-agnostic.
 
 Most of this document is written with the assumption that you will be using Agouti for acceptance testing with both Ginkgo and Gomega. If you are unfamiliar with these libraries, we recommend consulting their documentation first. See [here](http://onsi.github.io/ginkgo/) and [here](http://onsi.github.io/gomega/).
 
-The [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package is not used in any examples outside of the DSL section. While it does reduce the amount of test setup and provide a [Capybara](http://jnicklas.github.io/capybara/)-like DSL, it exports many more identifiers and results in tests that look quite different from standard Ginkgo tests.
+The [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package is not used in any examples outside of the DSL section. While it does reduce the amount of test setup and provide a [Capybara](http://jnicklas.github.io/capybara/)-like DSL, it exports numerous identifiers and results in tests that look quite different from standard Ginkgo tests.
 
 ---
 
@@ -39,9 +39,9 @@ Next, install any WebDrivers you plan to use. For OS X (using [Homebrew](http://
 ---
 
 ##Getting Started: Writing Your First Acceptance Test
-Agouti is best used with Ginkgo and Gomega. We'll start by setting up your Go package (`potato`) to work with them. For more information, check out the [Ginkgo docs](http://onsi.github.io/ginkgo/) and [Gomega docs](http://onsi.github.io/ginkgo/).
+Agouti is best used with Ginkgo and Gomega. We'll start by setting up your Go package (named `potato`) to work with them. (For more information, check out the [Ginkgo docs](http://onsi.github.io/ginkgo/) and [Gomega docs](http://onsi.github.io/ginkgo/)).
 
-###Setting up Ginkgo to Run Agouti Tests
+###Bootstrapping Ginkgo to Run Agouti Tests
 
     $ cd path/to/potato
     $ ginkgo bootstrap --agouti
@@ -82,7 +82,7 @@ This will generate a file named `potato_suite_test.go` containing:
         agoutiDriver.Stop()
     })
 
-Update this file to run your choice of WebDriver. For this example, we'll use Selenium:
+Update this file with your choice of WebDriver. For this example, we'll use Selenium.
 
     package potato_test
 
@@ -112,7 +112,9 @@ Update this file to run your choice of WebDriver. For this example, we'll use Se
         agoutiDriver.Stop()
     })
 
-Note that while this setup does not need to be in the `*_suite_test.go` file, we strongly recommend that the `WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits. (If you prefer not to use a global variable for the WebDriver, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
+Note that while this setup does not need to be in the `potato_suite_test.go` file, we strongly recommend that the `WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits.
+
+(If you prefer not to use a global variable for the WebDriver, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
 
 At this point you can run your suite without any tests.
 
@@ -131,7 +133,7 @@ At this point you can run your suite without any tests.
 
 ###Adding Acceptance Tests
 
-Let's write an acceptance test covering user login:
+Let's write an acceptance test covering user login. First, use Ginkgo to generate an Agouti test template:
 
     $ ginkgo generate --agouti user_login
 
@@ -223,18 +225,18 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
 
 ###Notes
 
-- A new `Selection` can be created from an existing `Selection` or from the page using the `Selectable` methods defined [here](http://godoc.org/github.com/sclevine/agouti/core#Selectable).
-- The `Selection` interface is very rich. It supports selecting and asserting on one or more elements by CSS selector, XPath, label, and/or link text. A selection may combine any number of selector types.
+- A new `Selection` can be created from the page or from an existing `Selection` using the `Selectable` methods defined [here](http://godoc.org/github.com/sclevine/agouti/core#Selectable).
+- The `Selection` interface is very rich. It supports selecting and asserting on one or more elements by CSS selector, XPath, label, and/or link text. A selection may combine any number of these selector types.
 - The Agouti matchers (like `HaveTitle` and `BeVisible`) rely only on public `Page` and `Selection` methods (lke `Title` and `Visible`).
 - Gomega's [asynchronous assertions](http://onsi.github.io/gomega/#making-asynchronous-assertions) such as `Eventually` may be used to wait for the page to load. This is especially useful for testing JavaScript-heavy web applications.
-- The [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package contains actions that will immediately fail the running test if they fail. This can reduce the number of `Expect(...).To(Succeed())` assertions. It also re-declares some of the Ginkgo blocks. For instance, `It` becomes `Scenario`.
-- As your test suite grows it's liable to get slow.  Ginkgo makes it easy to parallelize your test suite by spreading different `It`s across multiple test processes, and Agouti supports this.  We can make the above example support parallel tests by spinning up the app-server in the `BeforeEach` on a port unique to the Ginkgo node that is running the test: `StartMyApp(3000+GinkgoParallelNode())`.  Now you can run the tests in parallel with `ginkgo -p`.  For more on test parallelization see the [Ginkgo docs on the topic](http://onsi.github.io/ginkgo/#parallel-specs).
+- As your test suite grows, it's liable to get slow. Ginkgo makes it easy to parallelize your test suite by spreading different `It`s across multiple test processes, and Agouti supports this. We can make the above example support parallel tests by spinning up the app-server in the `BeforeEach` on a port unique to the Ginkgo node that is running the test: `StartMyApp(3000+GinkgoParallelNode())`. Now you can run the tests in parallel with `ginkgo -p`.  For more on test parallelization see the [Ginkgo docs on the topic](http://onsi.github.io/ginkgo/#parallel-specs).
+- The [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package contains actions that will immediately fail the running test if they are not successful. This can reduce the number of `Expect(...).To(Succeed())` assertions. It also re-declares some of the Ginkgo blocks. For instance, `It` becomes `Scenario`.
 
 ##Reference
 
 Agouti is fully documented using GoDoc. See [`core`](http://godoc.org/github.com/sclevine/agouti/core), [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers), and [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl).
 
-More extensive documentation (with more examples!) is coming soon.
+More extensive documentation (with more examples!) coming soon.
 
 ##External WebDrivers and Sauce Labs Support
 
@@ -341,13 +343,21 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
         })
     })
 
-Like Ginkgo test blocks, [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) test blocks may be pended by prepending an `X` or `P` or focused by prepending an `F`. For example, an `XScenario` will never run, but a `FFeature` will prevent specs outside of it from running unless they are also focused.
+Note that:
+
+- `Scenario` is a Ginkgo `It`
+- `Feature` is a Ginkgo `Describe`
+- `Background` is a Ginkgo `BeforeEach`
+- `Step` is a Ginkgo `By`
+
+
+Like Ginkgo test blocks, [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) test blocks may be pended by prepending an `X` or `P`, or focused by prepending an `F`. For example, an `XScenario` will never run, but a `FFeature` will prevent specs outside of it from running unless they are also focused.
 
 ##Using Agouti Without Ginkgo or Gomega
 
 The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega, and can even be used as a general-purpose WebDriver API for uses outside of acceptance testing.
 
-Here is a partial login test that does not depend on Ginkgo or Gomega. To make this even more Go-like, we'll import the core package as `agouti` instead of dot-importing it.
+Here is a part of a login test that does not depend on Ginkgo or Gomega. To make this even more Go-like, we'll import the core package as `agouti` instead of dot-importing it.
 
     package potato_test
 
