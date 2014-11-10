@@ -85,6 +85,16 @@ type Client struct {
 		Err     error
 	}
 
+	FrameCall struct {
+		Frame types.Element
+		Err   error
+	}
+
+	FrameParentCall struct {
+		Called bool
+		Err    error
+	}
+
 	ExecuteCall struct {
 		Body      string
 		Arguments []interface{}
@@ -186,6 +196,16 @@ func (c *Client) MoveTo(element types.Element, point types.Point) error {
 	c.MoveToCall.Element = element
 	c.MoveToCall.Point = point
 	return c.MoveToCall.Err
+}
+
+func (c *Client) Frame(frame types.Element) error {
+	c.FrameCall.Frame = frame
+	return c.FrameCall.Err
+}
+
+func (c *Client) FrameParent() error {
+	c.FrameParentCall.Called = true
+	return c.FrameParentCall.Err
 }
 
 func (c *Client) Execute(body string, arguments []interface{}, result interface{}) error {

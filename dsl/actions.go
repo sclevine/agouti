@@ -42,6 +42,21 @@ func Submit(selection core.Selection) {
 	check(selection.Submit())
 }
 
+// SwitchToFrame is comparable to Expect(selection.SwitchToFrame()).To(Succeed())
+func SwitchToFrame(selection core.Selection) {
+	check(selection.SwitchToFrame())
+}
+
+// SwitchToParentFrame is comparable to Expect(page.SwitchToParentFrame()).To(Succeed())
+func SwitchToParentFrame(page core.Page) {
+	check(page.SwitchToParentFrame())
+}
+
+// SwitchToRootFrame is comparable to Expect(page.SwitchToRootFrame()).To(Succeed())
+func SwitchToRootFrame(page core.Page) {
+	check(page.SwitchToRootFrame())
+}
+
 func check(err error) {
 	if err != nil {
 		ginkgo.Fail(fmt.Sprintf("Action failed: %s", err), 2)

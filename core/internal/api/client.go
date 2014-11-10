@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/base64"
 
+	"errors"
 	"github.com/sclevine/agouti/core/internal/api/element"
 	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/types"
@@ -143,6 +144,31 @@ func (c *Client) MoveTo(region types.Element, point types.Point) error {
 	}
 
 	return c.Session.Execute("moveto", "POST", request)
+}
+
+func (c *Client) Frame(frame types.Element) error {
+	var elementID interface{}
+
+	switch frame := frame.(type) {
+	case nil:
+		elementID = nil
+	case *element.Element:
+		elementID = struct {
+			Element string `json:"ELEMENT"`
+		}{frame.ID}
+	default:
+		return errors.New("frame must be an element")
+	}
+
+	request := struct {
+		ID interface{} `json:"id"`
+	}{elementID}
+
+	return c.Session.Execute("frame", "POST", request)
+}
+
+func (c *Client) FrameParent() error {
+	return c.Session.Execute("frame/parent", "POST", nil)
 }
 
 func (c *Client) Execute(body string, arguments []interface{}, result interface{}) error {

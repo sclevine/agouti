@@ -16,6 +16,8 @@ type Client interface {
 	GetElements(selector Selector) ([]Element, error)
 	DoubleClick() error
 	MoveTo(element Element, point Point) error
+	Frame(frame Element) error
+	FrameParent() error
 	Execute(body string, arguments []interface{}, result interface{}) error
 	Forward() error
 	Back() error

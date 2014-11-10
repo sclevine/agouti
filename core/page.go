@@ -73,6 +73,18 @@ type Page interface {
 
 	// Refresh refreshes the page.
 	Refresh() error
+
+	// SwitchToParentFrame focuses on the immediate parent frame of a frame selected
+	// by Selection#Frame. After switching, all new and existing selections will refer
+	// to the parent frame. All further Page methods will apply to this frame as well.
+	//
+	// This method is not supported by PhantomJS. Please use SwitchToRootFrame instead.
+	SwitchToParentFrame() error
+
+	// SwitchToRootFrame focuses on the original, default page frame before any calls
+	// to Selection#Frame were made. After switching, all new and existing selections will
+	// refer to the root frame. All further Page methods will apply to this frame as well.
+	SwitchToRootFrame() error
 }
 
 type userPage struct {
@@ -85,8 +97,7 @@ func (u *userPage) SetCookie(cookie WebCookie) error {
 }
 
 func newPage(client types.Client) Page {
-	return &userPage{
-		&page.Page{Client: client},
-		&userSelection{&selection.Selection{Client: client}},
-	}
+	emptySelection := &selection.Selection{Client: client}
+	pageSelection := &userSelection{emptySelection}
+	return &userPage{&page.Page{Client: client}, pageSelection}
 }

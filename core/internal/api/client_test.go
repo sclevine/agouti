@@ -381,6 +381,51 @@ var _ = Describe("API Client", func() {
 		})
 	})
 
+	Describe("#Frame", func() {
+		BeforeEach(func() {
+			err = client.Frame(&element.Element{ID: "some-id"})
+		})
+
+		ItShouldMakeARequest("POST", "frame", `{"id": {"ELEMENT": "some-id"}}`)
+
+		Context("When the provided frame in nil", func() {
+			BeforeEach(func() {
+				err = client.Frame(nil)
+			})
+
+			ItShouldMakeARequest("POST", "frame", `{"id": null}`)
+		})
+
+		Context("when the provided frame is not a real element", func() {
+			It("should return an error", func() {
+				err = client.Frame(&mocks.Element{})
+				Expect(err).To(MatchError("frame must be an element"))
+			})
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.Frame(&element.Element{ID: "some-id"})).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#FrameParent", func() {
+		BeforeEach(func() {
+			err = client.FrameParent()
+		})
+
+		ItShouldMakeARequest("POST", "frame/parent")
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.FrameParent()).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#Execute", func() {
 		var (
 			result struct{ Some string }

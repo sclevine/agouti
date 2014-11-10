@@ -30,6 +30,11 @@ type Selection interface {
 	// one element each refer to the same element.
 	EqualsElement(comparable interface{}) (bool, error)
 
+	// SwitchToFrame focuses on the frame specified by the selection. All new and
+	// existing selections will refer to the new frame. All further Page methods
+	// will apply to this frame as well.
+	SwitchToFrame() error
+
 	// Click clicks on all of the elements that the selection refers to.
 	Click() error
 

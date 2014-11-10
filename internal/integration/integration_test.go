@@ -15,7 +15,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 	var page Page
 
 	Background(func() {
-		page = CustomPage(Use().With("handlesAlerts"))
+		page = CreatePage()
 		page.Size(640, 480)
 		page.Navigate(Server.URL)
 	})
@@ -107,7 +107,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 
 		Step("serializing the current page HTML", func() {
-			Expect(page.HTML()).To(ContainSubstring(`<div id="some_element" class="some-element" style="color: blue;">some text</div>`))
+			Expect(page.HTML()).To(ContainSubstring(`>some text</div>`))
 		})
 
 		Step("executing arbitrary javascript", func() {
@@ -180,6 +180,27 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 	})
 
+	Scenario("frames", func() {
+		Step("allows switching to an iframe", func() {
+			SwitchToFrame(page.Find("#frame"))
+			Expect(page.Find("body")).To(MatchText("Example Domain"))
+		})
+
+		// PhantomJS does not seem to comply to /session/:id/frame/parent
+
+		//Step("allows switching back to the default frame by referring to the parent frame", func() {
+		//	SwitchToParentFrame(page)
+		//	Expect(page.Find("body")).NotTo(MatchText("Example Domain"))
+		//})
+		//SwitchToFrame(page.Find("#frame"))
+
+		Step("allows switichng back to the default frame by referring to the root frame", func() {
+			SwitchToRootFrame(page)
+			Expect(page.Find("body")).NotTo(MatchText("Example Domain"))
+		})
+	})
+
+	// PhantomJS has trouble with alert boxes, even with handlesAlerts
 	PScenario("popup boxes", func() {
 		Step("allows interacting with alert popups", func() {
 			Click(page.Find("#popup_alert"))

@@ -42,3 +42,15 @@ func (s *Selection) EqualsElement(other *Selection) (bool, error) {
 
 	return equal, nil
 }
+
+func (s *Selection) SwitchToFrame() error {
+	element, err := s.getSelectedElement()
+	if err != nil {
+		return fmt.Errorf("failed to select '%s': %s", s, err)
+	}
+
+	if err := s.Client.Frame(element); err != nil {
+		return fmt.Errorf("failed to switch to frame '%s': %s", s, err)
+	}
+	return nil
+}

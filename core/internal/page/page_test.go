@@ -362,4 +362,33 @@ var _ = Describe("Page", func() {
 			})
 		})
 	})
+
+	Describe("#SwitchToParentFrame", func() {
+		It("should successfully instruct the client to change focus to the parent frame", func() {
+			Expect(page.SwitchToParentFrame()).To(Succeed())
+			Expect(client.FrameParentCall.Called).To(BeTrue())
+		})
+
+		Context("when switching to the parent frame fails", func() {
+			It("should return an error", func() {
+				client.FrameParentCall.Err = errors.New("some error")
+				Expect(page.SwitchToParentFrame()).To(MatchError("failed to switch to parent frame: some error"))
+			})
+		})
+	})
+
+	Describe("#SwitchToRootFrame", func() {
+		It("should successfully instruct the client to change focus to the root frame", func() {
+			client.FrameCall.Frame = &mocks.Element{}
+			Expect(page.SwitchToRootFrame()).To(Succeed())
+			Expect(client.FrameCall.Frame).To(BeNil())
+		})
+
+		Context("when switching to the root frame fails", func() {
+			It("should return an error", func() {
+				client.FrameCall.Err = errors.New("some error")
+				Expect(page.SwitchToRootFrame()).To(MatchError("failed to switch to original page frame: some error"))
+			})
+		})
+	})
 })

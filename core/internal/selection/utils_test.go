@@ -110,4 +110,31 @@ var _ = Describe("Utils", func() {
 			})
 		})
 	})
+
+	Describe("#SwitchToFrame", func() {
+		BeforeEach(func() {
+			client.GetElementsCall.ReturnElements = []types.Element{element}
+		})
+
+		It("should successfully switch to the frame indicated by the selection", func() {
+			Expect(selection.SwitchToFrame()).To(Succeed())
+			Expect(client.FrameCall.Frame).To(Equal(element))
+		})
+
+		Context("when multiple elements are selected", func() {
+			It("should return an error with the number of elements", func() {
+				client.GetElementsCall.ReturnElements = []types.Element{element, element}
+				err := selection.SwitchToFrame()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
+			})
+		})
+
+		Context("when the client fails to switch frames", func() {
+			It("should return an error", func() {
+				client.FrameCall.Err = errors.New("some error")
+				err := selection.SwitchToFrame()
+				Expect(err).To(MatchError("failed to switch to frame 'CSS: #selector': some error"))
+			})
+		})
+	})
 })

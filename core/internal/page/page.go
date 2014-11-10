@@ -179,3 +179,17 @@ func (p *Page) Refresh() error {
 	}
 	return nil
 }
+
+func (p *Page) SwitchToParentFrame() error {
+	if err := p.Client.FrameParent(); err != nil {
+		return fmt.Errorf("failed to switch to parent frame: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) SwitchToRootFrame() error {
+	if err := p.Client.Frame(nil); err != nil {
+		return fmt.Errorf("failed to switch to original page frame: %s", err)
+	}
+	return nil
+}
