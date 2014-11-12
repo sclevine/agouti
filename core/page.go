@@ -82,8 +82,9 @@ type Page interface {
 	SwitchToParentFrame() error
 
 	// SwitchToRootFrame focuses on the original, default page frame before any calls
-	// to Selection#Frame were made. After switching, all new and existing selections will
-	// refer to the root frame. All further Page methods will apply to this frame as well.
+	// to Selection#Frame were made. After switching, all new and existing selections
+	// will refer to the root frame. All further Page methods will apply to this frame
+	// as well.
 	SwitchToRootFrame() error
 }
 

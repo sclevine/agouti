@@ -6,7 +6,7 @@ import "encoding/json"
 // should use to configure a Page.
 //
 // For example, to open a Firefox page with JavaScript disabled:
-//    driver.Page(Use().Browser("firefox").Without("javascriptEnabled")
+//    driver.Page(Use().Browser("firefox").Without("javascriptEnabled"))
 // See: https://code.google.com/p/selenium/wiki/DesiredCapabilities
 type Capabilities interface {
 	// Browser sets the desired browser name - {chrome|firefox|safari|iphone|...}.
