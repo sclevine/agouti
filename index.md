@@ -384,7 +384,7 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
         driver.Stop() // calls page.Destroy() automatically
     }
 
-Or even without dot-imports:
+###Or Without Dot-Imports:
 
     package potato_test
 
@@ -413,7 +413,7 @@ Or even without dot-imports:
 
 See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests).
 
-##Using Agouti by Itself
+###Using Agouti by Itself
 
 The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver API.
 
