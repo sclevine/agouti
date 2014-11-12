@@ -256,7 +256,9 @@ For easy [Sauce Labs](http://saucelabs.com) support, use `SauceLabs`. Note that 
 
 Agouti provides a [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package that reduces test setup and provides user interactions that fail tests automatically if they are unsuccessful. It is similar to the [Capybara](https://github.com/jnicklas/capybara) DSL, and intended for those who are familiar with Capybara or Cucumber.
 
-Note that the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package exports numerous identifiers that may conflict with your package identifiers (if both are dot-imported). It also only supports a single running WebDriver process (PhantomJS, Selenium, OR ChromeDriver). If you use Ginkgo for unit testing, your Agouti tests will look like very different things using the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package. For these reasons, we do not necessarily encourage its use.
+Note that the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package exports numerous identifiers that may conflict with your package identifiers (if both are dot-imported). It also only supports a single running WebDriver process (PhantomJS, Selenium, OR ChromeDriver). If you use Ginkgo for unit testing, your [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) Agouti tests will look very different from your Ginkgo unit tests. For these reasons, we do not necessarily encourage its use. It is a small package that provides little extra functionality.
+
+Furthermore, `ginkgo generate --agouti filename` and `ginkgo bootstrap --agouti` do not support the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package.
 
 That said, you may re-write the above login test using the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package like so:
 
@@ -384,7 +386,11 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
         driver.Stop() // calls page.Destroy() automatically
     }
 
-###Or Without Dot-Imports:
+See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests). Note that using Agouti without Ginkgo will not allow you to run your specs in parallel.
+
+###Without Dot-Imports
+
+This is the most Go-like way of using Agouti for acceptance testing.
 
     package potato_test
 
@@ -411,7 +417,36 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
         driver.Stop() // calls page.Destroy() automatically
     }
 
-See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests).
+Alternatively:
+
+    package potato_test
+
+    import (
+        "/path/to/potato"
+        "github.com/sclevine/agouti/core"
+        "github.com/sclevine/agouti/matchers"
+        "github.com/onsi/gomega"
+        "testing"
+    )
+
+    Expect := gomega.Expect
+    Succeed := gomega.Succeed
+    HaveText := gomega.HaveText
+
+    func TestUserLoginPrompt(t *testing.T) {
+        gomega.RegisterTestingT(t)
+
+        driver := agouti.Selenium()
+        page := driver.Page(agouti.Use().Browser("firefox"))
+
+        potato.StartMyApp(3000)
+
+        Expect(page.Navigate("http://localhost:3000")).To(Succeed())
+        Expect(page).To(HaveURL("http://localhost:3000"))
+        Expect(page.Find("#prompt")).To(HaveText("Please login!"))
+
+        driver.Stop() // calls page.Destroy() automatically
+    }
 
 ###Using Agouti by Itself
 
