@@ -190,7 +190,7 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
             page.Destroy()
         })
 
-        It("allows a user to log in and log out", func() {
+        It("should manage user authentication", func() {
             By("redirecting the user to the login form from the home page", func() {
                 Expect(page.Navigate("http://localhost:3000")).To(Succeed())
                 Expect(page).To(HaveURL("http://localhost:3000/login"))
@@ -353,16 +353,76 @@ Note that:
 
 Like Ginkgo test blocks, [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) test blocks may be pended by prepending an `X` or `P`, or focused by prepending an `F`. For example, an `XScenario` will never run, but a `FFeature` will prevent specs outside of it from running unless they are also focused.
 
-##Using Agouti Without Ginkgo or Gomega
+##Using Agouti with Gomega and XUnit Tests
 
-The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega, and can even be used as a general-purpose WebDriver API for uses outside of acceptance testing.
+If you would prefer to use Go's built-in XUnit tests instead of Ginkgo, the [`core`](http://godoc.org/github.com/sclevine/agouti/core) and [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers) packages make this easy.
 
-Here is a part of a login test that does not depend on Ginkgo or Gomega. To make this even more Go-like, we'll import the core package as `agouti` instead of dot-importing it.
+To use Agouti with Gomega and XUnit style tests, check out this simple example:
 
     package potato_test
 
     import (
         . "/path/to/potato"
+        . "github.com/onsi/gomega"
+        . "github.com/sclevine/agouti/core"
+        . "github.com/sclevine/agouti/matchers"
+        "testing"
+    )
+
+    func TestUserLoginPrompt(t *testing.T) {
+        RegisterTestingT(t)
+
+        driver := Selenium()
+        page := driver.Page(agouti.Use().Browser("firefox"))
+
+        StartMyApp(3000)
+
+        Expect(page.Navigate("http://localhost:3000")).To(Succeed())
+        Expect(page).To(HaveURL("http://localhost:3000"))
+        Expect(page.Find("#prompt")).To(HaveText("Please login!"))
+
+        driver.Stop() // calls page.Destroy() automatically
+    }
+
+Or even without dot-imports:
+
+    package potato_test
+
+    import (
+        "/path/to/potato"
+        agouti "github.com/sclevine/agouti/core"
+        am "github.com/sclevine/agouti/matchers"
+        gm "github.com/onsi/gomega"
+        "testing"
+    )
+
+    func TestUserLoginPrompt(t *testing.T) {
+        gm.RegisterTestingT(t)
+
+        driver := agouti.Selenium()
+        page := driver.Page(agouti.Use().Browser("firefox"))
+
+        potato.StartMyApp(3000)
+
+        gm.Expect(page.Navigate("http://localhost:3000")).To(gm.Succeed())
+        gm.Expect(page).To(am.HaveURL("http://localhost:3000"))
+        gm.Expect(page.Find("#prompt")).To(am.HaveText("Please login!"))
+
+        driver.Stop() // calls page.Destroy() automatically
+    }
+
+See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests).
+
+##Using Agouti by Itself
+
+The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver API.
+
+Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll import the core package as `agouti` instead of dot-importing it.
+
+    package potato_test
+
+    import (
+        "/path/to/potato"
         agouti "github.com/sclevine/agouti/core"
         "testing"
     )
@@ -371,31 +431,32 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega. To make
         driver := agouti.Selenium()
         page := driver.Page(agouti.Use().Browser("firefox"))
 
-        StartMyApp(3000)
+        potato.StartMyApp(3000)
 
         if err := page.Navigate("http://localhost:3000"); err != nil {
-            t.Error("Failed to navigate!")
+            t.Error("Failed to navigate.")
         }
 
         loginURL, err := page.URL()
         if err != nil {
-            t.Error("Failed to get page URL!")
+            t.Error("Failed to get page URL.")
         }
 
-        if loginURL != "http://localhost:3000/login" {
-            t.Error("Expected URL to be http://localhost:3000/login, got ", loginURL)
+        expectedLoginURL := "http://localhost:3000/login"
+        if loginURL != expectedLoginURL {
+            t.Error("Expected URL to be", expectedLoginURL, "but got", loginURL)
         }
 
         loginPrompt, err := page.Find("#prompt").Text()
         if err != nil {
-            t.Error("Failed to get login prompt text!")
+            t.Error("Failed to get login prompt text.")
         }
 
-        if loginPrompt != "Please login!" {
-            t.Error("Expected login prompt to be 'Please login!', got ", loginPrompt)
+        expectedPrompt := "Please login."
+        if loginPrompt != expectedPrompt {
+            t.Error("Expected login prompt to be", expectedPrompt, "but got", loginPrompt)
         }
 
-        driver.Stop() // destroys page automatically
+        driver.Stop() // calls page.Destroy() automatically
     }
 
-If you'd like to use the Agouti matchers without using Ginkgo, you can use Gomega's `RegisterTestingT()` function to use Gomega matchers in Go's XUnit style tests.  See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests).
