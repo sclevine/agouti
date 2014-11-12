@@ -142,7 +142,7 @@ This will generate a file named `user_login_test.go` containing:
     package potato_test
 
     import (
-        . "/path/to/potato"
+        . "path/to/potato"
 
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
@@ -168,7 +168,7 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
     package potato_test
 
     import (
-        . "/path/to/potato"
+        . "path/to/potato"
 
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
@@ -292,7 +292,7 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
     package potato_test
 
     import (
-        . "/path/to/potato"
+        . "path/to/potato"
 
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
@@ -364,7 +364,7 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
     package potato_test
 
     import (
-        . "/path/to/potato"
+        . "path/to/potato"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
         . "github.com/sclevine/agouti/matchers"
@@ -395,7 +395,7 @@ This is the most Go-like way of using Agouti for acceptance testing.
     package potato_test
 
     import (
-        "/path/to/potato"
+        "path/to/potato"
         agouti "github.com/sclevine/agouti/core"
         am "github.com/sclevine/agouti/matchers"
         gm "github.com/onsi/gomega"
@@ -422,7 +422,7 @@ Alternatively:
     package potato_test
 
     import (
-        "/path/to/potato"
+        "path/to/potato"
         "github.com/sclevine/agouti/core"
         "github.com/sclevine/agouti/matchers"
         "github.com/onsi/gomega"
@@ -457,7 +457,7 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll i
     package potato_test
 
     import (
-        "/path/to/potato"
+        "path/to/potato"
         agouti "github.com/sclevine/agouti/core"
         "testing"
     )
