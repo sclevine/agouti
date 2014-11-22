@@ -4,7 +4,7 @@ Agouti
 [![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
 [![GoDoc](https://godoc.org/github.com/sclevine/agouti?status.svg)](https://godoc.org/github.com/sclevine/agouti)
 
-Acceptance testing for Golang with support for Ginkgo and Gomega!
+Acceptance testing for Golang with support for Ginkgo and Gomega! See [agouti.org](http://agouti.org) for more complete documentation. Have questions? Check out the [Agouti mailing list](https://groups.google.com/d/forum/agouti).
 
 Install:
 ```bash
@@ -32,14 +32,6 @@ To use the `dsl` package, you must have Ginkgo installed:
 ```bash
 $ go get github.com/onsi/ginkgo/ginkgo
 ```
-
-If you use the `dsl` package, note that:
- * `Feature` is a Ginkgo `Describe`
- * `Scenario` is a Ginkgo `It`
- * `Background` is a Ginkgo `BeforeEach`
- * `Step` is a Ginkgo `By`
-
-See [agouti.org](http://agouti.org) for more information.
 
 Example `project_suite_test.go` file:
 
