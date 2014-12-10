@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/page"
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Page", func() {
@@ -24,7 +25,7 @@ var _ = Describe("Page", func() {
 		client = &mocks.Client{}
 		window = &mocks.Window{}
 		element = &mocks.Element{}
-		page = &Page{client}
+		page = &Page{Client: client}
 	})
 
 	Describe("#Destroy", func() {
@@ -388,6 +389,69 @@ var _ = Describe("Page", func() {
 			It("should return an error", func() {
 				client.FrameCall.Err = errors.New("some error")
 				Expect(page.SwitchToRootFrame()).To(MatchError("failed to switch to original page frame: some error"))
+			})
+		})
+	})
+
+	Describe("#ReadLogs", func() {
+		It("should request logs of the provided log type from the client", func() {
+			_, err := page.ReadLogs("some type")
+			Expect(err).To(Succeed())
+			Expect(client.NewLogsCall.LogType).To(Equal("some type"))
+		})
+
+		Context("when the client fails to retrieve logs", func() {
+			It("should return an error", func() {
+				client.NewLogsCall.Err = errors.New("some error")
+				_, err := page.ReadLogs("some type")
+				Expect(err).To(MatchError("failed to retrieve logs: some error"))
+			})
+		})
+
+		Describe("returned logs", func() {
+			BeforeEach(func() {
+				client.NewLogsCall.ReturnLogs = []types.Log{types.Log{"old log", "old level", 1418196096123}}
+				page.ReadLogs("some type")
+				client.NewLogsCall.ReturnLogs = []types.Log{types.Log{"new log (1:22)", "new level", 1418196097543}}
+			})
+
+			Context("when only new logs are requested", func() {
+				It("should return new logs with the correct time and code location", func() {
+					logs, err := page.ReadLogs("some type")
+					Expect(err).NotTo(HaveOccurred())
+					Expect(logs).To(HaveLen(1))
+					Expect(logs[0].Message).To(Equal("new log"))
+					Expect(logs[0].Location).To(Equal("1:22"))
+					Expect(logs[0].Level).To(Equal("new level"))
+					Expect(logs[0].Time.Unix()).To(BeEquivalentTo(1418196097))
+				})
+			})
+
+			Context("when all logs are requested", func() {
+				It("should return all logs", func() {
+					logs, err := page.ReadLogs("some type", true)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(logs).To(HaveLen(2))
+					Expect(logs[0].Message).To(Equal("old log"))
+					Expect(logs[1].Message).To(Equal("new log"))
+				})
+			})
+		})
+	})
+
+	Describe("#LogTypes", func() {
+		It("should successfully return the log types", func() {
+			client.GetLogTypesCall.ReturnTypes = []string{"first type", "second type"}
+			types, err := page.LogTypes()
+			Expect(types).To(Equal([]string{"first type", "second type"}))
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("when the client fails to retrieve the log types", func() {
+			It("should return an error", func() {
+				client.GetLogTypesCall.Err = errors.New("some error")
+				_, err := page.LogTypes()
+				Expect(err).To(MatchError("failed to retrieve log types: some error"))
 			})
 		})
 	})

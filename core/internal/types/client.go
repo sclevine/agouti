@@ -24,4 +24,6 @@ type Client interface {
 	Refresh() error
 	GetAlertText() (string, error)
 	SetAlertText(text string) error
+	NewLogs(logType string) ([]Log, error)
+	GetLogTypes() ([]string, error)
 }

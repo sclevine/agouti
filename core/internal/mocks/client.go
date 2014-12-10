@@ -126,6 +126,17 @@ type Client struct {
 		Text string
 		Err  error
 	}
+
+	NewLogsCall struct {
+		LogType    string
+		ReturnLogs []types.Log
+		Err        error
+	}
+
+	GetLogTypesCall struct {
+		ReturnTypes []string
+		Err         error
+	}
 }
 
 func (c *Client) DeleteSession() error {
@@ -237,4 +248,13 @@ func (c *Client) GetAlertText() (string, error) {
 func (c *Client) SetAlertText(text string) error {
 	c.SetAlertTextCall.Text = text
 	return c.SetAlertTextCall.Err
+}
+
+func (c *Client) NewLogs(logType string) ([]types.Log, error) {
+	c.NewLogsCall.LogType = logType
+	return c.NewLogsCall.ReturnLogs, c.NewLogsCall.Err
+}
+
+func (c *Client) GetLogTypes() ([]string, error) {
+	return c.GetLogTypesCall.ReturnTypes, c.GetLogTypesCall.Err
 }

@@ -210,3 +210,23 @@ func (c *Client) SetAlertText(text string) error {
 	}{text}
 	return c.Session.Execute("alert_text", "POST", request)
 }
+
+func (c *Client) NewLogs(logType string) ([]types.Log, error) {
+	request := struct {
+		Type string `json:"type"`
+	}{logType}
+
+	var logs []types.Log
+	if err := c.Session.Execute("log", "POST", request, &logs); err != nil {
+		return nil, err
+	}
+	return logs, nil
+}
+
+func (c *Client) GetLogTypes() ([]string, error) {
+	var types []string
+	if err := c.Session.Execute("log/types", "GET", nil, &types); err != nil {
+		return nil, err
+	}
+	return types, nil
+}

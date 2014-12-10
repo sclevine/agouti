@@ -4,6 +4,7 @@ import (
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/selection"
 	"github.com/sclevine/agouti/core/internal/types"
+	"time"
 )
 
 // A Page represents an open browser session. Pages may be created using the
@@ -42,7 +43,7 @@ type Page interface {
 	// HTML returns the current contents of the DOM for the entire page.
 	HTML() (string, error)
 
-	// RunScript runs the javascript provided in the body. Any keys present in
+	// RunScript runs the JavaScript provided in the body. Any keys present in
 	// the arguments map will be available as variables in the body.
 	// Values provided in arguments are converted into javascript objects.
 	// If the body returns a value, it will be unmarshalled into the result argument.
@@ -86,15 +87,31 @@ type Page interface {
 	// will refer to the root frame. All further Page methods will apply to this frame
 	// as well.
 	SwitchToRootFrame() error
+
+	// ReadLogs returns log messages of the provided log type. For example,
+	// page.ReadLogs("browser") returns browser console logs, such as JavaScript logs
+	// and errors. If the all argument is provided as true, all logs since the session
+	// was created are returned. Otherwise, only logs since the last call to ReadLogs
+	// are returned. Valid log types may be obtained using the LogTypes method.
+	ReadLogs(logType string, all ...bool) ([]Log, error)
+
+	// LogTypes returns all of the valid log types that may be used with a LogReader.
+	LogTypes() ([]string, error)
 }
 
-type userPage struct {
-	*page.Page
-	*userSelection
-}
+// A Log represents a single log message
+type Log struct {
+	// Message is the text of the log message.
+	Message string
 
-func (u *userPage) SetCookie(cookie WebCookie) error {
-	return u.SetCookie(cookie)
+	// Location is the code location of the log message, if present
+	Location string
+
+	// Level is the log level ("DEBUG", "INFO", "WARNING", or "SEVERE").
+	Level string
+
+	// Time is the time the message was logged.
+	Time time.Time
 }
 
 func newPage(client types.Client) Page {

@@ -1,8 +1,11 @@
 package matchers_test
 
 import (
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core"
 	. "github.com/sclevine/agouti/matchers"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
@@ -35,6 +38,22 @@ var _ = Describe("Page Matchers", func() {
 			page.PopupTextCall.ReturnText = "some text"
 			Expect(page).To(HavePopupText("some text"))
 			Expect(page).NotTo(HavePopupText("some other text"))
+		})
+	})
+
+	Describe("#HaveLoggedError", func() {
+		It("should call the page#HaveLoggedError matcher", func() {
+			page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "WARNING", time.Time{}}}
+			Expect(page).To(HaveLoggedError("some log"))
+			Expect(page).NotTo(HaveLoggedError("some other log"))
+		})
+	})
+
+	Describe("#HaveLoggedInfo", func() {
+		It("should call the page#HaveLoggedInfo matcher", func() {
+			page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "INFO", time.Time{}}}
+			Expect(page).To(HaveLoggedInfo("some log"))
+			Expect(page).NotTo(HaveLoggedInfo("some other log"))
 		})
 	})
 })

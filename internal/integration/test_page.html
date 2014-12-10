@@ -39,7 +39,10 @@
     setTimeout(function() {
         var element = document.getElementById("some_element");
         element.innerHTML = "some text";
+        var causeError = doesNotExist;
     }, 2000);
+
+    console.log("some log");
 </script>
 </body>
 </html>

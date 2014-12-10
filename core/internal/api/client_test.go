@@ -533,4 +533,58 @@ var _ = Describe("API Client", func() {
 			})
 		})
 	})
+
+	Describe("#NewLogs", func() {
+		var logs []types.Log
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `[
+				{"message": "some message", "level": "INFO", "timestamp": 1417988844498},
+				{"message": "some other message", "level": "WARNING", "timestamp": 1417982864598}
+			]`
+			logs, err = client.NewLogs("browser")
+		})
+
+		ItShouldMakeARequest("POST", "log", `{"type": "browser"}`)
+
+		It("should return all logs", func() {
+			Expect(logs[0].Message).To(Equal("some message"))
+			Expect(logs[0].Level).To(Equal("INFO"))
+			Expect(logs[0].Timestamp).To(BeEquivalentTo(1417988844498))
+			Expect(logs[1].Message).To(Equal("some other message"))
+			Expect(logs[1].Level).To(Equal("WARNING"))
+			Expect(logs[1].Timestamp).To(BeEquivalentTo(1417982864598))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := client.NewLogs("browser")
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetLogTypes", func() {
+		var types []string
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `["first type", "second type"]`
+			types, err = client.GetLogTypes()
+		})
+
+		ItShouldMakeARequest("GET", "log/types")
+
+		It("should return the current alert text", func() {
+			Expect(types).To(Equal([]string{"first type", "second type"}))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := client.GetLogTypes()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })

@@ -22,3 +22,23 @@ func HaveURL(URL string) types.GomegaMatcher {
 func HavePopupText(text string) types.GomegaMatcher {
 	return &page.HavePopupTextMatcher{ExpectedText: text}
 }
+
+// HaveLoggedError passes when the expected log message is logged as
+// an error in the browser console.
+func HaveLoggedError(messageOrEmpty ...string) types.GomegaMatcher {
+	message := ""
+	if len(messageOrEmpty) > 0 {
+		message = messageOrEmpty[0]
+	}
+	return &page.HaveLoggedErrorMatcher{ExpectedMessage: message}
+}
+
+// HaveLoggedInfo passes when the expected log message is logged as
+// info in the browser console.
+func HaveLoggedInfo(messageOrEmpty ...string) types.GomegaMatcher {
+	message := ""
+	if len(messageOrEmpty) > 0 {
+		message = messageOrEmpty[0]
+	}
+	return &page.HaveLoggedInfoMatcher{ExpectedMessage: message}
+}

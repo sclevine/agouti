@@ -5,12 +5,22 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/sclevine/agouti/core/internal/types"
+	"regexp"
 )
 
 type Page struct {
 	Client types.Client
+	logs   map[string][]Log
+}
+
+type Log struct {
+	Message  string
+	Location string
+	Level    string
+	Time     time.Time
 }
 
 func (p *Page) Destroy() error {
@@ -192,4 +202,50 @@ func (p *Page) SwitchToRootFrame() error {
 		return fmt.Errorf("failed to switch to original page frame: %s", err)
 	}
 	return nil
+}
+
+func (p *Page) LogTypes() ([]string, error) {
+	types, err := p.Client.GetLogTypes()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve log types: %s", err)
+	}
+	return types, nil
+}
+
+func (p *Page) ReadLogs(logType string, all ...bool) ([]Log, error) {
+	if p.logs == nil {
+		p.logs = map[string][]Log{}
+	}
+
+	clientLogs, err := p.Client.NewLogs(logType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve logs: %s", err)
+	}
+
+	messageMatcher := regexp.MustCompile(`^(?s:(.+))\s\(([^)]+:\w+)\)$`)
+
+	var logs []Log
+	for _, clientLog := range clientLogs {
+		matches := messageMatcher.FindStringSubmatch(clientLog.Message)
+		message, location := clientLog.Message, ""
+		if len(matches) > 2 {
+			message, location = matches[1], matches[2]
+		}
+
+		log := Log{message, location, clientLog.Level, msToTime(clientLog.Timestamp)}
+		logs = append(logs, log)
+	}
+	p.logs[logType] = append(p.logs[logType], logs...)
+
+	if len(all) > 0 && all[0] {
+		return p.logs[logType], nil
+	}
+
+	return logs, nil
+}
+
+func msToTime(ms int64) time.Time {
+	seconds := ms / 1000
+	nanoseconds := (ms % 1000) * 1000000
+	return time.Unix(seconds, nanoseconds)
 }

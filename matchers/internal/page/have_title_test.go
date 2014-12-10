@@ -17,7 +17,6 @@ var _ = Describe("HaveTitleMatcher", func() {
 
 	BeforeEach(func() {
 		page = &mocks.Page{}
-		page.TitleCall.ReturnTitle = "Some Title"
 		matcher = &HaveTitleMatcher{ExpectedTitle: "Some Title"}
 	})
 

@@ -180,6 +180,12 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		})
 	})
 
+	Scenario("logging", func() {
+		Eventually(page).Should(HaveLoggedInfo("some log"))
+		Expect(page).NotTo(HaveLoggedError())
+		Eventually(page, 4*time.Second).Should(HaveLoggedError("ReferenceError: Can't find variable: doesNotExist\n  (anonymous function)"))
+	})
+
 	Scenario("frames", func() {
 		Step("allows switching to an iframe", func() {
 			SwitchToFrame(page.Find("#frame"))
