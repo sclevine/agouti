@@ -32,6 +32,7 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 	Scenario("finding page elements", func() {
 		Step("finding a header in the page", func() {
 			Expect(page.Find("header")).To(BeFound())
+			Expect(page.Find("not-a-header")).NotTo(BeFound())
 		})
 
 		Step("finding text in the header", func() {

@@ -52,7 +52,7 @@ var _ = Describe("BeFoundMatcher", func() {
 		Context("when there is an error retrieving the count", func() {
 			Context("when the error is an 'element not found' error", func() {
 				It("should successfully return false", func() {
-					selection.CountCall.Err = errors.New("element not found")
+					selection.CountCall.Err = errors.New("some error: element not found")
 					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 					Expect(err).NotTo(HaveOccurred())
@@ -61,7 +61,7 @@ var _ = Describe("BeFoundMatcher", func() {
 
 			Context("when the error is an 'element index out of range' error", func() {
 				It("should successfully return false", func() {
-					selection.CountCall.Err = errors.New("element index out of range")
+					selection.CountCall.Err = errors.New("some error: element index out of range")
 					success, err := matcher.Match(selection)
 					Expect(success).To(BeFalse())
 					Expect(err).NotTo(HaveOccurred())

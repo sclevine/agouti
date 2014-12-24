@@ -3,6 +3,7 @@ package selection
 import (
 	"fmt"
 	"github.com/onsi/gomega/format"
+	"strings"
 )
 
 type BeFoundMatcher struct{}
@@ -18,10 +19,10 @@ func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
 
 	count, err := actualSelection.Count()
 	if err != nil {
-		switch err.Error() {
-		case "element not found":
+		switch {
+		case strings.HasSuffix(err.Error(), "element not found"):
 			return false, nil
-		case "element index out of range":
+		case strings.HasSuffix(err.Error(), "element index out of range"):
 			return false, nil
 		default:
 			return false, err
