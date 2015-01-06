@@ -7,8 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/types"
 	"regexp"
+
+	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Page struct {
@@ -206,6 +207,25 @@ func (p *Page) SwitchToRootFrame() error {
 
 func (p *Page) Window() (types.Window, error) {
 	return p.Client.GetWindow()
+}
+
+func (p *Page) CloseWindow(newWin types.Window) error {
+	win, err := p.Client.GetWindow()
+	fmt.Printf("HEEEYA %#v", win)
+	if err != nil {
+		return fmt.Errorf("failed to get window: %s", err)
+	}
+
+	if err := newWin.SwitchTo(); err != nil {
+		return fmt.Errorf("failed to switch to window: %s", err)
+	}
+	if err := p.Client.DeleteWindow(); err != nil {
+		return fmt.Errorf("failed to close window: %s", err)
+	}
+	if err := win.SwitchTo(); err != nil {
+		return fmt.Errorf("failed to switch back to original window: %s", err)
+	}
+	return nil
 }
 
 func (p *Page) Windows() ([]types.Window, error) {

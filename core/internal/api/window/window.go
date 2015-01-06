@@ -29,15 +29,3 @@ func (w *Window) SwitchTo() error {
 	}
 	return nil
 }
-
-func (w *Window) Close() error {
-	err := w.SwitchTo()
-	if err != nil {
-		return err
-	}
-
-	if err := w.Session.Execute("window", "DELETE", nil, nil); err != nil {
-		return err
-	}
-	return nil
-}

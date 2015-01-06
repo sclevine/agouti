@@ -60,6 +60,13 @@ func (c *Client) GetWindow() (types.Window, error) {
 	return &window.Window{ID: windowID, Session: c.Session}, nil
 }
 
+func (c *Client) DeleteWindow() error {
+	if err := c.Session.Execute("window", "DELETE", nil, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *Client) GetWindows() ([]types.Window, error) {
 	var windowsID []string
 	if err := c.Session.Execute("window_handles", "GET", nil, &windowsID); err != nil {

@@ -88,6 +88,9 @@ type Page interface {
 	// as well.
 	SwitchToRootFrame() error
 
+	// CloseWindow closes an open tab or window
+	CloseWindow(types.Window) error
+
 	// Windows returns a list of Windows handles, so you can SwitchTo() them
 	Windows() ([]types.Window, error)
 
