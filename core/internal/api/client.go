@@ -60,6 +60,19 @@ func (c *Client) GetWindow() (types.Window, error) {
 	return &window.Window{ID: windowID, Session: c.Session}, nil
 }
 
+func (c *Client) GetWindows() ([]types.Window, error) {
+	var windowsID []string
+	if err := c.Session.Execute("window_handles", "GET", nil, &windowsID); err != nil {
+		return nil, err
+	}
+
+	var windows []types.Window
+	for _, windowID := range windowsID {
+		windows = append(windows, &window.Window{ID: windowID, Session: c.Session})
+	}
+	return windows, nil
+}
+
 func (c *Client) SetCookie(cookie interface{}) error {
 	request := struct {
 		Cookie interface{} `json:"cookie"`

@@ -1,6 +1,10 @@
 package window
 
-import "github.com/sclevine/agouti/core/internal/types"
+import (
+	"fmt"
+
+	"github.com/sclevine/agouti/core/internal/types"
+)
 
 type Window struct {
 	ID      string
@@ -15,6 +19,31 @@ func (w *Window) SetSize(width, height int) error {
 	}{width, height}
 
 	if err := w.Session.Execute(endpoint, "POST", &request, &struct{}{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *Window) SwitchTo() error {
+	request := struct {
+		Handle string `json:"handle"`
+	}{w.ID}
+	if err := w.Session.Execute("window", "POST", &request, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *Window) Close() error {
+	fmt.Println("OK, switching to", w.ID)
+	err := w.SwitchTo()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("OK, Closing now", w.ID)
+	if err := w.Session.Execute("window_handle", "DELETE", nil, nil); err != nil {
+		fmt.Println("OK, failed, here", err)
 		return err
 	}
 	return nil

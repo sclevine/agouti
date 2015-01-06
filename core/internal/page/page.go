@@ -204,6 +204,18 @@ func (p *Page) SwitchToRootFrame() error {
 	return nil
 }
 
+func (p *Page) Window() (types.Window, error) {
+	return p.Client.GetWindow()
+}
+
+func (p *Page) Windows() ([]types.Window, error) {
+	wins, err := p.Client.GetWindows()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get window handles: %s", err)
+	}
+	return wins, nil
+}
+
 func (p *Page) LogTypes() ([]string, error) {
 	types, err := p.Client.GetLogTypes()
 	if err != nil {
