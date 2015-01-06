@@ -1,10 +1,6 @@
 package window
 
-import (
-	"fmt"
-
-	"github.com/sclevine/agouti/core/internal/types"
-)
+import "github.com/sclevine/agouti/core/internal/types"
 
 type Window struct {
 	ID      string
@@ -35,15 +31,12 @@ func (w *Window) SwitchTo() error {
 }
 
 func (w *Window) Close() error {
-	fmt.Println("OK, switching to", w.ID)
 	err := w.SwitchTo()
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("OK, Closing now", w.ID)
-	if err := w.Session.Execute("window_handle", "DELETE", nil, nil); err != nil {
-		fmt.Println("OK, failed, here", err)
+	if err := w.Session.Execute("window", "DELETE", nil, nil); err != nil {
 		return err
 	}
 	return nil
