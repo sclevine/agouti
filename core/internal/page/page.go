@@ -209,33 +209,6 @@ func (p *Page) Window() (types.Window, error) {
 	return p.Client.GetWindow()
 }
 
-func (p *Page) CloseWindow(newWin types.Window) error {
-	win, err := p.Client.GetWindow()
-	fmt.Printf("HEEEYA %#v", win)
-	if err != nil {
-		return fmt.Errorf("failed to get window: %s", err)
-	}
-
-	if err := newWin.SwitchTo(); err != nil {
-		return fmt.Errorf("failed to switch to window: %s", err)
-	}
-	if err := p.Client.DeleteWindow(); err != nil {
-		return fmt.Errorf("failed to close window: %s", err)
-	}
-	if err := win.SwitchTo(); err != nil {
-		return fmt.Errorf("failed to switch back to original window: %s", err)
-	}
-	return nil
-}
-
-func (p *Page) Windows() ([]types.Window, error) {
-	wins, err := p.Client.GetWindows()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get window handles: %s", err)
-	}
-	return wins, nil
-}
-
 func (p *Page) LogTypes() ([]string, error) {
 	types, err := p.Client.GetLogTypes()
 	if err != nil {

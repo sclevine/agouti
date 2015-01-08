@@ -19,13 +19,3 @@ func (w *Window) SetSize(width, height int) error {
 	}
 	return nil
 }
-
-func (w *Window) SwitchTo() error {
-	request := struct {
-		Handle string `json:"handle"`
-	}{w.ID}
-	if err := w.Session.Execute("window", "POST", &request, nil); err != nil {
-		return err
-	}
-	return nil
-}

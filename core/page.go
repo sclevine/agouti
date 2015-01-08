@@ -88,12 +88,6 @@ type Page interface {
 	// as well.
 	SwitchToRootFrame() error
 
-	// CloseWindow closes an open tab or window
-	CloseWindow(types.Window) error
-
-	// Windows returns a list of Windows handles, so you can SwitchTo() them
-	Windows() ([]types.Window, error)
-
 	// ReadLogs returns log messages of the provided log type. For example,
 	// page.ReadLogs("browser") returns browser console logs, such as JavaScript logs
 	// and errors. If the all argument is provided as true, all logs since the session

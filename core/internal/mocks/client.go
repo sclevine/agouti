@@ -34,6 +34,21 @@ type Client struct {
 		Err          error
 	}
 
+	GetWindowsCall struct {
+		ReturnWindows []types.Window
+		Err           error
+	}
+
+	SetWindowCall struct {
+		Window types.Window
+		Err    error
+	}
+
+	DeleteWindowCall struct {
+		Called bool
+		Err    error
+	}
+
 	GetScreenshotCall struct {
 		ReturnImage []byte
 		Err         error
@@ -160,6 +175,20 @@ func (c *Client) GetActiveElement() (types.Element, error) {
 
 func (c *Client) GetWindow() (types.Window, error) {
 	return c.GetWindowCall.ReturnWindow, c.GetWindowCall.Err
+}
+
+func (c *Client) GetWindows() ([]types.Window, error) {
+	return c.GetWindowsCall.ReturnWindows, c.GetWindowsCall.Err
+}
+
+func (c *Client) SetWindow(window types.Window) error {
+	c.SetWindowCall.Window = window
+	return c.SetWindowCall.Err
+}
+
+func (c *Client) DeleteWindow() error {
+	c.DeleteWindowCall.Called = true
+	return c.DeleteWindowCall.Err
 }
 
 func (c *Client) GetScreenshot() ([]byte, error) {

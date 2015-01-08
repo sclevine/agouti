@@ -143,7 +143,7 @@ var _ = Describe("API Client", func() {
 
 		ItShouldMakeARequest("GET", "window_handle")
 
-		It("should return the window with the retrieved ID and session", func() {
+		It("should return the window current with the retrieved ID and client session", func() {
 			Expect(clientWindow.(*window.Window).ID).To(Equal("some-id"))
 			Expect(clientWindow.(*window.Window).Session).To(Equal(session))
 		})
@@ -152,6 +152,66 @@ var _ = Describe("API Client", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
 				_, err := client.GetWindow()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetWindows", func() {
+		var clientWindows []types.Window
+
+		BeforeEach(func() {
+			session.ExecuteCall.Result = `["some-id", "some-other-id"]`
+			clientWindows, err = client.GetWindows()
+		})
+
+		ItShouldMakeARequest("GET", "window_handles")
+
+		It("should return all windows with their retrieved IDs and client session", func() {
+			Expect(clientWindows[0].(*window.Window).ID).To(Equal("some-id"))
+			Expect(clientWindows[0].(*window.Window).Session).To(Equal(session))
+			Expect(clientWindows[1].(*window.Window).ID).To(Equal("some-other-id"))
+			Expect(clientWindows[1].(*window.Window).Session).To(Equal(session))
+		})
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				_, err := client.GetWindows()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#SetWindow", func() {
+		var clientWindow types.Window
+
+		BeforeEach(func() {
+			clientWindow = &window.Window{ID: "some-id"}
+			err = client.SetWindow(clientWindow)
+		})
+
+		ItShouldMakeARequest("POST", "window", `{"name": "some-id"}`)
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.SetWindow(clientWindow)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DeleteWindow", func() {
+		BeforeEach(func() {
+			err = client.DeleteWindow()
+		})
+
+		ItShouldMakeARequest("DELETE", "window")
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				err := client.DeleteWindow()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
