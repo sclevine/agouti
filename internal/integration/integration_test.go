@@ -201,9 +201,28 @@ var _ = Feature("Agouti running on PhantomJS", func() {
 		//})
 		//SwitchToFrame(page.Find("#frame"))
 
-		Step("allows switichng back to the default frame by referring to the root frame", func() {
+		Step("allows switching back to the default frame by referring to the root frame", func() {
 			SwitchToRootFrame(page)
 			Expect(page.Find("body")).NotTo(MatchText("Example Domain"))
+		})
+	})
+
+	Scenario("windows", func() {
+		Click(page.Find("#new_window"))
+		windows, _ := page.WindowCount()
+		Expect(windows).To(Equal(2))
+
+		Step("allows switching windows", func() {
+			Expect(page.SwitchToWindow("new window")).To(Succeed())
+			Expect(page.Find("header")).NotTo(BeFound())
+			Expect(page.NextWindow()).To(Succeed())
+			Expect(page.Find("header")).To(BeFound())
+		})
+
+		Step("allows closing windows", func() {
+			Expect(page.CloseWindow()).To(Succeed())
+			windows, _ := page.WindowCount()
+			Expect(windows).To(Equal(1))
 		})
 	})
 

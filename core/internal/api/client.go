@@ -81,6 +81,14 @@ func (c *Client) SetWindow(clientWindow types.Window) error {
 	return c.Session.Execute("window", "POST", request)
 }
 
+func (c *Client) SetWindowByName(name string) error {
+	request := struct {
+		Name string `json:"name"`
+	}{name}
+
+	return c.Session.Execute("window", "POST", request)
+}
+
 func (c *Client) DeleteWindow() error {
 	if err := c.Session.Execute("window", "DELETE", nil, nil); err != nil {
 		return err

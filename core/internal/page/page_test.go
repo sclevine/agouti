@@ -8,6 +8,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/types"
@@ -15,15 +16,15 @@ import (
 
 var _ = Describe("Page", func() {
 	var (
-		page    *Page
-		client  *mocks.Client
-		element *mocks.Element
-		window  *mocks.Window
+		page         *Page
+		client       *mocks.Client
+		element      *mocks.Element
+		clientWindow *mocks.Window
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		window = &mocks.Window{}
+		clientWindow = &mocks.Window{}
 		element = &mocks.Element{}
 		page = &Page{Client: client}
 	})
@@ -118,10 +119,10 @@ var _ = Describe("Page", func() {
 
 	Describe("#Size", func() {
 		It("should set the window width and height to the provided dimensions", func() {
-			client.GetWindowCall.ReturnWindow = window
+			client.GetWindowCall.ReturnWindow = clientWindow
 			Expect(page.Size(640, 480)).To(Succeed())
-			Expect(window.SizeCall.Width).To(Equal(640))
-			Expect(window.SizeCall.Height).To(Equal(480))
+			Expect(clientWindow.SizeCall.Width).To(Equal(640))
+			Expect(clientWindow.SizeCall.Height).To(Equal(480))
 		})
 
 		Context("when the client fails to retrieve a window", func() {
@@ -133,8 +134,8 @@ var _ = Describe("Page", func() {
 
 		Context("when the window fails to retrieve its size", func() {
 			It("should return an error", func() {
-				client.GetWindowCall.ReturnWindow = window
-				window.SizeCall.Err = errors.New("some error")
+				client.GetWindowCall.ReturnWindow = clientWindow
+				clientWindow.SizeCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
 			})
 		})
@@ -389,6 +390,87 @@ var _ = Describe("Page", func() {
 			It("should return an error", func() {
 				client.FrameCall.Err = errors.New("some error")
 				Expect(page.SwitchToRootFrame()).To(MatchError("failed to switch to original page frame: some error"))
+			})
+		})
+	})
+
+	Describe("#SwitchToWindow", func() {
+		It("should successfully instruct the client to switch to the named window", func() {
+			Expect(page.SwitchToWindow("some name")).To(Succeed())
+			Expect(client.SetWindowByNameCall.Name).To(Equal("some name"))
+		})
+
+		Context("when switching to the root frame fails", func() {
+			It("should return an error", func() {
+				client.SetWindowByNameCall.Err = errors.New("some error")
+				Expect(page.SwitchToWindow("some name")).To(MatchError("failed to switch to named window: some error"))
+			})
+		})
+	})
+
+	Describe("#NextWindow", func() {
+		BeforeEach(func() {
+			firstWindow := &window.Window{ID: "first window"}
+			secondWindow := &window.Window{ID: "second window"}
+			thirdWindow := &window.Window{ID: "third window"}
+			client.GetWindowsCall.ReturnWindows = []types.Window{secondWindow, firstWindow, thirdWindow}
+			client.GetWindowCall.ReturnWindow = firstWindow
+		})
+
+		It("should successfully instruct the client to switch to the next window in sorted order", func() {
+			Expect(page.NextWindow()).To(Succeed())
+			Expect(client.SetWindowCall.Window.(*window.Window).ID).To(Equal("second window"))
+		})
+
+		Context("when retrieving the available windows fails", func() {
+			It("should return an error", func() {
+				client.GetWindowsCall.Err = errors.New("some error")
+				Expect(page.NextWindow()).To(MatchError("failed to find available windows: some error"))
+			})
+		})
+
+		Context("when retrieving the active window fails", func() {
+			It("should return an error", func() {
+				client.GetWindowCall.Err = errors.New("some error")
+				Expect(page.NextWindow()).To(MatchError("failed to find active window: some error"))
+			})
+		})
+
+		Context("when setting the active window fails", func() {
+			It("should return an error", func() {
+				client.SetWindowCall.Err = errors.New("some error")
+				Expect(page.NextWindow()).To(MatchError("failed to change active window: some error"))
+			})
+		})
+	})
+
+	Describe("#CloseWindow", func() {
+		It("should successfully instruct the client to close the active window", func() {
+			Expect(page.CloseWindow()).To(Succeed())
+			Expect(client.DeleteWindowCall.Called).To(BeTrue())
+		})
+
+		Context("when closing the active window fails", func() {
+			It("should return an error", func() {
+				client.DeleteWindowCall.Err = errors.New("some error")
+				Expect(page.CloseWindow()).To(MatchError("failed to close active window: some error"))
+			})
+		})
+	})
+
+	Describe("#WindowCount", func() {
+		It("should successfully return the number of windows from the client", func() {
+			client.GetWindowsCall.ReturnWindows = []types.Window{&window.Window{}, &window.Window{}}
+			count, err := page.WindowCount()
+			Expect(count).To(Equal(2))
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("when retrieving the available windows fails", func() {
+			It("should return an error", func() {
+				client.GetWindowsCall.Err = errors.New("some error")
+				_, err := page.WindowCount()
+				Expect(err).To(MatchError("failed to find available windows: some error"))
 			})
 		})
 	})

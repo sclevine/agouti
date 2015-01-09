@@ -201,6 +201,21 @@ var _ = Describe("API Client", func() {
 		})
 	})
 
+	Describe("#SetWindowByName", func() {
+		BeforeEach(func() {
+			err = client.SetWindowByName("some name")
+		})
+
+		ItShouldMakeARequest("POST", "window", `{"name": "some name"}`)
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.SetWindowByName("some name")).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#DeleteWindow", func() {
 		BeforeEach(func() {
 			err = client.DeleteWindow()

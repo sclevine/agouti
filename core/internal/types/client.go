@@ -4,6 +4,8 @@ type Client interface {
 	DeleteSession() error
 	GetWindow() (Window, error)
 	GetWindows() ([]Window, error)
+	SetWindow(window Window) error
+	SetWindowByName(name string) error
 	DeleteWindow() error
 	GetScreenshot() ([]byte, error)
 	SetCookie(cookie interface{}) error

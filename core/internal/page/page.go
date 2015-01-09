@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
 
-	"regexp"
-
+	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
@@ -205,8 +206,59 @@ func (p *Page) SwitchToRootFrame() error {
 	return nil
 }
 
-func (p *Page) Window() (types.Window, error) {
-	return p.Client.GetWindow()
+func (p *Page) SwitchToWindow(name string) error {
+	if err := p.Client.SetWindowByName(name); err != nil {
+		return fmt.Errorf("failed to switch to named window: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) NextWindow() error {
+	windows, err := p.Client.GetWindows()
+	if err != nil {
+		return fmt.Errorf("failed to find available windows: %s", err)
+	}
+
+	var windowIDs []string
+	for _, clientWindow := range windows {
+		windowIDs = append(windowIDs, clientWindow.(*window.Window).ID)
+	}
+
+	// order not defined according to W3 spec
+	sort.Strings(windowIDs)
+
+	activeWindow, err := p.Client.GetWindow()
+	if err != nil {
+		return fmt.Errorf("failed to find active window: %s", err)
+	}
+
+	activeWindowID := activeWindow.(*window.Window).ID
+	for position, windowID := range windowIDs {
+		if windowID == activeWindowID {
+			activeWindow.(*window.Window).ID = windowIDs[(position+1)%len(windowIDs)]
+		}
+	}
+
+	if err := p.Client.SetWindow(activeWindow); err != nil {
+		return fmt.Errorf("failed to change active window: %s", err)
+	}
+
+	return nil
+}
+
+func (p *Page) CloseWindow() error {
+	if err := p.Client.DeleteWindow(); err != nil {
+		return fmt.Errorf("failed to close active window: %s", err)
+	}
+	return nil
+}
+
+func (p *Page) WindowCount() (int, error) {
+	windows, err := p.Client.GetWindows()
+	if err != nil {
+		return 0, fmt.Errorf("failed to find available windows: %s", err)
+	}
+	return len(windows), nil
 }
 
 func (p *Page) LogTypes() ([]string, error) {

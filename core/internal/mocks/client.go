@@ -44,6 +44,11 @@ type Client struct {
 		Err    error
 	}
 
+	SetWindowByNameCall struct {
+		Name string
+		Err  error
+	}
+
 	DeleteWindowCall struct {
 		Called bool
 		Err    error
@@ -184,6 +189,11 @@ func (c *Client) GetWindows() ([]types.Window, error) {
 func (c *Client) SetWindow(window types.Window) error {
 	c.SetWindowCall.Window = window
 	return c.SetWindowCall.Err
+}
+
+func (c *Client) SetWindowByName(name string) error {
+	c.SetWindowByNameCall.Name = name
+	return c.SetWindowByNameCall.Err
 }
 
 func (c *Client) DeleteWindow() error {

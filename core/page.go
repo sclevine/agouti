@@ -88,6 +88,19 @@ type Page interface {
 	// as well.
 	SwitchToRootFrame() error
 
+	// SwitchToWindow switches to the first available window with the provided name
+	// (JavaScript `window.name` attribute).
+	SwitchToWindow(name string) error
+
+	// NextWindow switches to the next available window.
+	NextWindow() error
+
+	// CloseWindow closes the active window.
+	CloseWindow() error
+
+	// WindowCount returns the number of available windows.
+	WindowCount() (int, error)
+
 	// ReadLogs returns log messages of the provided log type. For example,
 	// page.ReadLogs("browser") returns browser console logs, such as JavaScript logs
 	// and errors. If the all argument is provided as true, all logs since the session
