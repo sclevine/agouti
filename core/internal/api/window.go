@@ -17,3 +17,7 @@ func (w *Window) SetSize(width, height int) error {
 	}
 	return nil
 }
+
+func (w *Window) String() string {
+	return w.ID
+}
