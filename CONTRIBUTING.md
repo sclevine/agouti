@@ -1,31 +1,31 @@
 # Contributing
 
-## Rules for pull requests:
+## Pull Requests:
 
-1. Everything within reason must have BDD-style tests.
+1. Everything (within reason) must have BDD-style tests.
 2. Test driving is very strongly encourage.
-2. Follow all existing patterns and coventions in the codebase.
-3. Before issuing a pull-request, please make sure to rebase your branch against master.
-   If you are okay with the maintainer rebasing your pull, please mention this in the request.
-4. After issuing your pull request, check Travis CI to make sure that all tests still pass.
+3. Follow all existing patterns and conventions in the codebase.
+4. Before issuing a pull-request, please rebase your branch against master.
+   If you are okay with the maintainer rebasing your pull request, please mention this.
+5. After issuing your pull request, check Travis CI to make sure that all tests still pass.
 
 ## Development Setup
 
 * Clone the repository
-* Follow the README instructions to install Ginkgo, Gomega, PhantomJS, ChromeDriver, and Selenium
+* Follow the README.md instructions to install Ginkgo, Gomega, PhantomJS, ChromeDriver, and Selenium
 * Run all of the tests using: `ginkgo -r .`
 * Start developing!
 
 ## Method Naming Conventions
 
-### Page Level
+### Page or Selection Level
 
 * `Name` - Methods that retrieve data or perform some action should not start with "Get", "Is", or "Set".
 * `SetName` - Methods that set data and have a corresponding `Name` method should start with "Set".
 
-### API level
+### API Level
 
-All API method names should be as close to their endpoint name as possible.
+All API method names should be as close to their endpoint names as possible.
 * `GetName` for all GET requests returning a non-boolean
 * `IsName` for all GET requests returning a boolean
 * `SetName` for POST requests that have matching GET requests
