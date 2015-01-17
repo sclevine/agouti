@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type actionsFunc func(Element) error
@@ -92,8 +91,8 @@ func (s *Selection) setChecked(checked bool) error {
 func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(element Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space(text())="%s"]`, text)
-		optionToSelect := types.Selector{Using: "xpath", Value: optionXPath}
-		options, err := element.(elementClient).GetElements(optionToSelect)
+		optionToSelect := Selector{Type: "xpath", Value: optionXPath}
+		options, err := element.(elementClient).GetElements(optionToSelect.API())
 		if err != nil {
 			return fmt.Errorf("failed to select specified option for some '%s': %s", s, err)
 		}

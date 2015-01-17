@@ -8,7 +8,6 @@ import (
 	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Utils", func() {
@@ -34,7 +33,7 @@ var _ = Describe("Utils", func() {
 
 		It("should request elements from the client using the provided selector", func() {
 			selection.Count()
-			Expect(elementRepository.GetCall.Selectors).To(Equal([]types.Selector{types.Selector{Using: "css selector", Value: "#selector"}}))
+			Expect(elementRepository.GetCall.Selectors).To(Equal([]Selector{Selector{Type: "css selector", Value: "#selector"}}))
 		})
 
 		Context("when the client succeeds in retrieving the elements", func() {

@@ -3,8 +3,6 @@ package api
 import (
 	"fmt"
 	"strings"
-
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Element struct {
@@ -12,7 +10,7 @@ type Element struct {
 	Session session
 }
 
-func (e *Element) GetElement(selector types.Selector) (*Element, error) {
+func (e *Element) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 
 	if err := e.Session.Execute(e.url()+"/element", "POST", selector, &result); err != nil {
@@ -22,7 +20,7 @@ func (e *Element) GetElement(selector types.Selector) (*Element, error) {
 	return &Element{result.Element, e.Session}, nil
 }
 
-func (e *Element) GetElements(selector types.Selector) ([]*Element, error) {
+func (e *Element) GetElements(selector Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
 	if err := e.Session.Execute(e.url()+"/elements", "POST", selector, &results); err != nil {

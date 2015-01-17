@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Element", func() {
@@ -47,7 +46,7 @@ var _ = Describe("Element", func() {
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
-			singleElement, err = element.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+			singleElement, err = element.GetElement(Selector{"css selector", "#selector"})
 		})
 
 		ItShouldMakeAnElementRequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
@@ -60,7 +59,7 @@ var _ = Describe("Element", func() {
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err := element.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+				_, err := element.GetElement(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -71,7 +70,7 @@ var _ = Describe("Element", func() {
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
-			elements, err = element.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
+			elements, err = element.GetElements(Selector{"css selector", "#selector"})
 		})
 
 		ItShouldMakeAnElementRequest("POST", "elements", `{"using": "css selector", "value": "#selector"}`)
@@ -86,7 +85,7 @@ var _ = Describe("Element", func() {
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				_, err := element.GetElements(types.Selector{Using: "css selector", Value: "#selector"})
+				_, err := element.GetElements(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})

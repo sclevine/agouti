@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type ElementRepository struct {
@@ -13,8 +12,8 @@ type ElementRepository struct {
 }
 
 type elementClient interface {
-	GetElement(selector types.Selector) (*api.Element, error)
-	GetElements(selector types.Selector) ([]*api.Element, error)
+	GetElement(selector api.Selector) (*api.Element, error)
+	GetElements(selector api.Selector) ([]*api.Element, error)
 }
 
 type Element interface {
@@ -32,7 +31,7 @@ type Element interface {
 	Submit() error
 }
 
-func (e *ElementRepository) GetAtLeastOne(selectors []types.Selector) ([]Element, error) {
+func (e *ElementRepository) GetAtLeastOne(selectors []Selector) ([]Element, error) {
 	elements, err := e.Get(selectors)
 	if err != nil {
 		return nil, err
@@ -45,7 +44,7 @@ func (e *ElementRepository) GetAtLeastOne(selectors []types.Selector) ([]Element
 	return elements, nil
 }
 
-func (e *ElementRepository) GetExactlyOne(selectors []types.Selector) (Element, error) {
+func (e *ElementRepository) GetExactlyOne(selectors []Selector) (Element, error) {
 	elements, err := e.GetAtLeastOne(selectors)
 	if err != nil {
 		return nil, err
@@ -58,7 +57,7 @@ func (e *ElementRepository) GetExactlyOne(selectors []types.Selector) (Element, 
 	return elements[0], nil
 }
 
-func (e *ElementRepository) Get(selectors []types.Selector) ([]Element, error) {
+func (e *ElementRepository) Get(selectors []Selector) ([]Element, error) {
 	if len(selectors) == 0 {
 		return nil, errors.New("empty selection")
 	}
@@ -83,9 +82,9 @@ func (e *ElementRepository) Get(selectors []types.Selector) ([]Element, error) {
 	return lastElements, nil
 }
 
-func retrieveElements(client elementClient, selector types.Selector) ([]Element, error) {
+func retrieveElements(client elementClient, selector Selector) ([]Element, error) {
 	if selector.Single {
-		elements, err := client.GetElements(selector)
+		elements, err := client.GetElements(selector.API())
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +99,7 @@ func retrieveElements(client elementClient, selector types.Selector) ([]Element,
 	}
 
 	if selector.Indexed && selector.Index > 0 {
-		elements, err := client.GetElements(selector)
+		elements, err := client.GetElements(selector.API())
 		if err != nil {
 			return nil, err
 		}
@@ -113,14 +112,14 @@ func retrieveElements(client elementClient, selector types.Selector) ([]Element,
 	}
 
 	if selector.Indexed && selector.Index == 0 {
-		element, err := client.GetElement(selector)
+		element, err := client.GetElement(selector.API())
 		if err != nil {
 			return nil, err
 		}
 		return []Element{Element(element)}, nil
 	}
 
-	elements, err := client.GetElements(selector)
+	elements, err := client.GetElements(selector.API())
 	if err != nil {
 		return nil, err
 	}

@@ -4,18 +4,17 @@ import (
 	"encoding/json"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Client struct {
 	GetElementCall struct {
-		Selector      types.Selector
+		Selector      api.Selector
 		ReturnElement *api.Element
 		Err           error
 	}
 
 	GetElementsCall struct {
-		Selector       types.Selector
+		Selector       api.Selector
 		ReturnElements []*api.Element
 		Err            error
 	}
@@ -165,12 +164,12 @@ func (c *Client) DeleteSession() error {
 	return c.DeleteSessionCall.Err
 }
 
-func (c *Client) GetElement(selector types.Selector) (*api.Element, error) {
+func (c *Client) GetElement(selector api.Selector) (*api.Element, error) {
 	c.GetElementCall.Selector = selector
 	return c.GetElementCall.ReturnElement, c.GetElementCall.Err
 }
 
-func (c *Client) GetElements(selector types.Selector) ([]*api.Element, error) {
+func (c *Client) GetElements(selector api.Selector) ([]*api.Element, error) {
 	c.GetElementsCall.Selector = selector
 	return c.GetElementsCall.ReturnElements, c.GetElementsCall.Err
 }

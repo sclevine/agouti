@@ -1,10 +1,6 @@
 package api
 
-import (
-	"encoding/base64"
-
-	"github.com/sclevine/agouti/core/internal/types"
-)
+import "encoding/base64"
 
 type Client struct {
 	Session session
@@ -16,6 +12,11 @@ type Log struct {
 	Timestamp int64
 }
 
+type Selector struct {
+	Using string `json:"using"`
+	Value string `json:"value"`
+}
+
 type session interface {
 	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
@@ -24,7 +25,7 @@ func (c *Client) DeleteSession() error {
 	return c.Session.Execute("", "DELETE", nil)
 }
 
-func (c *Client) GetElement(selector types.Selector) (*Element, error) {
+func (c *Client) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 
 	if err := c.Session.Execute("element", "POST", selector, &result); err != nil {
@@ -34,7 +35,7 @@ func (c *Client) GetElement(selector types.Selector) (*Element, error) {
 	return &Element{result.Element, c.Session}, nil
 }
 
-func (c *Client) GetElements(selector types.Selector) ([]*Element, error) {
+func (c *Client) GetElements(selector Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
 	if err := c.Session.Execute("elements", "POST", selector, &results); err != nil {

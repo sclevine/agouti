@@ -4,13 +4,12 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Selection struct {
 	Client    apiClient
 	Elements  elementRepository
-	selectors []types.Selector
+	selectors []Selector
 }
 
 type apiClient interface {
@@ -21,13 +20,13 @@ type apiClient interface {
 }
 
 type elementRepository interface {
-	Get(selectors []types.Selector) ([]Element, error)
-	GetAtLeastOne(selectors []types.Selector) ([]Element, error)
-	GetExactlyOne(selectors []types.Selector) (Element, error)
+	Get(selectors []Selector) ([]Element, error)
+	GetAtLeastOne(selectors []Selector) ([]Element, error)
+	GetExactlyOne(selectors []Selector) (Element, error)
 }
 
 func (s *Selection) AppendCSS(cssSelector string) *Selection {
-	selector := types.Selector{Using: "css selector", Value: cssSelector}
+	selector := Selector{Type: "css selector", Value: cssSelector}
 
 	if s.canMergeCSS() {
 		lastIndex := len(s.selectors) - 1
@@ -43,16 +42,16 @@ func (s *Selection) canMergeCSS() bool {
 		return false
 	}
 	last := s.selectors[len(s.selectors)-1]
-	return last.Using == "css selector" && !last.Indexed && !last.Single
+	return last.Type == "css selector" && !last.Indexed && !last.Single
 }
 
 func (s *Selection) AppendXPath(xPathSelector string) *Selection {
-	selector := types.Selector{Using: "xpath", Value: xPathSelector}
+	selector := Selector{Type: "xpath", Value: xPathSelector}
 	return &Selection{s.Client, s.Elements, appendSelector(s.selectors, selector)}
 }
 
 func (s *Selection) AppendLink(text string) *Selection {
-	selector := types.Selector{Using: "link text", Value: text}
+	selector := Selector{Type: "link text", Value: text}
 	return &Selection{s.Client, s.Elements, appendSelector(s.selectors, selector)}
 }
 
@@ -85,7 +84,7 @@ func (s *Selection) At(index int) *Selection {
 	return &Selection{s.Client, s.Elements, appendSelector(s.selectors[:lastIndex], selector)}
 }
 
-func appendSelector(selectors []types.Selector, selector types.Selector) []types.Selector {
-	selectorsCopy := append([]types.Selector(nil), selectors...)
+func appendSelector(selectors []Selector, selector Selector) []Selector {
+	selectorsCopy := append([]Selector(nil), selectors...)
 	return append(selectorsCopy, selector)
 }

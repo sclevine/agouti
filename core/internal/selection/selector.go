@@ -1,13 +1,17 @@
-package types
+package selection
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/sclevine/agouti/core/internal/api"
+)
 
 type Selector struct {
-	Using   string `json:"using"`
-	Value   string `json:"value"`
-	Index   int    `json:"-"`
-	Indexed bool   `json:"-"`
-	Single  bool   `json:"-"`
+	Type    string
+	Value   string
+	Index   int
+	Indexed bool
+	Single  bool
 }
 
 func (s Selector) String() string {
@@ -19,7 +23,7 @@ func (s Selector) String() string {
 		suffix = fmt.Sprintf(" [%d]", s.Index)
 	}
 
-	switch s.Using {
+	switch s.Type {
 	case "css selector":
 		return fmt.Sprintf("CSS: %s%s", s.Value, suffix)
 	case "xpath":
@@ -29,4 +33,8 @@ func (s Selector) String() string {
 	default:
 		return "Invalid selector"
 	}
+}
+
+func (s Selector) API() api.Selector {
+	return api.Selector{Using: s.Type, Value: s.Value}
 }

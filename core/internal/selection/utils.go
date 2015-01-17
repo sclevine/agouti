@@ -2,8 +2,9 @@ package selection
 
 import (
 	"fmt"
-	"github.com/sclevine/agouti/core/internal/api"
 	"strings"
+
+	"github.com/sclevine/agouti/core/internal/api"
 )
 
 func (s *Selection) String() string {

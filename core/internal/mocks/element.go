@@ -2,18 +2,17 @@ package mocks
 
 import (
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Element struct {
 	GetElementCall struct {
-		Selector      types.Selector
+		Selector      api.Selector
 		ReturnElement *api.Element
 		Err           error
 	}
 
 	GetElementsCall struct {
-		Selector       types.Selector
+		Selector       api.Selector
 		ReturnElements []*api.Element
 		Err            error
 	}
@@ -77,12 +76,12 @@ type Element struct {
 	}
 }
 
-func (e *Element) GetElement(selector types.Selector) (*api.Element, error) {
+func (e *Element) GetElement(selector api.Selector) (*api.Element, error) {
 	e.GetElementCall.Selector = selector
 	return e.GetElementCall.ReturnElement, e.GetElementCall.Err
 }
 
-func (e *Element) GetElements(selector types.Selector) ([]*api.Element, error) {
+func (e *Element) GetElements(selector api.Selector) ([]*api.Element, error) {
 	e.GetElementsCall.Selector = selector
 	return e.GetElementsCall.ReturnElements, e.GetElementsCall.Err
 }
