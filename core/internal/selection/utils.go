@@ -2,6 +2,7 @@ package selection
 
 import (
 	"fmt"
+	"github.com/sclevine/agouti/core/internal/api"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ func (s *Selection) String() string {
 }
 
 func (s *Selection) Count() (int, error) {
-	elements, err := s.getElements()
+	elements, err := s.Elements.Get(s.selectors)
 	if err != nil {
 		return 0, fmt.Errorf("failed to select '%s': %s", s, err)
 	}
@@ -25,17 +26,17 @@ func (s *Selection) Count() (int, error) {
 }
 
 func (s *Selection) EqualsElement(other *Selection) (bool, error) {
-	element, err := s.getSelectedElement()
+	element, err := s.Elements.GetExactlyOne(s.selectors)
 	if err != nil {
 		return false, fmt.Errorf("failed to select '%s': %s", s, err)
 	}
 
-	otherElement, err := other.getSelectedElement()
+	otherElement, err := other.Elements.GetExactlyOne(s.selectors)
 	if err != nil {
 		return false, fmt.Errorf("failed to select '%s': %s", other, err)
 	}
 
-	equal, err := element.IsEqualTo(otherElement)
+	equal, err := element.IsEqualTo(otherElement.(*api.Element))
 	if err != nil {
 		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, other, err)
 	}
@@ -44,12 +45,12 @@ func (s *Selection) EqualsElement(other *Selection) (bool, error) {
 }
 
 func (s *Selection) SwitchToFrame() error {
-	element, err := s.getSelectedElement()
+	element, err := s.Elements.GetExactlyOne(s.selectors)
 	if err != nil {
 		return fmt.Errorf("failed to select '%s': %s", s, err)
 	}
 
-	if err := s.Client.Frame(element); err != nil {
+	if err := s.Client.Frame(element.(*api.Element)); err != nil {
 		return fmt.Errorf("failed to switch to frame '%s': %s", s, err)
 	}
 	return nil

@@ -3,9 +3,6 @@ package api
 import (
 	"encoding/base64"
 
-	"errors"
-	"github.com/sclevine/agouti/core/internal/api/element"
-	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
@@ -13,70 +10,76 @@ type Client struct {
 	Session types.Session
 }
 
+type Log struct {
+	Message   string
+	Level     string
+	Timestamp int64
+}
+
 func (c *Client) DeleteSession() error {
 	return c.Session.Execute("", "DELETE", nil)
 }
 
-func (c *Client) GetElement(selector types.Selector) (types.Element, error) {
+func (c *Client) GetElement(selector types.Selector) (*Element, error) {
 	var result struct{ Element string }
 
 	if err := c.Session.Execute("element", "POST", selector, &result); err != nil {
 		return nil, err
 	}
 
-	return &element.Element{ID: result.Element, Session: c.Session}, nil
+	return &Element{result.Element, c.Session}, nil
 }
 
-func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {
+func (c *Client) GetElements(selector types.Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
 	if err := c.Session.Execute("elements", "POST", selector, &results); err != nil {
 		return nil, err
 	}
 
-	elements := []types.Element{}
+	elements := []*Element{}
 	for _, result := range results {
-		elements = append(elements, &element.Element{ID: result.Element, Session: c.Session})
+		elements = append(elements, &Element{result.Element, c.Session})
 	}
 
 	return elements, nil
 }
 
-func (c *Client) GetActiveElement() (types.Element, error) {
+func (c *Client) GetActiveElement() (*Element, error) {
 	var result struct{ Element string }
 
 	if err := c.Session.Execute("element/active", "POST", nil, &result); err != nil {
 		return nil, err
 	}
 
-	return &element.Element{ID: result.Element, Session: c.Session}, nil
+	return &Element{result.Element, c.Session}, nil
 }
 
-func (c *Client) GetWindow() (types.Window, error) {
+func (c *Client) GetWindow() (*Window, error) {
 	var windowID string
 	if err := c.Session.Execute("window_handle", "GET", nil, &windowID); err != nil {
 		return nil, err
 	}
-	return &window.Window{ID: windowID, Session: c.Session}, nil
+	return &Window{windowID, c.Session}, nil
 }
 
-func (c *Client) GetWindows() ([]types.Window, error) {
+func (c *Client) GetWindows() ([]*Window, error) {
 	var windowsID []string
 	if err := c.Session.Execute("window_handles", "GET", nil, &windowsID); err != nil {
 		return nil, err
 	}
 
-	var windows []types.Window
+	var windows []*Window
 	for _, windowID := range windowsID {
-		windows = append(windows, &window.Window{ID: windowID, Session: c.Session})
+		windows = append(windows, &Window{windowID, c.Session})
 	}
 	return windows, nil
 }
 
-func (c *Client) SetWindow(clientWindow types.Window) error {
+func (c *Client) SetWindow(window *Window) error {
 	request := struct {
 		Name string `json:"name"`
-	}{clientWindow.(*window.Window).ID}
+	}{window.ID}
 
 	return c.Session.Execute("window", "POST", request)
 }
@@ -161,12 +164,12 @@ func (c *Client) DoubleClick() error {
 	return c.Session.Execute("doubleclick", "POST", nil)
 }
 
-func (c *Client) MoveTo(region types.Element, point types.Point) error {
+func (c *Client) MoveTo(region *Element, point types.Point) error {
 	request := map[string]interface{}{}
 
 	if region != nil {
 		// TODO: return error if not an element
-		request["element"] = region.(*element.Element).ID
+		request["element"] = region.ID
 	}
 
 	if point != nil {
@@ -182,18 +185,13 @@ func (c *Client) MoveTo(region types.Element, point types.Point) error {
 	return c.Session.Execute("moveto", "POST", request)
 }
 
-func (c *Client) Frame(frame types.Element) error {
+func (c *Client) Frame(frame *Element) error {
 	var elementID interface{}
 
-	switch frame := frame.(type) {
-	case nil:
-		elementID = nil
-	case *element.Element:
+	if frame != nil {
 		elementID = struct {
 			Element string `json:"ELEMENT"`
 		}{frame.ID}
-	default:
-		return errors.New("frame must be an element")
 	}
 
 	request := struct {
@@ -247,12 +245,12 @@ func (c *Client) SetAlertText(text string) error {
 	return c.Session.Execute("alert_text", "POST", request)
 }
 
-func (c *Client) NewLogs(logType string) ([]types.Log, error) {
+func (c *Client) NewLogs(logType string) ([]Log, error) {
 	request := struct {
 		Type string `json:"type"`
 	}{logType}
 
-	var logs []types.Log
+	var logs []Log
 	if err := c.Session.Execute("log", "POST", request, &logs); err != nil {
 		return nil, err
 	}

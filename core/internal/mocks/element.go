@@ -1,17 +1,20 @@
 package mocks
 
-import "github.com/sclevine/agouti/core/internal/types"
+import (
+	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/core/internal/types"
+)
 
 type Element struct {
 	GetElementCall struct {
 		Selector      types.Selector
-		ReturnElement types.Element
+		ReturnElement *api.Element
 		Err           error
 	}
 
 	GetElementsCall struct {
 		Selector       types.Selector
-		ReturnElements []types.Element
+		ReturnElements []*api.Element
 		Err            error
 	}
 
@@ -68,18 +71,18 @@ type Element struct {
 	}
 
 	IsEqualToCall struct {
-		Element      types.Element
+		Element      *api.Element
 		ReturnEquals bool
 		Err          error
 	}
 }
 
-func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
+func (e *Element) GetElement(selector types.Selector) (*api.Element, error) {
 	e.GetElementCall.Selector = selector
 	return e.GetElementCall.ReturnElement, e.GetElementCall.Err
 }
 
-func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {
+func (e *Element) GetElements(selector types.Selector) ([]*api.Element, error) {
 	e.GetElementsCall.Selector = selector
 	return e.GetElementsCall.ReturnElements, e.GetElementsCall.Err
 }
@@ -130,7 +133,7 @@ func (e *Element) Submit() error {
 	return e.SubmitCall.Err
 }
 
-func (e *Element) IsEqualTo(other types.Element) (bool, error) {
+func (e *Element) IsEqualTo(other *api.Element) (bool, error) {
 	e.IsEqualToCall.Element = other
 	return e.IsEqualToCall.ReturnEquals, e.IsEqualToCall.Err
 }

@@ -6,8 +6,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/api/element"
-	"github.com/sclevine/agouti/core/internal/api/window"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	"github.com/sclevine/agouti/core/internal/types"
 )
@@ -60,18 +58,18 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#GetElement", func() {
-		var singleElement types.Element
+		var element *Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
-			singleElement, err = client.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
+			element, err = client.GetElement(types.Selector{Using: "css selector", Value: "#selector"})
 		})
 
 		ItShouldMakeARequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return an element with an ID and session", func() {
-			Expect(singleElement.(*element.Element).ID).To(Equal("some-id"))
-			Expect(singleElement.(*element.Element).Session).To(Equal(session))
+			Expect(element.ID).To(Equal("some-id"))
+			Expect(element.Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -84,7 +82,7 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#GetElements", func() {
-		var elements []types.Element
+		var elements []*Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
@@ -94,10 +92,10 @@ var _ = Describe("API Client", func() {
 		ItShouldMakeARequest("POST", "elements", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return a slice of elements with IDs and sessions", func() {
-			Expect(elements[0].(*element.Element).ID).To(Equal("some-id"))
-			Expect(elements[0].(*element.Element).Session).To(Equal(session))
-			Expect(elements[1].(*element.Element).ID).To(Equal("some-other-id"))
-			Expect(elements[1].(*element.Element).Session).To(Equal(session))
+			Expect(elements[0].ID).To(Equal("some-id"))
+			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[1].ID).To(Equal("some-other-id"))
+			Expect(elements[1].Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -110,18 +108,18 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#GetActiveElement", func() {
-		var singleElement types.Element
+		var element *Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
-			singleElement, err = client.GetActiveElement()
+			element, err = client.GetActiveElement()
 		})
 
 		ItShouldMakeARequest("POST", "element/active")
 
 		It("should return the active element with an ID and session", func() {
-			Expect(singleElement.(*element.Element).ID).To(Equal("some-id"))
-			Expect(singleElement.(*element.Element).Session).To(Equal(session))
+			Expect(element.ID).To(Equal("some-id"))
+			Expect(element.Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -134,18 +132,18 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#GetWindow", func() {
-		var clientWindow types.Window
+		var window *Window
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `"some-id"`
-			clientWindow, err = client.GetWindow()
+			window, err = client.GetWindow()
 		})
 
 		ItShouldMakeARequest("GET", "window_handle")
 
 		It("should return the window current with the retrieved ID and client session", func() {
-			Expect(clientWindow.(*window.Window).ID).To(Equal("some-id"))
-			Expect(clientWindow.(*window.Window).Session).To(Equal(session))
+			Expect(window.ID).To(Equal("some-id"))
+			Expect(window.Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -158,20 +156,20 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#GetWindows", func() {
-		var clientWindows []types.Window
+		var windows []*Window
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `["some-id", "some-other-id"]`
-			clientWindows, err = client.GetWindows()
+			windows, err = client.GetWindows()
 		})
 
 		ItShouldMakeARequest("GET", "window_handles")
 
 		It("should return all windows with their retrieved IDs and client session", func() {
-			Expect(clientWindows[0].(*window.Window).ID).To(Equal("some-id"))
-			Expect(clientWindows[0].(*window.Window).Session).To(Equal(session))
-			Expect(clientWindows[1].(*window.Window).ID).To(Equal("some-other-id"))
-			Expect(clientWindows[1].(*window.Window).Session).To(Equal(session))
+			Expect(windows[0].ID).To(Equal("some-id"))
+			Expect(windows[0].Session).To(Equal(session))
+			Expect(windows[1].ID).To(Equal("some-other-id"))
+			Expect(windows[1].Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -184,11 +182,11 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#SetWindow", func() {
-		var clientWindow types.Window
+		var window *Window
 
 		BeforeEach(func() {
-			clientWindow = &window.Window{ID: "some-id"}
-			err = client.SetWindow(clientWindow)
+			window = &Window{ID: "some-id"}
+			err = client.SetWindow(window)
 		})
 
 		ItShouldMakeARequest("POST", "window", `{"name": "some-id"}`)
@@ -196,7 +194,7 @@ var _ = Describe("API Client", func() {
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetWindow(clientWindow)).To(MatchError("some error"))
+				Expect(client.SetWindow(window)).To(MatchError("some error"))
 			})
 		})
 	})
@@ -428,7 +426,7 @@ var _ = Describe("API Client", func() {
 
 		Context("when an element is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				element := &element.Element{ID: "some-id"}
+				element := &Element{ID: "some-id"}
 				client.MoveTo(element, nil)
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"element": "some-id"}`))
 			})
@@ -458,7 +456,7 @@ var _ = Describe("API Client", func() {
 
 	Describe("#Frame", func() {
 		BeforeEach(func() {
-			err = client.Frame(&element.Element{ID: "some-id"})
+			err = client.Frame(&Element{ID: "some-id"})
 		})
 
 		ItShouldMakeARequest("POST", "frame", `{"id": {"ELEMENT": "some-id"}}`)
@@ -471,17 +469,10 @@ var _ = Describe("API Client", func() {
 			ItShouldMakeARequest("POST", "frame", `{"id": null}`)
 		})
 
-		Context("when the provided frame is not a real element", func() {
-			It("should return an error", func() {
-				err = client.Frame(&mocks.Element{})
-				Expect(err).To(MatchError("frame must be an element"))
-			})
-		})
-
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Frame(&element.Element{ID: "some-id"})).To(MatchError("some error"))
+				Expect(client.Frame(&Element{ID: "some-id"})).To(MatchError("some error"))
 			})
 		})
 	})
@@ -610,7 +601,7 @@ var _ = Describe("API Client", func() {
 	})
 
 	Describe("#NewLogs", func() {
-		var logs []types.Log
+		var logs []Log
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[

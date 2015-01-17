@@ -1,4 +1,4 @@
-package element
+package api
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ type Element struct {
 	Session types.Session
 }
 
-func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
+func (e *Element) GetElement(selector types.Selector) (*Element, error) {
 	var result struct{ Element string }
 
 	if err := e.Session.Execute(e.url()+"/element", "POST", selector, &result); err != nil {
@@ -22,14 +22,14 @@ func (e *Element) GetElement(selector types.Selector) (types.Element, error) {
 	return &Element{result.Element, e.Session}, nil
 }
 
-func (e *Element) GetElements(selector types.Selector) ([]types.Element, error) {
+func (e *Element) GetElements(selector types.Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
 	if err := e.Session.Execute(e.url()+"/elements", "POST", selector, &results); err != nil {
 		return nil, err
 	}
 
-	elements := []types.Element{}
+	elements := []*Element{}
 	for _, result := range results {
 		elements = append(elements, &Element{result.Element, e.Session})
 	}
@@ -105,9 +105,9 @@ func (e *Element) Submit() error {
 	return e.Session.Execute(e.url()+"/submit", "POST", nil)
 }
 
-func (e *Element) IsEqualTo(other types.Element) (bool, error) {
+func (e *Element) IsEqualTo(other *Element) (bool, error) {
 	var equal bool
-	if err := e.Session.Execute(e.url()+"/equals/"+other.(*Element).ID, "GET", nil, &equal); err != nil {
+	if err := e.Session.Execute(e.url()+"/equals/"+other.ID, "GET", nil, &equal); err != nil {
 		return false, err
 	}
 	return equal, nil

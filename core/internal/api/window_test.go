@@ -1,11 +1,11 @@
-package window_test
+package api_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core/internal/api/window"
+	. "github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 )
 

@@ -1,10 +1,11 @@
 package core
 
 import (
+	"time"
+
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
-	"time"
 )
 
 // A Page represents an open browser session. Pages may be created using the
@@ -127,8 +128,9 @@ type Log struct {
 	Time time.Time
 }
 
-func newPage(client types.Client) Page {
-	emptySelection := &selection.Selection{Client: client}
+func newPage(client *api.Client) Page {
+	elementRepository := &selection.ElementRepository{Client: client}
+	emptySelection := &selection.Selection{Client: client, Elements: elementRepository}
 	pageSelection := &userSelection{emptySelection}
 	return &userPage{&page.Page{Client: client}, pageSelection}
 }

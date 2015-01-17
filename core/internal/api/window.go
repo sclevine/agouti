@@ -1,4 +1,4 @@
-package window
+package api
 
 import "github.com/sclevine/agouti/core/internal/types"
 

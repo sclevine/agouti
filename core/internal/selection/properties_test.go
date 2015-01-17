@@ -5,53 +5,32 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Selection", func() {
 	var (
-		selection     *Selection
-		client        *mocks.Client
-		element       *mocks.Element
-		secondElement *mocks.Element
+		selection         *Selection
+		client            *mocks.Client
+		elementRepository *mocks.ElementRepository
+		element           *mocks.Element
+		secondElement     *mocks.Element
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
 		element = &mocks.Element{}
 		secondElement = &mocks.Element{}
-		emptySelection := &Selection{Client: client}
+		elementRepository = &mocks.ElementRepository{}
+		emptySelection := &Selection{Client: client, Elements: elementRepository}
 		selection = emptySelection.AppendCSS("#selector")
 	})
 
-	ItShouldEnsureASingleElement := func(matcher func() error) {
-		Context("when multiple elements are returned", func() {
-			It("should return an error with the number of elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{element, secondElement}
-				Expect(matcher()).To(MatchError("failed to select 'CSS: #selector': method does not support multiple elements (2)"))
-			})
-		})
-	}
-
-	ItShouldEnsureAtLeastOneElement := func(matcher func() error) {
-		Context("when zero elements are returned", func() {
-			It("should return an error with the number of elements", func() {
-				client.GetElementsCall.ReturnElements = []types.Element{}
-				Expect(matcher()).To(MatchError("failed to select 'CSS: #selector': no elements found"))
-			})
-		})
-	}
-
 	Describe("#Text", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element}
-		})
-
-		ItShouldEnsureASingleElement(func() error {
-			_, err := selection.Text()
-			return err
+			elementRepository.GetExactlyOneCall.ReturnElement = element
 		})
 
 		Context("when the client fails to retrieve the element text", func() {
@@ -74,12 +53,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Active", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element}
-		})
-
-		ItShouldEnsureASingleElement(func() error {
-			_, err := selection.Active()
-			return err
+			elementRepository.GetExactlyOneCall.ReturnElement = element
 		})
 
 		Context("when the client fails to retrieve the active element", func() {
@@ -91,7 +65,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("should compare the active and selected elements", func() {
-			activeElement := &mocks.Element{}
+			activeElement := &api.Element{}
 			client.GetActiveElementCall.ReturnElement = activeElement
 			selection.Active()
 			Expect(element.IsEqualToCall.Element).To(Equal(activeElement))
@@ -126,12 +100,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Attribute", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element}
-		})
-
-		ItShouldEnsureASingleElement(func() error {
-			_, err := selection.Text()
-			return err
+			elementRepository.GetExactlyOneCall.ReturnElement = element
 		})
 
 		It("should request the attribute value using the attribute name", func() {
@@ -159,12 +128,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#CSS", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element}
-		})
-
-		ItShouldEnsureASingleElement(func() error {
-			_, err := selection.Text()
-			return err
+			elementRepository.GetExactlyOneCall.ReturnElement = element
 		})
 
 		It("should successfully request the CSS property value using the property name", func() {
@@ -192,12 +156,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Selected", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element, secondElement}
-		})
-
-		ItShouldEnsureAtLeastOneElement(func() error {
-			_, err := selection.Selected()
-			return err
+			elementRepository.GetAtLeastOneCall.ReturnElements = []Element{element, secondElement}
 		})
 
 		Context("when the the client fails to retrieve any elements' selected status", func() {
@@ -230,12 +189,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Visible", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element, secondElement}
-		})
-
-		ItShouldEnsureAtLeastOneElement(func() error {
-			_, err := selection.Visible()
-			return err
+			elementRepository.GetAtLeastOneCall.ReturnElements = []Element{element, secondElement}
 		})
 
 		Context("when the the client fails to retrieve any elements' visible status", func() {
@@ -268,12 +222,7 @@ var _ = Describe("Selection", func() {
 
 	Describe("#Enabled", func() {
 		BeforeEach(func() {
-			client.GetElementsCall.ReturnElements = []types.Element{element, secondElement}
-		})
-
-		ItShouldEnsureAtLeastOneElement(func() error {
-			_, err := selection.Enabled()
-			return err
+			elementRepository.GetAtLeastOneCall.ReturnElements = []Element{element, secondElement}
 		})
 
 		Context("when the the client fails to retrieve any elements' enabled status", func() {

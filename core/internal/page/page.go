@@ -9,12 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/api/window"
-	"github.com/sclevine/agouti/core/internal/types"
+	"github.com/sclevine/agouti/core/internal/api"
 )
 
 type Page struct {
-	Client types.Client
+	Client apiClient
 	logs   map[string][]Log
 }
 
@@ -23,6 +22,33 @@ type Log struct {
 	Location string
 	Level    string
 	Time     time.Time
+}
+
+type apiClient interface {
+	DeleteSession() error
+	GetWindow() (*api.Window, error)
+	GetWindows() ([]*api.Window, error)
+	SetWindow(window *api.Window) error
+	SetWindowByName(name string) error
+	DeleteWindow() error
+	GetScreenshot() ([]byte, error)
+	SetCookie(cookie interface{}) error
+	DeleteCookie(name string) error
+	DeleteCookies() error
+	GetURL() (string, error)
+	SetURL(url string) error
+	GetTitle() (string, error)
+	GetSource() (string, error)
+	Frame(frame *api.Element) error
+	FrameParent() error
+	Execute(body string, arguments []interface{}, result interface{}) error
+	Forward() error
+	Back() error
+	Refresh() error
+	GetAlertText() (string, error)
+	SetAlertText(text string) error
+	NewLogs(logType string) ([]api.Log, error)
+	GetLogTypes() ([]string, error)
 }
 
 func (p *Page) Destroy() error {
@@ -220,8 +246,8 @@ func (p *Page) NextWindow() error {
 	}
 
 	var windowIDs []string
-	for _, clientWindow := range windows {
-		windowIDs = append(windowIDs, clientWindow.(*window.Window).ID)
+	for _, window := range windows {
+		windowIDs = append(windowIDs, window.ID)
 	}
 
 	// order not defined according to W3 spec
@@ -232,10 +258,10 @@ func (p *Page) NextWindow() error {
 		return fmt.Errorf("failed to find active window: %s", err)
 	}
 
-	activeWindowID := activeWindow.(*window.Window).ID
 	for position, windowID := range windowIDs {
-		if windowID == activeWindowID {
-			activeWindow.(*window.Window).ID = windowIDs[(position+1)%len(windowIDs)]
+		if windowID == activeWindow.ID {
+			activeWindow.ID = windowIDs[(position+1)%len(windowIDs)]
+			break
 		}
 	}
 

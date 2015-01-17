@@ -3,24 +3,25 @@ package mocks
 import (
 	"encoding/json"
 
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Client struct {
 	GetElementCall struct {
 		Selector      types.Selector
-		ReturnElement types.Element
+		ReturnElement *api.Element
 		Err           error
 	}
 
 	GetElementsCall struct {
 		Selector       types.Selector
-		ReturnElements []types.Element
+		ReturnElements []*api.Element
 		Err            error
 	}
 
 	GetActiveElementCall struct {
-		ReturnElement types.Element
+		ReturnElement *api.Element
 		Err           error
 	}
 
@@ -30,17 +31,17 @@ type Client struct {
 	}
 
 	GetWindowCall struct {
-		ReturnWindow types.Window
+		ReturnWindow *api.Window
 		Err          error
 	}
 
 	GetWindowsCall struct {
-		ReturnWindows []types.Window
+		ReturnWindows []*api.Window
 		Err           error
 	}
 
 	SetWindowCall struct {
-		Window types.Window
+		Window *api.Window
 		Err    error
 	}
 
@@ -100,13 +101,13 @@ type Client struct {
 	}
 
 	MoveToCall struct {
-		Element types.Element
+		Element *api.Element
 		Point   types.Point
 		Err     error
 	}
 
 	FrameCall struct {
-		Frame types.Element
+		Frame *api.Element
 		Err   error
 	}
 
@@ -149,7 +150,7 @@ type Client struct {
 
 	NewLogsCall struct {
 		LogType    string
-		ReturnLogs []types.Log
+		ReturnLogs []api.Log
 		Err        error
 	}
 
@@ -164,29 +165,29 @@ func (c *Client) DeleteSession() error {
 	return c.DeleteSessionCall.Err
 }
 
-func (c *Client) GetElement(selector types.Selector) (types.Element, error) {
+func (c *Client) GetElement(selector types.Selector) (*api.Element, error) {
 	c.GetElementCall.Selector = selector
 	return c.GetElementCall.ReturnElement, c.GetElementCall.Err
 }
 
-func (c *Client) GetElements(selector types.Selector) ([]types.Element, error) {
+func (c *Client) GetElements(selector types.Selector) ([]*api.Element, error) {
 	c.GetElementsCall.Selector = selector
 	return c.GetElementsCall.ReturnElements, c.GetElementsCall.Err
 }
 
-func (c *Client) GetActiveElement() (types.Element, error) {
+func (c *Client) GetActiveElement() (*api.Element, error) {
 	return c.GetActiveElementCall.ReturnElement, c.GetActiveElementCall.Err
 }
 
-func (c *Client) GetWindow() (types.Window, error) {
+func (c *Client) GetWindow() (*api.Window, error) {
 	return c.GetWindowCall.ReturnWindow, c.GetWindowCall.Err
 }
 
-func (c *Client) GetWindows() ([]types.Window, error) {
+func (c *Client) GetWindows() ([]*api.Window, error) {
 	return c.GetWindowsCall.ReturnWindows, c.GetWindowsCall.Err
 }
 
-func (c *Client) SetWindow(window types.Window) error {
+func (c *Client) SetWindow(window *api.Window) error {
 	c.SetWindowCall.Window = window
 	return c.SetWindowCall.Err
 }
@@ -242,13 +243,13 @@ func (c *Client) DoubleClick() error {
 	return c.DoubleClickCall.Err
 }
 
-func (c *Client) MoveTo(element types.Element, point types.Point) error {
+func (c *Client) MoveTo(element *api.Element, point types.Point) error {
 	c.MoveToCall.Element = element
 	c.MoveToCall.Point = point
 	return c.MoveToCall.Err
 }
 
-func (c *Client) Frame(frame types.Element) error {
+func (c *Client) Frame(frame *api.Element) error {
 	c.FrameCall.Frame = frame
 	return c.FrameCall.Err
 }
@@ -289,7 +290,7 @@ func (c *Client) SetAlertText(text string) error {
 	return c.SetAlertTextCall.Err
 }
 
-func (c *Client) NewLogs(logType string) ([]types.Log, error) {
+func (c *Client) NewLogs(logType string) ([]api.Log, error) {
 	c.NewLogsCall.LogType = logType
 	return c.NewLogsCall.ReturnLogs, c.NewLogsCall.Err
 }

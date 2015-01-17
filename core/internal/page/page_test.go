@@ -8,24 +8,19 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/core/internal/api/window"
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/page"
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 var _ = Describe("Page", func() {
 	var (
-		page         *Page
-		client       *mocks.Client
-		element      *mocks.Element
-		clientWindow *mocks.Window
+		page   *Page
+		client *mocks.Client
 	)
 
 	BeforeEach(func() {
 		client = &mocks.Client{}
-		clientWindow = &mocks.Window{}
-		element = &mocks.Element{}
 		page = &Page{Client: client}
 	})
 
@@ -118,11 +113,20 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Size", func() {
+		var (
+			windowSession *mocks.Session
+			window        *api.Window
+		)
+
+		BeforeEach(func() {
+			windowSession = &mocks.Session{}
+			window = &api.Window{Session: windowSession}
+		})
+
 		It("should set the window width and height to the provided dimensions", func() {
-			client.GetWindowCall.ReturnWindow = clientWindow
+			client.GetWindowCall.ReturnWindow = window
 			Expect(page.Size(640, 480)).To(Succeed())
-			Expect(clientWindow.SizeCall.Width).To(Equal(640))
-			Expect(clientWindow.SizeCall.Height).To(Equal(480))
+			Expect(windowSession.ExecuteCall.BodyJSON).To(MatchJSON(`{"width": 640, "height": 480}`))
 		})
 
 		Context("when the client fails to retrieve a window", func() {
@@ -134,8 +138,8 @@ var _ = Describe("Page", func() {
 
 		Context("when the window fails to retrieve its size", func() {
 			It("should return an error", func() {
-				client.GetWindowCall.ReturnWindow = clientWindow
-				clientWindow.SizeCall.Err = errors.New("some error")
+				client.GetWindowCall.ReturnWindow = window
+				windowSession.ExecuteCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
 			})
 		})
@@ -381,7 +385,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#SwitchToRootFrame", func() {
 		It("should successfully instruct the client to change focus to the root frame", func() {
-			client.FrameCall.Frame = &mocks.Element{}
+			client.FrameCall.Frame = &api.Element{}
 			Expect(page.SwitchToRootFrame()).To(Succeed())
 			Expect(client.FrameCall.Frame).To(BeNil())
 		})
@@ -410,16 +414,16 @@ var _ = Describe("Page", func() {
 
 	Describe("#NextWindow", func() {
 		BeforeEach(func() {
-			firstWindow := &window.Window{ID: "first window"}
-			secondWindow := &window.Window{ID: "second window"}
-			thirdWindow := &window.Window{ID: "third window"}
-			client.GetWindowsCall.ReturnWindows = []types.Window{secondWindow, firstWindow, thirdWindow}
+			firstWindow := &api.Window{ID: "first window"}
+			secondWindow := &api.Window{ID: "second window"}
+			thirdWindow := &api.Window{ID: "third window"}
+			client.GetWindowsCall.ReturnWindows = []*api.Window{secondWindow, firstWindow, thirdWindow}
 			client.GetWindowCall.ReturnWindow = firstWindow
 		})
 
 		It("should successfully instruct the client to switch to the next window in sorted order", func() {
 			Expect(page.NextWindow()).To(Succeed())
-			Expect(client.SetWindowCall.Window.(*window.Window).ID).To(Equal("second window"))
+			Expect(client.SetWindowCall.Window.ID).To(Equal("second window"))
 		})
 
 		Context("when retrieving the available windows fails", func() {
@@ -460,7 +464,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#WindowCount", func() {
 		It("should successfully return the number of windows from the client", func() {
-			client.GetWindowsCall.ReturnWindows = []types.Window{&window.Window{}, &window.Window{}}
+			client.GetWindowsCall.ReturnWindows = []*api.Window{&api.Window{}, &api.Window{}}
 			count, err := page.WindowCount()
 			Expect(count).To(Equal(2))
 			Expect(err).NotTo(HaveOccurred())
@@ -492,9 +496,9 @@ var _ = Describe("Page", func() {
 
 		Describe("returned logs", func() {
 			BeforeEach(func() {
-				client.NewLogsCall.ReturnLogs = []types.Log{types.Log{"old log", "old level", 1418196096123}}
+				client.NewLogsCall.ReturnLogs = []api.Log{api.Log{"old log", "old level", 1418196096123}}
 				page.ReadLogs("some type")
-				client.NewLogsCall.ReturnLogs = []types.Log{types.Log{"new log (1:22)", "new level", 1418196097543}}
+				client.NewLogsCall.ReturnLogs = []api.Log{api.Log{"new log (1:22)", "new level", 1418196097543}}
 			})
 
 			Context("when only new logs are requested", func() {

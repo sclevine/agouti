@@ -3,13 +3,14 @@ package selection
 import (
 	"fmt"
 
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/types"
 )
 
-type actionsFunc func(types.Element) error
+type actionsFunc func(Element) error
 
 func (s *Selection) forEachElement(actions actionsFunc) error {
-	elements, err := s.getSelectedElements()
+	elements, err := s.Elements.GetAtLeastOne(s.selectors)
 	if err != nil {
 		return fmt.Errorf("failed to select '%s': %s", s, err)
 	}
@@ -23,7 +24,7 @@ func (s *Selection) forEachElement(actions actionsFunc) error {
 }
 
 func (s *Selection) Click() error {
-	return s.forEachElement(func(element types.Element) error {
+	return s.forEachElement(func(element Element) error {
 		if err := element.Click(); err != nil {
 			return fmt.Errorf("failed to click on '%s': %s", s, err)
 		}
@@ -32,8 +33,8 @@ func (s *Selection) Click() error {
 }
 
 func (s *Selection) DoubleClick() error {
-	return s.forEachElement(func(element types.Element) error {
-		if err := s.Client.MoveTo(element, nil); err != nil {
+	return s.forEachElement(func(element Element) error {
+		if err := s.Client.MoveTo(element.(*api.Element), nil); err != nil {
 			return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
 		}
 		if err := s.Client.DoubleClick(); err != nil {
@@ -44,7 +45,7 @@ func (s *Selection) DoubleClick() error {
 }
 
 func (s *Selection) Fill(text string) error {
-	return s.forEachElement(func(element types.Element) error {
+	return s.forEachElement(func(element Element) error {
 		if err := element.Clear(); err != nil {
 			return fmt.Errorf("failed to clear '%s': %s", s, err)
 		}
@@ -64,7 +65,7 @@ func (s *Selection) Uncheck() error {
 }
 
 func (s *Selection) setChecked(checked bool) error {
-	return s.forEachElement(func(element types.Element) error {
+	return s.forEachElement(func(element Element) error {
 		elementType, err := element.GetAttribute("type")
 		if err != nil {
 			return fmt.Errorf("failed to retrieve type of '%s': %s", s, err)
@@ -89,10 +90,10 @@ func (s *Selection) setChecked(checked bool) error {
 }
 
 func (s *Selection) Select(text string) error {
-	return s.forEachElement(func(element types.Element) error {
+	return s.forEachElement(func(element Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space(text())="%s"]`, text)
 		optionToSelect := types.Selector{Using: "xpath", Value: optionXPath}
-		options, err := element.GetElements(optionToSelect)
+		options, err := element.(elementClient).GetElements(optionToSelect)
 		if err != nil {
 			return fmt.Errorf("failed to select specified option for some '%s': %s", s, err)
 		}
@@ -111,7 +112,7 @@ func (s *Selection) Select(text string) error {
 }
 
 func (s *Selection) Submit() error {
-	return s.forEachElement(func(element types.Element) error {
+	return s.forEachElement(func(element Element) error {
 		if err := element.Submit(); err != nil {
 			return fmt.Errorf("failed to submit '%s': %s", s, err)
 		}

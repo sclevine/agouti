@@ -1,11 +1,11 @@
-package element_test
+package api_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core/internal/api/element"
+	. "github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	"github.com/sclevine/agouti/core/internal/types"
 )
@@ -43,7 +43,7 @@ var _ = Describe("Element", func() {
 	}
 
 	Describe("#GetElement", func() {
-		var singleElement types.Element
+		var singleElement *Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
@@ -53,8 +53,8 @@ var _ = Describe("Element", func() {
 		ItShouldMakeAnElementRequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return an element with an ID and session", func() {
-			Expect(singleElement.(*Element).ID).To(Equal("some-id"))
-			Expect(singleElement.(*Element).Session).To(Equal(session))
+			Expect(singleElement.ID).To(Equal("some-id"))
+			Expect(singleElement.Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
@@ -67,7 +67,7 @@ var _ = Describe("Element", func() {
 	})
 
 	Describe("#GetElements", func() {
-		var elements []types.Element
+		var elements []*Element
 
 		BeforeEach(func() {
 			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
@@ -77,10 +77,10 @@ var _ = Describe("Element", func() {
 		ItShouldMakeAnElementRequest("POST", "elements", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return a slice of elements with IDs and sessions", func() {
-			Expect(elements[0].(*Element).ID).To(Equal("some-id"))
-			Expect(elements[0].(*Element).Session).To(Equal(session))
-			Expect(elements[1].(*Element).ID).To(Equal("some-other-id"))
-			Expect(elements[1].(*Element).Session).To(Equal(session))
+			Expect(elements[0].ID).To(Equal("some-id"))
+			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[1].ID).To(Equal("some-other-id"))
+			Expect(elements[1].Session).To(Equal(session))
 		})
 
 		Context("when the session indicates a failure", func() {
