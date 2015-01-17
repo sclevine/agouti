@@ -7,13 +7,17 @@ import (
 )
 
 type Client struct {
-	Session types.Session
+	Session session
 }
 
 type Log struct {
 	Message   string
 	Level     string
 	Timestamp int64
+}
+
+type session interface {
+	Execute(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
 func (c *Client) DeleteSession() error {

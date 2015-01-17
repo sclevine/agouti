@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/types"
+	"github.com/sclevine/agouti/core/internal/session"
 )
 
 // WebDriver controls a Selenium, PhantomJS, or ChromeDriver process.
@@ -25,8 +25,14 @@ type WebDriver interface {
 }
 
 type driver struct {
-	service types.Service
+	service driverService
 	pages   []Page
+}
+
+type driverService interface {
+	URL() (string, error)
+	Start() error
+	Stop()
 }
 
 func (d *driver) Page(config ...Capabilities) (Page, error) {
@@ -36,9 +42,14 @@ func (d *driver) Page(config ...Capabilities) (Page, error) {
 		return nil, errors.New("too many arguments")
 	}
 
-	pageSession, err := d.service.CreateSession(config[0])
+	url, err := d.service.URL()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate page: %s", err)
+		return nil, fmt.Errorf("WebDriver not started: %s", err)
+	}
+
+	pageSession, err := session.Open(url, config[0])
+	if err != nil {
+		return nil, fmt.Errorf("failed to open session: %s", err)
 	}
 
 	client := &api.Client{Session: pageSession}

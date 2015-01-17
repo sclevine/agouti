@@ -1,16 +1,13 @@
 package service_test
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/service"
-	"github.com/sclevine/agouti/core/internal/session"
 )
 
 var _ = Describe("Service", func() {
@@ -31,54 +28,28 @@ var _ = Describe("Service", func() {
 		}))
 
 		service = &Service{
-			URL:     fakeServer.URL,
-			Timeout: 1500 * time.Millisecond,
-			Command: []string{"cat"},
+			URLTemplate: fakeServer.URL,
+			CmdTemplate: []string{"true"},
+			Timeout:     1500 * time.Millisecond,
 		}
 	})
 
-	Describe("#CreateSession", func() {
-		var capabilities *mocks.JSON
-
-		BeforeEach(func() {
-			capabilities = &mocks.JSON{ReturnJSON: `{"some": "json"}`}
-		})
-
+	Describe("#URL", func() {
 		Context("when the server is not running", func() {
 			It("should return an error", func() {
-				_, err := service.CreateSession(capabilities)
-				Expect(err).To(MatchError("cat not running"))
+				_, err := service.URL()
+				Expect(err).To(MatchError("not running"))
 			})
 		})
 
 		Context("when the server is running", func() {
-			It("should attempt to open a session using the desired capabilties", func() {
+			It("should successfully return the URL", func() {
 				defer service.Stop()
 				started = true
 				service.Start()
-				var requestBody string
-				fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-					requestBodyBytes, _ := ioutil.ReadAll(request.Body)
-					requestBody = string(requestBodyBytes)
-					response.Write([]byte(`{"sessionId": "some-id"}`))
-				}))
-				defer fakeServer.Close()
-				service.URL = fakeServer.URL
-				newSession, err := service.CreateSession(capabilities)
+				url, err := service.URL()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(requestBody).To(MatchJSON(`{"some": "json"}`))
-				Expect(newSession.(*session.Session).URL).To(ContainSubstring("/session/some-id"))
-			})
-
-			Context("when opening a new session fails", func() {
-				It("should return the session error", func() {
-					defer service.Stop()
-					started = true
-					service.Start()
-					service.URL = "%@#$%"
-					_, err := service.CreateSession(capabilities)
-					Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
-				})
+				Expect(url).To(MatchRegexp(`http://127.0.0.1:\d+`))
 			})
 		})
 	})
@@ -89,14 +60,25 @@ var _ = Describe("Service", func() {
 				defer service.Stop()
 				started = true
 				Expect(service.Start()).To(Succeed())
-				Expect(service.Start()).To(MatchError("cat is already running"))
+				Expect(service.Start()).To(MatchError("already running"))
 			})
 		})
 
 		Context("when the binary is not available in PATH", func() {
 			It("should return an error indicating the binary needs to be installed", func() {
-				service.Command = []string{"not-in-path"}
-				Expect(service.Start()).To(MatchError("unable to run not-in-path: exec: \"not-in-path\": executable file not found in $PATH"))
+				service.CmdTemplate = []string{"not-in-path"}
+				Expect(service.Start()).To(MatchError("failed to run command: exec: \"not-in-path\": executable file not found in $PATH"))
+			})
+		})
+
+		Context("when the service does not start before the provided timeout", func() {
+			It("should return an error", func() {
+				defer service.Stop()
+				go func() {
+					time.Sleep(3000 * time.Millisecond)
+					started = true
+				}()
+				Expect(service.Start()).To(MatchError("failed to start before timeout"))
 			})
 		})
 
@@ -111,14 +93,59 @@ var _ = Describe("Service", func() {
 			})
 		})
 
-		Context("when the service does not start before the provided timeout", func() {
-			It("should return an error", func() {
-				defer service.Stop()
-				go func() {
-					time.Sleep(3000 * time.Millisecond)
+		Context("when provided with a templated URL", func() {
+			Context("when the template is invalid", func() {
+				It("should return an error", func() {
+					defer service.Stop()
+					service.URLTemplate = "{{}}"
+					Expect(service.Start()).To(MatchError("failed to parse URL: template: URL:1: missing value for command"))
+				})
+			})
+
+			Context("when the template does not match the provided parameters", func() {
+				It("should return an error", func() {
+					defer service.Stop()
+					service.URLTemplate = "{{.Bad}}"
+					Expect(service.Start()).To(MatchError("failed to parse URL: template: URL:1:2: executing \"URL\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
+				})
+			})
+
+			Context("when the template is valid", func() {
+				It("should store a templated URL", func() {
+					defer service.Stop()
 					started = true
-				}()
-				Expect(service.Start()).To(MatchError("cat failed to start"))
+					service.URLTemplate += "/status?test&{{.Address}}&{{.Host}}:{{.Port}}"
+					service.Start()
+					url, _ := service.URL()
+					Expect(url).To(MatchRegexp(`test&127\.0\.0\.1:\d+&127\.0\.0\.1:\d+`))
+				})
+			})
+		})
+
+		Context("when provided with a templated command", func() {
+			Context("when the template is invalid", func() {
+				It("should return an error", func() {
+					defer service.Stop()
+					service.CmdTemplate = []string{"correct", "{{}}"}
+					Expect(service.Start()).To(MatchError("failed to parse command: template: command:1: missing value for command"))
+				})
+			})
+
+			Context("when the template does not match the provided parameters", func() {
+				It("should return an error", func() {
+					defer service.Stop()
+					service.CmdTemplate = []string{"correct", "{{.Bad}}"}
+					Expect(service.Start()).To(MatchError("failed to parse command: template: command:1:2: executing \"command\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
+				})
+			})
+
+			Context("when the template is valid", func() {
+				It("should not return an error", func() {
+					defer service.Stop()
+					started = true
+					service.CmdTemplate = []string{"true", "{{.Address}}{{.Host}}{{.Port}}"}
+					Expect(service.Start()).To(Succeed())
+				})
 			})
 		})
 	})

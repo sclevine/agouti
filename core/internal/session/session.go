@@ -9,12 +9,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-
-	"github.com/sclevine/agouti/core/internal/types"
 )
 
 type Session struct {
 	URL string
+}
+
+type jsonable interface {
+	JSON() (string, error)
 }
 
 func (s *Session) Execute(endpoint, method string, body interface{}, result ...interface{}) error {
@@ -69,7 +71,7 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	return nil
 }
 
-func Open(url string, capabilities types.JSON) (*Session, error) {
+func Open(url string, capabilities jsonable) (*Session, error) {
 	capabiltiesJSON, err := capabilities.JSON()
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ import (
 
 type Element struct {
 	ID      string
-	Session types.Session
+	Session session
 }
 
 func (e *Element) GetElement(selector types.Selector) (*Element, error) {

@@ -1,10 +1,8 @@
 package api
 
-import "github.com/sclevine/agouti/core/internal/types"
-
 type Window struct {
 	ID      string
-	Session types.Session
+	Session session
 }
 
 func (w *Window) SetSize(width, height int) error {

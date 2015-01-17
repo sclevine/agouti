@@ -3,8 +3,6 @@ package core
 
 import (
 	"fmt"
-	"net"
-	"strings"
 	"time"
 
 	"github.com/sclevine/agouti/core/internal/api"
@@ -14,55 +12,59 @@ import (
 
 // Chrome returns an instance of a ChromeDriver WebDriver.
 func Chrome() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	chrome := &service.Service{
+		URLTemplate: "http://{{.Address}}",
+		CmdTemplate: []string{"chromedriver", "--silent", "--port={{.Port}}"},
+		Timeout:     5 * time.Second,
 	}
-
-	port := strings.SplitN(address, ":", 2)[1]
-	url := fmt.Sprintf("http://%s", address)
-	command := []string{"chromedriver", "--silent", "--port=" + port}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &driver{service: service}, nil
+	return &driver{service: chrome}, nil
 }
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
 func PhantomJS() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	phantomJS := &service.Service{
+		URLTemplate: "http://{{.Address}}",
+		CmdTemplate: []string{"phantomjs", "--webdriver={{.Address}}"},
+		Timeout:     5 * time.Second,
 	}
-
-	url := fmt.Sprintf("http://%s", address)
-	command := []string{"phantomjs", fmt.Sprintf("--webdriver=%s", address)}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &driver{service: service}, nil
+	return &driver{service: phantomJS}, nil
 }
 
 // Selenium returns an instance of a Selenium WebDriver.
 func Selenium() (WebDriver, error) {
-	address, err := freeAddress()
-	if err != nil {
-		return nil, fmt.Errorf("failed to locate a free port: %s", err)
+	selenium := &service.Service{
+		URLTemplate: "http://{{.Address}}/wd/hub",
+		CmdTemplate: []string{"selenium-server", "-port", "{{.Port}}"},
+		Timeout:     5 * time.Second,
 	}
-
-	port := strings.SplitN(address, ":", 2)[1]
-	url := fmt.Sprintf("http://%s/wd/hub", address)
-	command := []string{"selenium-server", "-port", port}
-	service := &service.Service{URL: url, Timeout: 5 * time.Second, Command: command}
-
-	return &driver{service: service}, nil
+	return &driver{service: selenium}, nil
 }
 
-func freeAddress() (string, error) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		return "", err
+// CustomWebDriver returns an instance of a WebDriver specified by
+// a templated URL and command. The URL should be the location of the
+// WebDriver Wire Protocol web service brought up by the command. The
+// command should be provided as a list of arguments (which are each
+// templated). The optional timeout specifies how long to wait for the
+// web service to become available. Default timeout is 5 seconds.
+//
+// Valid template parameters are:
+//   {{.Host}} - local address to bind to (usually 127.0.0.1)
+//   {{.Port}} - arbitrary free port on the local address
+//   {{.Address}} - {{.Host}}:{{.Port}}
+//
+// Selenium JAR example:
+//   command := []string{"my-selenium.jar", "-port", "{{.Port}}"}
+//   core.CustomWebDriver("http://{{.Address}}/wd/hub", command)
+func CustomWebDriver(url string, command []string, timeout ...time.Duration) WebDriver {
+	if len(timeout) == 0 {
+		timeout = []time.Duration{5 * time.Second}
 	}
-	defer listener.Close()
-	return listener.Addr().String(), nil
+	selenium := &service.Service{
+		URLTemplate: url,
+		CmdTemplate: command,
+		Timeout:     timeout[0],
+	}
+	return &driver{service: selenium}
 }
 
 // Connect opens a session using the provided WebDriver URL and returns a Page.
