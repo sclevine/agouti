@@ -53,7 +53,7 @@ func Selenium() (WebDriver, error) {
 //   {{.Address}} - {{.Host}}:{{.Port}}
 //
 // Selenium JAR example:
-//   command := []string{"my-selenium.jar", "-port", "{{.Port}}"}
+//   command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
 //   core.CustomWebDriver("http://{{.Address}}/wd/hub", command)
 func CustomWebDriver(url string, command []string, timeout ...time.Duration) WebDriver {
 	if len(timeout) == 0 {
