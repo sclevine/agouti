@@ -1,4 +1,4 @@
-package types
+package api
 
 type Point interface {
 	X() (x int, present bool)

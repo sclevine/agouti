@@ -102,7 +102,7 @@ type Client struct {
 
 	MoveToCall struct {
 		Element *api.Element
-		Point   types.Point
+		Point   api.Point
 		Err     error
 	}
 
@@ -243,7 +243,7 @@ func (c *Client) DoubleClick() error {
 	return c.DoubleClickCall.Err
 }
 
-func (c *Client) MoveTo(element *api.Element, point types.Point) error {
+func (c *Client) MoveTo(element *api.Element, point api.Point) error {
 	c.MoveToCall.Element = element
 	c.MoveToCall.Point = point
 	return c.MoveToCall.Err

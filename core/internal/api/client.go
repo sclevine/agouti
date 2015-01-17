@@ -164,7 +164,7 @@ func (c *Client) DoubleClick() error {
 	return c.Session.Execute("doubleclick", "POST", nil)
 }
 
-func (c *Client) MoveTo(region *Element, point types.Point) error {
+func (c *Client) MoveTo(region *Element, point Point) error {
 	request := map[string]interface{}{}
 
 	if region != nil {

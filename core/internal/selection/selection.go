@@ -16,7 +16,7 @@ type Selection struct {
 type apiClient interface {
 	GetActiveElement() (*api.Element, error)
 	DoubleClick() error
-	MoveTo(element *api.Element, point types.Point) error
+	MoveTo(element *api.Element, point api.Point) error
 	Frame(frame *api.Element) error
 }
 

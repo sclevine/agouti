@@ -434,21 +434,21 @@ var _ = Describe("API Client", func() {
 
 		Context("when a X point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, types.XPoint(100))
+				client.MoveTo(nil, XPoint(100))
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
 			})
 		})
 
 		Context("when a Y point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, types.YPoint(200))
+				client.MoveTo(nil, YPoint(200))
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
 			})
 		})
 
 		Context("when an XY point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, types.XYPoint{XPos: 300, YPos: 400})
+				client.MoveTo(nil, XYPoint{XPos: 300, YPos: 400})
 				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
 			})
 		})
