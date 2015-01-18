@@ -8,7 +8,7 @@ type userPage struct {
 }
 
 func (u *userPage) SetCookie(cookie WebCookie) error {
-	return u.SetCookie(cookie)
+	return u.Page.SetCookie(cookie)
 }
 
 func (u *userPage) ReadLogs(logType string, all ...bool) ([]Log, error) {
