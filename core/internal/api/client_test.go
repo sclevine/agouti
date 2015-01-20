@@ -508,6 +508,13 @@ var _ = Describe("API Client", func() {
 			Expect(result.Some).To(Equal("result"))
 		})
 
+		Context("when called with nil arguments", func() {
+			It("should send an empty list for args", func() {
+				client.Execute("some javascript code", nil, nil)
+				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"script": "some javascript code", "args": []}`))
+			})
+		})
+
 		Context("when the session indicates a failure", func() {
 			It("should return an error", func() {
 				session.ExecuteCall.Err = errors.New("some error")

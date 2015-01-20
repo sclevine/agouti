@@ -211,6 +211,10 @@ func (c *Client) FrameParent() error {
 }
 
 func (c *Client) Execute(body string, arguments []interface{}, result interface{}) error {
+	if arguments == nil {
+		arguments = []interface{}{}
+	}
+
 	request := struct {
 		Script string        `json:"script"`
 		Args   []interface{} `json:"args"`
