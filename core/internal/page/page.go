@@ -287,6 +287,18 @@ func (p *Page) WindowCount() (int, error) {
 	return len(windows), nil
 }
 
+func (p *Page) Windows() ([]string, error) {
+	windows, err := p.Client.GetWindows()
+	if err != nil {
+		return nil, fmt.Errorf("failed to find available windows: %s", err)
+	}
+	var out []string
+	for _, win := range windows {
+		out = append(out, win.String())
+	}
+	return out, nil
+}
+
 func (p *Page) LogTypes() ([]string, error) {
 	types, err := p.Client.GetLogTypes()
 	if err != nil {

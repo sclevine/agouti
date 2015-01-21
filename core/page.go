@@ -89,8 +89,8 @@ type Page interface {
 	// as well.
 	SwitchToRootFrame() error
 
-	// SwitchToWindow switches to the first available window with the provided name
-	// (JavaScript `window.name` attribute).
+	// SwitchToWindow switches to the first available window with the provided handle
+	// (find them with `WindowCount()`).
 	SwitchToWindow(name string) error
 
 	// NextWindow switches to the next available window.
@@ -101,6 +101,9 @@ type Page interface {
 
 	// WindowCount returns the number of available windows.
 	WindowCount() (int, error)
+
+	// GetWindows retrieves the list of open windows.
+	Windows() ([]string, error)
 
 	// ReadLogs returns log messages of the provided log type. For example,
 	// page.ReadLogs("browser") returns browser console logs, such as JavaScript logs
