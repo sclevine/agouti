@@ -129,8 +129,6 @@ type Log struct {
 }
 
 func newPage(client *api.Client) Page {
-	elementRepository := &selection.ElementRepository{Client: client}
-	emptySelection := &selection.Selection{Client: client, Elements: elementRepository}
-	pageSelection := &userSelection{emptySelection}
+	pageSelection := &userSelection{selection.NewSelection(client)}
 	return &userPage{&page.Page{Client: client}, pageSelection}
 }

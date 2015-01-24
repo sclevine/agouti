@@ -25,6 +25,10 @@ type elementRepository interface {
 	GetExactlyOne(selectors []Selector) (Element, error)
 }
 
+func NewSelection(client *api.Client) *Selection {
+	return &Selection{client, &ElementRepository{client}, nil}
+}
+
 func (s *Selection) AppendCSS(cssSelector string) *Selection {
 	selector := Selector{Type: "css selector", Value: cssSelector}
 

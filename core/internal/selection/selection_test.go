@@ -3,6 +3,7 @@ package selection_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sclevine/agouti/core/internal/api"
 	"github.com/sclevine/agouti/core/internal/mocks"
 	. "github.com/sclevine/agouti/core/internal/selection"
 )
@@ -18,6 +19,15 @@ var _ = Describe("Selection", func() {
 		client = &mocks.Client{}
 		elementRepository = &mocks.ElementRepository{}
 		selection = &Selection{Client: client, Elements: elementRepository}
+	})
+
+	Describe(".NewSelection", func() {
+		It("should return an empty selection with the provided client and element repository", func() {
+			realClient := &api.Client{}
+			selection = NewSelection(realClient)
+			Expect(selection.Client).To(Equal(realClient))
+			Expect(selection.Elements.(*ElementRepository).Client).To(Equal(realClient))
+		})
 	})
 
 	Describe("#AppendCSS", func() {
