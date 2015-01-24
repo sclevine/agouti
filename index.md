@@ -55,11 +55,11 @@ This will generate a file named `potato_suite_test.go` containing:
     package potato_test
 
     import (
+        "testing"
+        
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
-
-        "testing"
     )
 
     func TestPotato(t *testing.T) {
@@ -91,11 +91,11 @@ Update this file with your choice of WebDriver. For this example, we'll use Sele
     package potato_test
 
     import (
+        "testing"
+        
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
-
-        "testing"
     )
 
     func TestPotato(t *testing.T) {
@@ -147,7 +147,6 @@ This will generate a file named `user_login_test.go` containing:
 
     import (
         . "path/to/potato"
-
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
@@ -173,7 +172,6 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
 
     import (
         . "path/to/potato"
-
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
@@ -244,15 +242,24 @@ More extensive documentation (with more examples!) coming soon.
 
 ##External WebDrivers and Sauce Labs Support
 
-Agouti supports connecting to any WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol). This can be accomplished using `Connect` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
+Agouti supports managing any WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) and that is launched by a command running a foreground process. This can be complished using `CustomWebDriver` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
 
-    page := Connect(Use().Browser("safari"), "http://example.com:1234/wd/hub")
+    command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
+    driver := CustomWebDriver("http://{{.Address}}/wd/hub", command)
+    Expect(driver.Start()).To(Succeed())
+    page, err := driver.CreatePage()
+    ...
+    page.Destroy() // end session
+
+Agouti supports connecting to any running WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol). This can be accomplished using `Connect` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
+
+    page, err := Connect(Use().Browser("safari"), "http://example.com:1234/wd/hub")
     ...
     page.Destroy() // end session
 
 For easy [Sauce Labs](http://saucelabs.com) support, use `SauceLabs`. Note that this does not currently support Sauce Connect.
 
-    page := SauceLabs("my test", "Linux", "firefox", "33", "my-username", "secret-api-key")
+    page, err := SauceLabs("my test", "Linux", "firefox", "33", "my-username", "secret-api-key")
     ...
     page.Destroy() // end session
 
@@ -271,11 +278,11 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
     package potato_test
 
     import (
+        "testing"
+        
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/dsl"
-
-        "testing"
     )
 
     func TestPotato(t *testing.T) {
@@ -368,11 +375,12 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
     package potato_test
 
     import (
+        "testing"
+        
         . "path/to/potato"
         . "github.com/onsi/gomega"
         . "github.com/sclevine/agouti/core"
         . "github.com/sclevine/agouti/matchers"
-        "testing"
     )
 
     func TestUserLoginPrompt(t *testing.T) {
@@ -399,11 +407,12 @@ This is the most Go-like way of using Agouti for acceptance testing.
     package potato_test
 
     import (
+        "testing"
+        
         "path/to/potato"
         agouti "github.com/sclevine/agouti/core"
         am "github.com/sclevine/agouti/matchers"
         gm "github.com/onsi/gomega"
-        "testing"
     )
 
     func TestUserLoginPrompt(t *testing.T) {
@@ -426,11 +435,12 @@ Alternatively:
     package potato_test
 
     import (
+        "testing"
+            
         "path/to/potato"
         "github.com/sclevine/agouti/core"
         "github.com/sclevine/agouti/matchers"
         "github.com/onsi/gomega"
-        "testing"
     )
 
     Expect := gomega.Expect
@@ -461,9 +471,10 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll i
     package potato_test
 
     import (
+        "testing"
+
         "path/to/potato"
         agouti "github.com/sclevine/agouti/core"
-        "testing"
     )
 
     func TestUserLoginPrompt(t *testing.T) {
