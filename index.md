@@ -37,6 +37,7 @@ Next, install any WebDrivers you plan to use. For OS X (using [Homebrew](http://
     $ brew install selenium-server-standalone
 
 We currently support PhantomJS 1.9.8, Selenium WebDriver 2.44.0, and ChromeDriver 2.13. See [this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933) if you have issues running Selenium with Safari on Mac OS X. All WebDrivers conforming to the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) should (theoretically) work with Agouti, and can be managed by Agouti using `core.CustomWebDriver`.
+
 ---
 
 ##Getting Started: Writing Your First Acceptance Test
