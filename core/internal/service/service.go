@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 	"text/template"
@@ -19,7 +19,7 @@ type Service struct {
 	CmdTemplate []string
 	Timeout     time.Duration
 	url         string
-	process     *os.Process
+	command     *exec.Cmd
 }
 
 type addressInfo struct {
@@ -29,7 +29,7 @@ type addressInfo struct {
 }
 
 func (s *Service) URL() (string, error) {
-	if s.process == nil {
+	if s.command == nil {
 		return "", errors.New("not running")
 	}
 
@@ -37,7 +37,7 @@ func (s *Service) URL() (string, error) {
 }
 
 func (s *Service) Start() error {
-	if s.process != nil {
+	if s.command != nil {
 		return errors.New("already running")
 	}
 
@@ -59,18 +59,24 @@ func (s *Service) Start() error {
 		return fmt.Errorf("failed to run command: %s", err)
 	}
 
-	s.process = command.Process
+	s.command = command
 
 	return s.waitForServer()
 }
 
 func (s *Service) Stop() {
-	if s.process == nil {
+	if s.command == nil {
 		return
 	}
-	s.process.Signal(syscall.SIGINT)
-	s.process.Wait()
-	s.process = nil
+
+	if runtime.GOOS == "windows" {
+		s.command.Process.Kill()
+	} else {
+		s.command.Process.Signal(syscall.SIGINT)
+	}
+
+	s.command.Wait()
+	s.command = nil
 }
 
 func buildURL(url string, address addressInfo) (string, error) {
