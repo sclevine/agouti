@@ -225,9 +225,9 @@ var _ = Describe("Actions", func() {
 		It("should successfully retrieve the options with matching text for each selected element", func() {
 			Expect(selection.Select("some text")).To(Succeed())
 			Expect(firstElement.GetElementsCall.Selector.Using).To(Equal("xpath"))
-			Expect(firstElement.GetElementsCall.Selector.Value).To(Equal(`./option[normalize-space(text())="some text"]`))
+			Expect(firstElement.GetElementsCall.Selector.Value).To(Equal(`./option[normalize-space()="some text"]`))
 			Expect(secondElement.GetElementsCall.Selector.Using).To(Equal("xpath"))
-			Expect(secondElement.GetElementsCall.Selector.Value).To(Equal(`./option[normalize-space(text())="some text"]`))
+			Expect(secondElement.GetElementsCall.Selector.Value).To(Equal(`./option[normalize-space()="some text"]`))
 		})
 
 		Context("when zero elements are returned", func() {

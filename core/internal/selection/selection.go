@@ -60,7 +60,7 @@ func (s *Selection) AppendLink(text string) *Selection {
 }
 
 func (s *Selection) AppendLabeled(text string) *Selection {
-	return s.AppendXPath(fmt.Sprintf(`//input[@id=(//label[normalize-space(text())="%s"]/@for)] | //label[normalize-space(text())="%s"]/input`, text, text))
+	return s.AppendXPath(fmt.Sprintf(`//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%s"]/input`, text, text))
 }
 
 func (s *Selection) Single() *Selection {

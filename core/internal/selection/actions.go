@@ -90,7 +90,7 @@ func (s *Selection) setChecked(checked bool) error {
 
 func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(element Element) error {
-		optionXPath := fmt.Sprintf(`./option[normalize-space(text())="%s"]`, text)
+		optionXPath := fmt.Sprintf(`./option[normalize-space()="%s"]`, text)
 		optionToSelect := Selector{Type: "xpath", Value: optionXPath}
 		options, err := element.(elementClient).GetElements(optionToSelect.API())
 		if err != nil {

@@ -102,7 +102,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("should add a new XPath label-lookup selector to the selection", func() {
-			Expect(selection.AppendLabeled("some text").String()).To(Equal(`XPath: //input[@id=(//label[normalize-space(text())="some text"]/@for)] | //label[normalize-space(text())="some text"]/input`))
+			Expect(selection.AppendLabeled("some text").String()).To(Equal(`XPath: //input[@id=(//label[normalize-space()="some text"]/@for)] | //label[normalize-space()="some text"]/input`))
 		})
 	})
 
