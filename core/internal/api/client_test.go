@@ -606,6 +606,36 @@ var _ = Describe("API Client", func() {
 		})
 	})
 
+	Describe("#AcceptAlert", func() {
+		BeforeEach(func() {
+			err = client.AcceptAlert()
+		})
+
+		ItShouldMakeARequest("POST", "accept_alert")
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.AcceptAlert()).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DismissAlert", func() {
+		BeforeEach(func() {
+			err = client.DismissAlert()
+		})
+
+		ItShouldMakeARequest("POST", "dismiss_alert")
+
+		Context("when the session indicates a failure", func() {
+			It("should return an error", func() {
+				session.ExecuteCall.Err = errors.New("some error")
+				Expect(client.DismissAlert()).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#NewLogs", func() {
 		var logs []Log
 

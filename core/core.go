@@ -10,14 +10,14 @@ import (
 	"github.com/sclevine/agouti/core/internal/session"
 )
 
-// Chrome returns an instance of a ChromeDriver WebDriver.
-func Chrome() (WebDriver, error) {
+// ChromeDriver returns an instance of a ChromeDriver WebDriver.
+func ChromeDriver() WebDriver {
 	chrome := &service.Service{
 		URLTemplate: "http://{{.Address}}",
 		CmdTemplate: []string{"chromedriver", "--silent", "--port={{.Port}}"},
 		Timeout:     5 * time.Second,
 	}
-	return &driver{service: chrome}, nil
+	return &driver{service: chrome}
 }
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.

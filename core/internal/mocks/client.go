@@ -147,6 +147,16 @@ type Client struct {
 		Err  error
 	}
 
+	AcceptAlertCall struct {
+		Called bool
+		Err    error
+	}
+
+	DismissAlertCall struct {
+		Called bool
+		Err    error
+	}
+
 	NewLogsCall struct {
 		LogType    string
 		ReturnLogs []api.Log
@@ -287,6 +297,16 @@ func (c *Client) GetAlertText() (string, error) {
 func (c *Client) SetAlertText(text string) error {
 	c.SetAlertTextCall.Text = text
 	return c.SetAlertTextCall.Err
+}
+
+func (c *Client) AcceptAlert() error {
+	c.AcceptAlertCall.Called = true
+	return c.AcceptAlertCall.Err
+}
+
+func (c *Client) DismissAlert() error {
+	c.DismissAlertCall.Called = true
+	return c.DismissAlertCall.Err
 }
 
 func (c *Client) NewLogs(logType string) ([]api.Log, error) {

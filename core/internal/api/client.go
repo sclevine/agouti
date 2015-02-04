@@ -254,6 +254,14 @@ func (c *Client) SetAlertText(text string) error {
 	return c.Session.Execute("alert_text", "POST", request)
 }
 
+func (c *Client) AcceptAlert() error {
+	return c.Session.Execute("accept_alert", "POST", nil)
+}
+
+func (c *Client) DismissAlert() error {
+	return c.Session.Execute("dismiss_alert", "POST", nil)
+}
+
 func (c *Client) NewLogs(logType string) ([]Log, error) {
 	request := struct {
 		Type string `json:"type"`

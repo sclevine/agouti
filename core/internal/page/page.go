@@ -47,6 +47,8 @@ type apiClient interface {
 	Refresh() error
 	GetAlertText() (string, error)
 	SetAlertText(text string) error
+	AcceptAlert() error
+	DismissAlert() error
 	NewLogs(logType string) ([]api.Log, error)
 	GetLogTypes() ([]string, error)
 }
@@ -184,14 +186,14 @@ func (p *Page) EnterPopupText(text string) error {
 }
 
 func (p *Page) ConfirmPopup() error {
-	if err := p.Client.SetAlertText("\u000d"); err != nil {
+	if err := p.Client.AcceptAlert(); err != nil {
 		return fmt.Errorf("failed to confirm popup: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) CancelPopup() error {
-	if err := p.Client.SetAlertText("\u001b"); err != nil {
+	if err := p.Client.DismissAlert(); err != nil {
 		return fmt.Errorf("failed to cancel popup: %s", err)
 	}
 	return nil

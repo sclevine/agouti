@@ -300,28 +300,28 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#ConfirmPopup", func() {
-		It("should provide the client with a carriage return and succeed", func() {
+		It("should instruct the client to confirm an alert", func() {
 			Expect(page.ConfirmPopup()).To(Succeed())
-			Expect(client.SetAlertTextCall.Text).To(Equal("\u000d"))
+			Expect(client.AcceptAlertCall.Called).To(BeTrue())
 		})
 
-		Context("when the client fails to send the carriage return", func() {
+		Context("when the client fails to confirm an alert", func() {
 			It("should return an error", func() {
-				client.SetAlertTextCall.Err = errors.New("some error")
+				client.AcceptAlertCall.Err = errors.New("some error")
 				Expect(page.ConfirmPopup()).To(MatchError("failed to confirm popup: some error"))
 			})
 		})
 	})
 
 	Describe("#CancelPopup", func() {
-		It("should provide the client with an escape and succeed", func() {
+		It("should instruct the client to cancel an alert", func() {
 			Expect(page.CancelPopup()).To(Succeed())
-			Expect(client.SetAlertTextCall.Text).To(Equal("\u001b"))
+			Expect(client.DismissAlertCall.Called).To(BeTrue())
 		})
 
-		Context("when the client fails to send the escape", func() {
+		Context("when the client fails to cancel an alert", func() {
 			It("should return an error", func() {
-				client.SetAlertTextCall.Err = errors.New("some error")
+				client.DismissAlertCall.Err = errors.New("some error")
 				Expect(page.CancelPopup()).To(MatchError("failed to cancel popup: some error"))
 			})
 		})
