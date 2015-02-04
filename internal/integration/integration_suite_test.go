@@ -14,11 +14,10 @@ var (
 	phantomDriver  WebDriver
 	chromeDriver   WebDriver
 	seleniumDriver WebDriver
-	headlessOnly   bool
+	headlessOnly   = os.Getenv("HEADLESS_ONLY") == "true"
 )
 
 func TestIntegration(t *testing.T) {
-	headlessOnly = os.Getenv("HEADLESS_ONLY") == "true"
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Integration Suite")
 }
