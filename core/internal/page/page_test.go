@@ -498,18 +498,25 @@ var _ = Describe("Page", func() {
 			BeforeEach(func() {
 				client.NewLogsCall.ReturnLogs = []api.Log{api.Log{"old log", "old level", 1418196096123}}
 				page.ReadLogs("some type")
-				client.NewLogsCall.ReturnLogs = []api.Log{api.Log{"new log (1:22)", "new level", 1418196097543}}
+				client.NewLogsCall.ReturnLogs = []api.Log{
+					api.Log{"new log (1:22)", "new level", 1418196097543},
+					api.Log{"newer log (:)", "newer level", 1418196098376},
+				}
 			})
 
 			Context("when only new logs are requested", func() {
 				It("should return new logs with the correct time and code location", func() {
 					logs, err := page.ReadLogs("some type")
 					Expect(err).NotTo(HaveOccurred())
-					Expect(logs).To(HaveLen(1))
+					Expect(logs).To(HaveLen(2))
 					Expect(logs[0].Message).To(Equal("new log"))
 					Expect(logs[0].Location).To(Equal("1:22"))
 					Expect(logs[0].Level).To(Equal("new level"))
 					Expect(logs[0].Time.Unix()).To(BeEquivalentTo(1418196097))
+					Expect(logs[1].Message).To(Equal("newer log"))
+					Expect(logs[1].Location).To(Equal(":"))
+					Expect(logs[1].Level).To(Equal("newer level"))
+					Expect(logs[1].Time.Unix()).To(BeEquivalentTo(1418196098))
 				})
 			})
 
@@ -517,9 +524,10 @@ var _ = Describe("Page", func() {
 				It("should return all logs", func() {
 					logs, err := page.ReadLogs("some type", true)
 					Expect(err).NotTo(HaveOccurred())
-					Expect(logs).To(HaveLen(2))
+					Expect(logs).To(HaveLen(3))
 					Expect(logs[0].Message).To(Equal("old log"))
 					Expect(logs[1].Message).To(Equal("new log"))
+					Expect(logs[2].Message).To(Equal("newer log"))
 				})
 			})
 		})

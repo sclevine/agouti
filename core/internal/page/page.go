@@ -305,7 +305,7 @@ func (p *Page) ReadLogs(logType string, all ...bool) ([]Log, error) {
 		return nil, fmt.Errorf("failed to retrieve logs: %s", err)
 	}
 
-	messageMatcher := regexp.MustCompile(`^(?s:(.+))\s\(([^)]+:\w+)\)$`)
+	messageMatcher := regexp.MustCompile(`^(?s:(.+))\s\(([^)]*:\w*)\)$`)
 
 	var logs []Log
 	for _, clientLog := range clientLogs {
