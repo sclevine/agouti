@@ -12,32 +12,17 @@ import (
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
 func ChromeDriver() WebDriver {
-	chrome := &service.Service{
-		URLTemplate: "http://{{.Address}}",
-		CmdTemplate: []string{"chromedriver", "--silent", "--port={{.Port}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: chrome}
+	return CustomWebDriver("http://{{.Address}}", []string{"chromedriver", "--silent", "--port={{.Port}}"})
 }
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
 func PhantomJS() (WebDriver, error) {
-	phantomJS := &service.Service{
-		URLTemplate: "http://{{.Address}}",
-		CmdTemplate: []string{"phantomjs", "--webdriver={{.Address}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: phantomJS}, nil
+	return CustomWebDriver("http://{{.Address}}", []string{"phantomjs", "--webdriver={{.Address}}"}), nil
 }
 
 // Selenium returns an instance of a Selenium WebDriver.
 func Selenium() (WebDriver, error) {
-	selenium := &service.Service{
-		URLTemplate: "http://{{.Address}}/wd/hub",
-		CmdTemplate: []string{"selenium-server", "-port", "{{.Port}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: selenium}, nil
+	return CustomWebDriver("http://{{.Address}}/wd/hub", []string{"selenium-server", "-port", "{{.Port}}"}), nil
 }
 
 // CustomWebDriver returns an instance of a WebDriver specified by
@@ -59,12 +44,14 @@ func CustomWebDriver(url string, command []string, timeout ...time.Duration) Web
 	if len(timeout) == 0 {
 		timeout = []time.Duration{5 * time.Second}
 	}
-	selenium := &service.Service{
+
+	driverService := &service.Service{
 		URLTemplate: url,
 		CmdTemplate: command,
 		Timeout:     timeout[0],
 	}
-	return &driver{service: selenium}
+
+	return &driver{service: driverService}
 }
 
 // Connect opens a session using the provided WebDriver URL and returns a Page.

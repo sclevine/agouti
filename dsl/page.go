@@ -20,8 +20,7 @@ func StartPhantomJS() {
 func StartChrome() {
 	var err error
 	checkWebDriver()
-	driver, err = core.Chrome()
-	checkFailure(err)
+	driver = core.ChromeDriver()
 	checkFailure(driver.Start())
 }
 
