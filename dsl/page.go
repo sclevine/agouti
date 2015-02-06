@@ -1,76 +1,98 @@
 package dsl
 
-import (
-	"github.com/onsi/ginkgo"
-	"github.com/sclevine/agouti/core"
-)
+import "github.com/sclevine/agouti/core"
 
-var driver core.WebDriver
-
-// StartPhantomJS starts a PhantomJS WebDriver service for use with CreatePage.
-func StartPhantomJS() {
-	var err error
-	checkWebDriver()
-	driver, err = core.PhantomJS()
-	checkFailure(err)
-	checkFailure(driver.Start())
+// Destroy is comparable to Expect(page.Destroy()).To(Succeed())
+func Destroy(page core.Page) {
+	checkFailure(page.Destroy())
 }
 
-// StartChrome starts a ChromeDriver WebDriver service for use with CreatePage.
-func StartChrome() {
-	checkWebDriver()
-	driver = core.ChromeDriver()
-	checkFailure(driver.Start())
+// Navigate is comparable to Expect(page.Navigate()).To(Succeed())
+func Navigate(page core.Page) {
+	checkFailure(page.Navigate())
 }
 
-// StartSelenium starts a Selenium WebDriver service for use with CreatePage.
-func StartSelenium() {
-	var err error
-	checkWebDriver()
-	driver, err = core.Selenium()
-	checkFailure(err)
-	checkFailure(driver.Start())
+// SetCookie is comparable to Expect(page.SetCookie(cookie)).To(Succeed())
+func SetCookie(page core.Page, cookie core.WebCookie) {
+	checkFailure(page.SetCookie(cookie))
 }
 
-// StopWebdriver stops the current running WebDriver.
-func StopWebdriver() {
-	if driver == nil {
-		ginkgo.Fail("WebDriver not started", 1)
-	}
-	driver.Stop()
-	driver = nil
+// DeleteCookie is comparable to Expect(page.DeleteCookie("cookie-name")).To(Succeed())
+func DeleteCookie(page core.Page, name string) {
+	checkFailure(page.DeleteCookie(name))
 }
 
-// CreatePage creates a new session using the current running WebDriver.
-// For Selenium, the browserName determines which browser to use for the session.
-func CreatePage(browserName ...string) core.Page {
-	capabilities := core.Use()
-	if len(browserName) > 0 {
-		capabilities.Browser(browserName[0])
-	}
-	newPage, err := driver.Page(capabilities)
-	checkFailure(err)
-	return newPage
+// ClearCookies is comparable to Expect(page.ClearCookies()).To(Succeed())
+func ClearCookies(page core.Page) {
+	checkFailure(page.ClearCookies())
 }
 
-// CustomPage creates a new session with a custom set of desired capabilities
-// using the current running WebDriver. The core.Use() function may be used
-// to generate this set of capabilities. For Selenium, the capabilities
-// Browser(string) method sets which browser to use for the session.
-func CustomPage(capabilities core.Capabilities) core.Page {
-	newPage, err := driver.Page(capabilities)
-	checkFailure(err)
-	return newPage
+// Size is comparable to Expect(page.Size(windowWidth, windowHeight)).To(Succeed())
+func Size(page core.Page, width, height int) {
+	checkFailure(page.Size(width, height))
 }
 
-func checkWebDriver() {
-	if driver != nil {
-		ginkgo.Fail("WebDriver already started", 2)
-	}
+// Screenshot is comparable to Expect(page.Screenshot("screenshot-file.png")).To(Succeed())
+func Screenshot(page core.Page, filename string) {
+	checkFailure(page.Screenshot(filename))
 }
 
-func checkFailure(err error) {
-	if err != nil {
-		ginkgo.Fail(err.Error(), 2)
-	}
+// RunScript is comparable to Expect(page.RunScript(script, args, &result)).To(Succeed())
+func RunScript(page core.Page, body string, arguments map[string]interface{}, result interface{}) {
+	checkFailure(page.RunScript(body, arguments, result))
+}
+
+// EnterPopupText is comparable to Expect(page.EnterPopupText("some text")).To(Succeed())
+func EnterPopupText(page core.Page, text string) {
+	checkFailure(page.EnterPopupText(text))
+}
+
+// ConfirmPopup is comparable to Expect(page.ConfirmPopup()).To(Succeed())
+func ConfirmPopup(page core.Page) {
+	checkFailure(page.ConfirmPopup())
+}
+
+// CancelPopup is comparable to Expect(page.CancelPopup()).To(Succeed())
+func CancelPopup(page core.Page) {
+	checkFailure(page.CancelPopup())
+}
+
+// Forward is comparable to Expect(page.Forward()).To(Succeed())
+func Forward(page core.Page) {
+	checkFailure(page.Forward())
+}
+
+// Back is comparable to Expect(page.Back()).To(Succeed())
+func Back(page core.Page) {
+	checkFailure(page.Back())
+}
+
+// Refresh is comparable to Expect(page.Refresh()).To(Succeed())
+func Refresh(page core.Page) {
+	checkFailure(page.Refresh())
+}
+
+// SwitchToParentFrame is comparable to Expect(page.SwitchToParentFrame()).To(Succeed())
+func SwitchToParentFrame(page core.Page) {
+	checkFailure(page.SwitchToParentFrame())
+}
+
+// SwitchToRootFrame is comparable to Expect(page.SwitchToRootFrame()).To(Succeed())
+func SwitchToRootFrame(page core.Page) {
+	checkFailure(page.SwitchToRootFrame())
+}
+
+// SwitchToWindow is comparable to Expect(page.SwitchToWindow("window name")).To(Succeed())
+func SwitchToWindow(page core.Page, name string) {
+	checkFailure(page.SwitchToWindow(name))
+}
+
+// NextWindow is comparable to Expect(page.NextWindow()).To(Succeed())
+func NextWindow(page core.Page) {
+	checkFailure(page.NextWindow())
+}
+
+// CloseWindow is comparable to Expect(page.CloseWindow()).To(Succeed())
+func CloseWindow(page core.Page) {
+	checkFailure(page.CloseWindow())
 }
