@@ -18,7 +18,6 @@ func StartPhantomJS() {
 
 // StartChrome starts a ChromeDriver WebDriver service for use with CreatePage.
 func StartChrome() {
-	var err error
 	checkWebDriver()
 	driver = core.ChromeDriver()
 	checkFailure(driver.Start())
