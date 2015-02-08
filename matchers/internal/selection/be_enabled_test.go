@@ -26,18 +26,14 @@ var _ = Describe("BeEnabledMatcher", func() {
 			Context("when the element is enabled", func() {
 				It("should successfully return true", func() {
 					selection.EnabledCall.ReturnEnabled = true
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the element is not enabled", func() {
 				It("should successfully return false", func() {
 					selection.EnabledCall.ReturnEnabled = false
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 

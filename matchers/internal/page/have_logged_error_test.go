@@ -33,36 +33,28 @@ var _ = Describe("HaveLoggedErrorMatcher", func() {
 			Context("when the expected log has been logged with the WARNING level", func() {
 				It("should successfully return true", func() {
 					page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "WARNING", time.Time{}}}
-					success, err := matcher.Match(page)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected log has been logged with the SEVERE level", func() {
 				It("should successfully return true", func() {
 					page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "SEVERE", time.Time{}}}
-					success, err := matcher.Match(page)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected log has been logged with any other level", func() {
 				It("should successfully return false", func() {
 					page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "INFO", time.Time{}}}
-					success, err := matcher.Match(page)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeFalse())
 				})
 			})
 
 			Context("when the expected log has not been logged", func() {
 				It("should successfully return false", func() {
 					page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some other log", "", "WARNING", time.Time{}}}
-					success, err := matcher.Match(page)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeFalse())
 				})
 			})
 
@@ -74,18 +66,14 @@ var _ = Describe("HaveLoggedErrorMatcher", func() {
 				Context("when any error log is logged", func() {
 					It("should successfully return true", func() {
 						page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "WARNING", time.Time{}}}
-						success, err := matcher.Match(page)
-						Expect(success).To(BeTrue())
-						Expect(err).NotTo(HaveOccurred())
+						Expect(matcher.Match(page)).To(BeTrue())
 					})
 				})
 
 				Context("when no error logs are logged", func() {
 					It("should successfully return false", func() {
 						page.ReadLogsCall.ReturnLogs = []core.Log{core.Log{"some log", "", "INFO", time.Time{}}}
-						success, err := matcher.Match(page)
-						Expect(success).To(BeFalse())
-						Expect(err).NotTo(HaveOccurred())
+						Expect(matcher.Match(page)).To(BeFalse())
 					})
 				})
 			})

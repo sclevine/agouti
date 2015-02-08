@@ -26,18 +26,14 @@ var _ = Describe("BeSelectedMatcher", func() {
 			Context("when the element is selected", func() {
 				It("should successfully return true", func() {
 					selection.SelectedCall.ReturnSelected = true
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the element is not selected", func() {
 				It("should successfully return false", func() {
 					selection.SelectedCall.ReturnSelected = false
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 

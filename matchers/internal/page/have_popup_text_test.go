@@ -26,18 +26,14 @@ var _ = Describe("HavePopupTextMatcher", func() {
 			Context("when the expected text matches the actual text", func() {
 				It("should successfully return true", func() {
 					page.PopupTextCall.ReturnText = "some text"
-					success, err := matcher.Match(page)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected text does not match the actual text", func() {
 				It("should successfully return false", func() {
 					page.PopupTextCall.ReturnText = "some other text"
-					success, err := matcher.Match(page)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeFalse())
 				})
 			})
 

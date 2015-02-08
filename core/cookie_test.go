@@ -17,9 +17,7 @@ var _ = Describe("Cookie", func() {
 	It("should successfully encode all provided options into JSON", func() {
 		cookie.Path("some/path").Domain("some.domain")
 		cookie.Secure().HTTPOnly().Expiry(1000)
-		json, err := cookie.JSON()
-		Expect(err).NotTo(HaveOccurred())
-		Expect(json).To(MatchJSON(`{
+		Expect(cookie.JSON()).To(MatchJSON(`{
 			"name": "some-name",
 			"value": "some value",
 			"path": "some/path",

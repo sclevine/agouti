@@ -96,9 +96,7 @@ var _ = Describe("Elements", func() {
 			})
 
 			It("should successfully return all of the children", func() {
-				selectedChildren, err := repository.Get([]Selector{parentSelector, childSelector})
-				Expect(selectedChildren).To(Equal(children))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(repository.Get([]Selector{parentSelector, childSelector})).To(Equal(children))
 			})
 		})
 
@@ -122,9 +120,7 @@ var _ = Describe("Elements", func() {
 			})
 
 			It("should return only the selected child elements", func() {
-				selectedChildren, err := repository.Get([]Selector{parentSelector, childSelector})
-				Expect(selectedChildren).To(Equal([]Element{children[3]}))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(repository.Get([]Selector{parentSelector, childSelector})).To(Equal([]Element{children[3]}))
 			})
 		})
 
@@ -149,9 +145,7 @@ var _ = Describe("Elements", func() {
 			})
 
 			It("should return only the selected child element", func() {
-				selectedChildren, err := repository.Get([]Selector{parentSelector, childSelector})
-				Expect(selectedChildren).To(Equal([]Element{children[0]}))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(repository.Get([]Selector{parentSelector, childSelector})).To(Equal([]Element{children[0]}))
 			})
 		})
 
@@ -174,9 +168,7 @@ var _ = Describe("Elements", func() {
 			})
 
 			It("should return only the selected child element", func() {
-				selectedChildren, err := repository.Get([]Selector{parentSelector, childSelector})
-				Expect(selectedChildren).To(Equal([]Element{children[0]}))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(repository.Get([]Selector{parentSelector, childSelector})).To(Equal([]Element{children[0]}))
 			})
 		})
 

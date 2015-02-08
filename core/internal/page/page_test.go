@@ -465,9 +465,7 @@ var _ = Describe("Page", func() {
 	Describe("#WindowCount", func() {
 		It("should successfully return the number of windows from the client", func() {
 			client.GetWindowsCall.ReturnWindows = []*api.Window{&api.Window{}, &api.Window{}}
-			count, err := page.WindowCount()
-			Expect(count).To(Equal(2))
-			Expect(err).NotTo(HaveOccurred())
+			Expect(page.WindowCount()).To(Equal(2))
 		})
 
 		Context("when retrieving the available windows fails", func() {
@@ -536,9 +534,7 @@ var _ = Describe("Page", func() {
 	Describe("#LogTypes", func() {
 		It("should successfully return the log types", func() {
 			client.GetLogTypesCall.ReturnTypes = []string{"first type", "second type"}
-			types, err := page.LogTypes()
-			Expect(types).To(Equal([]string{"first type", "second type"}))
-			Expect(err).NotTo(HaveOccurred())
+			Expect(page.LogTypes()).To(Equal([]string{"first type", "second type"}))
 		})
 
 		Context("when the client fails to retrieve the log types", func() {

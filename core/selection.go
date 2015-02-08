@@ -107,11 +107,15 @@ type Selectable interface {
 	// FindByXPath finds exactly one element by XPath selector.
 	FindByXPath(selector string) Selection
 
-	// FindByLink finds exactly one element by anchor link text.
+	// FindByLink finds exactly one anchor element by its text content.
 	FindByLink(text string) Selection
 
 	// FindByLabel finds exactly one element by associated label text.
 	FindByLabel(text string) Selection
+
+	// FindByButton finds exactly one button element with the provided text.
+	// Supports <button>, <input type="button">, and <input type="submit">.
+	FindByButton(text string) Selection
 
 	// First finds the first element by CSS selector.
 	First(selector string) Selection
@@ -119,11 +123,15 @@ type Selectable interface {
 	// FirstByXPath finds the first element by XPath selector.
 	FirstByXPath(selector string) Selection
 
-	// FirstByLink finds the first element by anchor link text.
+	// FirstByLink finds the first anchor element by its text content.
 	FirstByLink(text string) Selection
 
 	// FirstByLabel finds the first element by associated label text.
 	FirstByLabel(text string) Selection
+
+	// FirstByButton finds the first button element with the provided text.
+	// Supports <button>, <input type="button">, and <input type="submit">.
+	FirstByButton(text string) Selection
 
 	// All finds zero or more elements by CSS selector.
 	All(selector string) MultiSelection
@@ -131,9 +139,13 @@ type Selectable interface {
 	// AllByXPath finds zero or more elements by XPath selector.
 	AllByXPath(selector string) MultiSelection
 
-	// AllByLink finds zero or more elements by anchor link text.
+	// AllByLink finds zero or more anchor elements by their text content.
 	AllByLink(text string) MultiSelection
 
 	// AllByLabel finds zero or more elements by associated label text.
 	AllByLabel(text string) MultiSelection
+
+	// AllByButton finds zero or more button elements with the provided text.
+	// Supports <button>, <input type="button">, and <input type="submit">.
+	AllByButton(text string) Selection
 }

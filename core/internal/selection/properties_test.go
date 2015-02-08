@@ -44,9 +44,7 @@ var _ = Describe("Selection", func() {
 		Context("when the client succeeds in retrieving the element text", func() {
 			It("should successfully return the text", func() {
 				element.GetTextCall.ReturnText = "some text"
-				text, err := selection.Text()
-				Expect(text).To(Equal("some text"))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Text()).To(Equal("some text"))
 			})
 		})
 	})
@@ -82,18 +80,14 @@ var _ = Describe("Selection", func() {
 		Context("when the active element equals the selected element", func() {
 			It("should successfully return true", func() {
 				element.IsEqualToCall.ReturnEquals = true
-				equal, err := selection.Active()
-				Expect(equal).To(BeTrue())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Active()).To(BeTrue())
 			})
 		})
 
 		Context("when the active element does not equal the selected element", func() {
 			It("should successfully return false", func() {
 				element.IsEqualToCall.ReturnEquals = false
-				equal, err := selection.Active()
-				Expect(equal).To(BeFalse())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Active()).To(BeFalse())
 			})
 		})
 	})
@@ -119,9 +113,7 @@ var _ = Describe("Selection", func() {
 		Context("when the client succeeds in retrieving the requested element attribute", func() {
 			It("should successfully return the attribute value", func() {
 				element.GetAttributeCall.ReturnValue = "some value"
-				value, err := selection.Attribute("some-attribute")
-				Expect(value).To(Equal("some value"))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Attribute("some-attribute")).To(Equal("some value"))
 			})
 		})
 	})
@@ -147,9 +139,7 @@ var _ = Describe("Selection", func() {
 		Context("when the client succeeds in retrieving the requested element CSS property", func() {
 			It("should successfully return the property value", func() {
 				element.GetCSSCall.ReturnValue = "some value"
-				value, err := selection.CSS("some-property")
-				Expect(value).To(Equal("some value"))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.CSS("some-property")).To(Equal("some value"))
 			})
 		})
 	})
@@ -172,17 +162,13 @@ var _ = Describe("Selection", func() {
 			It("should return true when all elements are selected", func() {
 				element.IsSelectedCall.ReturnSelected = true
 				secondElement.IsSelectedCall.ReturnSelected = true
-				value, err := selection.Selected()
-				Expect(value).To(BeTrue())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Selected()).To(BeTrue())
 			})
 
 			It("should return false when any elements are not selected", func() {
 				element.IsSelectedCall.ReturnSelected = true
 				secondElement.IsSelectedCall.ReturnSelected = false
-				value, err := selection.Selected()
-				Expect(value).To(BeFalse())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Selected()).To(BeFalse())
 			})
 		})
 	})
@@ -205,17 +191,13 @@ var _ = Describe("Selection", func() {
 			It("should return true when all elements are visible", func() {
 				element.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.ReturnDisplayed = true
-				value, err := selection.Visible()
-				Expect(value).To(BeTrue())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Visible()).To(BeTrue())
 			})
 
 			It("should return false when any elements are not visible", func() {
 				element.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.ReturnDisplayed = false
-				value, err := selection.Visible()
-				Expect(value).To(BeFalse())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Visible()).To(BeFalse())
 			})
 		})
 	})
@@ -238,17 +220,13 @@ var _ = Describe("Selection", func() {
 			It("should return true when all elements are enabled", func() {
 				element.IsEnabledCall.ReturnEnabled = true
 				secondElement.IsEnabledCall.ReturnEnabled = true
-				value, err := selection.Enabled()
-				Expect(value).To(BeTrue())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Enabled()).To(BeTrue())
 			})
 
 			It("should return false when any elements are not enabled", func() {
 				element.IsEnabledCall.ReturnEnabled = true
 				secondElement.IsEnabledCall.ReturnEnabled = false
-				value, err := selection.Enabled()
-				Expect(value).To(BeFalse())
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Enabled()).To(BeFalse())
 			})
 		})
 	})

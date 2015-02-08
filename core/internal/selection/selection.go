@@ -63,6 +63,10 @@ func (s *Selection) AppendLabeled(text string) *Selection {
 	return s.AppendXPath(fmt.Sprintf(`//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%s"]/input`, text, text))
 }
 
+func (s *Selection) AppendButton(text string) *Selection {
+	return s.AppendXPath(fmt.Sprintf(`//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%s"]`, text, text))
+}
+
 func (s *Selection) Single() *Selection {
 	lastIndex := len(s.selectors) - 1
 	if lastIndex < 0 {

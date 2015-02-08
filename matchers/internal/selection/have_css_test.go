@@ -31,18 +31,15 @@ var _ = Describe("HaveCSS", func() {
 			Context("when the expected property value matches the actual property value", func() {
 				It("should successfully return true", func() {
 					selection.CSSCall.ReturnValue = "some value"
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected property value does not match the actual property value", func() {
 				It("should successfully return false", func() {
 					selection.CSSCall.ReturnValue = "some other value"
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
+
 				})
 			})
 
@@ -65,9 +62,7 @@ var _ = Describe("HaveCSS", func() {
 					})
 
 					It("should succeed", func() {
-						success, err := matcher.Match(selection)
-						Expect(success).To(BeTrue())
-						Expect(err).NotTo(HaveOccurred())
+						Expect(matcher.Match(selection)).To(BeTrue())
 					})
 
 					Describe("#NegatedFailureMessage", func() {
@@ -86,9 +81,7 @@ var _ = Describe("HaveCSS", func() {
 					})
 
 					It("should fail", func() {
-						success, err := matcher.Match(selection)
-						Expect(success).To(BeFalse())
-						Expect(err).NotTo(HaveOccurred())
+						Expect(matcher.Match(selection)).To(BeFalse())
 					})
 
 					Describe("#FailureMessage", func() {
@@ -107,8 +100,7 @@ var _ = Describe("HaveCSS", func() {
 					})
 
 					It("should error", func() {
-						success, err := matcher.Match(selection)
-						Expect(success).To(BeFalse())
+						_, err := matcher.Match(selection)
 						Expect(err).To(MatchError("The expected value:\n    blue\nis a color:\n    Color{R:0, G:0, B:255, A:1.00}\nBut the actual value:\n    not-a-color\nis not.\n"))
 					})
 				})

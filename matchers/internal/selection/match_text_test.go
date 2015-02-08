@@ -26,18 +26,14 @@ var _ = Describe("MatchTextMatcher", func() {
 			Context("when the expected text matches the actual text", func() {
 				It("should successfully return true", func() {
 					selection.TextCall.ReturnText = "some text"
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected text does not match the actual text", func() {
 				It("should successfully return false", func() {
 					selection.TextCall.ReturnText = "some other text"
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 

@@ -64,9 +64,8 @@ var _ = Describe("Session", func() {
 
 		Context("when the provided body is nil", func() {
 			It("should make a request without a body", func() {
-				err := session.Execute("some/endpoint", "POST", nil)
+				Expect(session.Execute("some/endpoint", "POST", nil)).To(Succeed())
 				Expect(requestBody).To(BeEmpty())
-				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 

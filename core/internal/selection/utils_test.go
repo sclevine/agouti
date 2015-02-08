@@ -38,9 +38,7 @@ var _ = Describe("Utils", func() {
 
 		Context("when the client succeeds in retrieving the elements", func() {
 			It("should successfully return the text", func() {
-				count, err := selection.Count()
-				Expect(count).To(Equal(2))
-				Expect(err).NotTo(HaveOccurred())
+				Expect(selection.Count()).To(Equal(2))
 			})
 		})
 
@@ -76,16 +74,12 @@ var _ = Describe("Utils", func() {
 
 		It("should successfully return true if they are equal", func() {
 			element.IsEqualToCall.ReturnEquals = true
-			equal, err := selection.EqualsElement(otherSelection)
-			Expect(equal).To(BeTrue())
-			Expect(err).NotTo(HaveOccurred())
+			Expect(selection.EqualsElement(otherSelection)).To(BeTrue())
 		})
 
 		It("should successfully return false if they are not equal", func() {
 			element.IsEqualToCall.ReturnEquals = false
-			equal, err := selection.EqualsElement(otherSelection)
-			Expect(equal).To(BeFalse())
-			Expect(err).NotTo(HaveOccurred())
+			Expect(selection.EqualsElement(otherSelection)).To(BeFalse())
 		})
 
 		Context("when there is an error retrieving elements from the selection", func() {

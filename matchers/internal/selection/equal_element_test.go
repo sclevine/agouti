@@ -33,18 +33,14 @@ var _ = Describe("EqualElementMatcher", func() {
 			Context("when the expected element equals the actual element", func() {
 				It("should successfully return true", func() {
 					selection.EqualsElementCall.ReturnEquals = true
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected element does not equal the actual element", func() {
 				It("should successfully return false", func() {
 					selection.EqualsElementCall.ReturnEquals = false
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 

@@ -47,9 +47,7 @@ var _ = Describe("Service", func() {
 				defer service.Stop()
 				started = true
 				service.Start()
-				url, err := service.URL()
-				Expect(err).NotTo(HaveOccurred())
-				Expect(url).To(MatchRegexp(`http://127.0.0.1:\d+`))
+				Expect(service.URL()).To(MatchRegexp(`http://127.0.0.1:\d+`))
 			})
 		})
 	})

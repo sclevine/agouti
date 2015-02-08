@@ -102,6 +102,17 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (Page, error)) {
 			})
 		})
 
+		It("should support finding button elements by text", func() {
+			By("finding a <button>", func() {
+				Expect(page.FindByButton("Some Button")).To(HaveAttribute("name", "some button name"))
+			})
+
+			By("finding an <input> button", func() {
+				Expect(page.FindByButton("Some Input Button")).To(HaveAttribute("type", "button"))
+				Expect(page.FindByButton("Some Submit Button")).To(HaveAttribute("type", "submit"))
+			})
+		})
+
 		It("should support asserting on element properties", func() {
 			By("finding visible elements", func() {
 				Expect(page.Find("header h1")).To(BeVisible())

@@ -18,9 +18,7 @@ var _ = Describe("Capabilities", func() {
 		capabilities.Browser("some-browser").Version("v100").Platform("some-os")
 		capabilities.With("enabledThing").Without("disabledThing")
 		capabilities.Custom("custom", "value")
-		json, err := capabilities.JSON()
-		Expect(err).NotTo(HaveOccurred())
-		Expect(json).To(MatchJSON(`{
+		Expect(capabilities.JSON()).To(MatchJSON(`{
 			"desiredCapabilities": {
 				"browserName": "some-browser",
 				"version": "v100",

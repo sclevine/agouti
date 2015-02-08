@@ -38,6 +38,10 @@ func (u *userSelection) FindByLabel(text string) Selection {
 	return &userSelection{u.AppendLabeled(text).Single()}
 }
 
+func (u *userSelection) FindByButton(text string) Selection {
+	return &userSelection{u.AppendButton(text).Single()}
+}
+
 func (u *userSelection) First(selector string) Selection {
 	return &userSelection{u.AppendCSS(selector).At(0)}
 }
@@ -54,6 +58,10 @@ func (u *userSelection) FirstByLabel(text string) Selection {
 	return &userSelection{u.AppendLabeled(text).At(0)}
 }
 
+func (u *userSelection) FirstByButton(text string) Selection {
+	return &userSelection{u.AppendButton(text).At(0)}
+}
+
 func (u *userSelection) All(selector string) MultiSelection {
 	return &userSelection{u.AppendCSS(selector)}
 }
@@ -68,4 +76,8 @@ func (u *userSelection) AllByLink(text string) MultiSelection {
 
 func (u *userSelection) AllByLabel(text string) MultiSelection {
 	return &userSelection{u.AppendLabeled(text)}
+}
+
+func (u *userSelection) AllByButton(text string) Selection {
+	return &userSelection{u.AppendButton(text)}
 }

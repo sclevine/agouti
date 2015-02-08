@@ -26,18 +26,14 @@ var _ = Describe("BeFoundMatcher", func() {
 			Context("when the element is found", func() {
 				It("should successfully return true", func() {
 					selection.CountCall.ReturnCount = 1
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeTrue())
 				})
 			})
 
 			Context("when the element is not found", func() {
 				It("should successfully return false", func() {
 					selection.CountCall.ReturnCount = 0
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 		})
@@ -53,18 +49,14 @@ var _ = Describe("BeFoundMatcher", func() {
 			Context("when the error is an 'element not found' error", func() {
 				It("should successfully return false", func() {
 					selection.CountCall.Err = errors.New("some error: element not found")
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 
 			Context("when the error is an 'element index out of range' error", func() {
 				It("should successfully return false", func() {
 					selection.CountCall.Err = errors.New("some error: element index out of range")
-					success, err := matcher.Match(selection)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(selection)).To(BeFalse())
 				})
 			})
 

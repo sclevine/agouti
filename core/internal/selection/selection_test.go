@@ -106,6 +106,17 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#AppendButton", func() {
+		It("should propagate the client and element repository", func() {
+			Expect(selection.AppendButton("some text").Client).To(Equal(selection.Client))
+			Expect(selection.AppendButton("some text").Elements).To(Equal(selection.Elements))
+		})
+
+		It("should add a new XPath label-lookup selector to the selection", func() {
+			Expect(selection.AppendButton("some text").String()).To(Equal(`XPath: //input[@type="submit" or @type="button"][normalize-space(@value)="some text"] | //button[normalize-space()="some text"]`))
+		})
+	})
+
 	Describe("#At", func() {
 		Context("when called on a selection with no selectors", func() {
 			It("should return an empty selection", func() {

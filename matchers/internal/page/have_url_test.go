@@ -26,18 +26,14 @@ var _ = Describe("HaveURLMatcher", func() {
 			Context("when the expected URL matches the actual URL", func() {
 				It("should successfully return true", func() {
 					page.URLCall.ReturnURL = "Some URL"
-					success, err := matcher.Match(page)
-					Expect(success).To(BeTrue())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeTrue())
 				})
 			})
 
 			Context("when the expected URL does not match the actual URL", func() {
 				It("should successfully return false", func() {
 					page.URLCall.ReturnURL = "Some Other URL"
-					success, err := matcher.Match(page)
-					Expect(success).To(BeFalse())
-					Expect(err).NotTo(HaveOccurred())
+					Expect(matcher.Match(page)).To(BeFalse())
 				})
 			})
 
