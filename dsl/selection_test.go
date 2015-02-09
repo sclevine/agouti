@@ -2,6 +2,7 @@ package dsl_test
 
 import (
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/dsl"
@@ -16,15 +17,16 @@ var _ = Describe("Selection", func() {
 
 	BeforeEach(func() {
 		failMessage = ""
-		InjectFail(func(message string, callerSkip ...int) {
+		RegisterAgoutiFailHandler(func(message string, callerSkip ...int) {
 			failMessage = message
 			ExpectWithOffset(3, callerSkip[0]).To(Equal(2))
+			panic("Failed to catch test panic.")
 		})
 		selection = &mocks.Selection{}
 	})
 
 	AfterEach(func() {
-		InjectFail(Fail)
+		RegisterAgoutiFailHandler(Fail)
 	})
 
 	Describe(".SwitchToFrame", func() {
@@ -35,7 +37,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.SwitchToFrame returns an error", func() {
 			selection.SwitchToFrameCall.Err = errors.New("some error")
-			SwitchToFrame(selection)
+			Expect(func() { SwitchToFrame(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -48,7 +50,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Click returns an error", func() {
 			selection.ClickCall.Err = errors.New("some error")
-			Click(selection)
+			Expect(func() { Click(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -61,7 +63,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.DoubleClick returns an error", func() {
 			selection.DoubleClickCall.Err = errors.New("some error")
-			DoubleClick(selection)
+			Expect(func() { DoubleClick(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -74,7 +76,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Fill returns an error", func() {
 			selection.FillCall.Err = errors.New("some error")
-			Fill(selection, "some text")
+			Expect(func() { Fill(selection, "some text") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -87,7 +89,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Check returns an error", func() {
 			selection.CheckCall.Err = errors.New("some error")
-			Check(selection)
+			Expect(func() { Check(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -100,7 +102,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Uncheck returns an error", func() {
 			selection.UncheckCall.Err = errors.New("some error")
-			Uncheck(selection)
+			Expect(func() { Uncheck(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -113,7 +115,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Select returns an error", func() {
 			selection.SelectCall.Err = errors.New("some error")
-			Select(selection, "some text")
+			Expect(func() { Select(selection, "some text") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -126,7 +128,7 @@ var _ = Describe("Selection", func() {
 
 		It("should fail when page.Submit returns an error", func() {
 			selection.SubmitCall.Err = errors.New("some error")
-			Submit(selection)
+			Expect(func() { Submit(selection) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})

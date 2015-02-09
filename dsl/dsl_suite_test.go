@@ -1,13 +1,13 @@
 package dsl_test
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"testing"
 )
 
-func TestDsl(t *testing.T) {
+func TestDSL(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "DSL Suite")
 }

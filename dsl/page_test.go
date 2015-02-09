@@ -18,15 +18,16 @@ var _ = Describe("Page", func() {
 
 	BeforeEach(func() {
 		failMessage = ""
-		InjectFail(func(message string, callerSkip ...int) {
+		RegisterAgoutiFailHandler(func(message string, callerSkip ...int) {
 			failMessage = message
 			ExpectWithOffset(3, callerSkip[0]).To(Equal(2))
+			panic("Failed to catch test panic.")
 		})
 		page = &mocks.Page{}
 	})
 
 	AfterEach(func() {
-		InjectFail(Fail)
+		RegisterAgoutiFailHandler(Fail)
 	})
 
 	Describe(".Destroy", func() {
@@ -37,7 +38,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Destroy returns an error", func() {
 			page.DestroyCall.Err = errors.New("some error")
-			Destroy(page)
+			Expect(func() { Destroy(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -50,7 +51,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Navigate returns an error", func() {
 			page.NavigateCall.Err = errors.New("some error")
-			Navigate(page, "some URL")
+			Expect(func() { Navigate(page, "some URL") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -64,7 +65,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.SetCookie returns an error", func() {
 			page.SetCookieCall.Err = errors.New("some error")
-			SetCookie(page, core.Cookie("some", "cookie"))
+			Expect(func() { SetCookie(page, core.Cookie("some", "cookie")) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -77,7 +78,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.DeleteCookie returns an error", func() {
 			page.DeleteCookieCall.Err = errors.New("some error")
-			DeleteCookie(page, "some cookie name")
+			Expect(func() { DeleteCookie(page, "some cookie name") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -90,7 +91,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.ClearCookies returns an error", func() {
 			page.ClearCookiesCall.Err = errors.New("some error")
-			ClearCookies(page)
+			Expect(func() { ClearCookies(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -104,7 +105,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Size returns an error", func() {
 			page.SizeCall.Err = errors.New("some error")
-			Size(page, 100, 200)
+			Expect(func() { Size(page, 100, 200) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -117,7 +118,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Screenshot returns an error", func() {
 			page.ScreenshotCall.Err = errors.New("some error")
-			Screenshot(page, "some filename")
+			Expect(func() { Screenshot(page, "some filename") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -133,7 +134,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.RunScript returns an error", func() {
 			page.RunScriptCall.Err = errors.New("some error")
-			RunScript(page, "some body", nil, nil)
+			Expect(func() { RunScript(page, "some body", nil, nil) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -146,7 +147,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.EnterPopupText returns an error", func() {
 			page.EnterPopupTextCall.Err = errors.New("some error")
-			EnterPopupText(page, "some text")
+			Expect(func() { EnterPopupText(page, "some text") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -159,7 +160,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.ClearCookies returns an error", func() {
 			page.ClearCookiesCall.Err = errors.New("some error")
-			ClearCookies(page)
+			Expect(func() { ClearCookies(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -172,7 +173,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.CancelPopup returns an error", func() {
 			page.CancelPopupCall.Err = errors.New("some error")
-			CancelPopup(page)
+			Expect(func() { CancelPopup(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -185,7 +186,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Forward returns an error", func() {
 			page.ForwardCall.Err = errors.New("some error")
-			Forward(page)
+			Expect(func() { Forward(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -198,7 +199,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Back returns an error", func() {
 			page.BackCall.Err = errors.New("some error")
-			Back(page)
+			Expect(func() { Back(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -211,7 +212,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.Refresh returns an error", func() {
 			page.RefreshCall.Err = errors.New("some error")
-			Refresh(page)
+			Expect(func() { Refresh(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -224,7 +225,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.SwitchToParentFrame returns an error", func() {
 			page.SwitchToParentFrameCall.Err = errors.New("some error")
-			SwitchToParentFrame(page)
+			Expect(func() { SwitchToParentFrame(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -237,7 +238,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.SwitchToRootFrame returns an error", func() {
 			page.SwitchToRootFrameCall.Err = errors.New("some error")
-			SwitchToRootFrame(page)
+			Expect(func() { SwitchToRootFrame(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -250,7 +251,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.SwitchToWindow returns an error", func() {
 			page.SwitchToWindowCall.Err = errors.New("some error")
-			SwitchToWindow(page, "some window name")
+			Expect(func() { SwitchToWindow(page, "some window name") }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -263,7 +264,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.NextWindow returns an error", func() {
 			page.NextWindowCall.Err = errors.New("some error")
-			NextWindow(page)
+			Expect(func() { NextWindow(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})
@@ -276,7 +277,7 @@ var _ = Describe("Page", func() {
 
 		It("should fail when page.CloseWindow returns an error", func() {
 			page.CloseWindowCall.Err = errors.New("some error")
-			CloseWindow(page)
+			Expect(func() { CloseWindow(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})

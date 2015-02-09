@@ -1,10 +1,10 @@
 package selection_test
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"testing"
 )
 
 func TestSelection(t *testing.T) {

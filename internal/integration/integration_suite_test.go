@@ -1,13 +1,13 @@
 package integration_test
 
 import (
+	"os"
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
 	. "github.com/sclevine/agouti/internal/integration"
-
-	"os"
-	"testing"
 )
 
 var (

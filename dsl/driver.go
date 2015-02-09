@@ -1,20 +1,8 @@
 package dsl
 
-import (
-	"fmt"
+import "github.com/sclevine/agouti/core"
 
-	"github.com/onsi/ginkgo"
-	"github.com/sclevine/agouti/core"
-)
-
-var (
-	driver  core.WebDriver
-	failDSL func(message string, callerSkip ...int)
-)
-
-func init() {
-	failDSL = ginkgo.Fail
-}
+var driver core.WebDriver
 
 // StartPhantomJS starts a PhantomJS WebDriver service for use with CreatePage.
 func StartPhantomJS() {
@@ -40,7 +28,7 @@ func StartSelenium() {
 // StopWebDriver stops the current running WebDriver.
 func StopWebDriver() {
 	if driver == nil {
-		failDSL("WebDriver not started", 1)
+		globalFailHandler("WebDriver not started", 1)
 	}
 	driver.Stop()
 	driver = nil
@@ -50,7 +38,7 @@ func StopWebDriver() {
 // For Selenium, the browserName determines which browser to use for the session.
 func CreatePage(browserName ...string) core.Page {
 	if driver == nil {
-		failDSL("WebDriver not started", 1)
+		globalFailHandler("WebDriver not started", 1)
 	}
 	capabilities := core.Use()
 	if len(browserName) > 0 {
@@ -67,7 +55,7 @@ func CreatePage(browserName ...string) core.Page {
 // Browser(string) method sets which browser to use for the session.
 func CustomPage(capabilities core.Capabilities) core.Page {
 	if driver == nil {
-		failDSL("WebDriver not started", 1)
+		globalFailHandler("WebDriver not started", 1)
 	}
 	newPage, err := driver.Page(capabilities)
 	checkFailure(err)
@@ -76,12 +64,6 @@ func CustomPage(capabilities core.Capabilities) core.Page {
 
 func checkWebDriverNotStarted() {
 	if driver != nil {
-		failDSL("WebDriver already started", 2)
-	}
-}
-
-func checkFailure(err error) {
-	if err != nil {
-		failDSL(fmt.Sprintf("Agouti failure: %s", err), 2)
+		globalFailHandler("WebDriver already started", 2)
 	}
 }

@@ -1,13 +1,13 @@
 package api_test
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"testing"
 )
 
-func TestClient(t *testing.T) {
+func TestAPI(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "API Suite")
 }
