@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/api"
+	"github.com/sclevine/agouti/api/internal/session"
 )
 
 // WebDriver controls a Selenium, PhantomJS, or ChromeDriver process.

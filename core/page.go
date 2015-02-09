@@ -3,7 +3,7 @@ package core
 import (
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/selection"
 )

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 )
 
 type ElementRepository struct {

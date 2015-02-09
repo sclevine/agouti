@@ -3,7 +3,7 @@ package mocks
 import (
 	"encoding/json"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 )
 
 type Client struct {

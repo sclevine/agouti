@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 )
 
 func (s *Selection) String() string {

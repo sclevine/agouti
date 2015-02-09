@@ -3,7 +3,7 @@ package selection
 import (
 	"fmt"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 )
 
 type Selector struct {

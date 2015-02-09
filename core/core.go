@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/service"
-	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/api"
+	"github.com/sclevine/agouti/api/internal/service"
+	"github.com/sclevine/agouti/api/internal/session"
 )
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
