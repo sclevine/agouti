@@ -16,11 +16,13 @@ func ChromeDriver() WebDriver {
 }
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
+// The return error is deprecated and will always be nil.
 func PhantomJS() (WebDriver, error) {
 	return CustomWebDriver("http://{{.Address}}", []string{"phantomjs", "--webdriver={{.Address}}"}), nil
 }
 
 // Selenium returns an instance of a Selenium WebDriver.
+// The return error is deprecated and will always be nil.
 func Selenium() (WebDriver, error) {
 	return CustomWebDriver("http://{{.Address}}/wd/hub", []string{"selenium-server", "-port", "{{.Port}}"}), nil
 }

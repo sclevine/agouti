@@ -1,65 +1,70 @@
 package dsl_test
 
 import (
-	. "github.com/sclevine/agouti/core"
-	. "github.com/sclevine/agouti/dsl"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/dsl"
 )
 
 var _ = Describe("DSL sanity checks", func() {
-	Feature("starting and stopping WebDrivers", func() {
+	Feature("Background", func() {
+		var runsBackground bool
+
 		Background(func() {
-			// TODO: test background
+			runsBackground = true
 		})
 
-		AfterEach(func() {
-			StopWebDriver()
+		Scenario("Background is a Ginkgo BeforeEach", func() {
+			Expect(runsBackground).To(BeTrue())
 		})
 
-		Scenario("PhantomJS", func() {
-			StartPhantomJS()
-			page := CreatePage()
-			Destroy(page)
+		Scenario("Step is a Ginkgo By", func() {
+			var stepRuns bool
+
+			Step("steps are run", func() {
+				Expect(stepRuns).To(BeFalse())
+				stepRuns = true
+			})
+
+			Expect(stepRuns).To(BeTrue())
 		})
+	})
 
-		Scenario("ChromeDriver", func() {
-			StartChromeDriver()
-			page := CreatePage()
-			Destroy(page)
-		})
-
-		Scenario("Selenium", func() {
-			StartSelenium()
-			page := CreatePage("firefox")
-			Destroy(page)
-
-			Step("using CustomPage", func() {
-				page = CustomPage(Use().Browser("chrome"))
-				Destroy(page)
+	if os.Getenv("DSL_PENDING_SANITY_CHECKS") == "true" {
+		XFeature("this Describe is pending (using X)", func() {
+			Scenario("so this would not run", func() {
+				Fail("failed to pend spec")
 			})
 		})
-	})
 
-	XFeature("this Describe is pending (using X)", func() {
-		Scenario("so this does not run", func() {
+		PFeature("this Describe is pending (using P)", func() {
+			Scenario("so this would not run", func() {
+				Fail("failed to pend spec")
+			})
+		})
+
+		XScenario("this is pending (using X) and would not run", func() {
 			Fail("failed to pend spec")
 		})
-	})
 
-	PFeature("this Describe is pending (using P)", func() {
-		Scenario("so this does not run", func() {
+		PScenario("this is pending (using P) and would not run", func() {
 			Fail("failed to pend spec")
 		})
-	})
+	}
 
-	XScenario("this is pending (using X) and does not run", func() {
-		Fail("failed to pend spec")
-	})
+	if os.Getenv("DSL_FOCUSED_SANITY_CHECKS") == "true" {
+		FFeature("this Describe is focused", func() {
+			Scenario("so this will run", func() {
+			})
+		})
 
-	PScenario("this is pending (using P) and does not run", func() {
-		Fail("failed to pend spec")
-	})
+		FScenario("this is focused and will run", func() {
+		})
 
+		Scenario("this is not focused and will not run", func() {
+			Fail("failed to focus specs")
+		})
+	}
 })
