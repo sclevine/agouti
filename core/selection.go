@@ -147,5 +147,5 @@ type Selectable interface {
 
 	// AllByButton finds zero or more button elements with the provided text.
 	// Supports <button>, <input type="button">, and <input type="submit">.
-	AllByButton(text string) Selection
+	AllByButton(text string) MultiSelection
 }
