@@ -78,6 +78,6 @@ func (u *userSelection) AllByLabel(text string) MultiSelection {
 	return &userSelection{u.AppendLabeled(text)}
 }
 
-func (u *userSelection) AllByButton(text string) Selection {
+func (u *userSelection) AllByButton(text string) MultiSelection {
 	return &userSelection{u.AppendButton(text)}
 }
