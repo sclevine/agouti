@@ -64,12 +64,12 @@ func (w *WebDriver) Start() error {
 	return nil
 }
 
-func (d *WebDriver) Stop() error {
-	for _, session := range d.sessions {
+func (w *WebDriver) Stop() error {
+	for _, session := range w.sessions {
 		session.Delete()
 	}
 
-	if err := d.Service.Stop(); err != nil {
+	if err := w.Service.Stop(); err != nil {
 		return fmt.Errorf("failed to stop service: %s", err)
 	}
 
