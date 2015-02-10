@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
-	. "github.com/sclevine/agouti/internal/integration"
 )
 
 var (
@@ -32,12 +31,9 @@ var _ = BeforeSuite(func() {
 		Expect(seleniumDriver.Start()).To(Succeed())
 		Expect(chromeDriver.Start()).To(Succeed())
 	}
-
-	Server.Start()
 })
 
 var _ = AfterSuite(func() {
-	Server.Close()
 	Expect(phantomDriver.Stop()).To(Succeed())
 
 	if !headlessOnly {

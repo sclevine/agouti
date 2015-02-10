@@ -120,7 +120,7 @@ var _ = Describe("Page", func() {
 
 		BeforeEach(func() {
 			bus = &mocks.Bus{}
-			window = &api.Window{Session: &api.Session{bus}}
+			window = &api.Window{Session: &api.Session{Bus: bus}}
 		})
 
 		It("should set the window width and height to the provided dimensions", func() {

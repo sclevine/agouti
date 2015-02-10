@@ -1,10 +1,13 @@
 package integration_test
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
-	. "github.com/sclevine/agouti/internal/integration"
 	. "github.com/sclevine/agouti/matchers"
 )
 
@@ -30,23 +33,36 @@ var _ = Describe("integration tests", func() {
 
 func itShouldBehaveLikeAPage(name string, pageFunc func() (Page, error)) {
 	Describe("integration test for "+name, func() {
-		var page Page
+		var (
+			page      Page
+			submitted bool
+			server    *httptest.Server
+		)
 
 		BeforeEach(func() {
+			server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+				if request.Method == "POST" {
+					submitted = true
+				}
+				html, _ := ioutil.ReadFile("test_page.html")
+				response.Write(html)
+			}))
+
 			var err error
 			page, err = pageFunc()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(page.Size(640, 480)).To(Succeed())
-			Expect(page.Navigate(Server.URL)).To(Succeed())
+			Expect(page.Navigate(server.URL)).To(Succeed())
 		})
 
 		AfterEach(func() {
 			page.Destroy()
+			server.Close()
 		})
 
 		It("should support finding the page title and URL", func() {
 			Expect(page).To(HaveTitle("Page Title"))
-			Expect(page).To(HaveURL(Server.URL + "/"))
+			Expect(page).To(HaveURL(server.URL + "/"))
 		})
 
 		It("should support finding page elements", func() {
@@ -189,7 +205,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (Page, error)) {
 
 			By("submitting a form", func() {
 				Expect(page.Find("#some_form").Submit()).To(Succeed())
-				Eventually(Submitted).Should(BeTrue())
+				Eventually(func() bool { return submitted }).Should(BeTrue())
 			})
 		})
 
