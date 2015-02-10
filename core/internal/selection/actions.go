@@ -33,10 +33,10 @@ func (s *Selection) Click() error {
 
 func (s *Selection) DoubleClick() error {
 	return s.forEachElement(func(element Element) error {
-		if err := s.Client.MoveTo(element.(*api.Element), nil); err != nil {
+		if err := s.Session.MoveTo(element.(*api.Element), nil); err != nil {
 			return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
 		}
-		if err := s.Client.DoubleClick(); err != nil {
+		if err := s.Session.DoubleClick(); err != nil {
 			return fmt.Errorf("failed to double-click on '%s': %s", s, err)
 		}
 		return nil
@@ -92,7 +92,7 @@ func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(element Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space()="%s"]`, text)
 		optionToSelect := Selector{Type: "xpath", Value: optionXPath}
-		options, err := element.(elementClient).GetElements(optionToSelect.API())
+		options, err := element.GetElements(optionToSelect.API())
 		if err != nil {
 			return fmt.Errorf("failed to select specified option for some '%s': %s", s, err)
 		}

@@ -6,28 +6,30 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/core/internal/mocks"
+	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
 var _ = Describe("Element", func() {
 	var (
 		element *Element
-		session *mocks.Session
+		session *Session
+		bus     *mocks.Bus
 		err     error
 	)
 
 	BeforeEach(func() {
-		session = &mocks.Session{}
+		bus = &mocks.Bus{}
+		session = &Session{bus}
 		element = &Element{"some-id", session}
 	})
 
 	ItShouldMakeAnElementRequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
-			Expect(session.ExecuteCall.Method).To(Equal(method))
+			Expect(bus.SendCall.Method).To(Equal(method))
 		})
 
 		It("should hit the desired endpoint", func() {
-			Expect(session.ExecuteCall.Endpoint).To(Equal("element/some-id/" + endpoint))
+			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/" + endpoint))
 		})
 
 		It("should not return an error", func() {
@@ -36,7 +38,7 @@ var _ = Describe("Element", func() {
 
 		if len(body) > 0 {
 			It("should set the request body", func() {
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(body[0]))
 			})
 		}
 	}
@@ -45,7 +47,7 @@ var _ = Describe("Element", func() {
 		var singleElement *Element
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
+			bus.SendCall.Result = `{"ELEMENT": "some-id"}`
 			singleElement, err = element.GetElement(Selector{"css selector", "#selector"})
 		})
 
@@ -56,9 +58,9 @@ var _ = Describe("Element", func() {
 			Expect(singleElement.Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.GetElement(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
@@ -69,7 +71,7 @@ var _ = Describe("Element", func() {
 		var elements []*Element
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
+			bus.SendCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
 			elements, err = element.GetElements(Selector{"css selector", "#selector"})
 		})
 
@@ -82,9 +84,9 @@ var _ = Describe("Element", func() {
 			Expect(elements[1].Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.GetElements(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
@@ -95,7 +97,7 @@ var _ = Describe("Element", func() {
 		var text string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some text"`
+			bus.SendCall.Result = `"some text"`
 			text, err = element.GetText()
 		})
 
@@ -105,9 +107,9 @@ var _ = Describe("Element", func() {
 			Expect(text).To(Equal("some text"))
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the text", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to retrieve the text", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.GetText()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -118,7 +120,7 @@ var _ = Describe("Element", func() {
 		var value string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some value"`
+			bus.SendCall.Result = `"some value"`
 			value, err = element.GetAttribute("some-name")
 		})
 
@@ -128,9 +130,9 @@ var _ = Describe("Element", func() {
 			Expect(value).To(Equal("some value"))
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the attribute", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.GetAttribute("some-name")
 				Expect(err).To(MatchError("some error"))
 			})
@@ -141,7 +143,7 @@ var _ = Describe("Element", func() {
 		var value string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some value"`
+			bus.SendCall.Result = `"some value"`
 			value, err = element.GetCSS("some-property")
 		})
 
@@ -151,9 +153,9 @@ var _ = Describe("Element", func() {
 			Expect(value).To(Equal("some value"))
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the CSS property", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.GetCSS("some-property")
 				Expect(err).To(MatchError("some error"))
 			})
@@ -167,9 +169,9 @@ var _ = Describe("Element", func() {
 
 		ItShouldMakeAnElementRequest("POST", "click")
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to click", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				Expect(element.Click()).To(MatchError("some error"))
 			})
 		})
@@ -182,9 +184,9 @@ var _ = Describe("Element", func() {
 
 		ItShouldMakeAnElementRequest("POST", "clear")
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to clear the field", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				Expect(element.Clear()).To(MatchError("some error"))
 			})
 		})
@@ -197,9 +199,9 @@ var _ = Describe("Element", func() {
 
 		ItShouldMakeAnElementRequest("POST", "value", `{"value": ["t", "e", "x", "t"]}`)
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to enter the text", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				Expect(element.Value("text")).To(MatchError("some error"))
 			})
 		})
@@ -209,7 +211,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = "true"
+			bus.SendCall.Result = "true"
 			value, err = element.IsSelected()
 		})
 
@@ -219,9 +221,9 @@ var _ = Describe("Element", func() {
 			Expect(value).To(BeTrue())
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the selected status", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.IsSelected()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -232,7 +234,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = "true"
+			bus.SendCall.Result = "true"
 			value, err = element.IsDisplayed()
 		})
 
@@ -242,9 +244,9 @@ var _ = Describe("Element", func() {
 			Expect(value).To(BeTrue())
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the displayed status", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.IsDisplayed()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -255,7 +257,7 @@ var _ = Describe("Element", func() {
 		var value bool
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = "true"
+			bus.SendCall.Result = "true"
 			value, err = element.IsEnabled()
 		})
 
@@ -265,9 +267,9 @@ var _ = Describe("Element", func() {
 			Expect(value).To(BeTrue())
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to retrieve the enabled status", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.IsEnabled()
 				Expect(err).To(MatchError("some error"))
 			})
@@ -281,9 +283,9 @@ var _ = Describe("Element", func() {
 
 		ItShouldMakeAnElementRequest("POST", "submit")
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to submit", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				Expect(element.Submit()).To(MatchError("some error"))
 			})
 		})
@@ -297,7 +299,7 @@ var _ = Describe("Element", func() {
 
 		BeforeEach(func() {
 			otherElement = &Element{"other-id", session}
-			session.ExecuteCall.Result = "true"
+			bus.SendCall.Result = "true"
 			equal, err = element.IsEqualTo(otherElement)
 		})
 
@@ -307,9 +309,9 @@ var _ = Describe("Element", func() {
 			Expect(equal).To(BeTrue())
 		})
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to compare the elements", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
 				_, err := element.IsEqualTo(otherElement)
 				Expect(err).To(MatchError("some error"))
 			})

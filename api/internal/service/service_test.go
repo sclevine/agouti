@@ -14,12 +14,13 @@ var _ = Describe("Service", func() {
 	var (
 		service *Service
 		started bool
+		server  *httptest.Server
 	)
 
 	BeforeEach(func() {
 		started = false
 
-		fakeServer := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 			if started && request.URL.Path == "/status" {
 				response.WriteHeader(200)
 			} else {
@@ -28,10 +29,14 @@ var _ = Describe("Service", func() {
 		}))
 
 		service = &Service{
-			URLTemplate: fakeServer.URL,
+			URLTemplate: server.URL,
 			CmdTemplate: []string{"true"},
 			Timeout:     1500 * time.Millisecond,
 		}
+	})
+
+	AfterEach(func() {
+		server.Close()
 	})
 
 	Describe("#URL", func() {
@@ -152,9 +157,16 @@ var _ = Describe("Service", func() {
 		It("should stop a running server", func() {
 			defer service.Stop()
 			started = true
-			service.Start()
-			service.Stop()
 			Expect(service.Start()).To(Succeed())
+			Expect(service.Stop()).To(Succeed())
+			Expect(service.Start()).To(Succeed())
+		})
+
+		Context("when the command is not started", func() {
+			It("should return an error", func() {
+				err := service.Stop()
+				Expect(err).To(MatchError("already stopped"))
+			})
 		})
 	})
 })

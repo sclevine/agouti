@@ -51,7 +51,7 @@ func (s *Selection) SwitchToFrame() error {
 		return fmt.Errorf("failed to select '%s': %s", s, err)
 	}
 
-	if err := s.Client.Frame(element.(*api.Element)); err != nil {
+	if err := s.Session.Frame(element.(*api.Element)); err != nil {
 		return fmt.Errorf("failed to switch to frame '%s': %s", s, err)
 	}
 	return nil

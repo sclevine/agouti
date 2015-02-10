@@ -1,19 +1,19 @@
 package api
 
 import (
-	"fmt"
+	"path"
 	"strings"
 )
 
 type Element struct {
 	ID      string
-	Session session
+	Session *Session
 }
 
 func (e *Element) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 
-	if err := e.Session.Execute(e.url()+"/element", "POST", selector, &result); err != nil {
+	if err := e.Session.sendElement(e.ID, "element", "POST", selector, &result); err != nil {
 		return nil, err
 	}
 
@@ -23,7 +23,7 @@ func (e *Element) GetElement(selector Selector) (*Element, error) {
 func (e *Element) GetElements(selector Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
-	if err := e.Session.Execute(e.url()+"/elements", "POST", selector, &results); err != nil {
+	if err := e.Session.sendElement(e.ID, "elements", "POST", selector, &results); err != nil {
 		return nil, err
 	}
 
@@ -37,7 +37,7 @@ func (e *Element) GetElements(selector Selector) ([]*Element, error) {
 
 func (e *Element) GetText() (string, error) {
 	var text string
-	if err := e.Session.Execute(e.url()+"/text", "GET", nil, &text); err != nil {
+	if err := e.Session.sendElement(e.ID, "text", "GET", nil, &text); err != nil {
 		return "", err
 	}
 	return text, nil
@@ -45,7 +45,7 @@ func (e *Element) GetText() (string, error) {
 
 func (e *Element) GetAttribute(attribute string) (string, error) {
 	var value string
-	if err := e.Session.Execute(fmt.Sprintf("%s/attribute/%s", e.url(), attribute), "GET", nil, &value); err != nil {
+	if err := e.Session.sendElement(e.ID, path.Join("attribute", attribute), "GET", nil, &value); err != nil {
 		return "", err
 	}
 	return value, nil
@@ -53,18 +53,18 @@ func (e *Element) GetAttribute(attribute string) (string, error) {
 
 func (e *Element) GetCSS(property string) (string, error) {
 	var value string
-	if err := e.Session.Execute(fmt.Sprintf("%s/css/%s", e.url(), property), "GET", nil, &value); err != nil {
+	if err := e.Session.sendElement(e.ID, path.Join("css", property), "GET", nil, &value); err != nil {
 		return "", err
 	}
 	return value, nil
 }
 
 func (e *Element) Click() error {
-	return e.Session.Execute(e.url()+"/click", "POST", nil)
+	return e.Session.sendElement(e.ID, "click", "POST", nil)
 }
 
 func (e *Element) Clear() error {
-	return e.Session.Execute(e.url()+"/clear", "POST", nil)
+	return e.Session.sendElement(e.ID, "clear", "POST", nil)
 }
 
 func (e *Element) Value(text string) error {
@@ -72,12 +72,12 @@ func (e *Element) Value(text string) error {
 	request := struct {
 		Value []string `json:"value"`
 	}{splitText}
-	return e.Session.Execute(e.url()+"/value", "POST", request)
+	return e.Session.sendElement(e.ID, "value", "POST", request)
 }
 
 func (e *Element) IsSelected() (bool, error) {
 	var selected bool
-	if err := e.Session.Execute(e.url()+"/selected", "GET", nil, &selected); err != nil {
+	if err := e.Session.sendElement(e.ID, "selected", "GET", nil, &selected); err != nil {
 		return false, err
 	}
 	return selected, nil
@@ -85,7 +85,7 @@ func (e *Element) IsSelected() (bool, error) {
 
 func (e *Element) IsDisplayed() (bool, error) {
 	var displayed bool
-	if err := e.Session.Execute(e.url()+"/displayed", "GET", nil, &displayed); err != nil {
+	if err := e.Session.sendElement(e.ID, "displayed", "GET", nil, &displayed); err != nil {
 		return false, err
 	}
 	return displayed, nil
@@ -93,24 +93,20 @@ func (e *Element) IsDisplayed() (bool, error) {
 
 func (e *Element) IsEnabled() (bool, error) {
 	var enabled bool
-	if err := e.Session.Execute(e.url()+"/enabled", "GET", nil, &enabled); err != nil {
+	if err := e.Session.sendElement(e.ID, "enabled", "GET", nil, &enabled); err != nil {
 		return false, err
 	}
 	return enabled, nil
 }
 
 func (e *Element) Submit() error {
-	return e.Session.Execute(e.url()+"/submit", "POST", nil)
+	return e.Session.sendElement(e.ID, "submit", "POST", nil)
 }
 
 func (e *Element) IsEqualTo(other *Element) (bool, error) {
 	var equal bool
-	if err := e.Session.Execute(e.url()+"/equals/"+other.ID, "GET", nil, &equal); err != nil {
+	if err := e.Session.sendElement(e.ID, path.Join("equals", other.ID), "GET", nil, &equal); err != nil {
 		return false, err
 	}
 	return equal, nil
-}
-
-func (e *Element) url() string {
-	return "element/" + e.ID
 }

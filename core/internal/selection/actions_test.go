@@ -13,18 +13,18 @@ import (
 var _ = Describe("Actions", func() {
 	var (
 		selection         *Selection
-		client            *mocks.Client
+		session           *mocks.Session
 		elementRepository *mocks.ElementRepository
 		firstElement      *mocks.Element
 		secondElement     *mocks.Element
 	)
 
 	BeforeEach(func() {
-		client = &mocks.Client{}
+		session = &mocks.Session{}
 		firstElement = &mocks.Element{}
 		secondElement = &mocks.Element{}
 		elementRepository = &mocks.ElementRepository{}
-		emptySelection := &Selection{Client: client, Elements: elementRepository}
+		emptySelection := &Selection{Session: session, Elements: elementRepository}
 		selection = emptySelection.AppendCSS("#selector")
 		elementRepository.GetAtLeastOneCall.ReturnElements = []Element{firstElement, secondElement}
 	})
@@ -62,8 +62,8 @@ var _ = Describe("Actions", func() {
 
 		It("should successfully move the mouse to the middle of each selected element", func() {
 			Expect(selection.DoubleClick()).To(Succeed())
-			Expect(client.MoveToCall.Element).To(Equal(apiElement))
-			Expect(client.MoveToCall.Point).To(BeNil())
+			Expect(session.MoveToCall.Element).To(Equal(apiElement))
+			Expect(session.MoveToCall.Point).To(BeNil())
 		})
 
 		Context("when zero elements are returned", func() {
@@ -75,19 +75,19 @@ var _ = Describe("Actions", func() {
 
 		Context("when moving over any element fails", func() {
 			It("should retun an error", func() {
-				client.MoveToCall.Err = errors.New("some error")
+				session.MoveToCall.Err = errors.New("some error")
 				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to 'CSS: #selector': some error"))
 			})
 		})
 
 		It("should successfully double-click on each element", func() {
 			Expect(selection.DoubleClick()).To(Succeed())
-			Expect(client.DoubleClickCall.Called).To(BeTrue())
+			Expect(session.DoubleClickCall.Called).To(BeTrue())
 		})
 
 		Context("when the double-clicking any element fails", func() {
 			It("should return an error", func() {
-				client.DoubleClickCall.Err = errors.New("some error")
+				session.DoubleClickCall.Err = errors.New("some error")
 				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on 'CSS: #selector': some error"))
 			})
 		})
@@ -207,17 +207,23 @@ var _ = Describe("Actions", func() {
 
 	Describe("#Select", func() {
 		var (
-			firstOptionSessions  []*mocks.Session
-			secondOptionSessions []*mocks.Session
-			firstOptions         []*api.Element
-			secondOptions        []*api.Element
+			firstOptionBuses  []*mocks.Bus
+			secondOptionBuses []*mocks.Bus
+			firstOptions      []*api.Element
+			secondOptions     []*api.Element
 		)
 
 		BeforeEach(func() {
-			firstOptionSessions = []*mocks.Session{&mocks.Session{}, &mocks.Session{}}
-			secondOptionSessions = []*mocks.Session{&mocks.Session{}, &mocks.Session{}}
-			firstOptions = []*api.Element{&api.Element{Session: firstOptionSessions[0]}, &api.Element{Session: firstOptionSessions[1]}}
-			secondOptions = []*api.Element{&api.Element{Session: secondOptionSessions[0]}, &api.Element{Session: secondOptionSessions[1]}}
+			firstOptionBuses = []*mocks.Bus{&mocks.Bus{}, &mocks.Bus{}}
+			secondOptionBuses = []*mocks.Bus{&mocks.Bus{}, &mocks.Bus{}}
+			firstOptions = []*api.Element{
+				&api.Element{ID: "one", Session: &api.Session{firstOptionBuses[0]}},
+				&api.Element{ID: "two", Session: &api.Session{firstOptionBuses[1]}},
+			}
+			secondOptions = []*api.Element{
+				&api.Element{ID: "three", Session: &api.Session{secondOptionBuses[0]}},
+				&api.Element{ID: "four", Session: &api.Session{secondOptionBuses[1]}},
+			}
 			firstElement.GetElementsCall.ReturnElements = []*api.Element{firstOptions[0], firstOptions[1]}
 			secondElement.GetElementsCall.ReturnElements = []*api.Element{secondOptions[0], secondOptions[1]}
 		})
@@ -253,15 +259,15 @@ var _ = Describe("Actions", func() {
 
 		It("should successfully click on all options with matching text", func() {
 			Expect(selection.Select("some text")).To(Succeed())
-			Expect(firstOptionSessions[0].ExecuteCall.Endpoint).To(Equal("element//click"))
-			Expect(firstOptionSessions[1].ExecuteCall.Endpoint).To(Equal("element//click"))
-			Expect(secondOptionSessions[0].ExecuteCall.Endpoint).To(Equal("element//click"))
-			Expect(secondOptionSessions[1].ExecuteCall.Endpoint).To(Equal("element//click"))
+			Expect(firstOptionBuses[0].SendCall.Endpoint).To(Equal("element/one/click"))
+			Expect(firstOptionBuses[1].SendCall.Endpoint).To(Equal("element/two/click"))
+			Expect(secondOptionBuses[0].SendCall.Endpoint).To(Equal("element/three/click"))
+			Expect(secondOptionBuses[1].SendCall.Endpoint).To(Equal("element/four/click"))
 		})
 
 		Context("when the click fails for any of the options", func() {
 			It("should return an error", func() {
-				secondOptionSessions[1].ExecuteCall.Err = errors.New("some error")
+				secondOptionBuses[1].SendCall.Err = errors.New("some error")
 				Expect(selection.Select("some text")).To(MatchError(`failed to click on option with text "some text" for some 'CSS: #selector': some error`))
 			})
 		})

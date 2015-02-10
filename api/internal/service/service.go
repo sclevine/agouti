@@ -64,19 +64,25 @@ func (s *Service) Start() error {
 	return s.waitForServer()
 }
 
-func (s *Service) Stop() {
+func (s *Service) Stop() error {
 	if s.command == nil {
-		return
+		return errors.New("already stopped")
 	}
 
+	var err error
 	if runtime.GOOS == "windows" {
-		s.command.Process.Kill()
+		err = s.command.Process.Kill()
 	} else {
-		s.command.Process.Signal(syscall.SIGINT)
+		err = s.command.Process.Signal(syscall.SIGINT)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to stop command: %s", err)
 	}
 
 	s.command.Wait()
 	s.command = nil
+
+	return nil
 }
 
 func buildURL(url string, address addressInfo) (string, error) {

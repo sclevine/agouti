@@ -38,10 +38,10 @@ var _ = BeforeSuite(func() {
 
 var _ = AfterSuite(func() {
 	Server.Close()
-	phantomDriver.Stop()
+	Expect(phantomDriver.Stop()).To(Succeed())
 
 	if !headlessOnly {
-		chromeDriver.Stop()
-		seleniumDriver.Stop()
+		Expect(chromeDriver.Stop()).To(Succeed())
+		Expect(seleniumDriver.Stop()).To(Succeed())
 	}
 })

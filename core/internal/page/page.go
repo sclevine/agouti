@@ -13,8 +13,35 @@ import (
 )
 
 type Page struct {
-	Client apiClient
-	logs   map[string][]Log
+	Session interface {
+		Delete() error
+		GetWindow() (*api.Window, error)
+		GetWindows() ([]*api.Window, error)
+		SetWindow(window *api.Window) error
+		SetWindowByName(name string) error
+		DeleteWindow() error
+		GetScreenshot() ([]byte, error)
+		SetCookie(cookie interface{}) error
+		DeleteCookie(name string) error
+		DeleteCookies() error
+		GetURL() (string, error)
+		SetURL(url string) error
+		GetTitle() (string, error)
+		GetSource() (string, error)
+		Frame(frame *api.Element) error
+		FrameParent() error
+		Execute(body string, arguments []interface{}, result interface{}) error
+		Forward() error
+		Back() error
+		Refresh() error
+		GetAlertText() (string, error)
+		SetAlertText(text string) error
+		AcceptAlert() error
+		DismissAlert() error
+		NewLogs(logType string) ([]api.Log, error)
+		GetLogTypes() ([]string, error)
+	}
+	logs map[string][]Log
 }
 
 type Log struct {
@@ -24,72 +51,43 @@ type Log struct {
 	Time     time.Time
 }
 
-type apiClient interface {
-	DeleteSession() error
-	GetWindow() (*api.Window, error)
-	GetWindows() ([]*api.Window, error)
-	SetWindow(window *api.Window) error
-	SetWindowByName(name string) error
-	DeleteWindow() error
-	GetScreenshot() ([]byte, error)
-	SetCookie(cookie interface{}) error
-	DeleteCookie(name string) error
-	DeleteCookies() error
-	GetURL() (string, error)
-	SetURL(url string) error
-	GetTitle() (string, error)
-	GetSource() (string, error)
-	Frame(frame *api.Element) error
-	FrameParent() error
-	Execute(body string, arguments []interface{}, result interface{}) error
-	Forward() error
-	Back() error
-	Refresh() error
-	GetAlertText() (string, error)
-	SetAlertText(text string) error
-	AcceptAlert() error
-	DismissAlert() error
-	NewLogs(logType string) ([]api.Log, error)
-	GetLogTypes() ([]string, error)
-}
-
 func (p *Page) Destroy() error {
-	if err := p.Client.DeleteSession(); err != nil {
+	if err := p.Session.Delete(); err != nil {
 		return fmt.Errorf("failed to destroy session: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Navigate(url string) error {
-	if err := p.Client.SetURL(url); err != nil {
+	if err := p.Session.SetURL(url); err != nil {
 		return fmt.Errorf("failed to navigate: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) SetCookie(cookie interface{}) error {
-	if err := p.Client.SetCookie(cookie); err != nil {
+	if err := p.Session.SetCookie(cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) DeleteCookie(name string) error {
-	if err := p.Client.DeleteCookie(name); err != nil {
+	if err := p.Session.DeleteCookie(name); err != nil {
 		return fmt.Errorf("failed to delete cookie %s: %s", name, err)
 	}
 	return nil
 }
 
 func (p *Page) ClearCookies() error {
-	if err := p.Client.DeleteCookies(); err != nil {
+	if err := p.Session.DeleteCookies(); err != nil {
 		return fmt.Errorf("failed to clear cookies: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) URL() (string, error) {
-	url, err := p.Client.GetURL()
+	url, err := p.Session.GetURL()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve URL: %s", err)
 	}
@@ -97,7 +95,7 @@ func (p *Page) URL() (string, error) {
 }
 
 func (p *Page) Size(width, height int) error {
-	window, err := p.Client.GetWindow()
+	window, err := p.Session.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve window: %s", err)
 	}
@@ -120,7 +118,7 @@ func (p *Page) Screenshot(filename string) error {
 	}
 	defer file.Close()
 
-	screenshot, err := p.Client.GetScreenshot()
+	screenshot, err := p.Session.GetScreenshot()
 	if err != nil {
 		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
@@ -134,7 +132,7 @@ func (p *Page) Screenshot(filename string) error {
 }
 
 func (p *Page) Title() (string, error) {
-	title, err := p.Client.GetTitle()
+	title, err := p.Session.GetTitle()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page title: %s", err)
 	}
@@ -142,7 +140,7 @@ func (p *Page) Title() (string, error) {
 }
 
 func (p *Page) HTML() (string, error) {
-	html, err := p.Client.GetSource()
+	html, err := p.Session.GetSource()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve page HTML: %s", err)
 	}
@@ -163,7 +161,7 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 	argumentList := strings.Join(keys, ", ")
 	cleanBody := fmt.Sprintf("return (function(%s) { %s; }).apply(this, arguments);", argumentList, body)
 
-	if err := p.Client.Execute(cleanBody, values, result); err != nil {
+	if err := p.Session.Execute(cleanBody, values, result); err != nil {
 		return fmt.Errorf("failed to run script: %s", err)
 	}
 
@@ -171,7 +169,7 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 }
 
 func (p *Page) PopupText() (string, error) {
-	text, err := p.Client.GetAlertText()
+	text, err := p.Session.GetAlertText()
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve popup text: %s", err)
 	}
@@ -179,70 +177,70 @@ func (p *Page) PopupText() (string, error) {
 }
 
 func (p *Page) EnterPopupText(text string) error {
-	if err := p.Client.SetAlertText(text); err != nil {
+	if err := p.Session.SetAlertText(text); err != nil {
 		return fmt.Errorf("failed to enter popup text: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) ConfirmPopup() error {
-	if err := p.Client.AcceptAlert(); err != nil {
+	if err := p.Session.AcceptAlert(); err != nil {
 		return fmt.Errorf("failed to confirm popup: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) CancelPopup() error {
-	if err := p.Client.DismissAlert(); err != nil {
+	if err := p.Session.DismissAlert(); err != nil {
 		return fmt.Errorf("failed to cancel popup: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Forward() error {
-	if err := p.Client.Forward(); err != nil {
+	if err := p.Session.Forward(); err != nil {
 		return fmt.Errorf("failed to navigate forward in history: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Back() error {
-	if err := p.Client.Back(); err != nil {
+	if err := p.Session.Back(); err != nil {
 		return fmt.Errorf("failed to navigate backwards in history: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) Refresh() error {
-	if err := p.Client.Refresh(); err != nil {
+	if err := p.Session.Refresh(); err != nil {
 		return fmt.Errorf("failed to refresh page: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) SwitchToParentFrame() error {
-	if err := p.Client.FrameParent(); err != nil {
+	if err := p.Session.FrameParent(); err != nil {
 		return fmt.Errorf("failed to switch to parent frame: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) SwitchToRootFrame() error {
-	if err := p.Client.Frame(nil); err != nil {
+	if err := p.Session.Frame(nil); err != nil {
 		return fmt.Errorf("failed to switch to original page frame: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) SwitchToWindow(name string) error {
-	if err := p.Client.SetWindowByName(name); err != nil {
+	if err := p.Session.SetWindowByName(name); err != nil {
 		return fmt.Errorf("failed to switch to named window: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) NextWindow() error {
-	windows, err := p.Client.GetWindows()
+	windows, err := p.Session.GetWindows()
 	if err != nil {
 		return fmt.Errorf("failed to find available windows: %s", err)
 	}
@@ -255,7 +253,7 @@ func (p *Page) NextWindow() error {
 	// order not defined according to W3 spec
 	sort.Strings(windowIDs)
 
-	activeWindow, err := p.Client.GetWindow()
+	activeWindow, err := p.Session.GetWindow()
 	if err != nil {
 		return fmt.Errorf("failed to find active window: %s", err)
 	}
@@ -267,7 +265,7 @@ func (p *Page) NextWindow() error {
 		}
 	}
 
-	if err := p.Client.SetWindow(activeWindow); err != nil {
+	if err := p.Session.SetWindow(activeWindow); err != nil {
 		return fmt.Errorf("failed to change active window: %s", err)
 	}
 
@@ -275,14 +273,14 @@ func (p *Page) NextWindow() error {
 }
 
 func (p *Page) CloseWindow() error {
-	if err := p.Client.DeleteWindow(); err != nil {
+	if err := p.Session.DeleteWindow(); err != nil {
 		return fmt.Errorf("failed to close active window: %s", err)
 	}
 	return nil
 }
 
 func (p *Page) WindowCount() (int, error) {
-	windows, err := p.Client.GetWindows()
+	windows, err := p.Session.GetWindows()
 	if err != nil {
 		return 0, fmt.Errorf("failed to find available windows: %s", err)
 	}
@@ -290,7 +288,7 @@ func (p *Page) WindowCount() (int, error) {
 }
 
 func (p *Page) LogTypes() ([]string, error) {
-	types, err := p.Client.GetLogTypes()
+	types, err := p.Session.GetLogTypes()
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve log types: %s", err)
 	}
@@ -302,7 +300,7 @@ func (p *Page) ReadLogs(logType string, all ...bool) ([]Log, error) {
 		p.logs = map[string][]Log{}
 	}
 
-	clientLogs, err := p.Client.NewLogs(logType)
+	clientLogs, err := p.Session.NewLogs(logType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve logs: %s", err)
 	}

@@ -6,28 +6,28 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/core/internal/mocks"
+	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
 var _ = Describe("Window", func() {
 	var (
-		window  *Window
-		session *mocks.Session
-		err     error
+		window *Window
+		bus    *mocks.Bus
+		err    error
 	)
 
 	BeforeEach(func() {
-		session = &mocks.Session{}
-		window = &Window{"some-id", session}
+		bus = &mocks.Bus{}
+		window = &Window{"some-id", &Session{bus}}
 	})
 
 	ItShouldMakeAWindowRequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
-			Expect(session.ExecuteCall.Method).To(Equal(method))
+			Expect(bus.SendCall.Method).To(Equal(method))
 		})
 
 		It("should hit the desired endpoint", func() {
-			Expect(session.ExecuteCall.Endpoint).To(Equal("window/some-id/" + endpoint))
+			Expect(bus.SendCall.Endpoint).To(Equal("window/some-id/" + endpoint))
 		})
 
 		It("should not return an error", func() {
@@ -36,7 +36,7 @@ var _ = Describe("Window", func() {
 
 		if len(body) > 0 {
 			It("should set the request body", func() {
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(body[0]))
 			})
 		}
 	}
@@ -48,9 +48,9 @@ var _ = Describe("Window", func() {
 
 		ItShouldMakeAWindowRequest("POST", "size", `{"width":640,"height":480}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
+				bus.SendCall.Err = errors.New("some error")
 				Expect(window.SetSize(640, 480)).To(MatchError("some error"))
 			})
 		})

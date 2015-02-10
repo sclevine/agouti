@@ -1,6 +1,10 @@
 package core
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/sclevine/agouti/api"
+)
 
 // A Capabilities instance defines the desired capabilities the WebDriver
 // should use to configure a Page.
@@ -37,7 +41,7 @@ func Use() Capabilities {
 	return capabilities{}
 }
 
-type capabilities map[string]interface{}
+type capabilities api.Capabilities
 
 func (c capabilities) Browser(browser string) Capabilities {
 	c["browserName"] = browser
@@ -70,10 +74,6 @@ func (c capabilities) Custom(key string, value interface{}) Capabilities {
 }
 
 func (c capabilities) JSON() (string, error) {
-	desiredCapabilities := struct {
-		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
-	}{c}
-
-	capabilitiesJSON, err := json.Marshal(desiredCapabilities)
+	capabilitiesJSON, err := json.Marshal(c)
 	return string(capabilitiesJSON), err
 }

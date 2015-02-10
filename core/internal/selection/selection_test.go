@@ -11,22 +11,22 @@ import (
 var _ = Describe("Selection", func() {
 	var (
 		selection         *Selection
-		client            *mocks.Client
+		session           *mocks.Session
 		elementRepository *mocks.ElementRepository
 	)
 
 	BeforeEach(func() {
-		client = &mocks.Client{}
+		session = &mocks.Session{}
 		elementRepository = &mocks.ElementRepository{}
-		selection = &Selection{Client: client, Elements: elementRepository}
+		selection = &Selection{Session: session, Elements: elementRepository}
 	})
 
 	Describe(".NewSelection", func() {
-		It("should return an empty selection with the provided client and element repository", func() {
-			realClient := &api.Client{}
-			selection = NewSelection(realClient)
-			Expect(selection.Client).To(Equal(realClient))
-			Expect(selection.Elements.(*ElementRepository).Client).To(Equal(realClient))
+		It("should return an empty selection with the provided session and element repository", func() {
+			realSession := &api.Session{}
+			selection = NewSelection(realSession)
+			Expect(selection.Session).To(Equal(realSession))
+			Expect(selection.Elements.(*ElementRepository).Client).To(Equal(realSession))
 		})
 	})
 
@@ -36,14 +36,14 @@ var _ = Describe("Selection", func() {
 				Expect(selection.AppendCSS("#selector").AppendCSS("#subselector").String()).To(Equal("CSS: #selector #subselector"))
 			})
 
-			It("should propagate the client and element repository", func() {
-				Expect(selection.AppendCSS("#selector").AppendCSS("#subselector").Client).To(Equal(selection.Client))
+			It("should propagate the session and element repository", func() {
+				Expect(selection.AppendCSS("#selector").AppendCSS("#subselector").Session).To(Equal(selection.Session))
 				Expect(selection.AppendCSS("#selector").AppendCSS("#subselector").Elements).To(Equal(selection.Elements))
 			})
 		})
 
-		It("should propagate the client and element repository in all other cases", func() {
-			Expect(selection.AppendCSS("#selector").Client).To(Equal(selection.Client))
+		It("should propagate the session and element repository in all other cases", func() {
+			Expect(selection.AppendCSS("#selector").Session).To(Equal(selection.Session))
 			Expect(selection.AppendCSS("#selector").Elements).To(Equal(selection.Elements))
 		})
 
@@ -74,8 +74,8 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#AppendXPath", func() {
-		It("should propagate the client and element repository", func() {
-			Expect(selection.AppendXPath("//selector").Client).To(Equal(selection.Client))
+		It("should propagate the session and element repository", func() {
+			Expect(selection.AppendXPath("//selector").Session).To(Equal(selection.Session))
 			Expect(selection.AppendXPath("//selector").Elements).To(Equal(selection.Elements))
 		})
 
@@ -85,8 +85,8 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#AppendLink", func() {
-		It("should propagate the client and element repository", func() {
-			Expect(selection.AppendLink("some text").Client).To(Equal(selection.Client))
+		It("should propagate the session and element repository", func() {
+			Expect(selection.AppendLink("some text").Session).To(Equal(selection.Session))
 			Expect(selection.AppendLink("some text").Elements).To(Equal(selection.Elements))
 		})
 
@@ -96,8 +96,8 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#AppendLabeled", func() {
-		It("should propagate the client and element repository", func() {
-			Expect(selection.AppendLabeled("some text").Client).To(Equal(selection.Client))
+		It("should propagate the session and element repository", func() {
+			Expect(selection.AppendLabeled("some text").Session).To(Equal(selection.Session))
 			Expect(selection.AppendLabeled("some text").Elements).To(Equal(selection.Elements))
 		})
 
@@ -107,8 +107,8 @@ var _ = Describe("Selection", func() {
 	})
 
 	Describe("#AppendButton", func() {
-		It("should propagate the client and element repository", func() {
-			Expect(selection.AppendButton("some text").Client).To(Equal(selection.Client))
+		It("should propagate the session and element repository", func() {
+			Expect(selection.AppendButton("some text").Session).To(Equal(selection.Session))
 			Expect(selection.AppendButton("some text").Elements).To(Equal(selection.Elements))
 		})
 
@@ -123,8 +123,8 @@ var _ = Describe("Selection", func() {
 				Expect(selection.At(1).String()).To(Equal(""))
 			})
 
-			It("should propagate the client and element repository", func() {
-				Expect(selection.At(0).Client).To(Equal(selection.Client))
+			It("should propagate the session and element repository", func() {
+				Expect(selection.At(0).Session).To(Equal(selection.Session))
 				Expect(selection.At(0).Elements).To(Equal(selection.Elements))
 			})
 		})
@@ -134,8 +134,8 @@ var _ = Describe("Selection", func() {
 				Expect(selection.AppendCSS("#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
 			})
 
-			It("should propagate the client and element repository", func() {
-				Expect(selection.AppendCSS("#selector").At(0).Client).To(Equal(selection.Client))
+			It("should propagate the session and element repository", func() {
+				Expect(selection.AppendCSS("#selector").At(0).Session).To(Equal(selection.Session))
 				Expect(selection.AppendCSS("#selector").At(0).Elements).To(Equal(selection.Elements))
 			})
 		})
@@ -147,8 +147,8 @@ var _ = Describe("Selection", func() {
 				Expect(selection.Single().String()).To(Equal(""))
 			})
 
-			It("should propagate the client and element repository", func() {
-				Expect(selection.Single().Client).To(Equal(selection.Client))
+			It("should propagate the session and element repository", func() {
+				Expect(selection.Single().Session).To(Equal(selection.Session))
 				Expect(selection.Single().Elements).To(Equal(selection.Elements))
 			})
 		})
@@ -158,8 +158,8 @@ var _ = Describe("Selection", func() {
 				Expect(selection.AppendCSS("#selector").Single().String()).To(Equal("CSS: #selector [single]"))
 			})
 
-			It("should propagate the client and element repository", func() {
-				Expect(selection.AppendCSS("#selector").Single().Client).To(Equal(selection.Client))
+			It("should propagate the session and element repository", func() {
+				Expect(selection.AppendCSS("#selector").Single().Session).To(Equal(selection.Session))
 				Expect(selection.AppendCSS("#selector").Single().Elements).To(Equal(selection.Elements))
 			})
 		})

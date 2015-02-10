@@ -1,4 +1,4 @@
-package session
+package bus
 
 import (
 	"bytes"
@@ -11,15 +11,11 @@ import (
 	"strings"
 )
 
-type Session struct {
-	URL string
+type Client struct {
+	SessionURL string
 }
 
-type jsonable interface {
-	JSON() (string, error)
-}
-
-func (s *Session) Execute(endpoint, method string, body interface{}, result ...interface{}) error {
+func (c *Client) Send(endpoint, method string, body interface{}, result ...interface{}) error {
 	client := &http.Client{}
 
 	var bodyReader io.Reader
@@ -31,12 +27,13 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 		bodyReader = bytes.NewReader(bodyJSON)
 	}
 
-	request, err := http.NewRequest(method, strings.TrimSuffix(s.URL+"/"+endpoint, "/"), bodyReader)
+	requestURL := strings.TrimSuffix(c.SessionURL+"/"+endpoint, "/")
+	request, err := http.NewRequest(method, requestURL, bodyReader)
 	if err != nil {
 		return fmt.Errorf("invalid request: %s", err)
 	}
 
-	if method == "POST" {
+	if body != nil {
 		request.Header.Add("Content-Type", "application/json")
 	}
 
@@ -71,20 +68,23 @@ func (s *Session) Execute(endpoint, method string, body interface{}, result ...i
 	return nil
 }
 
-func Open(url string, capabilities jsonable) (*Session, error) {
-	capabiltiesJSON, err := capabilities.JSON()
+func Connect(url string, capabilities interface{}) (*Client, error) {
+	desiredCapabilities := struct {
+		DesiredCapabilities interface{} `json:"desiredCapabilities"`
+	}{capabilities}
+
+	capabiltiesJSON, err := json.Marshal(desiredCapabilities)
 	if err != nil {
 		return nil, err
 	}
 
-	postBody := strings.NewReader(capabiltiesJSON)
-
-	// TODO: set content type to JSON
-
+	postBody := strings.NewReader(string(capabiltiesJSON))
 	request, err := http.NewRequest("POST", fmt.Sprintf("%s/session", url), postBody)
 	if err != nil {
 		return nil, err
 	}
+
+	request.Header.Add("Content-Type", "application/json")
 
 	client := &http.Client{}
 	response, err := client.Do(request)
@@ -102,5 +102,5 @@ func Open(url string, capabilities jsonable) (*Session, error) {
 	}
 
 	sessionURL := fmt.Sprintf("%s/session/%s", url, sessionResponse.SessionID)
-	return &Session{sessionURL}, nil
+	return &Client{sessionURL}, nil
 }

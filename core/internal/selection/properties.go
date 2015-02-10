@@ -21,7 +21,7 @@ func (s *Selection) Active() (bool, error) {
 		return false, fmt.Errorf("failed to select '%s': %s", s, err)
 	}
 
-	activeElement, err := s.Client.GetActiveElement()
+	activeElement, err := s.Session.GetActiveElement()
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve active element: %s", err)
 	}

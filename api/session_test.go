@@ -6,28 +6,28 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/core/internal/mocks"
+	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
-var _ = Describe("API Client", func() {
+var _ = Describe("Bus", func() {
 	var (
-		client  *Client
-		session *mocks.Session
+		session *Session
+		bus     *mocks.Bus
 		err     error
 	)
 
 	BeforeEach(func() {
-		session = &mocks.Session{}
-		client = &Client{session}
+		bus = &mocks.Bus{}
+		session = &Session{bus}
 	})
 
 	ItShouldMakeARequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
-			Expect(session.ExecuteCall.Method).To(Equal(method))
+			Expect(bus.SendCall.Method).To(Equal(method))
 		})
 
 		It("should hit the desired endpoint", func() {
-			Expect(session.ExecuteCall.Endpoint).To(Equal(endpoint))
+			Expect(bus.SendCall.Endpoint).To(Equal(endpoint))
 		})
 
 		It("should not return an error", func() {
@@ -36,22 +36,22 @@ var _ = Describe("API Client", func() {
 
 		if len(body) > 0 {
 			It("should set the request body", func() {
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(body[0]))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(body[0]))
 			})
 		}
 	}
 
-	Describe("#DeleteSession", func() {
+	Describe("#Delete", func() {
 		BeforeEach(func() {
-			err = client.DeleteSession()
+			err = session.Delete()
 		})
 
 		ItShouldMakeARequest("DELETE", "")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.DeleteSession()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Delete()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -60,8 +60,8 @@ var _ = Describe("API Client", func() {
 		var element *Element
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
-			element, err = client.GetElement(Selector{"css selector", "#selector"})
+			bus.SendCall.Result = `{"ELEMENT": "some-id"}`
+			element, err = session.GetElement(Selector{"css selector", "#selector"})
 		})
 
 		ItShouldMakeARequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
@@ -71,10 +71,10 @@ var _ = Describe("API Client", func() {
 			Expect(element.Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetElement(Selector{"css selector", "#selector"})
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetElement(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -84,8 +84,8 @@ var _ = Describe("API Client", func() {
 		var elements []*Element
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
-			elements, err = client.GetElements(Selector{"css selector", "#selector"})
+			bus.SendCall.Result = `[{"ELEMENT": "some-id"}, {"ELEMENT": "some-other-id"}]`
+			elements, err = session.GetElements(Selector{"css selector", "#selector"})
 		})
 
 		ItShouldMakeARequest("POST", "elements", `{"using": "css selector", "value": "#selector"}`)
@@ -97,10 +97,10 @@ var _ = Describe("API Client", func() {
 			Expect(elements[1].Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetElements(Selector{"css selector", "#selector"})
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetElements(Selector{"css selector", "#selector"})
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -110,8 +110,8 @@ var _ = Describe("API Client", func() {
 		var element *Element
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `{"ELEMENT": "some-id"}`
-			element, err = client.GetActiveElement()
+			bus.SendCall.Result = `{"ELEMENT": "some-id"}`
+			element, err = session.GetActiveElement()
 		})
 
 		ItShouldMakeARequest("POST", "element/active")
@@ -121,10 +121,10 @@ var _ = Describe("API Client", func() {
 			Expect(element.Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetActiveElement()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetActiveElement()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -134,21 +134,21 @@ var _ = Describe("API Client", func() {
 		var window *Window
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some-id"`
-			window, err = client.GetWindow()
+			bus.SendCall.Result = `"some-id"`
+			window, err = session.GetWindow()
 		})
 
 		ItShouldMakeARequest("GET", "window_handle")
 
-		It("should return the window current with the retrieved ID and client session", func() {
+		It("should return the current window with the retrieved ID and session", func() {
 			Expect(window.ID).To(Equal("some-id"))
 			Expect(window.Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetWindow()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetWindow()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -158,23 +158,23 @@ var _ = Describe("API Client", func() {
 		var windows []*Window
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `["some-id", "some-other-id"]`
-			windows, err = client.GetWindows()
+			bus.SendCall.Result = `["some-id", "some-other-id"]`
+			windows, err = session.GetWindows()
 		})
 
 		ItShouldMakeARequest("GET", "window_handles")
 
-		It("should return all windows with their retrieved IDs and client session", func() {
+		It("should return all windows with their retrieved IDs and sessions", func() {
 			Expect(windows[0].ID).To(Equal("some-id"))
 			Expect(windows[0].Session).To(Equal(session))
 			Expect(windows[1].ID).To(Equal("some-other-id"))
 			Expect(windows[1].Session).To(Equal(session))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetWindows()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetWindows()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -185,45 +185,45 @@ var _ = Describe("API Client", func() {
 
 		BeforeEach(func() {
 			window = &Window{ID: "some-id"}
-			err = client.SetWindow(window)
+			err = session.SetWindow(window)
 		})
 
 		ItShouldMakeARequest("POST", "window", `{"name": "some-id"}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetWindow(window)).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetWindow(window)).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#SetWindowByName", func() {
 		BeforeEach(func() {
-			err = client.SetWindowByName("some name")
+			err = session.SetWindowByName("some name")
 		})
 
 		ItShouldMakeARequest("POST", "window", `{"name": "some name"}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetWindowByName("some name")).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetWindowByName("some name")).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#DeleteWindow", func() {
 		BeforeEach(func() {
-			err = client.DeleteWindow()
+			err = session.DeleteWindow()
 		})
 
 		ItShouldMakeARequest("DELETE", "window")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				err := client.DeleteWindow()
+				bus.SendCall.Err = errors.New("some error")
+				err := session.DeleteWindow()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -234,45 +234,45 @@ var _ = Describe("API Client", func() {
 
 		BeforeEach(func() {
 			cookie = "some cookie"
-			err = client.SetCookie(cookie)
+			err = session.SetCookie(cookie)
 		})
 
 		ItShouldMakeARequest("POST", "cookie", `{"cookie": "some cookie"}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetCookie(cookie)).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetCookie(cookie)).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#DeleteCookie", func() {
 		BeforeEach(func() {
-			err = client.DeleteCookie("some-cookie")
+			err = session.DeleteCookie("some-cookie")
 		})
 
 		ItShouldMakeARequest("DELETE", "cookie/some-cookie")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.DeleteCookie("some-cookie")).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DeleteCookie("some-cookie")).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#DeleteCookies", func() {
 		BeforeEach(func() {
-			err = client.DeleteCookies()
+			err = session.DeleteCookies()
 		})
 
 		ItShouldMakeARequest("DELETE", "cookie")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.DeleteCookies()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DeleteCookies()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -281,8 +281,8 @@ var _ = Describe("API Client", func() {
 		var image []byte
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"c29tZS1wbmc="`
-			image, err = client.GetScreenshot()
+			bus.SendCall.Result = `"c29tZS1wbmc="`
+			image, err = session.GetScreenshot()
 		})
 
 		ItShouldMakeARequest("GET", "screenshot")
@@ -295,16 +295,16 @@ var _ = Describe("API Client", func() {
 
 		Context("when the image is not valid base64", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Result = `"..."`
-				_, err := client.GetScreenshot()
+				bus.SendCall.Result = `"..."`
+				_, err := session.GetScreenshot()
 				Expect(err).To(MatchError("illegal base64 data at input byte 0"))
 			})
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetScreenshot()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetScreenshot()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -314,8 +314,8 @@ var _ = Describe("API Client", func() {
 		var url string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"http://example.com"`
-			url, err = client.GetURL()
+			bus.SendCall.Result = `"http://example.com"`
+			url, err = session.GetURL()
 		})
 
 		ItShouldMakeARequest("GET", "url")
@@ -324,10 +324,10 @@ var _ = Describe("API Client", func() {
 			Expect(url).To(Equal("http://example.com"))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetURL()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetURL()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -335,15 +335,15 @@ var _ = Describe("API Client", func() {
 
 	Describe("#SetURL", func() {
 		BeforeEach(func() {
-			err = client.SetURL("http://example.com")
+			err = session.SetURL("http://example.com")
 		})
 
 		ItShouldMakeARequest("POST", "url", `{"url": "http://example.com"}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetURL("http://example.com")).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetURL("http://example.com")).To(MatchError("some error"))
 			})
 		})
 	})
@@ -352,8 +352,8 @@ var _ = Describe("API Client", func() {
 		var title string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"Some Title"`
-			title, err = client.GetTitle()
+			bus.SendCall.Result = `"Some Title"`
+			title, err = session.GetTitle()
 		})
 
 		ItShouldMakeARequest("GET", "title")
@@ -362,10 +362,10 @@ var _ = Describe("API Client", func() {
 			Expect(title).To(Equal("Some Title"))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err = client.GetTitle()
+				bus.SendCall.Err = errors.New("some error")
+				_, err = session.GetTitle()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -375,8 +375,8 @@ var _ = Describe("API Client", func() {
 		var source string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some source"`
-			source, err = client.GetSource()
+			bus.SendCall.Result = `"some source"`
+			source, err = session.GetSource()
 		})
 
 		ItShouldMakeARequest("GET", "source")
@@ -385,10 +385,10 @@ var _ = Describe("API Client", func() {
 			Expect(source).To(Equal("some source"))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetSource()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetSource()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -396,97 +396,97 @@ var _ = Describe("API Client", func() {
 
 	Describe("#DoubleClick", func() {
 		BeforeEach(func() {
-			err = client.DoubleClick()
+			err = session.DoubleClick()
 		})
 
 		ItShouldMakeARequest("POST", "doubleclick")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.DoubleClick()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DoubleClick()).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#MoveTo", func() {
 		BeforeEach(func() {
-			err = client.MoveTo(nil, nil)
+			err = session.MoveTo(nil, nil)
 		})
 
 		ItShouldMakeARequest("POST", "moveto", "{}")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.MoveTo(nil, nil)).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.MoveTo(nil, nil)).To(MatchError("some error"))
 			})
 		})
 
 		Context("when an element is provided", func() {
 			It("should encode the element into the request JSON", func() {
 				element := &Element{ID: "some-id"}
-				client.MoveTo(element, nil)
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"element": "some-id"}`))
+				session.MoveTo(element, nil)
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"element": "some-id"}`))
 			})
 		})
 
 		Context("when a X point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, XPoint(100))
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
+				session.MoveTo(nil, XPoint(100))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
 			})
 		})
 
 		Context("when a Y point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, YPoint(200))
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
+				session.MoveTo(nil, YPoint(200))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
 			})
 		})
 
 		Context("when an XY point is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				client.MoveTo(nil, XYPoint{XPos: 300, YPos: 400})
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
+				session.MoveTo(nil, XYPoint{XPos: 300, YPos: 400})
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
 			})
 		})
 	})
 
 	Describe("#Frame", func() {
 		BeforeEach(func() {
-			err = client.Frame(&Element{ID: "some-id"})
+			err = session.Frame(&Element{ID: "some-id"})
 		})
 
 		ItShouldMakeARequest("POST", "frame", `{"id": {"ELEMENT": "some-id"}}`)
 
 		Context("When the provided frame in nil", func() {
 			BeforeEach(func() {
-				err = client.Frame(nil)
+				err = session.Frame(nil)
 			})
 
 			ItShouldMakeARequest("POST", "frame", `{"id": null}`)
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Frame(&Element{ID: "some-id"})).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Frame(&Element{ID: "some-id"})).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#FrameParent", func() {
 		BeforeEach(func() {
-			err = client.FrameParent()
+			err = session.FrameParent()
 		})
 
 		ItShouldMakeARequest("POST", "frame/parent")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.FrameParent()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.FrameParent()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -498,8 +498,8 @@ var _ = Describe("API Client", func() {
 		)
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `{"some": "result"}`
-			err = client.Execute("some javascript code", []interface{}{1, "two"}, &result)
+			bus.SendCall.Result = `{"some": "result"}`
+			err = session.Execute("some javascript code", []interface{}{1, "two"}, &result)
 		})
 
 		ItShouldMakeARequest("POST", "execute", `{"script": "some javascript code", "args": [1, "two"]}`)
@@ -510,60 +510,60 @@ var _ = Describe("API Client", func() {
 
 		Context("when called with nil arguments", func() {
 			It("should send an empty list for args", func() {
-				client.Execute("some javascript code", nil, nil)
-				Expect(session.ExecuteCall.BodyJSON).To(MatchJSON(`{"script": "some javascript code", "args": []}`))
+				session.Execute("some javascript code", nil, nil)
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"script": "some javascript code", "args": []}`))
 			})
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Execute("", nil, &result)).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Execute("", nil, &result)).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#Forward", func() {
 		BeforeEach(func() {
-			err = client.Forward()
+			err = session.Forward()
 		})
 
 		ItShouldMakeARequest("POST", "forward")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Forward()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Forward()).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#Back", func() {
 		BeforeEach(func() {
-			err = client.Back()
+			err = session.Back()
 		})
 
 		ItShouldMakeARequest("POST", "back")
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to go back in history", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Back()).To(MatchError("some error"))
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to go back in history", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Back()).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#Refresh", func() {
 		BeforeEach(func() {
-			err = client.Refresh()
+			err = session.Refresh()
 		})
 
 		ItShouldMakeARequest("POST", "refresh")
 
-		Context("when the session indicates a failure", func() {
-			It("should return an error indicating the session failed to refresh the page", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.Refresh()).To(MatchError("some error"))
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to refresh the page", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Refresh()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -572,8 +572,8 @@ var _ = Describe("API Client", func() {
 		var text string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `"some text"`
-			text, err = client.GetAlertText()
+			bus.SendCall.Result = `"some text"`
+			text, err = session.GetAlertText()
 		})
 
 		ItShouldMakeARequest("GET", "alert_text")
@@ -582,10 +582,10 @@ var _ = Describe("API Client", func() {
 			Expect(text).To(Equal("some text"))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetAlertText()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetAlertText()
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -593,45 +593,45 @@ var _ = Describe("API Client", func() {
 
 	Describe("#SetAlertText", func() {
 		BeforeEach(func() {
-			err = client.SetAlertText("some text")
+			err = session.SetAlertText("some text")
 		})
 
 		ItShouldMakeARequest("POST", "alert_text", `{"text": "some text"}`)
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.SetAlertText("some text")).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetAlertText("some text")).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#AcceptAlert", func() {
 		BeforeEach(func() {
-			err = client.AcceptAlert()
+			err = session.AcceptAlert()
 		})
 
 		ItShouldMakeARequest("POST", "accept_alert")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.AcceptAlert()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.AcceptAlert()).To(MatchError("some error"))
 			})
 		})
 	})
 
 	Describe("#DismissAlert", func() {
 		BeforeEach(func() {
-			err = client.DismissAlert()
+			err = session.DismissAlert()
 		})
 
 		ItShouldMakeARequest("POST", "dismiss_alert")
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				Expect(client.DismissAlert()).To(MatchError("some error"))
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DismissAlert()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -640,11 +640,11 @@ var _ = Describe("API Client", func() {
 		var logs []Log
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `[
+			bus.SendCall.Result = `[
 				{"message": "some message", "level": "INFO", "timestamp": 1417988844498},
 				{"message": "some other message", "level": "WARNING", "timestamp": 1417982864598}
 			]`
-			logs, err = client.NewLogs("browser")
+			logs, err = session.NewLogs("browser")
 		})
 
 		ItShouldMakeARequest("POST", "log", `{"type": "browser"}`)
@@ -658,10 +658,10 @@ var _ = Describe("API Client", func() {
 			Expect(logs[1].Timestamp).To(BeEquivalentTo(1417982864598))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.NewLogs("browser")
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.NewLogs("browser")
 				Expect(err).To(MatchError("some error"))
 			})
 		})
@@ -671,8 +671,8 @@ var _ = Describe("API Client", func() {
 		var types []string
 
 		BeforeEach(func() {
-			session.ExecuteCall.Result = `["first type", "second type"]`
-			types, err = client.GetLogTypes()
+			bus.SendCall.Result = `["first type", "second type"]`
+			types, err = session.GetLogTypes()
 		})
 
 		ItShouldMakeARequest("GET", "log/types")
@@ -681,10 +681,10 @@ var _ = Describe("API Client", func() {
 			Expect(types).To(Equal([]string{"first type", "second type"}))
 		})
 
-		Context("when the session indicates a failure", func() {
+		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
-				session.ExecuteCall.Err = errors.New("some error")
-				_, err := client.GetLogTypes()
+				bus.SendCall.Err = errors.New("some error")
+				_, err := session.GetLogTypes()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

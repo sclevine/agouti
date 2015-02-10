@@ -1,4 +1,4 @@
-package session_test
+package bus_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestSession(t *testing.T) {
+func TestBus(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Session Suite")
+	RunSpecs(t, "Bus Suite")
 }

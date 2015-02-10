@@ -128,7 +128,7 @@ type Log struct {
 	Time time.Time
 }
 
-func newPage(client *api.Client) Page {
-	pageSelection := &userSelection{selection.NewSelection(client)}
-	return &userPage{&page.Page{Client: client}, pageSelection}
+func newPage(session *api.Session) Page {
+	pageSelection := &userSelection{selection.NewSelection(session)}
+	return &userPage{&page.Page{Session: session}, pageSelection}
 }

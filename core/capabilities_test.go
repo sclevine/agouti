@@ -19,14 +19,12 @@ var _ = Describe("Capabilities", func() {
 		capabilities.With("enabledThing").Without("disabledThing")
 		capabilities.Custom("custom", "value")
 		Expect(capabilities.JSON()).To(MatchJSON(`{
-			"desiredCapabilities": {
-				"browserName": "some-browser",
-				"version": "v100",
-				"platform": "some-os",
-				"enabledThing": true,
-				"disabledThing": false,
-				"custom": "value"
-			}
+			"browserName": "some-browser",
+			"version": "v100",
+			"platform": "some-os",
+			"enabledThing": true,
+			"disabledThing": false,
+			"custom": "value"
 		}`))
 	})
 

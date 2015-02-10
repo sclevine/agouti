@@ -10,14 +10,14 @@ import (
 	. "github.com/sclevine/agouti/core/internal/selection"
 )
 
-var _ = Describe("Elements", func() {
+var _ = Describe("ElementRepository", func() {
 	var (
-		client     *mocks.Client
+		client     *mocks.Session
 		repository *ElementRepository
 	)
 
 	BeforeEach(func() {
-		client = &mocks.Client{}
+		client = &mocks.Session{}
 		repository = &ElementRepository{Client: client}
 	})
 
@@ -51,30 +51,30 @@ var _ = Describe("Elements", func() {
 
 	Describe("#Get", func() {
 		var (
-			firstParentSession  *mocks.Session
-			firstParent         *api.Element
-			secondParentSession *mocks.Session
-			secondParent        *api.Element
-			children            []Element
-			parentSelector      Selector
-			parentSelectorJSON  string
-			childSelector       Selector
-			childSelectorJSON   string
+			firstParentBus     *mocks.Bus
+			firstParent        *api.Element
+			secondParentBus    *mocks.Bus
+			secondParent       *api.Element
+			children           []Element
+			parentSelector     Selector
+			parentSelectorJSON string
+			childSelector      Selector
+			childSelectorJSON  string
 		)
 
 		BeforeEach(func() {
-			firstParentSession = &mocks.Session{}
-			firstParent = &api.Element{Session: firstParentSession}
-			secondParentSession = &mocks.Session{}
-			secondParent = &api.Element{Session: secondParentSession}
+			firstParentBus = &mocks.Bus{}
+			firstParent = &api.Element{Session: &api.Session{firstParentBus}}
+			secondParentBus = &mocks.Bus{}
+			secondParent = &api.Element{Session: &api.Session{secondParentBus}}
 			children = []Element{
-				Element(&api.Element{ID: "first child", Session: firstParentSession}),
-				Element(&api.Element{ID: "second child", Session: firstParentSession}),
-				Element(&api.Element{ID: "third child", Session: secondParentSession}),
-				Element(&api.Element{ID: "fourth child", Session: secondParentSession}),
+				Element(&api.Element{ID: "first child", Session: &api.Session{firstParentBus}}),
+				Element(&api.Element{ID: "second child", Session: &api.Session{firstParentBus}}),
+				Element(&api.Element{ID: "third child", Session: &api.Session{secondParentBus}}),
+				Element(&api.Element{ID: "fourth child", Session: &api.Session{secondParentBus}}),
 			}
-			firstParentSession.ExecuteCall.Result = `[{"ELEMENT": "first child"}, {"ELEMENT": "second child"}]`
-			secondParentSession.ExecuteCall.Result = `[{"ELEMENT": "third child"}, {"ELEMENT": "fourth child"}]`
+			firstParentBus.SendCall.Result = `[{"ELEMENT": "first child"}, {"ELEMENT": "second child"}]`
+			secondParentBus.SendCall.Result = `[{"ELEMENT": "third child"}, {"ELEMENT": "fourth child"}]`
 			client.GetElementsCall.ReturnElements = []*api.Element{firstParent, secondParent}
 			parentSelector = Selector{Type: "css selector", Value: "parents"}
 			parentSelectorJSON = `{"using": "css selector", "value": "parents"}`
@@ -90,9 +90,8 @@ var _ = Describe("Elements", func() {
 
 			It("should retrieve the child elements of the parent selector", func() {
 				repository.Get([]Selector{parentSelector, childSelector})
-				Expect(firstParentSession.ExecuteCall.BodyJSON).To(MatchJSON(childSelectorJSON))
-				Expect(secondParentSession.ExecuteCall.BodyJSON).To(MatchJSON(childSelectorJSON))
-
+				Expect(firstParentBus.SendCall.BodyJSON).To(MatchJSON(childSelectorJSON))
+				Expect(secondParentBus.SendCall.BodyJSON).To(MatchJSON(childSelectorJSON))
 			})
 
 			It("should successfully return all of the children", func() {
@@ -115,8 +114,8 @@ var _ = Describe("Elements", func() {
 
 			It("should retrieve the child elements of the second parent selector", func() {
 				repository.Get([]Selector{parentSelector, childSelector})
-				Expect(firstParentSession.ExecuteCall.BodyJSON).To(BeEmpty())
-				Expect(secondParentSession.ExecuteCall.BodyJSON).To(MatchJSON(childSelectorJSON))
+				Expect(firstParentBus.SendCall.BodyJSON).To(BeEmpty())
+				Expect(secondParentBus.SendCall.BodyJSON).To(MatchJSON(childSelectorJSON))
 			})
 
 			It("should return only the selected child elements", func() {
@@ -126,7 +125,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when all zero-indexed elements are successfully retrieved", func() {
 			BeforeEach(func() {
-				firstParentSession.ExecuteCall.Result = `{"ELEMENT": "first child"}`
+				firstParentBus.SendCall.Result = `{"ELEMENT": "first child"}`
 				client.GetElementCall.ReturnElement = firstParent
 				parentSelector.Index = 0
 				parentSelector.Indexed = true
@@ -141,7 +140,7 @@ var _ = Describe("Elements", func() {
 
 			It("should retrieve the first child element of the parent selector", func() {
 				repository.Get([]Selector{parentSelector, childSelector})
-				Expect(firstParentSession.ExecuteCall.BodyJSON).To(MatchJSON(childSelectorJSON))
+				Expect(firstParentBus.SendCall.BodyJSON).To(MatchJSON(childSelectorJSON))
 			})
 
 			It("should return only the selected child element", func() {
@@ -151,7 +150,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when single-element-only elements are successfully retrieved", func() {
 			BeforeEach(func() {
-				firstParentSession.ExecuteCall.Result = `[{"ELEMENT": "first child"}]`
+				firstParentBus.SendCall.Result = `[{"ELEMENT": "first child"}]`
 				client.GetElementsCall.ReturnElements = []*api.Element{firstParent}
 				parentSelector.Single = true
 				childSelector.Single = true
@@ -164,7 +163,7 @@ var _ = Describe("Elements", func() {
 
 			It("should retrieve the child element of the parent selector", func() {
 				repository.Get([]Selector{parentSelector, childSelector})
-				Expect(firstParentSession.ExecuteCall.BodyJSON).To(MatchJSON(childSelectorJSON))
+				Expect(firstParentBus.SendCall.BodyJSON).To(MatchJSON(childSelectorJSON))
 			})
 
 			It("should return only the selected child element", func() {
@@ -189,7 +188,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when retrieving any of the child elements fails", func() {
 			It("should return an error", func() {
-				secondParentSession.ExecuteCall.Err = errors.New("some error")
+				secondParentBus.SendCall.Err = errors.New("some error")
 				_, err := repository.Get([]Selector{parentSelector, childSelector})
 				Expect(err).To(MatchError("some error"))
 			})
@@ -215,7 +214,7 @@ var _ = Describe("Elements", func() {
 		Context("when any single-element-only child selection refers to multiple child elements", func() {
 			It("should return an error", func() {
 				childSelector.Single = true
-				firstParentSession.ExecuteCall.Result = `[{"ELEMENT": "first child"}]`
+				firstParentBus.SendCall.Result = `[{"ELEMENT": "first child"}]`
 				_, err := repository.Get([]Selector{parentSelector, childSelector})
 				Expect(err).To(MatchError("ambiguous find"))
 			})
@@ -224,7 +223,7 @@ var _ = Describe("Elements", func() {
 		Context("when any single-element-only child selection refers to no child elements", func() {
 			It("should return an error", func() {
 				childSelector.Single = true
-				firstParentSession.ExecuteCall.Result = `[]`
+				firstParentBus.SendCall.Result = `[]`
 				_, err := repository.Get([]Selector{parentSelector, childSelector})
 				Expect(err).To(MatchError("element not found"))
 			})
@@ -262,7 +261,7 @@ var _ = Describe("Elements", func() {
 
 		Context("when a zero-indexed child selection element does not exist", func() {
 			It("should return an error", func() {
-				firstParentSession.ExecuteCall.Err = errors.New("some error")
+				firstParentBus.SendCall.Err = errors.New("some error")
 				client.GetElementCall.ReturnElement = firstParent
 				parentSelector.Index = 0
 				parentSelector.Indexed = true
