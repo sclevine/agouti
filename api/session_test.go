@@ -230,14 +230,14 @@ var _ = Describe("Bus", func() {
 	})
 
 	Describe("#SetCookie", func() {
-		var cookie string
+		var cookie map[string]interface{}
 
 		BeforeEach(func() {
-			cookie = "some cookie"
+			cookie = map[string]interface{}{"name": "some-cookie"}
 			err = session.SetCookie(cookie)
 		})
 
-		ItShouldMakeARequest("POST", "cookie", `{"cookie": "some cookie"}`)
+		ItShouldMakeARequest("POST", "cookie", `{"cookie": {"name": "some-cookie"}}`)
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
@@ -431,23 +431,23 @@ var _ = Describe("Bus", func() {
 			})
 		})
 
-		Context("when a X point is provided", func() {
+		Context("when a X offset is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				session.MoveTo(nil, XPoint(100))
+				session.MoveTo(nil, XOffset(100))
 				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"xoffset": 100}`))
 			})
 		})
 
-		Context("when a Y point is provided", func() {
+		Context("when a Y offset is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				session.MoveTo(nil, YPoint(200))
+				session.MoveTo(nil, YOffset(200))
 				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"yoffset": 200}`))
 			})
 		})
 
-		Context("when an XY point is provided", func() {
+		Context("when an XY offset is provided", func() {
 			It("should encode the element into the request JSON", func() {
-				session.MoveTo(nil, XYPoint{XPos: 300, YPos: 400})
+				session.MoveTo(nil, XYOffset{X: 300, Y: 400})
 				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"xoffset": 300, "yoffset": 400}`))
 			})
 		})

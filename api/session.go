@@ -19,9 +19,11 @@ type Selector struct {
 }
 
 type Session struct {
-	Bus interface {
-		Send(endpoint, method string, body interface{}, result ...interface{}) error
-	}
+	Bus busSender
+}
+
+type busSender interface {
+	Send(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
 func Open(url string, capabilities Capabilities) (*Session, error) {
@@ -115,9 +117,9 @@ func (s *Session) DeleteWindow() error {
 	return nil
 }
 
-func (s *Session) SetCookie(cookie interface{}) error {
+func (s *Session) SetCookie(cookie map[string]interface{}) error {
 	request := struct {
-		Cookie interface{} `json:"cookie"`
+		Cookie map[string]interface{} `json:"cookie"`
 	}{cookie}
 
 	return s.Bus.Send("cookie", "POST", request)
@@ -180,7 +182,7 @@ func (s *Session) DoubleClick() error {
 	return s.Bus.Send("doubleclick", "POST", nil)
 }
 
-func (s *Session) MoveTo(region *Element, point Point) error {
+func (s *Session) MoveTo(region *Element, offset Offset) error {
 	request := map[string]interface{}{}
 
 	if region != nil {
@@ -188,12 +190,12 @@ func (s *Session) MoveTo(region *Element, point Point) error {
 		request["element"] = region.ID
 	}
 
-	if point != nil {
-		if xoffset, present := point.X(); present {
+	if offset != nil {
+		if xoffset, present := offset.x(); present {
 			request["xoffset"] = xoffset
 		}
 
-		if yoffset, present := point.Y(); present {
+		if yoffset, present := offset.y(); present {
 			request["yoffset"] = yoffset
 		}
 	}

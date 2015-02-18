@@ -5,7 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 	. "github.com/sclevine/agouti/dsl"
 	"github.com/sclevine/agouti/dsl/internal/mocks"
 )
@@ -58,14 +58,14 @@ var _ = Describe("Page", func() {
 
 	Describe(".SetCookie", func() {
 		It("should call page.SetCookie", func() {
-			cookie := core.Cookie("some", "cookie")
+			cookie := agouti.NewCookie("some", "cookie")
 			SetCookie(page, cookie)
 			Expect(page.SetCookieCall.Cookie).To(Equal(cookie))
 		})
 
 		It("should fail when page.SetCookie returns an error", func() {
 			page.SetCookieCall.Err = errors.New("some error")
-			Expect(func() { SetCookie(page, core.Cookie("some", "cookie")) }).To(Panic())
+			Expect(func() { SetCookie(page, agouti.NewCookie("some", "cookie")) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})

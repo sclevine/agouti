@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/onsi/gomega/format"
-	"github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 )
 
 type HaveLoggedErrorMatcher struct {
@@ -13,14 +13,14 @@ type HaveLoggedErrorMatcher struct {
 
 func (m *HaveLoggedErrorMatcher) Match(actual interface{}) (success bool, err error) {
 	actualPage, ok := actual.(interface {
-		ReadLogs(logType string, all ...bool) ([]core.Log, error)
+		ReadAllLogs(logType string) ([]agouti.Log, error)
 	})
 
 	if !ok {
 		return false, fmt.Errorf("HaveLoggedError matcher requires a Page.  Got:\n%s", format.Object(actual, 1))
 	}
 
-	logs, err := actualPage.ReadLogs("browser", true)
+	logs, err := actualPage.ReadAllLogs("browser")
 	if err != nil {
 		return false, err
 	}

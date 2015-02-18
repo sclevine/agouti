@@ -6,13 +6,13 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 )
 
 var (
-	phantomDriver  WebDriver
-	chromeDriver   WebDriver
-	seleniumDriver WebDriver
+	phantomDriver  *agouti.WebDriver
+	chromeDriver   *agouti.WebDriver
+	seleniumDriver *agouti.WebDriver
 	headlessOnly   = os.Getenv("HEADLESS_ONLY") == "true"
 )
 
@@ -22,13 +22,14 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	phantomDriver, _ = PhantomJS()
+	phantomDriver = agouti.PhantomJS()
 	Expect(phantomDriver.Start()).To(Succeed())
 
 	if !headlessOnly {
-		seleniumDriver, _ = Selenium()
-		chromeDriver = ChromeDriver()
+		seleniumDriver = agouti.Selenium()
 		Expect(seleniumDriver.Start()).To(Succeed())
+
+		chromeDriver = agouti.ChromeDriver()
 		Expect(chromeDriver.Start()).To(Succeed())
 	}
 })

@@ -12,13 +12,23 @@ import (
 type Capabilities map[string]interface{}
 
 type WebDriver struct {
-	Service interface {
-		URL() (string, error)
-		Start() error
-		Stop() error
-	}
+	Service  driverService
 	sessions []*Session
 }
+
+type driverService interface {
+	URL() (string, error)
+	Start() error
+	Stop() error
+}
+
+//type WebDriverOption func(*WebDriver)
+//
+//func Timeout(t time.Duration) WebDriverOption {
+//	return func(w *WebDriver) {
+//
+//	}
+//}
 
 func NewWebDriver(url string, command []string, timeout ...time.Duration) *WebDriver {
 	if len(timeout) == 0 {

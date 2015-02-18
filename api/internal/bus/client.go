@@ -68,9 +68,9 @@ func (c *Client) Send(endpoint, method string, body interface{}, result ...inter
 	return nil
 }
 
-func Connect(url string, capabilities interface{}) (*Client, error) {
+func Connect(url string, capabilities map[string]interface{}) (*Client, error) {
 	desiredCapabilities := struct {
-		DesiredCapabilities interface{} `json:"desiredCapabilities"`
+		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
 	}{capabilities}
 
 	capabiltiesJSON, err := json.Marshal(desiredCapabilities)

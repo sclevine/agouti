@@ -1,27 +1,27 @@
 package dsl
 
-import "github.com/sclevine/agouti/core"
+import "github.com/sclevine/agouti"
 
-var driver core.WebDriver
+var driver *agouti.WebDriver
 
 // StartPhantomJS starts a PhantomJS WebDriver service for use with CreatePage.
 func StartPhantomJS() {
 	checkWebDriverNotStarted()
-	driver, _ = core.PhantomJS()
+	driver = agouti.PhantomJS()
 	checkFailure(driver.Start())
 }
 
 // StartChrome starts a ChromeDriver WebDriver service for use with CreatePage.
 func StartChromeDriver() {
 	checkWebDriverNotStarted()
-	driver = core.ChromeDriver()
+	driver = agouti.ChromeDriver()
 	checkFailure(driver.Start())
 }
 
 // StartSelenium starts a Selenium WebDriver service for use with CreatePage.
 func StartSelenium() {
 	checkWebDriverNotStarted()
-	driver, _ = core.Selenium()
+	driver = agouti.Selenium()
 	checkFailure(driver.Start())
 }
 
@@ -36,28 +36,28 @@ func StopWebDriver() {
 
 // CreatePage creates a new session using the current running WebDriver.
 // For Selenium, the browserName determines which browser to use for the session.
-func CreatePage(browserName ...string) core.Page {
+func CreatePage(browserName ...string) *agouti.Page {
 	if driver == nil {
 		globalFailHandler("WebDriver not started", 1)
 	}
-	capabilities := core.Use()
+	capabilities := agouti.NewCapabilities()
 	if len(browserName) > 0 {
 		capabilities.Browser(browserName[0])
 	}
-	newPage, err := driver.Page(capabilities)
+	newPage, err := driver.NewPage(capabilities)
 	checkFailure(err)
 	return newPage
 }
 
 // CustomPage creates a new session with a custom set of desired capabilities
-// using the current running WebDriver. The core.Use() function may be used
+// using the current running WebDriver. The agouti.Use() function may be used
 // to generate this set of capabilities. For Selenium, the capabilities
 // Browser(string) method sets which browser to use for the session.
-func CustomPage(capabilities core.Capabilities) core.Page {
+func CustomPage(capabilities agouti.Capabilities) *agouti.Page {
 	if driver == nil {
 		globalFailHandler("WebDriver not started", 1)
 	}
-	newPage, err := driver.Page(capabilities)
+	newPage, err := driver.NewPage(capabilities)
 	checkFailure(err)
 	return newPage
 }

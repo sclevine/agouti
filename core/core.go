@@ -1,12 +1,21 @@
-// Package core is a WebDriver API for Go.
+// Package core is DEPRECATED and will not receive future updates.
+// Please use "github.com/sclevine/agouti" instead.
 package core
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/sclevine/agouti/api"
 )
+
+func init() {
+	fmt.Fprintln(os.Stderr, `****************`)
+	fmt.Fprintln(os.Stderr, `NOTICE: "github.com/sclevine/agouti/core" has been deprecated in favor of "github.com/sclevine/agouti" and may soon perish.`)
+	fmt.Fprintln(os.Stderr, `Please switch to "github.com/sclevine/agouti" (which does not encorage dot-imports) as soon as possible.`)
+	fmt.Fprintln(os.Stderr, `****************`)
+}
 
 // NewWebDriver returns an instance of a WebDriver specified by
 // a templated URL and command. The URL should be the location of the

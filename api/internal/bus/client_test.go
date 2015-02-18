@@ -162,32 +162,32 @@ var _ = Describe("Session", func() {
 
 	Describe(".Connect", func() {
 		It("should make a POST request with the provided desired capabilities", func() {
-			Connect(server.URL, map[string]string{"some": "json"})
+			Connect(server.URL, map[string]interface{}{"some": "json"})
 			Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"some": "json"}}`))
 		})
 
 		It("should make the request with content type application/json", func() {
-			Connect(server.URL, map[string]string{"some": "json"})
+			Connect(server.URL, map[string]interface{}{"some": "json"})
 			Expect(requestContentType).To(Equal("application/json"))
 		})
 
 		Context("when the capabilities are invalid", func() {
 			It("should return an error", func() {
-				_, err := Connect(server.URL, func() {})
+				_, err := Connect(server.URL, map[string]interface{}{"some": func() {}})
 				Expect(err).To(MatchError("json: unsupported type: func()"))
 			})
 		})
 
 		Context("when the request is invalid", func() {
 			It("should return the invalid request error", func() {
-				_, err := Connect("%@#$%", map[string]string{"some": "json"})
+				_, err := Connect("%@#$%", map[string]interface{}{"some": "json"})
 				Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
 			})
 		})
 
 		Context("when the request fails", func() {
 			It("should return the failed request error", func() {
-				_, err := Connect("http://#", map[string]string{"some": "json"})
+				_, err := Connect("http://#", map[string]interface{}{"some": "json"})
 				Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
 			})
 		})
@@ -195,7 +195,7 @@ var _ = Describe("Session", func() {
 		Context("if the request does not contain a session ID", func() {
 			It("should return an error indicating that it failed to receive a session ID", func() {
 				responseBody = "{}"
-				_, err := Connect(server.URL, map[string]string{"some": "json"})
+				_, err := Connect(server.URL, map[string]interface{}{"some": "json"})
 				Expect(err).To(MatchError("failed to retrieve a session ID"))
 			})
 		})
@@ -203,7 +203,7 @@ var _ = Describe("Session", func() {
 		Context("if the request succeeds", func() {
 			It("should return a session with session URL", func() {
 				responseBody = `{"sessionId": "some-id"}`
-				client, err := Connect(server.URL, map[string]string{"some": "json"})
+				client, err := Connect(server.URL, map[string]interface{}{"some": "json"})
 				Expect(err).NotTo(HaveOccurred())
 				Expect(client.SessionURL).To(ContainSubstring("/session/some-id"))
 			})

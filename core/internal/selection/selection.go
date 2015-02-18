@@ -10,7 +10,7 @@ type Selection struct {
 	Session interface {
 		GetActiveElement() (*api.Element, error)
 		DoubleClick() error
-		MoveTo(element *api.Element, point api.Point) error
+		MoveTo(element *api.Element, point api.Offset) error
 		Frame(frame *api.Element) error
 	}
 	Elements interface {

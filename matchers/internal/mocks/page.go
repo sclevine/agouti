@@ -1,6 +1,6 @@
 package mocks
 
-import "github.com/sclevine/agouti/core"
+import "github.com/sclevine/agouti"
 
 type Page struct {
 	TitleCall struct {
@@ -18,10 +18,9 @@ type Page struct {
 		Err       error
 	}
 
-	ReadLogsCall struct {
-		All        bool
+	ReadAllLogsCall struct {
 		LogType    string
-		ReturnLogs []core.Log
+		ReturnLogs []agouti.Log
 		Err        error
 	}
 }
@@ -38,8 +37,7 @@ func (p *Page) URL() (string, error) {
 	return p.URLCall.ReturnURL, p.URLCall.Err
 }
 
-func (p *Page) ReadLogs(logType string, all ...bool) ([]core.Log, error) {
-	p.ReadLogsCall.LogType = logType
-	p.ReadLogsCall.All = len(all) > 0 && all[0]
-	return p.ReadLogsCall.ReturnLogs, p.ReadLogsCall.Err
+func (p *Page) ReadAllLogs(logType string) ([]agouti.Log, error) {
+	p.ReadAllLogsCall.LogType = logType
+	return p.ReadAllLogsCall.ReturnLogs, p.ReadAllLogsCall.Err
 }

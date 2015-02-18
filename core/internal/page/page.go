@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 )
 
@@ -21,7 +22,7 @@ type Page struct {
 		SetWindowByName(name string) error
 		DeleteWindow() error
 		GetScreenshot() ([]byte, error)
-		SetCookie(cookie interface{}) error
+		SetCookie(cookie map[string]interface{}) error
 		DeleteCookie(name string) error
 		DeleteCookies() error
 		GetURL() (string, error)
@@ -65,7 +66,7 @@ func (p *Page) Navigate(url string) error {
 	return nil
 }
 
-func (p *Page) SetCookie(cookie interface{}) error {
+func (p *Page) SetCookie(cookie map[string]interface{}) error {
 	if err := p.Session.SetCookie(cookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
@@ -325,6 +326,19 @@ func (p *Page) ReadLogs(logType string, all ...bool) ([]Log, error) {
 	}
 
 	return logs, nil
+}
+
+// Patch to allow Page to work with new matchers after core deprecation
+func (p *Page) ReadAllLogs(logType string) ([]agouti.Log, error) {
+	coreLogs, err := p.ReadLogs(logType, true)
+	if err != nil {
+		return nil, err
+	}
+	var agoutiLogs []agouti.Log
+	for _, log := range coreLogs {
+		agoutiLogs = append(agoutiLogs, agouti.Log(log))
+	}
+	return agoutiLogs, nil
 }
 
 func msToTime(ms int64) time.Time {

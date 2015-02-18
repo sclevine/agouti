@@ -5,7 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 	. "github.com/sclevine/agouti/dsl"
 )
 
@@ -128,7 +128,7 @@ var _ = Describe("Driver", func() {
 
 		Describe("#CustomPage", func() {
 			It("should fail when there is no running WebDriver", func() {
-				Expect(func() { CustomPage(core.Use()) }).To(Panic())
+				Expect(func() { CustomPage(agouti.NewCapabilities()) }).To(Panic())
 				Expect(failMessage).To(Equal("WebDriver not started"))
 				Expect(failOffset).To(Equal(1))
 			})

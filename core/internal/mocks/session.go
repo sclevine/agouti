@@ -60,7 +60,7 @@ type Session struct {
 	}
 
 	SetCookieCall struct {
-		Cookie interface{}
+		Cookie map[string]interface{}
 		Err    error
 	}
 
@@ -101,7 +101,7 @@ type Session struct {
 
 	MoveToCall struct {
 		Element *api.Element
-		Point   api.Point
+		Point   api.Offset
 		Err     error
 	}
 
@@ -215,7 +215,7 @@ func (s *Session) GetScreenshot() ([]byte, error) {
 	return s.GetScreenshotCall.ReturnImage, s.GetScreenshotCall.Err
 }
 
-func (s *Session) SetCookie(cookie interface{}) error {
+func (s *Session) SetCookie(cookie map[string]interface{}) error {
 	s.SetCookieCall.Cookie = cookie
 	return s.SetCookieCall.Err
 }
@@ -252,7 +252,7 @@ func (s *Session) DoubleClick() error {
 	return s.DoubleClickCall.Err
 }
 
-func (s *Session) MoveTo(element *api.Element, point api.Point) error {
+func (s *Session) MoveTo(element *api.Element, point api.Offset) error {
 	s.MoveToCall.Element = element
 	s.MoveToCall.Point = point
 	return s.MoveToCall.Err
