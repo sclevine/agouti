@@ -10,8 +10,9 @@ import (
 )
 
 // NewPage opens a Page using the provided WebDriver URL.
-func NewPage(url string, desired Capabilities) (*Page, error) {
-	session, err := api.Open(url, desired)
+func NewPage(url string, options ...Option) (*Page, error) {
+	desiredCapabilities := getOptions(options).desired
+	session, err := api.Open(url, desiredCapabilities)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
