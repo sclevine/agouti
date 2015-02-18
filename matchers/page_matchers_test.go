@@ -43,7 +43,7 @@ var _ = Describe("Page Matchers", func() {
 
 	Describe("#HaveLoggedError", func() {
 		It("should call the page#HaveLoggedError matcher", func() {
-			page.ReadLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "WARNING", time.Time{}}}
+			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "WARNING", time.Time{}}}
 			Expect(page).To(HaveLoggedError("some log"))
 			Expect(page).NotTo(HaveLoggedError("some other log"))
 		})
@@ -51,7 +51,7 @@ var _ = Describe("Page Matchers", func() {
 
 	Describe("#HaveLoggedInfo", func() {
 		It("should call the page#HaveLoggedInfo matcher", func() {
-			page.ReadLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "INFO", time.Time{}}}
+			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "INFO", time.Time{}}}
 			Expect(page).To(HaveLoggedInfo("some log"))
 			Expect(page).NotTo(HaveLoggedInfo("some other log"))
 		})
