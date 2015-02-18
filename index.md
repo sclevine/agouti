@@ -2,9 +2,9 @@
 layout: default
 title: Agouti
 ---
-[Agouti](http://github.com/sclevine/agouti) is an acceptance testing framework and general-purpose WebDriver API. It is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing-framework- and matcher-library-agnostic.
+[Agouti](http://github.com/sclevine/agouti) is an universal WebDriver client for Go. For acceptance testing, it is best complemented by the [Ginkgo](http://onsi.github.io/ginkgo/) BDD testing framework and [Gomega](http://onsi.github.io/gomega/) matcher library, but it is designed to be both testing-framework- and matcher-library-agnostic.
 
-Most of this document is written with the assumption that you will be using Agouti for acceptance testing with both Ginkgo and Gomega. If you are unfamiliar with these libraries, we recommend consulting their documentation first. See [here](http://onsi.github.io/ginkgo/) and [here](http://onsi.github.io/gomega/).
+Most of this document is written with the assumption that you will be using Agouti for acceptance testing with both Ginkgo and Gomega. If you are unfamiliar with these libraries, we recommend consulting their documentation first. See [here](http://onsi.github.io/ginkgo/) and [here](http://onsi.github.io/gomega/). Note that the [`agouti`](https://godoc.org/github.com/sclevine/agouti) package can be used by itself as a general-purpose WebDriver client for Go.
 
 The [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package is not used in any examples outside of the DSL section. While it does reduce the amount of test setup and provide a [Capybara](http://jnicklas.github.io/capybara/)-like DSL, it exports numerous identifiers and results in tests that look quite different from standard Ginkgo tests.
 
@@ -15,12 +15,6 @@ The [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package is not used
 Just `go get` it:
 
     $ go get github.com/sclevine/agouti
-
-Or grab only the packages you plan to use:
-
-    $ go get github.com/sclevine/agouti/core
-    $ go get github.com/sclevine/agouti/matchers
-    $ go get github.com/sclevine/agouti/dsl
 
 If you plan to write acceptance tests using Ginkgo, or you want to use the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package:
 
@@ -38,12 +32,12 @@ Next, install any WebDrivers you plan to use. For Mac OS X (using [Homebrew](htt
     
 (Consider running `brew update` before running these commands.)
 
-We currently support PhantomJS 1.9.8, Selenium WebDriver 2.44.0, and ChromeDriver 2.13. See [this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933) if you have issues running Selenium with Safari on Mac OS X. All WebDrivers conforming to the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) should (theoretically) work with Agouti, and can be managed by Agouti using [`core.CustomWebDriver`](https://godoc.org/github.com/sclevine/agouti/core#CustomWebDriver).
+We currently support PhantomJS 1.9.7+, Selenium WebDriver 2.44.0+, and ChromeDriver 2.13+. See [this thread](https://code.google.com/p/selenium/issues/detail?can=2&q=7933&colspec=ID%20Stars%20Type%20Status%20Priority%20Milestone%20Owner%20Summary&id=7933) if you have issues running Selenium with Safari on Mac OS X. All WebDrivers conforming to the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) should (theoretically) work with Agouti, and can be managed by Agouti using [`agouti.NewWebDriver`](https://godoc.org/github.com/sclevine/agouti#NewWebDriver).
 
 ---
 
 ##Getting Started: Writing Your First Acceptance Test
-Agouti is best used with Ginkgo and Gomega. We'll start by setting up your Go package (named `potato`) to work with them. (For more information, check out the [Ginkgo docs](http://onsi.github.io/ginkgo/) and [Gomega docs](http://onsi.github.io/ginkgo/)).
+For acceptance or integration testing, Agouti is best used with Ginkgo and Gomega. We'll start by setting up your Go package (named `potato`) to work with them. (For more information, check out the [Ginkgo docs](http://onsi.github.io/ginkgo/) and [Gomega docs](http://onsi.github.io/ginkgo/)).
 
 ###Bootstrapping Ginkgo to Run Agouti Tests
 
@@ -59,7 +53,7 @@ This will generate a file named `potato_suite_test.go` containing:
         
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
+        "github.com/sclevine/agouti"
     )
 
     func TestPotato(t *testing.T) {
@@ -67,23 +61,20 @@ This will generate a file named `potato_suite_test.go` containing:
         RunSpecs(t, "Potato Suite")
     }
 
-    var agoutiDriver WebDriver
+    var agoutiDriver *agouti.WebDriver
 
     var _ = BeforeSuite(func() {
-        var err error
-
         // Choose a WebDriver:
 
-        agoutiDriver, err = PhantomJS()
-        // agoutiDriver, err = Selenium()
-        // agoutiDriver, err = Chrome()
+        agoutiDriver = agouti.PhantomJS()
+        // agoutiDriver = agouti.Selenium()
+        // agoutiDriver = agouti.ChromeDriver()
 
-        Expect(err).NotTo(HaveOccurred())
         Expect(agoutiDriver.Start()).To(Succeed())
     })
 
     var _ = AfterSuite(func() {
-        agoutiDriver.Stop()
+        Expect(agoutiDriver.Stop()).To(Succeed())
     })
 
 Update this file with your choice of WebDriver. For this example, we'll use Selenium.
@@ -95,7 +86,7 @@ Update this file with your choice of WebDriver. For this example, we'll use Sele
         
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
+        "github.com/sclevine/agouti"
     )
 
     func TestPotato(t *testing.T) {
@@ -103,22 +94,20 @@ Update this file with your choice of WebDriver. For this example, we'll use Sele
         RunSpecs(t, "Potato Suite")
     }
 
-    var agoutiDriver WebDriver
+    var agoutiDriver *agouti.WebDriver
 
     var _ = BeforeSuite(func() {
-        var err error
-        agoutiDriver, err = Selenium()
-        Expect(err).NotTo(HaveOccurred())
+        agoutiDriver = agouti.Selenium()
         Expect(agoutiDriver.Start()).To(Succeed())
     })
 
     var _ = AfterSuite(func() {
-        agoutiDriver.Stop()
+        Expect(agoutiDriver.Stop()).To(Succeed())
     })
 
-Note that while this setup does not need to be in the `potato_suite_test.go` file, we strongly recommend that the `WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits.
+Note that while this setup does not need to be in the `potato_suite_test.go` file, we strongly recommend that the `*agouti.WebDriver` be stopped in an `AfterSuite` block so that extra WebDriver processes will not remain running if Ginkgo is unceremoniously terminated. Ginkgo guarantees that the `AfterSuite` block will run before it exits.
 
-(If you prefer not to use a global variable for the WebDriver, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
+(If you prefer not to use a global variable for the `*agouti.WebDriver`, or if you would like to reduce this setup, check out the [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package.)
 
 At this point you can run your suite without any tests.
 
@@ -149,20 +138,21 @@ This will generate a file named `user_login_test.go` containing:
         . "path/to/potato"
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
+        . "github.com/sclevine/agouti/matchers"
+        "github.com/sclevine/agouti"
     )
 
     var _ = Describe("UserLogin", func() {
-        var page Page
+        var page *agouti.Page
 
         BeforeEach(func() {
             var err error
-            page, err = agoutiDriver.Page()
+            page, err = agoutiDriver.NewPage()
             Expect(err).NotTo(HaveOccurred())
         })
 
         AfterEach(func() {
-            page.Destroy()
+            Expect(page.Destroy()).To(Succeed())
         })
     })
 
@@ -174,22 +164,24 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
         . "path/to/potato"
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
+        . "github.com/sclevine/agouti/matchers"
+        "github.com/sclevine/agouti"
     )
 
     var _ = Describe("UserLogin", func() {
-        var page Page
+        var page *agouti.Page
 
         BeforeEach(func() {
             StartMyApp(3000)
-
+            
             var err error
-            page, err = agoutiDriver.Page(Use().Browser("firefox"))
+            capabilities := agouti.NewCapabilities().Browser("firefox")
+            page, err = agoutiDriver.NewPage(agouti.Desired(capabilities))
             Expect(err).NotTo(HaveOccurred())
         })
 
         AfterEach(func() {
-            page.Destroy()
+            Expect(page.Destroy()).To(Succeed())
         })
 
         It("should manage user authentication", func() {
@@ -227,41 +219,41 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
 
 ###Notes
 
-- A new `Selection` can be created from the page or from an existing `Selection` using the `Selectable` methods defined [here](http://godoc.org/github.com/sclevine/agouti/core#Selectable).
-- The `Selection` interface is very rich. It supports selecting and asserting on one or more elements by CSS selector, XPath, label, and/or link text. A selection may combine any number of these selector types.
-- The Agouti matchers (like `HaveTitle` and `BeVisible`) rely only on public `Page` and `Selection` methods (lke `Title` and `Visible`).
+- A new `*agouti.Selection` can be created from the `*agouti.Page`, an existing `*agouti.Selection`, or an existing `*agouti.MultiSelection` using the `Find*`, `First*`, and `All*` methods defined on either type.
+- The `*agouti.Selection` methods are very versatile. They support selecting and asserting on one or more elements by CSS selector, XPath, label, button text, and/or link text. A selection may combine any number of these selector types.
+- The Agouti matchers (like `HaveTitle` and `BeVisible`) rely only on public `*agouti.Page` and `*agouti.Selection` methods (lke `Title` and `Visible`).
 - Gomega's [asynchronous assertions](http://onsi.github.io/gomega/#making-asynchronous-assertions) such as `Eventually` may be used to wait for the page to load. This is especially useful for testing JavaScript-heavy web applications.
 - As your test suite grows, it's liable to get slow. Ginkgo makes it easy to parallelize your test suite by spreading different `It`s across multiple test processes, and Agouti supports this. We can make the above example support parallel tests by spinning up the app-server in the `BeforeEach` on a port unique to the Ginkgo node that is running the test: `StartMyApp(3000+GinkgoParallelNode())`. Now you can run the tests in parallel with `ginkgo -p`.  For more on test parallelization see the [Ginkgo docs on the topic](http://onsi.github.io/ginkgo/#parallel-specs).
 - The [`dsl`](https://godoc.org/github.com/sclevine/agouti/dsl) package contains actions that will immediately fail the running test if they are not successful. This can reduce the number of `Expect(...).To(Succeed())` assertions. It also re-declares some of the Ginkgo blocks. For instance, `It` becomes `Scenario`.
 
 ##Reference
 
-Agouti is fully documented using GoDoc. See [`core`](http://godoc.org/github.com/sclevine/agouti/core), [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers), and [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl).
+Agouti is fully documented using GoDoc. See [`agouti`](http://godoc.org/github.com/sclevine/agouti), [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers), and [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl).
 
 More extensive documentation (with more examples!) coming soon.
 
 ##External WebDrivers and Sauce Labs Support
 
-Agouti supports managing any WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) and that is launched by a command running a foreground process. This can be complished using `CustomWebDriver` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
+Agouti supports managing any WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol) and that is launched by a command running a foreground process. This can be complished using `agouti.NewWebDriver`:
 
     command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
-    driver := CustomWebDriver("http://{{.Address}}/wd/hub", command)
+    driver := NewWebDriver("http://{{.Address}}/wd/hub", command)
     Expect(driver.Start()).To(Succeed())
-    page, err := driver.CreatePage()
+    page, err := driver.NewPage()
     ...
-    page.Destroy() // end session
+    Expect(page.Destroy()).To(Succeed()) // end session
 
 Agouti supports connecting to any running WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol). This can be accomplished using `Connect` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
 
-    page, err := Connect(Use().Browser("safari"), "http://example.com:1234/wd/hub")
+    page, err := agouti.NewPage("http://example.com:1234/wd/hub")
     ...
-    page.Destroy() // end session
+    Expect(page.Destroy()).To(Succeed()) // end session
 
 For easy [Sauce Labs](http://saucelabs.com) support, use `SauceLabs`. Note that this does not currently support Sauce Connect.
 
     page, err := SauceLabs("my test", "Linux", "firefox", "33", "my-username", "secret-api-key")
     ...
-    page.Destroy() // end session
+    Expect(page.Destroy()).To(Succeed()) // end session
 
 ##The Agouti DSL
 
@@ -295,7 +287,7 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
     })
 
     var _ = AfterSuite(func() {
-        StopWebdriver()
+        StopWebDriver()
     })
 
 `user_login_test.go`:
@@ -307,25 +299,26 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
 
         . "github.com/onsi/ginkgo"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
         . "github.com/sclevine/agouti/dsl"
+        . "github.com/sclevine/agouti/matchers"
+        "github.com/sclevine/agouti"
     )
 
     var _ = Feature("UserLogin", func() {
-        var page Page
+        var page *agouti.Page
 
         Background(func() {
             StartMyApp(3000)
-            page = CreatePage(Use().Browser("firefox"))
+            page = CreatePage("firefox")
         })
 
         AfterEach(func() {
-            page.Destroy()
+            Destroy(page)
         })
 
         Scenario("allows a user to log in and log out", func() {
             Step("redirecting the user to the login form from the home page", func() {
-                Expect(page.Navigate("http://localhost:3000")).To(Succeed())
+                Navigate(page, "http://localhost:3000")
                 Expect(page).To(HaveURL("http://localhost:3000/login"))
             })
 
@@ -350,7 +343,7 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
             Step("allowing the user to log out", func() {
                 Click(page.Find("#logout"))
                 Expect(page).To(HavePopupText("Are you sure?"))
-                Expect(page.ConfirmPopup()).To(Succeed())
+                ConfirmPopup(page)
                 Eventually(page).Should(HaveTitle("Login"))
             })
         })
@@ -368,7 +361,7 @@ Like Ginkgo test blocks, [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl
 
 ##Using Agouti with Gomega and XUnit Tests
 
-If you would prefer to use Go's built-in XUnit tests instead of Ginkgo, the [`core`](http://godoc.org/github.com/sclevine/agouti/core) and [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers) packages make this easy.
+If you would prefer to use Go's built-in XUnit tests instead of Ginkgo, the [`core`](http://godoc.org/github.com/sclevine/agouti) and [`matchers`](http://godoc.org/github.com/sclevine/agouti/matchers) packages make this easy.
 
 To use Agouti with Gomega and XUnit style tests, check out this simple example:
 
@@ -379,15 +372,17 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
         
         . "path/to/potato"
         . "github.com/onsi/gomega"
-        . "github.com/sclevine/agouti/core"
         . "github.com/sclevine/agouti/matchers"
+        "github.com/sclevine/agouti"
     )
 
     func TestUserLoginPrompt(t *testing.T) {
         RegisterTestingT(t)
 
-        driver := Selenium()
-        page := driver.Page(agouti.Use().Browser("firefox"))
+        driver := agouti.Selenium()
+        Expect(driver.Start()).To(Succeed())
+        capabilities := agouti.NewCapabilities().Browser("firefox")
+        page := driver.NewPage(agouti.Desired(capabilities))
 
         StartMyApp(3000)
 
@@ -395,7 +390,7 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
         Expect(page).To(HaveURL("http://localhost:3000"))
         Expect(page.Find("#prompt")).To(HaveText("Please login!"))
 
-        driver.Stop() // calls page.Destroy() automatically
+        Expect(driver.Stop()).To(Succeed()) // calls page.Destroy() automatically
     }
 
 See Gomega's [docs for more details](http://onsi.github.io/gomega/#using-gomega-with-golangs-xunit-style-tests). Note that using Agouti without Ginkgo will not allow you to run your specs in parallel.
@@ -410,7 +405,7 @@ This is the most Go-like way of using Agouti for acceptance testing.
         "testing"
         
         "path/to/potato"
-        agouti "github.com/sclevine/agouti/core"
+        "github.com/sclevine/agouti"
         am "github.com/sclevine/agouti/matchers"
         gm "github.com/onsi/gomega"
     )
@@ -419,7 +414,9 @@ This is the most Go-like way of using Agouti for acceptance testing.
         gm.RegisterTestingT(t)
 
         driver := agouti.Selenium()
-        page := driver.Page(agouti.Use().Browser("firefox"))
+        gm.Expect(driver.Start()).To(gm.Succeed())
+        capabilities := agouti.NewCapabilities().Browser("firefox")
+        page := driver.NewPage(agouti.Desired(capabilities))
 
         potato.StartMyApp(3000)
 
@@ -427,7 +424,7 @@ This is the most Go-like way of using Agouti for acceptance testing.
         gm.Expect(page).To(am.HaveURL("http://localhost:3000"))
         gm.Expect(page.Find("#prompt")).To(am.HaveText("Please login!"))
 
-        driver.Stop() // calls page.Destroy() automatically
+        gm.Expect(driver.Stop()).To(gm.Succeed()) // calls page.Destroy() automatically
     }
 
 Alternatively:
@@ -451,7 +448,9 @@ Alternatively:
         gomega.RegisterTestingT(t)
 
         driver := agouti.Selenium()
-        page := driver.Page(agouti.Use().Browser("firefox"))
+        Expect(driver.Start()).To(Succeed())
+        capabilities := agouti.NewCapabilities().Browser("firefox")
+        page := driver.NewPage(agouti.Desired(capabilities))
 
         potato.StartMyApp(3000)
 
@@ -459,14 +458,14 @@ Alternatively:
         Expect(page).To(HaveURL("http://localhost:3000"))
         Expect(page.Find("#prompt")).To(HaveText("Please login!"))
 
-        driver.Stop() // calls page.Destroy() automatically
+        Expect(driver.Stop()).To(Succeed()) // calls page.Destroy() automatically
     }
 
 ###Using Agouti by Itself
 
-The [`core`](http://godoc.org/github.com/sclevine/agouti/core) package does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver API.
+The [`core`](http://godoc.org/github.com/sclevine/agouti) package by itself does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver client.
 
-Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll import the core package as `agouti` instead of dot-importing it.
+Here is a part of a login test that does not depend on Ginkgo or Gomega.
 
     package potato_test
 
@@ -474,12 +473,13 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll i
         "testing"
 
         "path/to/potato"
-        agouti "github.com/sclevine/agouti/core"
+        "github.com/sclevine/agouti"
     )
 
     func TestUserLoginPrompt(t *testing.T) {
         driver := agouti.Selenium()
-        page := driver.Page(agouti.Use().Browser("firefox"))
+        capabilities := agouti.NewCapabilities().Browser("firefox")
+        page := driver.NewPage(agouti.Desired(capabilities))
 
         potato.StartMyApp(3000)
 
@@ -507,6 +507,8 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega. We'll i
             t.Error("Expected login prompt to be", expectedPrompt, "but got", loginPrompt)
         }
 
-        driver.Stop() // calls page.Destroy() automatically
+        if err := driver.Stop(); err != nil {
+            t.Error("Failed close open pages and stop WebDriver.")
+        }
     }
 
