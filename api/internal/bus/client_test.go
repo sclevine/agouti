@@ -178,6 +178,13 @@ var _ = Describe("Session", func() {
 			})
 		})
 
+		Context("when the capabilities are nil", func() {
+			It("should make a POST request with empty capabilities", func() {
+				Connect(server.URL, nil)
+				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {}}`))
+			})
+		})
+
 		Context("when the request is invalid", func() {
 			It("should return the invalid request error", func() {
 				_, err := Connect("%@#$%", map[string]interface{}{"some": "json"})

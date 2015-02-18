@@ -1,10 +1,7 @@
 package agouti
 
 import (
-	"errors"
 	"fmt"
-	"time"
-
 	"github.com/sclevine/agouti/api"
 )
 
@@ -30,8 +27,11 @@ type WebDriver struct {
 // Selenium JAR example:
 //   command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
 //   core.NewWebDriver("http://{{.Address}}/wd/hub", command)
-func NewWebDriver(url string, command []string, timeout ...time.Duration) *WebDriver {
-	return &WebDriver{api.NewWebDriver(url, command, timeout...)}
+func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
+	apiWebDriver := api.NewWebDriver(url, command)
+	defaultConfig := &config{timeout: apiWebDriver.Timeout}
+	apiWebDriver.Timeout = defaultConfig.apply(options).timeout
+	return &WebDriver{apiWebDriver}
 }
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
@@ -56,14 +56,10 @@ func Selenium() *WebDriver {
 //    driver.Page(Use().Without("javascriptEnabled"))
 // For Selenium, this argument must include a browser. For instance:
 //    seleniumDriver.Page(Use().Browser("safari"))
-func (w *WebDriver) NewPage(desired ...Capabilities) (*Page, error) {
-	if len(desired) == 0 {
-		desired = append(desired, NewCapabilities())
-	} else if len(desired) > 1 {
-		return nil, errors.New("too many arguments")
-	}
+func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
+	desiredCapabilities := getOptions(options).desired
 
-	session, err := w.Open(api.Capabilities(desired[0]))
+	session, err := w.Open(desiredCapabilities)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open session: %s", err)
 	}

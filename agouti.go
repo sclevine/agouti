@@ -11,7 +11,7 @@ import (
 
 // NewPage opens a Page using the provided WebDriver URL.
 func NewPage(url string, desired Capabilities) (*Page, error) {
-	session, err := api.Open(url, api.Capabilities(desired))
+	session, err := api.Open(url, desired)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
@@ -21,7 +21,7 @@ func NewPage(url string, desired Capabilities) (*Page, error) {
 // SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, accessKey string) (*Page, error) {
 	url := fmt.Sprintf("http://%s:%s@ondemand.saucelabs.com/wd/hub", username, accessKey)
-	capabilities := api.Capabilities{
+	capabilities := Capabilities{
 		"name":        name,
 		"platform":    platform,
 		"browserName": browser,

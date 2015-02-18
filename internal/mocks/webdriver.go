@@ -4,7 +4,7 @@ import "github.com/sclevine/agouti/api"
 
 type WebDriver struct {
 	OpenCall struct {
-		Desired       []api.Capabilities
+		Desired       map[string]interface{}
 		ReturnSession *api.Session
 		Err           error
 	}
@@ -20,7 +20,8 @@ type WebDriver struct {
 	}
 }
 
-func (w *WebDriver) Open(desired ...api.Capabilities) (*api.Session, error) {
+func (w *WebDriver) Open(desired map[string]interface{}) (*api.Session, error) {
+	w.OpenCall.Desired = desired
 	return w.OpenCall.ReturnSession, w.OpenCall.Err
 }
 

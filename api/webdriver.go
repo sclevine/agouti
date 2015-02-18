@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -9,54 +8,37 @@ import (
 	"github.com/sclevine/agouti/api/internal/service"
 )
 
-type Capabilities map[string]interface{}
-
 type WebDriver struct {
+	Timeout  time.Duration
 	Service  driverService
 	sessions []*Session
 }
 
 type driverService interface {
 	URL() (string, error)
-	Start() error
+	Start(timeout time.Duration) error
 	Stop() error
 }
 
-//type WebDriverOption func(*WebDriver)
-//
-//func Timeout(t time.Duration) WebDriverOption {
-//	return func(w *WebDriver) {
-//
-//	}
-//}
-
-func NewWebDriver(url string, command []string, timeout ...time.Duration) *WebDriver {
-	if len(timeout) == 0 {
-		timeout = []time.Duration{5 * time.Second}
-	}
-
+func NewWebDriver(url string, command []string) *WebDriver {
 	driverService := &service.Service{
 		URLTemplate: url,
 		CmdTemplate: command,
-		Timeout:     timeout[0],
 	}
 
-	return &WebDriver{Service: driverService}
+	return &WebDriver{
+		Timeout: 5 * time.Second,
+		Service: driverService,
+	}
 }
 
-func (w *WebDriver) Open(desired ...Capabilities) (*Session, error) {
-	if len(desired) == 0 {
-		desired = append(desired, Capabilities{})
-	} else if len(desired) > 1 {
-		return nil, errors.New("too many arguments")
-	}
-
+func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, error) {
 	url, err := w.Service.URL()
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve URL: %s", err)
 	}
 
-	busClient, err := bus.Connect(url, desired[0])
+	busClient, err := bus.Connect(url, desiredCapabilites)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect: %s", err)
 	}
@@ -67,7 +49,7 @@ func (w *WebDriver) Open(desired ...Capabilities) (*Session, error) {
 }
 
 func (w *WebDriver) Start() error {
-	if err := w.Service.Start(); err != nil {
+	if err := w.Service.Start(w.Timeout); err != nil {
 		return fmt.Errorf("failed to start service: %s", err)
 	}
 

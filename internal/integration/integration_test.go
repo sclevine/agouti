@@ -22,11 +22,11 @@ var _ = Describe("integration tests", func() {
 		})
 
 		itShouldBehaveLikeAPage("Selenium - Firefox", func() (*agouti.Page, error) {
-			return seleniumDriver.NewPage(agouti.NewCapabilities().Browser("firefox"))
+			return seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("firefox")))
 		})
 
 		itShouldBehaveLikeAPage("Selenium - Safari", func() (*agouti.Page, error) {
-			return seleniumDriver.NewPage(agouti.NewCapabilities().Browser("safari"))
+			return seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("safari")))
 		})
 	}
 })

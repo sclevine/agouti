@@ -25,7 +25,7 @@ type WebDriver interface {
 
 type webDriver struct {
 	apiWebDriver interface {
-		Open(desired ...api.Capabilities) (*api.Session, error)
+		Open(desired map[string]interface{}) (*api.Session, error)
 		Start() error
 		Stop() error
 	}
@@ -38,7 +38,7 @@ func (d *webDriver) Page(desired ...Capabilities) (Page, error) {
 		return nil, errors.New("too many arguments")
 	}
 
-	session, err := d.apiWebDriver.Open(api.Capabilities(desired[0].(capabilities)))
+	session, err := d.apiWebDriver.Open(desired[0].(capabilities))
 	if err != nil {
 		return nil, fmt.Errorf("failed to open session: %s", err)
 	}

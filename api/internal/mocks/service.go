@@ -1,5 +1,7 @@
 package mocks
 
+import "time"
+
 type Service struct {
 	URLCall struct {
 		ReturnURL string
@@ -7,8 +9,8 @@ type Service struct {
 	}
 
 	StartCall struct {
-		Called bool
-		Err    error
+		Timeout time.Duration
+		Err     error
 	}
 
 	StopCall struct {
@@ -21,8 +23,8 @@ func (s *Service) URL() (string, error) {
 	return s.URLCall.ReturnURL, s.URLCall.Err
 }
 
-func (s *Service) Start() error {
-	s.StartCall.Called = true
+func (s *Service) Start(timeout time.Duration) error {
+	s.StartCall.Timeout = timeout
 	return s.StartCall.Err
 }
 

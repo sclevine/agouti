@@ -33,7 +33,11 @@ func init() {
 //   command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
 //   core.NewWebDriver("http://{{.Address}}/wd/hub", command)
 func NewWebDriver(url string, command []string, timeout ...time.Duration) WebDriver {
-	return &webDriver{api.NewWebDriver(url, command, timeout...)}
+	apiWebDriver := api.NewWebDriver(url, command)
+	if len(timeout) > 0 {
+		apiWebDriver.Timeout = timeout[0]
+	}
+	return &webDriver{apiWebDriver}
 }
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
@@ -55,7 +59,7 @@ func Selenium() (WebDriver, error) {
 
 // NewPage opens a Page using the provided WebDriver URL.
 func NewPage(url string, desired Capabilities) (Page, error) {
-	session, err := api.Open(url, api.Capabilities(desired.(capabilities)))
+	session, err := api.Open(url, desired.(capabilities))
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
@@ -65,7 +69,7 @@ func NewPage(url string, desired Capabilities) (Page, error) {
 // SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, key string) (Page, error) {
 	url := "http://ondemand.saucelabs.com/wd/hub"
-	capabilities := api.Capabilities{
+	capabilities := capabilities{
 		"name":        name,
 		"platform":    platform,
 		"browserName": browser,

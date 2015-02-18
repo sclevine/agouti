@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,7 +21,7 @@ var _ = Describe("WebDriver", func() {
 
 	BeforeEach(func() {
 		service = &mocks.Service{}
-		webDriver = &WebDriver{Service: service}
+		webDriver = &WebDriver{Timeout: 2 * time.Second, Service: service}
 	})
 
 	Describe("#Open", func() {
@@ -47,44 +48,28 @@ var _ = Describe("WebDriver", func() {
 
 		It("should successfully return a session with a bus that talks to the WebDriver", func() {
 			responseBody = `{"sessionId": "some-id"}`
-			session, err := webDriver.Open(Capabilities{})
+			session, err := webDriver.Open(nil)
 			Expect(err).NotTo(HaveOccurred())
 			responseBody = `{"value": "some title"}`
 			Expect(session.GetTitle()).To(Equal("some title"))
 		})
 
-		Context("when too many arguments are provided", func() {
-			It("should return an error", func() {
-				_, err := webDriver.Open(Capabilities{}, Capabilities{})
-				Expect(err).To(MatchError("too many arguments"))
-			})
+		It("should open the connection with the provided desired capabilities", func() {
+			webDriver.Open(map[string]interface{}{"some": "capability"})
+			Expect(requestBody).To(Equal(`{"desiredCapabilities":{"some":"capability"}}`))
 		})
 
 		Context("when the service URL cannot be retrieved", func() {
 			It("should return an error", func() {
 				service.URLCall.Err = errors.New("some error")
-				_, err := webDriver.Open()
+				_, err := webDriver.Open(nil)
 				Expect(err).To(MatchError("cannot retrieve URL: some error"))
-			})
-		})
-
-		Context("when no capabilities arguments are provided", func() {
-			It("should use empty capabilities", func() {
-				webDriver.Open()
-				Expect(requestBody).To(Equal(`{"desiredCapabilities":{}}`))
-			})
-		})
-
-		Context("when a single capabilities argument is provided", func() {
-			It("should connect to the WebDriver bus using those capabilities", func() {
-				webDriver.Open(Capabilities{"some": "capability"})
-				Expect(requestBody).To(Equal(`{"desiredCapabilities":{"some":"capability"}}`))
 			})
 		})
 
 		Context("when we cannot connect to the WebDriver bus", func() {
 			It("should return an error", func() {
-				_, err := webDriver.Open(Capabilities{})
+				_, err := webDriver.Open(nil)
 				Expect(err).To(MatchError("failed to connect: failed to retrieve a session ID"))
 			})
 		})
@@ -92,7 +77,7 @@ var _ = Describe("WebDriver", func() {
 		Context("when the WebDriver is stopped", func() {
 			It("should delete the opened session", func() {
 				responseBody = `{"sessionId": "some-id"}`
-				webDriver.Open(Capabilities{})
+				webDriver.Open(nil)
 				requestMethod = ""
 				webDriver.Stop()
 				Expect(requestBody).To(Equal(""))
@@ -104,7 +89,7 @@ var _ = Describe("WebDriver", func() {
 	Describe("#Start", func() {
 		It("should successfully start the WebDriver service", func() {
 			Expect(webDriver.Start()).To(Succeed())
-			Expect(service.StartCall.Called).To(BeTrue())
+			Expect(service.StartCall.Timeout).To(Equal(2 * time.Second))
 		})
 
 		Context("when the WebDriver service cannot be started", func() {

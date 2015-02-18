@@ -44,7 +44,7 @@ func CreatePage(browserName ...string) *agouti.Page {
 	if len(browserName) > 0 {
 		capabilities.Browser(browserName[0])
 	}
-	newPage, err := driver.NewPage(capabilities)
+	newPage, err := driver.NewPage(agouti.Desired(capabilities))
 	checkFailure(err)
 	return newPage
 }
@@ -57,7 +57,7 @@ func CustomPage(capabilities agouti.Capabilities) *agouti.Page {
 	if driver == nil {
 		globalFailHandler("WebDriver not started", 1)
 	}
-	newPage, err := driver.NewPage(capabilities)
+	newPage, err := driver.NewPage(agouti.Desired(capabilities))
 	checkFailure(err)
 	return newPage
 }

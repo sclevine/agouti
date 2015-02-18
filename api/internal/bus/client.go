@@ -69,6 +69,9 @@ func (c *Client) Send(endpoint, method string, body interface{}, result ...inter
 }
 
 func Connect(url string, capabilities map[string]interface{}) (*Client, error) {
+	if capabilities == nil {
+		capabilities = map[string]interface{}{}
+	}
 	desiredCapabilities := struct {
 		DesiredCapabilities map[string]interface{} `json:"desiredCapabilities"`
 	}{capabilities}

@@ -26,7 +26,7 @@ type busSender interface {
 	Send(endpoint, method string, body interface{}, result ...interface{}) error
 }
 
-func Open(url string, capabilities Capabilities) (*Session, error) {
+func Open(url string, capabilities map[string]interface{}) (*Session, error) {
 	busClient, err := bus.Connect(url, capabilities)
 	if err != nil {
 		return nil, err

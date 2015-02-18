@@ -17,7 +17,6 @@ import (
 type Service struct {
 	URLTemplate string
 	CmdTemplate []string
-	Timeout     time.Duration
 	url         string
 	command     *exec.Cmd
 }
@@ -36,7 +35,7 @@ func (s *Service) URL() (string, error) {
 	return s.url, nil
 }
 
-func (s *Service) Start() error {
+func (s *Service) Start(timeout time.Duration) error {
 	if s.command != nil {
 		return errors.New("already running")
 	}
@@ -61,7 +60,7 @@ func (s *Service) Start() error {
 
 	s.command = command
 
-	return s.waitForServer()
+	return s.waitForServer(timeout)
 }
 
 func (s *Service) Stop() error {
@@ -131,8 +130,8 @@ func freeAddress() (addressInfo, error) {
 	return addressInfo{address, addressParts[0], addressParts[1]}, nil
 }
 
-func (s *Service) waitForServer() error {
-	timeoutChan := time.After(s.Timeout)
+func (s *Service) waitForServer(timeout time.Duration) error {
+	timeoutChan := time.After(timeout)
 	failedChan := make(chan struct{}, 1)
 	startedChan := make(chan struct{})
 
