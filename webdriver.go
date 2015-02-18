@@ -26,7 +26,7 @@ type WebDriver struct {
 //
 // Selenium JAR example:
 //   command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
-//   core.NewWebDriver("http://{{.Address}}/wd/hub", command)
+//   agouti.NewWebDriver("http://{{.Address}}/wd/hub", command)
 func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	apiWebDriver := api.NewWebDriver(url, command)
 	defaultConfig := &config{timeout: apiWebDriver.Timeout}
@@ -51,11 +51,11 @@ func Selenium() *WebDriver {
 	return NewWebDriver("http://{{.Address}}/wd/hub", []string{"selenium-server", "-port", "{{.Port}}"})
 }
 
-// NewPage returns a new WebDriver session. The optional config argument
-// configures the returned page. For instance:
-//    driver.Page(Use().Without("javascriptEnabled"))
+// NewPage returns a *Page that corresponds to a new WebDriver session.
+// Any provided options configure the page. For instance:
+//    driver.NewPage(agouti.Desired(agouti.NewCapabilities().Without("javascriptEnabled")))
 // For Selenium, this argument must include a browser. For instance:
-//    seleniumDriver.Page(Use().Browser("safari"))
+//    seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("safari")))
 func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
 	desiredCapabilities := getOptions(options).desired
 

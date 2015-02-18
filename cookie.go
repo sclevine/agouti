@@ -2,7 +2,7 @@ package agouti
 
 import "encoding/json"
 
-// Cookie defines a cookie for use with Page#SetCookie()
+// Cookie defines a cookie for use with *Page#SetCookie()
 type Cookie map[string]interface{}
 
 // NewCookie returns a Cookie instance with the provided name and value.

@@ -8,7 +8,7 @@ import (
 )
 
 // Selection instances refer to a selection of elements.
-// Every Selection method is a valid MultiSelection method.
+// All Selection methods are also MultiSelection methods.
 //
 // Methods that take selectors apply their selectors to each element in the
 // selection they are called on. If the selection they are called on refers to multiple

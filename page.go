@@ -13,7 +13,7 @@ import (
 )
 
 // A Page represents an open browser session. Pages may be created using the
-// WebDriver#Page() method or by calling the NewPage or SauceLabs functions.
+// *WebDriver#Page() method or by calling the NewPage or SauceLabs functions.
 type Page struct {
 	session pageSession
 	logs    map[string][]Log

@@ -19,7 +19,7 @@ func NewPage(url string, options ...Option) (*Page, error) {
 	return newPage(session), nil
 }
 
-// SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
+// SauceLabs opens a Sauce Labs session and returns a *Page. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, accessKey string) (*Page, error) {
 	url := fmt.Sprintf("http://%s:%s@ondemand.saucelabs.com/wd/hub", username, accessKey)
 	capabilities := Capabilities{

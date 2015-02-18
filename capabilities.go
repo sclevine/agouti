@@ -6,7 +6,8 @@ import "encoding/json"
 // should use to configure a Page.
 //
 // For example, to open Firefox with JavaScript disabled:
-//    driver.Page(NewCapabilities().Browser("firefox").Without("javascriptEnabled"))
+//    capabilities := agouti.NewCapabilities().Browser("firefox").Without("javascriptEnabled")
+//    driver.NewPage(agouti.Desired(capabilities))
 // See: https://code.google.com/p/selenium/wiki/DesiredCapabilities
 //
 // All methods called on this instance will modify the original instance.
