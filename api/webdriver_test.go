@@ -21,7 +21,8 @@ var _ = Describe("WebDriver", func() {
 
 	BeforeEach(func() {
 		service = &mocks.Service{}
-		webDriver = &WebDriver{Timeout: 2 * time.Second, Service: service}
+		webDriver = NewTestWebDriver(service)
+		webDriver.Timeout = 2 * time.Second
 	})
 
 	Describe("#Open", func() {

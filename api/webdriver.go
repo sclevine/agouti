@@ -10,7 +10,7 @@ import (
 
 type WebDriver struct {
 	Timeout  time.Duration
-	Service  driverService
+	service  driverService
 	sessions []*Session
 }
 
@@ -28,12 +28,12 @@ func NewWebDriver(url string, command []string) *WebDriver {
 
 	return &WebDriver{
 		Timeout: 5 * time.Second,
-		Service: driverService,
+		service: driverService,
 	}
 }
 
 func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, error) {
-	url, err := w.Service.URL()
+	url, err := w.service.URL()
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve URL: %s", err)
 	}
@@ -49,7 +49,7 @@ func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, e
 }
 
 func (w *WebDriver) Start() error {
-	if err := w.Service.Start(w.Timeout); err != nil {
+	if err := w.service.Start(w.Timeout); err != nil {
 		return fmt.Errorf("failed to start service: %s", err)
 	}
 
@@ -61,7 +61,7 @@ func (w *WebDriver) Stop() error {
 		session.Delete()
 	}
 
-	if err := w.Service.Stop(); err != nil {
+	if err := w.service.Stop(); err != nil {
 		return fmt.Errorf("failed to stop service: %s", err)
 	}
 
