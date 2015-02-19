@@ -11,5 +11,5 @@ func (w *Window) SetSize(width, height int) error {
 		Height int `json:"height"`
 	}{width, height}
 
-	return w.Session.sendWindow(w.ID, "size", "POST", request)
+	return w.Session.sendWindow(w.ID, "size", "POST", request, nil)
 }

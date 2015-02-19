@@ -15,7 +15,7 @@ type Client struct {
 	SessionURL string
 }
 
-func (c *Client) Send(endpoint, method string, body interface{}, result ...interface{}) error {
+func (c *Client) Send(endpoint, method string, body interface{}, result interface{}) error {
 	client := &http.Client{}
 
 	var bodyReader io.Reader
@@ -58,8 +58,8 @@ func (c *Client) Send(endpoint, method string, body interface{}, result ...inter
 		return fmt.Errorf("request unsuccessful: %s", errMessage.ErrorMessage)
 	}
 
-	if len(result) > 0 {
-		bodyValue := struct{ Value interface{} }{result[0]}
+	if result != nil {
+		bodyValue := struct{ Value interface{} }{result}
 		if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
 			return fmt.Errorf("failed to parse response value: %s", err)
 		}

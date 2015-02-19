@@ -60,11 +60,11 @@ func (e *Element) GetCSS(property string) (string, error) {
 }
 
 func (e *Element) Click() error {
-	return e.Session.sendElement(e.ID, "click", "POST", nil)
+	return e.Session.sendElement(e.ID, "click", "POST", nil, nil)
 }
 
 func (e *Element) Clear() error {
-	return e.Session.sendElement(e.ID, "clear", "POST", nil)
+	return e.Session.sendElement(e.ID, "clear", "POST", nil, nil)
 }
 
 func (e *Element) Value(text string) error {
@@ -72,7 +72,7 @@ func (e *Element) Value(text string) error {
 	request := struct {
 		Value []string `json:"value"`
 	}{splitText}
-	return e.Session.sendElement(e.ID, "value", "POST", request)
+	return e.Session.sendElement(e.ID, "value", "POST", request, nil)
 }
 
 func (e *Element) IsSelected() (bool, error) {
@@ -100,7 +100,7 @@ func (e *Element) IsEnabled() (bool, error) {
 }
 
 func (e *Element) Submit() error {
-	return e.Session.sendElement(e.ID, "submit", "POST", nil)
+	return e.Session.sendElement(e.ID, "submit", "POST", nil, nil)
 }
 
 func (e *Element) IsEqualTo(other *Element) (bool, error) {

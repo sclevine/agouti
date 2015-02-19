@@ -19,11 +19,11 @@ type Selector struct {
 }
 
 type Session struct {
-	Bus busSender
+	Bus
 }
 
-type busSender interface {
-	Send(endpoint, method string, body interface{}, result ...interface{}) error
+type Bus interface {
+	Send(endpoint, method string, body, result interface{}) error
 }
 
 func Open(url string, capabilities map[string]interface{}) (*Session, error) {
@@ -35,13 +35,13 @@ func Open(url string, capabilities map[string]interface{}) (*Session, error) {
 }
 
 func (s *Session) Delete() error {
-	return s.Bus.Send("", "DELETE", nil)
+	return s.Send("", "DELETE", nil, nil)
 }
 
 func (s *Session) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 
-	if err := s.Bus.Send("element", "POST", selector, &result); err != nil {
+	if err := s.Send("element", "POST", selector, &result); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func (s *Session) GetElement(selector Selector) (*Element, error) {
 func (s *Session) GetElements(selector Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
-	if err := s.Bus.Send("elements", "POST", selector, &results); err != nil {
+	if err := s.Send("elements", "POST", selector, &results); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (s *Session) GetElements(selector Selector) ([]*Element, error) {
 func (s *Session) GetActiveElement() (*Element, error) {
 	var result struct{ Element string }
 
-	if err := s.Bus.Send("element/active", "POST", nil, &result); err != nil {
+	if err := s.Send("element/active", "POST", nil, &result); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func (s *Session) GetActiveElement() (*Element, error) {
 
 func (s *Session) GetWindow() (*Window, error) {
 	var windowID string
-	if err := s.Bus.Send("window_handle", "GET", nil, &windowID); err != nil {
+	if err := s.Send("window_handle", "GET", nil, &windowID); err != nil {
 		return nil, err
 	}
 	return &Window{windowID, s}, nil
@@ -83,7 +83,7 @@ func (s *Session) GetWindow() (*Window, error) {
 
 func (s *Session) GetWindows() ([]*Window, error) {
 	var windowsID []string
-	if err := s.Bus.Send("window_handles", "GET", nil, &windowsID); err != nil {
+	if err := s.Send("window_handles", "GET", nil, &windowsID); err != nil {
 		return nil, err
 	}
 
@@ -99,7 +99,7 @@ func (s *Session) SetWindow(window *Window) error {
 		Name string `json:"name"`
 	}{window.ID}
 
-	return s.Bus.Send("window", "POST", request)
+	return s.Send("window", "POST", request, nil)
 }
 
 func (s *Session) SetWindowByName(name string) error {
@@ -107,11 +107,11 @@ func (s *Session) SetWindowByName(name string) error {
 		Name string `json:"name"`
 	}{name}
 
-	return s.Bus.Send("window", "POST", request)
+	return s.Send("window", "POST", request, nil)
 }
 
 func (s *Session) DeleteWindow() error {
-	if err := s.Bus.Send("window", "DELETE", nil, nil); err != nil {
+	if err := s.Send("window", "DELETE", nil, nil); err != nil {
 		return err
 	}
 	return nil
@@ -122,21 +122,21 @@ func (s *Session) SetCookie(cookie map[string]interface{}) error {
 		Cookie map[string]interface{} `json:"cookie"`
 	}{cookie}
 
-	return s.Bus.Send("cookie", "POST", request)
+	return s.Send("cookie", "POST", request, nil)
 }
 
 func (s *Session) DeleteCookie(cookieName string) error {
-	return s.Bus.Send("cookie/"+cookieName, "DELETE", nil)
+	return s.Send("cookie/"+cookieName, "DELETE", nil, nil)
 }
 
 func (s *Session) DeleteCookies() error {
-	return s.Bus.Send("cookie", "DELETE", nil)
+	return s.Send("cookie", "DELETE", nil, nil)
 }
 
 func (s *Session) GetScreenshot() ([]byte, error) {
 	var base64Image string
 
-	if err := s.Bus.Send("screenshot", "GET", nil, &base64Image); err != nil {
+	if err := s.Send("screenshot", "GET", nil, &base64Image); err != nil {
 		return nil, err
 	}
 
@@ -145,7 +145,7 @@ func (s *Session) GetScreenshot() ([]byte, error) {
 
 func (s *Session) GetURL() (string, error) {
 	var url string
-	if err := s.Bus.Send("url", "GET", nil, &url); err != nil {
+	if err := s.Send("url", "GET", nil, &url); err != nil {
 		return "", err
 	}
 
@@ -157,12 +157,12 @@ func (s *Session) SetURL(url string) error {
 		URL string `json:"url"`
 	}{url}
 
-	return s.Bus.Send("url", "POST", request)
+	return s.Send("url", "POST", request, nil)
 }
 
 func (s *Session) GetTitle() (string, error) {
 	var title string
-	if err := s.Bus.Send("title", "GET", nil, &title); err != nil {
+	if err := s.Send("title", "GET", nil, &title); err != nil {
 		return "", err
 	}
 
@@ -171,7 +171,7 @@ func (s *Session) GetTitle() (string, error) {
 
 func (s *Session) GetSource() (string, error) {
 	var source string
-	if err := s.Bus.Send("source", "GET", nil, &source); err != nil {
+	if err := s.Send("source", "GET", nil, &source); err != nil {
 		return "", err
 	}
 
@@ -179,7 +179,7 @@ func (s *Session) GetSource() (string, error) {
 }
 
 func (s *Session) DoubleClick() error {
-	return s.Bus.Send("doubleclick", "POST", nil)
+	return s.Send("doubleclick", "POST", nil, nil)
 }
 
 func (s *Session) MoveTo(region *Element, offset Offset) error {
@@ -200,7 +200,7 @@ func (s *Session) MoveTo(region *Element, offset Offset) error {
 		}
 	}
 
-	return s.Bus.Send("moveto", "POST", request)
+	return s.Send("moveto", "POST", request, nil)
 }
 
 func (s *Session) Frame(frame *Element) error {
@@ -216,11 +216,11 @@ func (s *Session) Frame(frame *Element) error {
 		ID interface{} `json:"id"`
 	}{elementID}
 
-	return s.Bus.Send("frame", "POST", request)
+	return s.Send("frame", "POST", request, nil)
 }
 
 func (s *Session) FrameParent() error {
-	return s.Bus.Send("frame/parent", "POST", nil)
+	return s.Send("frame/parent", "POST", nil, nil)
 }
 
 func (s *Session) Execute(body string, arguments []interface{}, result interface{}) error {
@@ -233,7 +233,7 @@ func (s *Session) Execute(body string, arguments []interface{}, result interface
 		Args   []interface{} `json:"args"`
 	}{body, arguments}
 
-	if err := s.Bus.Send("execute", "POST", request, result); err != nil {
+	if err := s.Send("execute", "POST", request, result); err != nil {
 		return err
 	}
 
@@ -241,20 +241,20 @@ func (s *Session) Execute(body string, arguments []interface{}, result interface
 }
 
 func (s *Session) Forward() error {
-	return s.Bus.Send("forward", "POST", nil)
+	return s.Send("forward", "POST", nil, nil)
 }
 
 func (s *Session) Back() error {
-	return s.Bus.Send("back", "POST", nil)
+	return s.Send("back", "POST", nil, nil)
 }
 
 func (s *Session) Refresh() error {
-	return s.Bus.Send("refresh", "POST", nil)
+	return s.Send("refresh", "POST", nil, nil)
 }
 
 func (s *Session) GetAlertText() (string, error) {
 	var text string
-	if err := s.Bus.Send("alert_text", "GET", nil, &text); err != nil {
+	if err := s.Send("alert_text", "GET", nil, &text); err != nil {
 		return "", err
 	}
 	return text, nil
@@ -264,15 +264,15 @@ func (s *Session) SetAlertText(text string) error {
 	request := struct {
 		Text string `json:"text"`
 	}{text}
-	return s.Bus.Send("alert_text", "POST", request)
+	return s.Send("alert_text", "POST", request, nil)
 }
 
 func (s *Session) AcceptAlert() error {
-	return s.Bus.Send("accept_alert", "POST", nil)
+	return s.Send("accept_alert", "POST", nil, nil)
 }
 
 func (s *Session) DismissAlert() error {
-	return s.Bus.Send("dismiss_alert", "POST", nil)
+	return s.Send("dismiss_alert", "POST", nil, nil)
 }
 
 func (s *Session) NewLogs(logType string) ([]Log, error) {
@@ -281,7 +281,7 @@ func (s *Session) NewLogs(logType string) ([]Log, error) {
 	}{logType}
 
 	var logs []Log
-	if err := s.Bus.Send("log", "POST", request, &logs); err != nil {
+	if err := s.Send("log", "POST", request, &logs); err != nil {
 		return nil, err
 	}
 	return logs, nil
@@ -289,16 +289,16 @@ func (s *Session) NewLogs(logType string) ([]Log, error) {
 
 func (s *Session) GetLogTypes() ([]string, error) {
 	var types []string
-	if err := s.Bus.Send("log/types", "GET", nil, &types); err != nil {
+	if err := s.Send("log/types", "GET", nil, &types); err != nil {
 		return nil, err
 	}
 	return types, nil
 }
 
-func (s *Session) sendElement(id, endpoint, method string, body interface{}, result ...interface{}) error {
-	return s.Bus.Send(path.Join("element", id, endpoint), method, body, result...)
+func (s *Session) sendElement(id, endpoint, method string, body, result interface{}) error {
+	return s.Send(path.Join("element", id, endpoint), method, body, result)
 }
 
-func (s *Session) sendWindow(id, endpoint, method string, body interface{}, result ...interface{}) error {
-	return s.Bus.Send(path.Join("window", id, endpoint), method, body, result...)
+func (s *Session) sendWindow(id, endpoint, method string, body interface{}, result interface{}) error {
+	return s.Send(path.Join("window", id, endpoint), method, body, result)
 }
