@@ -96,7 +96,7 @@ var _ = Describe("Service", func() {
 			})
 		})
 
-		Context("when provided with a templated URL", func() {
+		Describe("the provided templated URL", func() {
 			Context("when the template is invalid", func() {
 				It("should return an error", func() {
 					defer service.Stop()
@@ -125,7 +125,7 @@ var _ = Describe("Service", func() {
 			})
 		})
 
-		Context("when provided with a templated command", func() {
+		Describe("the provided templated command", func() {
 			Context("when the template is invalid", func() {
 				It("should return an error", func() {
 					defer service.Stop()
@@ -139,6 +139,14 @@ var _ = Describe("Service", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{"correct", "{{.Bad}}"}
 					Expect(service.Start(testTimeout)).To(MatchError("failed to parse command: template: command:1:2: executing \"command\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
+				})
+			})
+
+			Context("when the template is empty", func() {
+				It("should return an error", func() {
+					defer service.Stop()
+					service.CmdTemplate = []string{}
+					Expect(service.Start(testTimeout)).To(MatchError("failed to parse command: empty command"))
 				})
 			})
 

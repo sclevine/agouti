@@ -33,6 +33,14 @@ var _ = Describe("Selection Properties", func() {
 			elementRepository.GetExactlyOneCall.ReturnElement = firstElement
 		})
 
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				_, err := selection.Text()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
+		})
+
 		Context("when the session fails to retrieve the element text", func() {
 			It("should return an error", func() {
 				firstElement.GetTextCall.Err = errors.New("some error")
@@ -52,6 +60,14 @@ var _ = Describe("Selection Properties", func() {
 	Describe("#Active", func() {
 		BeforeEach(func() {
 			elementRepository.GetExactlyOneCall.ReturnElement = firstElement
+		})
+
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				_, err := selection.Active()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
 		})
 
 		Context("when the session fails to retrieve the active element", func() {
@@ -97,6 +113,14 @@ var _ = Describe("Selection Properties", func() {
 			elementRepository.GetExactlyOneCall.ReturnElement = firstElement
 		})
 
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				_, err := selection.Attribute("some-attribute")
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
+		})
+
 		It("should request the attribute value using the attribute name", func() {
 			selection.Attribute("some-attribute")
 			Expect(firstElement.GetAttributeCall.Attribute).To(Equal("some-attribute"))
@@ -123,6 +147,14 @@ var _ = Describe("Selection Properties", func() {
 			elementRepository.GetExactlyOneCall.ReturnElement = firstElement
 		})
 
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				_, err := selection.CSS("some-property")
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
+		})
+
 		It("should successfully request the CSS property value using the property name", func() {
 			selection.CSS("some-property")
 			Expect(firstElement.GetCSSCall.Property).To(Equal("some-property"))
@@ -147,6 +179,14 @@ var _ = Describe("Selection Properties", func() {
 	Describe("#Selected", func() {
 		BeforeEach(func() {
 			elementRepository.GetAtLeastOneCall.ReturnElements = []element.Element{firstElement, secondElement}
+		})
+
+		Context("when the element repository fails to return at least one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
+				_, err := selection.Selected()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
 		})
 
 		Context("when the the session fails to retrieve any elements' selected status", func() {
@@ -178,6 +218,14 @@ var _ = Describe("Selection Properties", func() {
 			elementRepository.GetAtLeastOneCall.ReturnElements = []element.Element{firstElement, secondElement}
 		})
 
+		Context("when the element repository fails to return at least one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
+				_, err := selection.Visible()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
+		})
+
 		Context("when the the session fails to retrieve any elements' visible status", func() {
 			It("should return an error", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
@@ -205,6 +253,14 @@ var _ = Describe("Selection Properties", func() {
 	Describe("#Enabled", func() {
 		BeforeEach(func() {
 			elementRepository.GetAtLeastOneCall.ReturnElements = []element.Element{firstElement, secondElement}
+		})
+
+		Context("when the element repository fails to return at least one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
+				_, err := selection.Enabled()
+				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
 		})
 
 		Context("when the the session fails to retrieve any element's enabled status", func() {

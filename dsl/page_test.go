@@ -153,14 +153,14 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe(".ConfirmPopup", func() {
-		It("should call page.ClearCookies", func() {
-			ClearCookies(page)
-			Expect(page.ClearCookiesCall.Called).To(BeTrue())
+		It("should call page.ConfirmPopup", func() {
+			ConfirmPopup(page)
+			Expect(page.ConfirmPopupCall.Called).To(BeTrue())
 		})
 
-		It("should fail when page.ClearCookies returns an error", func() {
-			page.ClearCookiesCall.Err = errors.New("some error")
-			Expect(func() { ClearCookies(page) }).To(Panic())
+		It("should fail when page.ConfirmPopup returns an error", func() {
+			page.ConfirmPopupCall.Err = errors.New("some error")
+			Expect(func() { ConfirmPopup(page) }).To(Panic())
 			Expect(failMessage).To(Equal("Agouti failure: some error"))
 		})
 	})

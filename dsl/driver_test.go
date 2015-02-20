@@ -66,7 +66,7 @@ var _ = Describe("Driver", func() {
 			Describe("#StartChromeDriver", func() {
 				It("should permit the creation and destruction of pages", func() {
 					StartChromeDriver()
-					page := CreatePage()
+					page := CustomPage(agouti.NewCapabilities())
 					Destroy(page)
 				})
 

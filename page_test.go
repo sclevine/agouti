@@ -544,7 +544,7 @@ var _ = Describe("Page", func() {
 		Context("when Page#ReadNewLogs fails", func() {
 			It("should return an error", func() {
 				session.NewLogsCall.Err = errors.New("some error")
-				_, err := page.ReadNewLogs("some type")
+				_, err := page.ReadAllLogs("some type")
 				Expect(err).To(MatchError("failed to retrieve logs: some error"))
 			})
 		})

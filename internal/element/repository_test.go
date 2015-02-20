@@ -23,11 +23,29 @@ var _ = Describe("ElementRepository", func() {
 	})
 
 	Describe("#GetAtLeastOne", func() {
+		Context("when the client fails to retrieve any elements", func() {
+			It("should fail with an error", func() {
+				client.GetElementsCall.Err = errors.New("some error")
+				_, err := repository.GetAtLeastOne(target.Selectors{target.Selector{}})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
 		Context("when the client retrieves zero elements", func() {
 			It("should fail with an error", func() {
 				client.GetElementsCall.ReturnElements = []*api.Element{}
 				_, err := repository.GetAtLeastOne(target.Selectors{target.Selector{}})
 				Expect(err).To(MatchError("no elements found"))
+			})
+		})
+
+		Context("when the client retrieves at least one element", func() {
+			It("should successfully return those elements", func() {
+				element := &api.Element{}
+				client.GetElementsCall.ReturnElements = []*api.Element{element}
+				elements, err := repository.GetAtLeastOne(target.Selectors{target.Selector{}})
+				Expect(err).NotTo(HaveOccurred())
+				Expect(elements[0]).To(Equal(element))
 			})
 		})
 	})
@@ -46,6 +64,14 @@ var _ = Describe("ElementRepository", func() {
 				client.GetElementsCall.ReturnElements = []*api.Element{&api.Element{}, &api.Element{}}
 				_, err := repository.GetExactlyOne(target.Selectors{target.Selector{}})
 				Expect(err).To(MatchError("method does not support multiple elements (2)"))
+			})
+		})
+
+		Context("when the client retrieves exactly one element", func() {
+			It("should successfully return that element", func() {
+				element := &api.Element{}
+				client.GetElementsCall.ReturnElements = []*api.Element{element}
+				Expect(repository.GetExactlyOne(target.Selectors{target.Selector{}})).To(Equal(element))
 			})
 		})
 	})
@@ -83,7 +109,7 @@ var _ = Describe("ElementRepository", func() {
 			childSelectorJSON = `{"using": "xpath", "value": "children"}`
 		})
 
-		Context("when all elements are successfully retrieved", func() {
+		Context("when all unindexed elements are successfully retrieved", func() {
 			It("should retrieve the parent elements using the client", func() {
 				repository.Get(target.Selectors{parentSelector, childSelector})
 				Expect(client.GetElementsCall.Selector).To(Equal(parentSelector.API()))
@@ -179,22 +205,6 @@ var _ = Describe("ElementRepository", func() {
 			})
 		})
 
-		Context("when retrieving the parent elements fails", func() {
-			It("should return an error", func() {
-				client.GetElementsCall.Err = errors.New("some error")
-				_, err := repository.Get(target.Selectors{parentSelector})
-				Expect(err).To(MatchError("some error"))
-			})
-		})
-
-		Context("when retrieving any of the child elements fails", func() {
-			It("should return an error", func() {
-				secondParentBus.SendCall.Err = errors.New("some error")
-				_, err := repository.Get(target.Selectors{parentSelector, childSelector})
-				Expect(err).To(MatchError("some error"))
-			})
-		})
-
 		Context("when a single-element-only parent selection refers to multiple parents", func() {
 			It("should return an error", func() {
 				parentSelector.Single = true
@@ -268,6 +278,60 @@ var _ = Describe("ElementRepository", func() {
 				parentSelector.Indexed = true
 				childSelector.Index = 0
 				childSelector.Indexed = true
+				_, err := repository.Get(target.Selectors{parentSelector, childSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retreiving any non-zero-indexed parent selection element fails", func() {
+			It("should return an error", func() {
+				client.GetElementsCall.Err = errors.New("some error")
+				parentSelector.Index = 1
+				parentSelector.Indexed = true
+				_, err := repository.Get(target.Selectors{parentSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retreiving any non-zero-indexed child selection element fails", func() {
+			It("should return an error", func() {
+				firstParentBus.SendCall.Err = errors.New("some error")
+				childSelector.Index = 1
+				childSelector.Indexed = true
+				_, err := repository.Get(target.Selectors{parentSelector, childSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retreiving any single-element-only parent selection element fails", func() {
+			It("should return an error", func() {
+				client.GetElementsCall.Err = errors.New("some error")
+				parentSelector.Single = true
+				_, err := repository.Get(target.Selectors{parentSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retreiving any single-element-only child selection element fails", func() {
+			It("should return an error", func() {
+				firstParentBus.SendCall.Err = errors.New("some error")
+				childSelector.Single = true
+				_, err := repository.Get(target.Selectors{parentSelector, childSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retrieving any unindexed parent elements fails", func() {
+			It("should return an error", func() {
+				client.GetElementsCall.Err = errors.New("some error")
+				_, err := repository.Get(target.Selectors{parentSelector})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+
+		Context("when retrieving any unindexed child elements fails", func() {
+			It("should return an error", func() {
+				secondParentBus.SendCall.Err = errors.New("some error")
 				_, err := repository.Get(target.Selectors{parentSelector, childSelector})
 				Expect(err).To(MatchError("some error"))
 			})
