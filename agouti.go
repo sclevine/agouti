@@ -18,6 +18,18 @@ func PhantomJS(options ...Option) *WebDriver {
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
 
+// SlimerJS returns an instance of a SlimerJS WebDriver.
+// Only builds from the master branch of SlimerJS appear to run.
+// Furthermore, you need to set the following environment variables:
+//   export PATH=/path/to/repo/for/slimerjs/src:$PATH
+//   export SLIMERJSLAUNCHER=/Applications/Firefox.app/Contents/MacOS/firefox
+// Note: the launcher path will be different depending on your OS and firefox
+// installation location.
+func SlimerJS(options ...Option) *WebDriver {
+	command := []string{"slimerjs", "--webdriver={{.Address}}"}
+	return NewWebDriver("http://{{.Address}}", command, options...)
+}
+
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
 // Provided Options will apply as default arguments for new pages.
 // New pages will accept invalid SSL certificates by default. This

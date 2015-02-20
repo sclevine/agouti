@@ -16,6 +16,7 @@ import (
 var _ = Describe("integration tests", func() {
 	itShouldBehaveLikeAPage("PhantomJS", phantomDriver.NewPage)
 	if !headlessOnly {
+		itShouldBehaveLikeAPage("SlimerJS", slimerDriver.NewPage)
 		itShouldBehaveLikeAPage("ChromeDriver", chromeDriver.NewPage)
 		itShouldBehaveLikeAPage("Firefox", seleniumDriver.NewPage)
 	}
