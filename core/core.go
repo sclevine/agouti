@@ -13,7 +13,7 @@ import (
 func init() {
 	fmt.Fprintln(os.Stderr, `****************`)
 	fmt.Fprintln(os.Stderr, `NOTICE: "github.com/sclevine/agouti/core" has been deprecated in favor of "github.com/sclevine/agouti" and may soon perish.`)
-	fmt.Fprintln(os.Stderr, `Please switch to "github.com/sclevine/agouti" (which does not encorage dot-imports) as soon as possible.`)
+	fmt.Fprintln(os.Stderr, `Please switch to "github.com/sclevine/agouti" (which does not encourage dot-imports) as soon as possible.`)
 	fmt.Fprintln(os.Stderr, `****************`)
 }
 
