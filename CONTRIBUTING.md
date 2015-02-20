@@ -1,13 +1,13 @@
 # Contributing
 
-## Pull Requests:
+## Pull Requests
 
 1. Everything (within reason) must have BDD-style tests.
-2. Test driving is very strongly encourage.
+2. Test driving is very strongly encouraged.
 3. Follow all existing patterns and conventions in the codebase.
 4. Before issuing a pull-request, please rebase your branch against master.
    If you are okay with the maintainer rebasing your pull request, please say so.
-5. After issuing your pull request, check Travis CI to make sure that all tests still pass.
+5. After issuing your pull request, check [Travis CI](https://travis-ci.org/sclevine/agouti) to make sure that all tests still pass.
 
 ## Development Setup
 
