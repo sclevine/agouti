@@ -268,8 +268,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 		if name != "Selenium - Safari" {
 			It("should support switching windows", func() {
 				Expect(page.Find("#new_window").Click()).To(Succeed())
-				windows, _ := page.WindowCount()
-				Expect(windows).To(Equal(2))
+				Expect(page.WindowCount()).To(Equal(2))
 
 				By("switching windows", func() {
 					Expect(page.SwitchToWindow("new window")).To(Succeed())
@@ -280,8 +279,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 
 				By("closing windows", func() {
 					Expect(page.CloseWindow()).To(Succeed())
-					windows, _ := page.WindowCount()
-					Expect(windows).To(Equal(1))
+					Expect(page.WindowCount()).To(Equal(1))
 				})
 			})
 		}

@@ -34,23 +34,6 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	return &WebDriver{apiWebDriver}
 }
 
-// ChromeDriver returns an instance of a ChromeDriver WebDriver.
-func ChromeDriver() *WebDriver {
-	return NewWebDriver("http://{{.Address}}", []string{"chromedriver", "--silent", "--port={{.Port}}"})
-}
-
-// PhantomJS returns an instance of a PhantomJS WebDriver.
-// The return error is deprecated and will always be nil.
-func PhantomJS() *WebDriver {
-	return NewWebDriver("http://{{.Address}}", []string{"phantomjs", "--webdriver={{.Address}}"})
-}
-
-// Selenium returns an instance of a Selenium WebDriver.
-// The return error is deprecated and will always be nil.
-func Selenium() *WebDriver {
-	return NewWebDriver("http://{{.Address}}/wd/hub", []string{"selenium-server", "-port", "{{.Port}}"})
-}
-
 // NewPage returns a *Page that corresponds to a new WebDriver session.
 // Any provided options configure the page. For instance:
 //    driver.NewPage(agouti.Desired(agouti.NewCapabilities().Without("javascriptEnabled")))

@@ -64,6 +64,16 @@ type Log struct {
 	Time time.Time
 }
 
+// NewPage opens a Page using the provided WebDriver URL.
+func NewPage(url string, options ...Option) (*Page, error) {
+	desiredCapabilities := getOptions(options).desired
+	session, err := api.Open(url, desiredCapabilities)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
+	}
+	return newPage(session), nil
+}
+
 func newPage(session *api.Session) *Page {
 	return &Page{session, nil, selectable{session, nil}}
 }
