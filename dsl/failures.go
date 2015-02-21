@@ -14,10 +14,10 @@ func init() {
 	globalFailHandler = ginkgo.Fail
 }
 
-// RegisterAgoutiFailHandler connects the implied assertions is Agouti's dsl with
+// RegisterAgoutiFailHandler connects the implied assertions in Agouti's dsl with
 // Gingko. When set to ginkgo.Fail (the default), failures in Agouti's dsl-provided
 // methods will cause test failures in Ginkgo.
-func RegisterAgoutiFailHandler(handler func(message string, callerSkip ...int)) {
+func RegisterAgoutiFailHandler(handler AgoutiFailHandler) {
 	globalFailHandler = handler
 }
 
