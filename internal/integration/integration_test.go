@@ -51,7 +51,12 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 			var err error
 			page, err = pageFunc()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(page.Size(640, 480)).To(Succeed())
+
+			// Safari has issues with setting the window size
+			if name != "Selenium - Safari" {
+				Expect(page.Size(640, 480)).To(Succeed())
+			}
+
 			Expect(page.Navigate(server.URL)).To(Succeed())
 		})
 
