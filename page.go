@@ -131,6 +131,11 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		return errors.New("nil cookie is invalid")
 	}
 
+	var expiry int64 = 0
+	if !cookie.Expires.IsZero() {
+		expiry = cookie.Expires.Unix()
+	}
+
 	apiCookie := &api.Cookie{
 		Name:     cookie.Name,
 		Value:    cookie.Value,
@@ -138,7 +143,7 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		Domain:   cookie.Domain,
 		Secure:   cookie.Secure,
 		HTTPOnly: cookie.HttpOnly,
-		Expiry:   cookie.Expires.Unix(),
+		Expiry:   expiry,
 	}
 
 	if err := p.session.SetCookie(apiCookie); err != nil {

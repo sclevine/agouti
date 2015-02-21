@@ -21,12 +21,8 @@ var _ = Describe("integration tests", func() {
 			return chromeDriver.NewPage()
 		})
 
-		itShouldBehaveLikeAPage("Selenium - Firefox", func() (*agouti.Page, error) {
+		itShouldBehaveLikeAPage("Firefox", func() (*agouti.Page, error) {
 			return seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("firefox")))
-		})
-
-		itShouldBehaveLikeAPage("Selenium - Safari", func() (*agouti.Page, error) {
-			return seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("safari")))
 		})
 	}
 })
@@ -52,11 +48,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 			page, err = pageFunc()
 			Expect(err).NotTo(HaveOccurred())
 
-			// Safari has issues with setting the window size
-			if name != "Selenium - Safari" {
-				Expect(page.Size(640, 480)).To(Succeed())
-			}
-
+			Expect(page.Size(640, 480)).To(Succeed())
 			Expect(page.Navigate(server.URL)).To(Succeed())
 		})
 
@@ -164,7 +156,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 			})
 
 			// Disabled due to recent Firefox regression with passing args
-			if name != "Selenium - Firefox" {
+			if name != "Firefox" {
 				By("executing arbitrary javascript", func() {
 					arguments := map[string]interface{}{"elementID": "some_element"}
 					var result string
@@ -191,13 +183,11 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 		})
 
 		It("should support form actions", func() {
-			if name != "Selenium - Safari" {
-				By("double-clicking on an element", func() {
-					selection := page.Find("#double_click")
-					Expect(selection.DoubleClick()).To(Succeed())
-					Expect(selection).To(HaveText("double-click success"))
-				})
-			}
+			By("double-clicking on an element", func() {
+				selection := page.Find("#double_click")
+				Expect(selection.DoubleClick()).To(Succeed())
+				Expect(selection).To(HaveText("double-click success"))
+			})
 
 			By("checking a checkbox", func() {
 				checkbox := page.Find("#some_checkbox")
@@ -223,14 +213,12 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 				Expect(page.URL()).To(ContainSubstring("#new_page"))
 			})
 
-			if name != "Selenium - Safari" {
-				By("navigating through browser history", func() {
-					Expect(page.Back()).To(Succeed())
-					Expect(page.URL()).NotTo(ContainSubstring("#new_page"))
-					Expect(page.Forward()).To(Succeed())
-					Expect(page.URL()).To(ContainSubstring("#new_page"))
-				})
-			}
+			By("navigating through browser history", func() {
+				Expect(page.Back()).To(Succeed())
+				Expect(page.URL()).NotTo(ContainSubstring("#new_page"))
+				Expect(page.Forward()).To(Succeed())
+				Expect(page.URL()).To(ContainSubstring("#new_page"))
+			})
 
 			By("refreshing the page", func() {
 				checkbox := page.Find("#some_checkbox")
@@ -255,7 +243,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 				Expect(page.Find("body")).To(MatchText("Example Domain"))
 			})
 
-			if name != "PhantomJS" && name != "Selenium - Safari" {
+			if name != "PhantomJS" {
 				By("switching back to the default frame by referring to the parent frame", func() {
 					Expect(page.SwitchToParentFrame()).To(Succeed())
 					Expect(page.Find("body")).NotTo(MatchText("Example Domain"))
@@ -270,26 +258,24 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 			})
 		})
 
-		if name != "Selenium - Safari" {
-			It("should support switching windows", func() {
-				Expect(page.Find("#new_window").Click()).To(Succeed())
-				Expect(page.WindowCount()).To(Equal(2))
+		It("should support switching windows", func() {
+			Expect(page.Find("#new_window").Click()).To(Succeed())
+			Expect(page.WindowCount()).To(Equal(2))
 
-				By("switching windows", func() {
-					Expect(page.SwitchToWindow("new window")).To(Succeed())
-					Expect(page.Find("header")).NotTo(BeFound())
-					Expect(page.NextWindow()).To(Succeed())
-					Expect(page.Find("header")).To(BeFound())
-				})
-
-				By("closing windows", func() {
-					Expect(page.CloseWindow()).To(Succeed())
-					Expect(page.WindowCount()).To(Equal(1))
-				})
+			By("switching windows", func() {
+				Expect(page.SwitchToWindow("new window")).To(Succeed())
+				Expect(page.Find("header")).NotTo(BeFound())
+				Expect(page.NextWindow()).To(Succeed())
+				Expect(page.Find("header")).To(BeFound())
 			})
-		}
 
-		if name != "PhantomJS" && name != "Selenium - Safari" {
+			By("closing windows", func() {
+				Expect(page.CloseWindow()).To(Succeed())
+				Expect(page.WindowCount()).To(Equal(1))
+			})
+		})
+
+		if name != "PhantomJS" {
 			It("should support popup boxes", func() {
 				By("interacting with alert popups", func() {
 					Expect(page.Find("#popup_alert").Click()).To(Succeed())
@@ -325,5 +311,17 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 				})
 			})
 		}
+
+		It("should support manipulating and retrieving cookies", func() {
+			Expect(page.SetCookie(&http.Cookie{Name: "webdriver-test-cookie", Value: "webdriver value"})).To(Succeed())
+			cookies, err := page.GetCookies()
+			Expect(err).NotTo(HaveOccurred())
+			cookieNames := []string{cookies[0].Name, cookies[1].Name}
+			Expect(cookieNames).To(ConsistOf("webdriver-test-cookie", "browser-test-cookie"))
+			Expect(page.DeleteCookie("browser-test-cookie")).To(Succeed())
+			Expect(page.GetCookies()).To(HaveLen(1))
+			Expect(page.ClearCookies()).To(Succeed())
+			Expect(page.GetCookies()).To(HaveLen(0))
+		})
 	})
 }

@@ -138,6 +138,13 @@ var _ = Describe("Page", func() {
 			}))
 		})
 
+		Context("when the expiry is not provided", func() {
+			It("should default to zero", func() {
+				Expect(page.SetCookie(&http.Cookie{})).To(Succeed())
+				Expect(session.SetCookieCall.Cookie).To(Equal(&api.Cookie{}))
+			})
+		})
+
 		Context("when the session fails to set the cookie", func() {
 			It("should return an error", func() {
 				session.SetCookieCall.Err = errors.New("some error")
