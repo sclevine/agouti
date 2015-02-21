@@ -100,7 +100,7 @@ func (s *Selection) setChecked(checked bool) error {
 func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space()="%s"]`, text)
-		optionToSelect := target.Selector{Type: "xpath", Value: optionXPath}
+		optionToSelect := target.Selector{Type: target.XPath, Value: optionXPath}
 		options, err := selectedElement.GetElements(optionToSelect.API())
 		if err != nil {
 			return fmt.Errorf("failed to select specified option for some '%s': %s", s, err)

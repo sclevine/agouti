@@ -16,8 +16,9 @@ type WebDriver struct {
 
 type driverService interface {
 	URL() (string, error)
-	Start(timeout time.Duration) error
+	Start() error
 	Stop() error
+	WaitForBoot(timeout time.Duration) error
 }
 
 func NewWebDriver(url string, command []string) *WebDriver {
@@ -49,8 +50,13 @@ func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, e
 }
 
 func (w *WebDriver) Start() error {
-	if err := w.service.Start(w.Timeout); err != nil {
+	if err := w.service.Start(); err != nil {
 		return fmt.Errorf("failed to start service: %s", err)
+	}
+
+	if err := w.service.WaitForBoot(w.Timeout); err != nil {
+		w.service.Stop()
+		return err
 	}
 
 	return nil

@@ -103,9 +103,9 @@ var _ = Describe("ElementRepository", func() {
 			firstParentBus.SendCall.Result = `[{"ELEMENT": "first child"}, {"ELEMENT": "second child"}]`
 			secondParentBus.SendCall.Result = `[{"ELEMENT": "third child"}, {"ELEMENT": "fourth child"}]`
 			client.GetElementsCall.ReturnElements = []*api.Element{firstParent, secondParent}
-			parentSelector = target.Selector{Type: "css selector", Value: "parents"}
+			parentSelector = target.Selector{Type: target.CSS, Value: "parents"}
 			parentSelectorJSON = `{"using": "css selector", "value": "parents"}`
-			childSelector = target.Selector{Type: "xpath", Value: "children"}
+			childSelector = target.Selector{Type: target.XPath, Value: "children"}
 			childSelectorJSON = `{"using": "xpath", "value": "children"}`
 		})
 

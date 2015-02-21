@@ -60,13 +60,13 @@ var _ = Describe("Selectors", func() {
 
 	Describe("#AppendLabeled", func() {
 		It("should add a new XPath label-lookup selector to the selection", func() {
-			Expect(selectors.AppendLabeled("some text").String()).To(Equal(`XPath: //input[@id=(//label[normalize-space()="some text"]/@for)] | //label[normalize-space()="some text"]/input`))
+			Expect(selectors.AppendLabeled("some text").String()).To(Equal(`Label: "some text"`))
 		})
 	})
 
 	Describe("#AppendButton", func() {
 		It("should add a new XPath label-lookup selector to the selection", func() {
-			Expect(selectors.AppendButton("some text").String()).To(Equal(`XPath: //input[@type="submit" or @type="button"][normalize-space(@value)="some text"] | //button[normalize-space()="some text"]`))
+			Expect(selectors.AppendButton("some text").String()).To(Equal(`Button: "some text"`))
 		})
 	})
 

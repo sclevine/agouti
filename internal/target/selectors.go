@@ -1,14 +1,11 @@
 package target
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 type Selectors []Selector
 
 func (s Selectors) AppendCSS(cssSelector string) Selectors {
-	selector := Selector{Type: "css selector", Value: cssSelector}
+	selector := Selector{Type: CSS, Value: cssSelector}
 
 	if s.canMergeCSS() {
 		lastIndex := len(s) - 1
@@ -24,25 +21,23 @@ func (s Selectors) canMergeCSS() bool {
 		return false
 	}
 	last := s[len(s)-1]
-	return last.Type == "css selector" && !last.Indexed && !last.Single
+	return last.Type == CSS && !last.Indexed && !last.Single
 }
 
 func (s Selectors) AppendXPath(xPathSelector string) Selectors {
-	selector := Selector{Type: "xpath", Value: xPathSelector}
-	return appendSelector(s, selector)
+	return appendSelector(s, Selector{Type: XPath, Value: xPathSelector})
 }
 
 func (s Selectors) AppendLink(text string) Selectors {
-	selector := Selector{Type: "link text", Value: text}
-	return appendSelector(s, selector)
+	return appendSelector(s, Selector{Type: Link, Value: text})
 }
 
 func (s Selectors) AppendLabeled(text string) Selectors {
-	return s.AppendXPath(fmt.Sprintf(`//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%s"]/input`, text, text))
+	return appendSelector(s, Selector{Type: Label, Value: text})
 }
 
 func (s Selectors) AppendButton(text string) Selectors {
-	return s.AppendXPath(fmt.Sprintf(`//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%s"]`, text, text))
+	return appendSelector(s, Selector{Type: Button, Value: text})
 }
 
 func (s Selectors) Single() Selectors {

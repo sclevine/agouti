@@ -90,7 +90,8 @@ var _ = Describe("WebDriver", func() {
 	Describe("#Start", func() {
 		It("should successfully start the WebDriver service", func() {
 			Expect(webDriver.Start()).To(Succeed())
-			Expect(service.StartCall.Timeout).To(Equal(2 * time.Second))
+			Expect(service.StartCall.Called).To(BeTrue())
+			Expect(service.WaitForBootCall.Timeout).To(Equal(2 * time.Second))
 		})
 
 		Context("when the WebDriver service cannot be started", func() {
@@ -98,6 +99,22 @@ var _ = Describe("WebDriver", func() {
 				service.StartCall.Err = errors.New("some error")
 				err := webDriver.Start()
 				Expect(err).To(MatchError("failed to start service: some error"))
+			})
+		})
+
+		Context("when the WebDriver fails to start within the allotted timeout", func() {
+			BeforeEach(func() {
+				service.WaitForBootCall.Err = errors.New("some error")
+			})
+
+			It("should return an error", func() {
+				err := webDriver.Start()
+				Expect(err).To(MatchError("some error"))
+			})
+
+			It("should stop the service", func() {
+				webDriver.Start()
+				Expect(service.StopCall.Called).To(BeTrue())
 			})
 		})
 	})

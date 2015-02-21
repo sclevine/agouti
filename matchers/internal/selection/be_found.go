@@ -2,8 +2,9 @@ package selection
 
 import (
 	"fmt"
-	"github.com/onsi/gomega/format"
 	"strings"
+
+	"github.com/onsi/gomega/format"
 )
 
 type BeFoundMatcher struct{}

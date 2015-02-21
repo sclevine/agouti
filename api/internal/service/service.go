@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"net"
@@ -10,7 +9,6 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
-	"text/template"
 	"time"
 )
 
@@ -35,7 +33,7 @@ func (s *Service) URL() (string, error) {
 	return s.url, nil
 }
 
-func (s *Service) Start(timeout time.Duration) error {
+func (s *Service) Start() error {
 	if s.command != nil {
 		return errors.New("already running")
 	}
@@ -60,7 +58,7 @@ func (s *Service) Start(timeout time.Duration) error {
 
 	s.command = command
 
-	return s.waitForServer(timeout)
+	return nil
 }
 
 func (s *Service) Stop() error {
@@ -84,40 +82,6 @@ func (s *Service) Stop() error {
 	return nil
 }
 
-func buildURL(url string, address addressInfo) (string, error) {
-	urlTemplate, err := template.New("URL").Parse(url)
-	if err != nil {
-		return "", err
-	}
-	urlBuffer := &bytes.Buffer{}
-	if err := urlTemplate.Execute(urlBuffer, address); err != nil {
-		return "", err
-	}
-	return urlBuffer.String(), nil
-}
-
-func buildCommand(arguments []string, address addressInfo) (*exec.Cmd, error) {
-	if len(arguments) == 0 {
-		return nil, errors.New("empty command")
-	}
-
-	command := []string{}
-	for _, argument := range arguments {
-		argTemplate, err := template.New("command").Parse(argument)
-		if err != nil {
-			return nil, err
-		}
-
-		argBuffer := &bytes.Buffer{}
-		if err := argTemplate.Execute(argBuffer, address); err != nil {
-			return nil, err
-		}
-		command = append(command, argBuffer.String())
-	}
-
-	return exec.Command(command[0], command[1:]...), nil
-}
-
 func freeAddress() (addressInfo, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -130,7 +94,7 @@ func freeAddress() (addressInfo, error) {
 	return addressInfo{address, addressParts[0], addressParts[1]}, nil
 }
 
-func (s *Service) waitForServer(timeout time.Duration) error {
+func (s *Service) WaitForBoot(timeout time.Duration) error {
 	timeoutChan := time.After(timeout)
 	failedChan := make(chan struct{}, 1)
 	startedChan := make(chan struct{})
@@ -152,7 +116,6 @@ func (s *Service) waitForServer(timeout time.Duration) error {
 	select {
 	case <-timeoutChan:
 		failedChan <- struct{}{}
-		s.Stop()
 		return errors.New("failed to start before timeout")
 	case <-startedChan:
 		return nil

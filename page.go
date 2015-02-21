@@ -78,6 +78,12 @@ func newPage(session *api.Session) *Page {
 	return &Page{session, nil, selectable{session, nil}}
 }
 
+// Session returns a *api.Session that can be used to send direct commands
+// to the WebDriver. See: https://code.google.com/p/selenium/wiki/JsonWireProtocol
+func (p *Page) Session() *api.Session {
+	return p.session.(*api.Session)
+}
+
 // Destroy closes the session and any open browsers processes.
 func (p *Page) Destroy() error {
 	if err := p.session.Delete(); err != nil {

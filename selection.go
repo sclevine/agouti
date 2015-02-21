@@ -41,6 +41,20 @@ func (s *Selection) String() string {
 	return s.selectors.String()
 }
 
+// Elements returns a []*api.Element that can be used to send direct commands
+// to WebDriver elements. See: https://code.google.com/p/selenium/wiki/JsonWireProtocol
+func (s *Selection) Elements() ([]*api.Element, error) {
+	elements, err := s.elements.Get(s.selectors)
+	if err != nil {
+		return nil, err
+	}
+	apiElements := []*api.Element{}
+	for _, selectedElement := range elements {
+		apiElements = append(apiElements, selectedElement.(*api.Element))
+	}
+	return apiElements, nil
+}
+
 // Count returns the number of elements that the selection refers to.
 func (s *Selection) Count() (int, error) {
 	elements, err := s.elements.Get(s.selectors)

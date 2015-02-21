@@ -30,6 +30,32 @@ var _ = Describe("Selection", func() {
 		})
 	})
 
+	Describe("#Elements", func() {
+		var (
+			selection         *Selection
+			elementRepository *mocks.ElementRepository
+		)
+
+		BeforeEach(func() {
+			elementRepository = &mocks.ElementRepository{}
+			selection = NewTestSelection(elementRepository, nil, "#selector")
+		})
+
+		It("should return a []*api.Elements retrieved from the element repository", func() {
+			elements := []*api.Element{&api.Element{}, &api.Element{}}
+			elementRepository.GetCall.ReturnElements = []element.Element{elements[0], elements[1]}
+			Expect(selection.Elements()).To(Equal(elements))
+		})
+
+		Context("when retrieving the elements fails", func() {
+			It("should return an error", func() {
+				elementRepository.GetCall.Err = errors.New("some error")
+				_, err := selection.Elements()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#Count", func() {
 		var (
 			selection         *MultiSelection
@@ -44,7 +70,7 @@ var _ = Describe("Selection", func() {
 
 		It("should request elements from the session using the provided selector", func() {
 			selection.Count()
-			Expect(elementRepository.GetCall.Selectors).To(Equal(target.Selectors{target.Selector{Type: "css selector", Value: "#selector"}}))
+			Expect(elementRepository.GetCall.Selectors).To(Equal(target.Selectors{target.Selector{Type: target.CSS, Value: "#selector"}}))
 		})
 
 		Context("when the session succeeds in retrieving the elements", func() {

@@ -24,6 +24,14 @@ var _ = Describe("Page", func() {
 		page = NewTestPage(session)
 	})
 
+	Describe("#Session", func() {
+		It("should return the unexported session as a *api.Session", func() {
+			apiSession := &api.Session{}
+			page = NewTestPage(apiSession)
+			Expect(page.Session()).To(Equal(apiSession))
+		})
+	})
+
 	Describe("#Destroy", func() {
 		It("should successfully delete the session", func() {
 			Expect(page.Destroy()).To(Succeed())
