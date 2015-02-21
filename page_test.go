@@ -106,9 +106,7 @@ var _ = Describe("Page", func() {
 	Describe("#URL", func() {
 		It("should successfully return the URL of the current page", func() {
 			session.GetURLCall.ReturnURL = "http://example.com"
-			url, err := page.URL()
-			Expect(url).To(Equal("http://example.com"))
-			Expect(err).ToNot(HaveOccurred())
+			Expect(page.URL()).To(Equal("http://example.com"))
 		})
 
 		Context("when the session fails to retrieve the URL", func() {
@@ -163,7 +161,7 @@ var _ = Describe("Page", func() {
 
 		Context("when the file path cannot be constructed", func() {
 			It("should return an error", func() {
-				err := page.Screenshot("\000/a") // try NUL
+				err := page.Screenshot("\000/a")
 				Expect(err).To(MatchError("failed to create directory for screenshot: mkdir \x00: invalid argument"))
 			})
 		})
@@ -176,23 +174,27 @@ var _ = Describe("Page", func() {
 		})
 
 		Context("when the session fails to retrieve a screenshot", func() {
+			var err error
+
 			BeforeEach(func() {
 				session.GetScreenshotCall.Err = errors.New("some error")
+				err = page.Screenshot(filename)
 			})
 
 			It("should return an error indicating so", func() {
-				Expect(page.Screenshot(filename)).To(MatchError("failed to retrieve screenshot: some error"))
+				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
 			})
 
 			It("should remove the newly-created file", func() {
-				page.Screenshot(filename)
-				_, err := os.Stat(filename)
+				_, err = os.Stat(filename)
 				Expect(err).To(HaveOccurred())
 			})
 		})
 
 		Context("when the screenshot cannot be written to a file", func() {
-			// NOTE: would need to cause write-error to test
+			It("should remove the newly created file and return an error", func() {
+				// NOTE: would need to cause write-error to test
+			})
 		})
 
 		Context("when a screenshot is successfully written to a file", func() {
@@ -209,9 +211,7 @@ var _ = Describe("Page", func() {
 	Describe("#Title", func() {
 		It("should successfully return the title of the current page", func() {
 			session.GetTitleCall.ReturnTitle = "Some Title"
-			title, err := page.Title()
-			Expect(title).To(Equal("Some Title"))
-			Expect(err).ToNot(HaveOccurred())
+			Expect(page.Title()).To(Equal("Some Title"))
 		})
 
 		Context("when the session fails to retrieve the page title", func() {
@@ -226,9 +226,7 @@ var _ = Describe("Page", func() {
 	Describe("#HTML", func() {
 		It("should return the HTML of the current page", func() {
 			session.GetSourceCall.ReturnSource = "Some HTML"
-			html, err := page.HTML()
-			Expect(html).To(Equal("Some HTML"))
-			Expect(err).ToNot(HaveOccurred())
+			Expect(page.HTML()).To(Equal("Some HTML"))
 		})
 
 		Context("when the session fails to retrieve the page HTML", func() {
@@ -264,7 +262,7 @@ var _ = Describe("Page", func() {
 		})
 
 		It("should be successful", func() {
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		Context("when running the script fails", func() {
@@ -279,9 +277,7 @@ var _ = Describe("Page", func() {
 	Describe("#PopupText", func() {
 		It("should return the popup text of the popup and succeed", func() {
 			session.GetAlertTextCall.ReturnText = "some popup text"
-			text, err := page.PopupText()
-			Expect(text).To(Equal("some popup text"))
-			Expect(err).ToNot(HaveOccurred())
+			Expect(page.PopupText()).To(Equal("some popup text"))
 		})
 
 		Context("when the session fails to retrieve the page popup text", func() {

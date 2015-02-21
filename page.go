@@ -166,6 +166,7 @@ func (p *Page) Screenshot(filename string) error {
 	}
 
 	if _, err := file.Write(screenshot); err != nil {
+		os.Remove(filename)
 		return fmt.Errorf("failed to write file for screenshot: %s", err)
 	}
 
