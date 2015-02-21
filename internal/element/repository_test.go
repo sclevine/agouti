@@ -283,7 +283,7 @@ var _ = Describe("ElementRepository", func() {
 			})
 		})
 
-		Context("when retreiving any non-zero-indexed parent selection element fails", func() {
+		Context("when retrieving any non-zero-indexed parent selection element fails", func() {
 			It("should return an error", func() {
 				client.GetElementsCall.Err = errors.New("some error")
 				parentSelector.Index = 1
@@ -293,7 +293,7 @@ var _ = Describe("ElementRepository", func() {
 			})
 		})
 
-		Context("when retreiving any non-zero-indexed child selection element fails", func() {
+		Context("when retrieving any non-zero-indexed child selection element fails", func() {
 			It("should return an error", func() {
 				firstParentBus.SendCall.Err = errors.New("some error")
 				childSelector.Index = 1
@@ -303,7 +303,7 @@ var _ = Describe("ElementRepository", func() {
 			})
 		})
 
-		Context("when retreiving any single-element-only parent selection element fails", func() {
+		Context("when retrieving any single-element-only parent selection element fails", func() {
 			It("should return an error", func() {
 				client.GetElementsCall.Err = errors.New("some error")
 				parentSelector.Single = true
@@ -312,7 +312,7 @@ var _ = Describe("ElementRepository", func() {
 			})
 		})
 
-		Context("when retreiving any single-element-only child selection element fails", func() {
+		Context("when retrieving any single-element-only child selection element fails", func() {
 			It("should return an error", func() {
 				firstParentBus.SendCall.Err = errors.New("some error")
 				childSelector.Single = true

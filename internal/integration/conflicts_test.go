@@ -10,7 +10,7 @@ import (
 
 var _ = Feature("Conflicts", func() {
 	It("should allow dot-importing matchers, dsl, ginkgo, and gomega", func() {
-		Expect(agouti.Cookie{}).To(Equal(agouti.Cookie{}))
+		Expect(agouti.Capabilities{}).To(Equal(agouti.Capabilities{}))
 		Expect(HaveTitle("title")).To(Equal(HaveTitle("title")))
 	})
 })

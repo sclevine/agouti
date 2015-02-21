@@ -3,8 +3,10 @@ package agouti_test
 import (
 	"errors"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -60,17 +62,94 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#GetCookies", func() {
+		It("should sucessfully retrieve all cookies from the session", func() {
+			session.GetCookiesCall.ReturnCookies = []*api.Cookie{
+				&api.Cookie{
+					Name:     "some cookie",
+					Value:    "some value",
+					Path:     "/",
+					Domain:   "example.com",
+					Secure:   true,
+					HTTPOnly: true,
+					Expiry:   100,
+				},
+				&api.Cookie{
+					Name:     "some other cookie",
+					Value:    "some other value",
+					Path:     "/other",
+					Domain:   "other.example.com",
+					Secure:   false,
+					HTTPOnly: false,
+					Expiry:   200,
+				},
+			}
+			Expect(page.GetCookies()).To(Equal([]*http.Cookie{
+				&http.Cookie{
+					Name:     "some cookie",
+					Value:    "some value",
+					Path:     "/",
+					Domain:   "example.com",
+					Secure:   true,
+					HttpOnly: true,
+					Expires:  time.Unix(100, 0),
+				},
+				&http.Cookie{
+					Name:     "some other cookie",
+					Value:    "some other value",
+					Path:     "/other",
+					Domain:   "other.example.com",
+					Secure:   false,
+					HttpOnly: false,
+					Expires:  time.Unix(200, 0),
+				},
+			}))
+		})
+
+		Context("when retrieving the cookies from the session fails", func() {
+			It("should return an error", func() {
+				session.GetCookiesCall.Err = errors.New("some error")
+				_, err := page.GetCookies()
+				Expect(err).To(MatchError("failed to get cookies: some error"))
+			})
+		})
+	})
+
 	Describe("#SetCookie", func() {
 		It("should successfully instruct the session to add the cookie to the session", func() {
-			Expect(page.SetCookie(Cookie{"name": "some cookie"})).To(Succeed())
-			Expect(session.SetCookieCall.Cookie).To(BeEquivalentTo(Cookie{"name": "some cookie"}))
+			cookie := &http.Cookie{
+				Name:     "some cookie",
+				Value:    "some value",
+				Path:     "/",
+				Domain:   "example.com",
+				Secure:   true,
+				HttpOnly: true,
+				Expires:  time.Unix(100, 0),
+			}
+			Expect(page.SetCookie(cookie)).To(Succeed())
+			Expect(session.SetCookieCall.Cookie).To(Equal(&api.Cookie{
+				Name:     "some cookie",
+				Value:    "some value",
+				Path:     "/",
+				Domain:   "example.com",
+				Secure:   true,
+				HTTPOnly: true,
+				Expiry:   100,
+			}))
 		})
 
 		Context("when the session fails to set the cookie", func() {
 			It("should return an error", func() {
 				session.SetCookieCall.Err = errors.New("some error")
-				err := page.SetCookie(Cookie{})
+				err := page.SetCookie(&http.Cookie{})
 				Expect(err).To(MatchError("failed to set cookie: some error"))
+			})
+		})
+
+		Context("when the cookie is nil", func() {
+			It("should return an error", func() {
+				err := page.SetCookie(nil)
+				Expect(err).To(MatchError("nil cookie is invalid"))
 			})
 		})
 	})

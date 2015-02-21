@@ -229,20 +229,49 @@ var _ = Describe("Bus", func() {
 		})
 	})
 
-	Describe("#SetCookie", func() {
-		var cookie map[string]interface{}
+	Describe("#GetCookies", func() {
+		var cookies []*Cookie
 
 		BeforeEach(func() {
-			cookie = map[string]interface{}{"name": "some-cookie"}
-			err = session.SetCookie(cookie)
+			bus.SendCall.Result = `[{"name": "some-cookie"}, {"name": "some-other-cookie"}]`
+			cookies, err = session.GetCookies()
 		})
 
-		ItShouldMakeARequest("POST", "cookie", `{"cookie": {"name": "some-cookie"}}`)
+		ItShouldMakeARequest("GET", "cookie")
+
+		It("should return the cookies", func() {
+			Expect(cookies).To(Equal([]*Cookie{
+				&Cookie{Name: "some-cookie"},
+				&Cookie{Name: "some-other-cookie"},
+			}))
+		})
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
 				bus.SendCall.Err = errors.New("some error")
-				Expect(session.SetCookie(cookie)).To(MatchError("some error"))
+				_, err := session.GetCookies()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#SetCookie", func() {
+		BeforeEach(func() {
+			err = session.SetCookie(&Cookie{Name: "some-cookie"})
+		})
+
+		ItShouldMakeARequest("POST", "cookie", `{"cookie": {"name": "some-cookie", "value": ""}}`)
+
+		Context("when the cookie is nil", func() {
+			It("should return an error", func() {
+				Expect(session.SetCookie(nil)).To(MatchError("nil cookie is invalid"))
+			})
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.SetCookie(&Cookie{})).To(MatchError("some error"))
 			})
 		})
 	})

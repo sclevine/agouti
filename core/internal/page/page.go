@@ -1,7 +1,9 @@
 package page
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,7 +24,7 @@ type Page struct {
 		SetWindowByName(name string) error
 		DeleteWindow() error
 		GetScreenshot() ([]byte, error)
-		SetCookie(cookie map[string]interface{}) error
+		SetCookie(cookie *api.Cookie) error
 		DeleteCookie(name string) error
 		DeleteCookies() error
 		GetURL() (string, error)
@@ -66,8 +68,22 @@ func (p *Page) Navigate(url string) error {
 	return nil
 }
 
-func (p *Page) SetCookie(cookie map[string]interface{}) error {
-	if err := p.Session.SetCookie(cookie); err != nil {
+func (p *Page) SetCookie(cookie *http.Cookie) error {
+	if cookie == nil {
+		return errors.New("nil cookie is invalid")
+	}
+
+	apiCookie := &api.Cookie{
+		Name:     cookie.Name,
+		Value:    cookie.Value,
+		Path:     cookie.Path,
+		Domain:   cookie.Domain,
+		Secure:   cookie.Secure,
+		HTTPOnly: cookie.HttpOnly,
+		Expiry:   cookie.Expires.Unix(),
+	}
+
+	if err := p.Session.SetCookie(apiCookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil

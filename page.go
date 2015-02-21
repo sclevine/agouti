@@ -1,7 +1,9 @@
 package agouti
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -28,7 +30,8 @@ type pageSession interface {
 	SetWindowByName(name string) error
 	DeleteWindow() error
 	GetScreenshot() ([]byte, error)
-	SetCookie(cookie map[string]interface{}) error
+	GetCookies() ([]*api.Cookie, error)
+	SetCookie(cookie *api.Cookie) error
 	DeleteCookie(name string) error
 	DeleteCookies() error
 	GetURL() (string, error)
@@ -100,9 +103,45 @@ func (p *Page) Navigate(url string) error {
 	return nil
 }
 
+// GetCookies returns all cookies on the page.
+func (p *Page) GetCookies() ([]*http.Cookie, error) {
+	apiCookies, err := p.session.GetCookies()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cookies: %s", err)
+	}
+	cookies := []*http.Cookie{}
+	for _, apiCookie := range apiCookies {
+		cookie := &http.Cookie{
+			Name:     apiCookie.Name,
+			Value:    apiCookie.Value,
+			Path:     apiCookie.Path,
+			Domain:   apiCookie.Domain,
+			Secure:   apiCookie.Secure,
+			HttpOnly: apiCookie.HTTPOnly,
+			Expires:  time.Unix(apiCookie.Expiry, 0),
+		}
+		cookies = append(cookies, cookie)
+	}
+	return cookies, nil
+}
+
 // SetCookie sets a cookie on the page.
-func (p *Page) SetCookie(cookie Cookie) error {
-	if err := p.session.SetCookie(cookie); err != nil {
+func (p *Page) SetCookie(cookie *http.Cookie) error {
+	if cookie == nil {
+		return errors.New("nil cookie is invalid")
+	}
+
+	apiCookie := &api.Cookie{
+		Name:     cookie.Name,
+		Value:    cookie.Value,
+		Path:     cookie.Path,
+		Domain:   cookie.Domain,
+		Secure:   cookie.Secure,
+		HTTPOnly: cookie.HttpOnly,
+		Expiry:   cookie.Expires.Unix(),
+	}
+
+	if err := p.session.SetCookie(apiCookie); err != nil {
 		return fmt.Errorf("failed to set cookie: %s", err)
 	}
 	return nil

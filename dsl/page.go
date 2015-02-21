@@ -1,11 +1,11 @@
 package dsl
 
-import "github.com/sclevine/agouti"
+import "net/http"
 
 type ActionPage interface {
 	Destroy() error
 	Navigate(url string) error
-	SetCookie(cookie agouti.Cookie) error
+	SetCookie(cookie *http.Cookie) error
 	DeleteCookie(name string) error
 	ClearCookies() error
 	Size(width, height int) error
@@ -35,7 +35,7 @@ func Navigate(page ActionPage, url string) {
 }
 
 // SetCookie is comparable to Expect(page.SetCookie(cookie)).To(Succeed())
-func SetCookie(page ActionPage, cookie agouti.Cookie) {
+func SetCookie(page ActionPage, cookie *http.Cookie) {
 	checkFailure(page.SetCookie(cookie))
 }
 

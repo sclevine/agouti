@@ -1,6 +1,6 @@
 package mocks
 
-import "github.com/sclevine/agouti"
+import "net/http"
 
 type Page struct {
 	DestroyCall struct {
@@ -14,7 +14,7 @@ type Page struct {
 	}
 
 	SetCookieCall struct {
-		Cookie agouti.Cookie
+		Cookie *http.Cookie
 		Err    error
 	}
 
@@ -112,7 +112,7 @@ func (p *Page) Navigate(url string) error {
 	return p.NavigateCall.Err
 }
 
-func (p *Page) SetCookie(cookie agouti.Cookie) error {
+func (p *Page) SetCookie(cookie *http.Cookie) error {
 	p.SetCookieCall.Cookie = cookie
 	return p.SetCookieCall.Err
 }

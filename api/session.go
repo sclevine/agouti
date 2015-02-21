@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"path"
 
+	"errors"
 	"github.com/sclevine/agouti/api/internal/bus"
 )
 
@@ -11,6 +12,30 @@ type Log struct {
 	Message   string
 	Level     string
 	Timestamp int64
+}
+
+// A Cookie defines a web cookie
+type Cookie struct {
+	// Name is the name of the cookie (required)
+	Name string `json:"name"`
+
+	// Value is the value of the cookie (required)
+	Value string `json:"value"`
+
+	// Path is the path of the cookie (default: "/")
+	Path string `json:"path,omitempty"`
+
+	// Domain is the domain of the cookie (default: current page domain)
+	Domain string `json:"domain,omitempty"`
+
+	// Secure is set to true for secure cookies (default: false)
+	Secure bool `json:"secure,omitempty"`
+
+	// HTTPOnly is set to true for HTTP-Only cookies (default: false)
+	HTTPOnly bool `json:"httpOnly,omitempty"`
+
+	// Expiry is the time when the cookie expires
+	Expiry int64 `json:"expiry,omitempty"`
 }
 
 type Selector struct {
@@ -117,9 +142,20 @@ func (s *Session) DeleteWindow() error {
 	return nil
 }
 
-func (s *Session) SetCookie(cookie map[string]interface{}) error {
+func (s *Session) GetCookies() ([]*Cookie, error) {
+	var cookies []*Cookie
+	if err := s.Send("cookie", "GET", nil, &cookies); err != nil {
+		return nil, err
+	}
+	return cookies, nil
+}
+
+func (s *Session) SetCookie(cookie *Cookie) error {
+	if cookie == nil {
+		return errors.New("nil cookie is invalid")
+	}
 	request := struct {
-		Cookie map[string]interface{} `json:"cookie"`
+		Cookie *Cookie `json:"cookie"`
 	}{cookie}
 
 	return s.Send("cookie", "POST", request, nil)

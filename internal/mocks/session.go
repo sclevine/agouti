@@ -59,8 +59,13 @@ type Session struct {
 		Err         error
 	}
 
+	GetCookiesCall struct {
+		ReturnCookies []*api.Cookie
+		Err           error
+	}
+
 	SetCookieCall struct {
-		Cookie map[string]interface{}
+		Cookie *api.Cookie
 		Err    error
 	}
 
@@ -215,7 +220,11 @@ func (s *Session) GetScreenshot() ([]byte, error) {
 	return s.GetScreenshotCall.ReturnImage, s.GetScreenshotCall.Err
 }
 
-func (s *Session) SetCookie(cookie map[string]interface{}) error {
+func (s *Session) GetCookies() ([]*api.Cookie, error) {
+	return s.GetCookiesCall.ReturnCookies, s.GetCookiesCall.Err
+}
+
+func (s *Session) SetCookie(cookie *api.Cookie) error {
 	s.SetCookieCall.Cookie = cookie
 	return s.SetCookieCall.Err
 }

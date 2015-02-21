@@ -3,8 +3,10 @@ package page_test
 import (
 	"errors"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -54,16 +56,39 @@ var _ = Describe("Page", func() {
 
 	Describe("#SetCookie", func() {
 		It("should successfully instruct the session to add the cookie to the session", func() {
-			cookie := map[string]interface{}{"some": "cookie"}
+			cookie := &http.Cookie{
+				Name:     "some cookie",
+				Value:    "some value",
+				Path:     "/",
+				Domain:   "example.com",
+				Secure:   true,
+				HttpOnly: true,
+				Expires:  time.Unix(100, 0),
+			}
 			Expect(page.SetCookie(cookie)).To(Succeed())
-			Expect(session.SetCookieCall.Cookie).To(Equal(cookie))
+			Expect(session.SetCookieCall.Cookie).To(Equal(&api.Cookie{
+				Name:     "some cookie",
+				Value:    "some value",
+				Path:     "/",
+				Domain:   "example.com",
+				Secure:   true,
+				HTTPOnly: true,
+				Expiry:   100,
+			}))
 		})
 
 		Context("when the session fails to set the cookie", func() {
 			It("should return an error", func() {
 				session.SetCookieCall.Err = errors.New("some error")
-				err := page.SetCookie(map[string]interface{}{})
+				err := page.SetCookie(&http.Cookie{})
 				Expect(err).To(MatchError("failed to set cookie: some error"))
+			})
+		})
+
+		Context("when the cookie is nil", func() {
+			It("should return an error", func() {
+				err := page.SetCookie(nil)
+				Expect(err).To(MatchError("nil cookie is invalid"))
 			})
 		})
 	})

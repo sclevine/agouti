@@ -1,9 +1,9 @@
 package core
 
 import (
+	"net/http"
 	"time"
 
-	"github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/selection"
@@ -22,7 +22,7 @@ type Page interface {
 	Navigate(url string) error
 
 	// SetCookie sets a cookie on the page.
-	SetCookie(cookie agouti.Cookie) error
+	SetCookie(cookie *http.Cookie) error
 
 	// DeleteCookie deletes a cookie on the page by name.
 	DeleteCookie(name string) error
