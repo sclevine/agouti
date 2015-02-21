@@ -42,14 +42,12 @@ func (s Selector) API() api.Selector {
 }
 func (s Selector) apiType() string {
 	switch s.Type {
-	case XPath, Label, Button:
-		return "xpath"
 	case CSS:
 		return "css selector"
 	case Link:
 		return "link text"
 	}
-	return "Invalid selector"
+	return "xpath"
 }
 
 func (s Selector) value() string {
