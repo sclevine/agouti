@@ -403,7 +403,7 @@ func (p *Page) ReadNewLogs(logType string) ([]Log, error) {
 }
 
 // ReadAllLogs returns all log messages of the provided log type. For example,
-// page.ReadLogs("browser") returns browser console logs, such as JavaScript logs
+// page.ReadAllLogs("browser") returns browser console logs, such as JavaScript logs
 // and errors. All logs since the session was created are returned.
 // Valid log types may be obtained using the LogTypes method.
 func (p *Page) ReadAllLogs(logType string) ([]Log, error) {
