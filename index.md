@@ -219,7 +219,7 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
 
 ###Notes
 
-- A new `*agouti.Selection` can be created from the `*agouti.Page`, an existing `*agouti.Selection`, or an existing `*agouti.MultiSelection` using the `Find*`, `First*`, and `All*` methods defined on either type.
+- A new `*agouti.Selection` can be created from a `*agouti.Page`, an existing `*agouti.Selection`, or an existing `*agouti.MultiSelection` using the `Find*`, `First*`, and `All*` methods defined on either type.
 - The `*agouti.Selection` methods are very versatile. They support selecting and asserting on one or more elements by CSS selector, XPath, label, button text, and/or link text. A selection may combine any number of these selector types.
 - The Agouti matchers (like `HaveTitle` and `BeVisible`) rely only on public `*agouti.Page` and `*agouti.Selection` methods (lke `Title` and `Visible`).
 - Gomega's [asynchronous assertions](http://onsi.github.io/gomega/#making-asynchronous-assertions) such as `Eventually` may be used to wait for the page to load. This is especially useful for testing JavaScript-heavy web applications.
@@ -468,7 +468,7 @@ Alternatively:
 
 ###Using Agouti by Itself
 
-The [`core`](http://godoc.org/github.com/sclevine/agouti) package by itself does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver client.
+The [`agouti`](http://godoc.org/github.com/sclevine/agouti) package by itself does not depend on Ginkgo or Gomega. It can be used as a general-purpose WebDriver client.
 
 Here is a part of a login test that does not depend on Ginkgo or Gomega.
 
