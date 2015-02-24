@@ -45,6 +45,11 @@ func ChromeDriver() WebDriver {
 	return NewWebDriver("http://{{.Address}}", []string{"chromedriver", "--silent", "--port={{.Port}}"})
 }
 
+// IEDriver returns an instance of a IEDriver WebDriver.
+func IEDriver() WebDriver {
+	return NewWebDriver("http://{{.Address}}", []string{"IEDriverServer", "--silent", "--port={{.Port}}"})
+}
+
 // PhantomJS returns an instance of a PhantomJS WebDriver.
 // The return error is deprecated and will always be nil.
 func PhantomJS() (WebDriver, error) {
