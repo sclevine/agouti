@@ -289,12 +289,12 @@ var _ = Describe("Selection Actions", func() {
 			firstOptionBuses = []*mocks.Bus{&mocks.Bus{}, &mocks.Bus{}}
 			secondOptionBuses = []*mocks.Bus{&mocks.Bus{}, &mocks.Bus{}}
 			firstOptions = []*api.Element{
-				&api.Element{ID: "one", Session: &api.Session{firstOptionBuses[0]}},
-				&api.Element{ID: "two", Session: &api.Session{firstOptionBuses[1]}},
+				&api.Element{ID: "one", Session: &api.Session{Bus: firstOptionBuses[0]}},
+				&api.Element{ID: "two", Session: &api.Session{Bus: firstOptionBuses[1]}},
 			}
 			secondOptions = []*api.Element{
-				&api.Element{ID: "three", Session: &api.Session{secondOptionBuses[0]}},
-				&api.Element{ID: "four", Session: &api.Session{secondOptionBuses[1]}},
+				&api.Element{ID: "three", Session: &api.Session{Bus: secondOptionBuses[0]}},
+				&api.Element{ID: "four", Session: &api.Session{Bus: secondOptionBuses[1]}},
 			}
 			firstElement.GetElementsCall.ReturnElements = []*api.Element{firstOptions[0], firstOptions[1]}
 			secondElement.GetElementsCall.ReturnElements = []*api.Element{secondOptions[0], secondOptions[1]}

@@ -2,6 +2,7 @@ package agouti
 
 import (
 	"fmt"
+
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
 	"github.com/sclevine/agouti/internal/target"
@@ -32,7 +33,7 @@ type elementRepository interface {
 }
 
 func newSelection(session selectionSession, selectors target.Selectors) *Selection {
-	return &Selection{&element.Repository{session}, selectable{session, selectors}}
+	return &Selection{&element.Repository{Client: session}, selectable{session, selectors}}
 }
 
 // String returns a string representation of the selection, ex.

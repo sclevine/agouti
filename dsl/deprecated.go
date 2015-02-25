@@ -1,6 +1,6 @@
 package dsl
 
-// StopWebDriver stops the current running WebDriver.
+// StopWebdriver stops the current running WebDriver.
 //
 // DEPRECATED: Use StopWebDriver instead.
 func StopWebdriver() {

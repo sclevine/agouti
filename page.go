@@ -131,7 +131,7 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		return errors.New("nil cookie is invalid")
 	}
 
-	var expiry int64 = 0
+	var expiry int64
 	if !cookie.Expires.IsZero() {
 		expiry = cookie.Expires.Unix()
 	}

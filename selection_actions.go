@@ -126,8 +126,8 @@ func (s *Selection) setChecked(checked bool) error {
 	})
 }
 
-// Select, when called on some number of <select> elements, will select all
-// <option> elements under those <select> elements that match the provided text.
+// Select may be called on a selection of any number of <select> elements to select
+// any <option> elements under those <select> elements that match the provided text.
 func (s *Selection) Select(text string) error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		optionXPath := fmt.Sprintf(`./option[normalize-space()="%s"]`, text)

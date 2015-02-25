@@ -2,6 +2,7 @@ package agouti
 
 import (
 	"fmt"
+
 	"github.com/sclevine/agouti/api"
 )
 

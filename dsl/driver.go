@@ -11,7 +11,7 @@ func StartPhantomJS() {
 	checkFailure(driver.Start())
 }
 
-// StartChrome starts a ChromeDriver WebDriver service for use with CreatePage.
+// StartChromeDriver starts a ChromeDriver WebDriver service for use with CreatePage.
 func StartChromeDriver() {
 	checkWebDriverNotStarted()
 	driver = agouti.ChromeDriver()

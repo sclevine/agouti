@@ -17,7 +17,7 @@ var _ = Describe("MultiSelection", func() {
 
 	BeforeEach(func() {
 		bus = &mocks.Bus{}
-		session = &api.Session{bus}
+		session = &api.Session{Bus: bus}
 		selection = NewTestMultiSelection(nil, session, "#selector")
 	})
 

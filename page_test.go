@@ -584,11 +584,13 @@ var _ = Describe("Page", func() {
 
 		Context("when only new logs are requested", func() {
 			It("should return only new logs with the correct time and code location", func() {
-				session.NewLogsCall.ReturnLogs = []api.Log{api.Log{"old log", "old level", 1418196096123}}
+				session.NewLogsCall.ReturnLogs = []api.Log{
+					api.Log{Message: "old log", Level: "old level", Timestamp: 1418196096123},
+				}
 				page.ReadNewLogs("some type")
 				session.NewLogsCall.ReturnLogs = []api.Log{
-					api.Log{"new log (1:22)", "new level", 1418196097543},
-					api.Log{"newer log (:)", "newer level", 1418196098376},
+					api.Log{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
+					api.Log{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
 				}
 
 				logs, err := page.ReadNewLogs("some type")
@@ -608,11 +610,13 @@ var _ = Describe("Page", func() {
 
 	Describe("#ReadAllLogs", func() {
 		It("should call ReadNewLogs and return previously read logs", func() {
-			session.NewLogsCall.ReturnLogs = []api.Log{api.Log{"old log", "old level", 1418196096123}}
+			session.NewLogsCall.ReturnLogs = []api.Log{
+				api.Log{Message: "old log", Level: "old level", Timestamp: 1418196096123},
+			}
 			page.ReadNewLogs("some type")
 			session.NewLogsCall.ReturnLogs = []api.Log{
-				api.Log{"new log (1:22)", "new level", 1418196097543},
-				api.Log{"newer log (:)", "newer level", 1418196098376},
+				api.Log{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
+				api.Log{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
 			}
 
 			logs, err := page.ReadAllLogs("some type")
@@ -624,7 +628,9 @@ var _ = Describe("Page", func() {
 		})
 
 		It("should return a copy of the stored logs", func() {
-			session.NewLogsCall.ReturnLogs = []api.Log{api.Log{"some log", "some level", 1418196096123}}
+			session.NewLogsCall.ReturnLogs = []api.Log{
+				api.Log{Message: "some log", Level: "some level", Timestamp: 1418196096123},
+			}
 			logs, _ := page.ReadAllLogs("some type")
 			logs[0].Message = "some changed log"
 			logs, _ = page.ReadAllLogs("some type")

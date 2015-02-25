@@ -7,6 +7,7 @@ type config struct {
 	desired Capabilities
 }
 
+// An Option specifies configuration for a new WebDriver or Page.
 type Option func(*config)
 
 // Timeout provides an option for specifying a timeout in seconds.

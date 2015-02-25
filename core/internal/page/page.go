@@ -344,7 +344,8 @@ func (p *Page) ReadLogs(logType string, all ...bool) ([]Log, error) {
 	return logs, nil
 }
 
-// Patch to allow Page to work with new matchers after core deprecation
+// ReadAllLogs is a patch to allow Page to work with the new matchers package
+// after core is deprecated.
 func (p *Page) ReadAllLogs(logType string) ([]agouti.Log, error) {
 	coreLogs, err := p.ReadLogs(logType, true)
 	if err != nil {
