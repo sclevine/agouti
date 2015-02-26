@@ -238,58 +238,33 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#Screenshot", func() {
-		var filename string
-
-		BeforeEach(func() {
-			directory, _ := os.Getwd()
-			filename = filepath.Join(directory, ".test.screenshot.png")
+		It("should successfully saves the screenshot", func() {
+			session.GetScreenshotCall.ReturnImage = []byte("some-image")
+			filename, _ := filepath.Abs(".test.screenshot.png")
+			Expect(page.Screenshot(".test.screenshot.png")).To(Succeed())
+			defer os.Remove(filename)
+			result, _ := ioutil.ReadFile(filename)
+			Expect(string(result)).To(Equal("some-image"))
 		})
 
-		Context("when the file path cannot be constructed", func() {
-			It("should return an error", func() {
-				err := page.Screenshot("\000/a")
-				Expect(err).To(MatchError("failed to create directory for screenshot: mkdir \x00: invalid argument"))
-			})
-		})
-
-		Context("when a new screenshot file cannot be created", func() {
+		Context("when a new screenshot file cannot be saved", func() {
 			It("should return an error", func() {
 				err := page.Screenshot("")
-				Expect(err).To(MatchError("failed to create file for screenshot: open : no such file or directory"))
+				Expect(err.Error()).To(ContainSubstring("failed to save screenshot: open"))
 			})
 		})
 
 		Context("when the session fails to retrieve a screenshot", func() {
-			var err error
-
-			BeforeEach(func() {
+			It("should return an error", func() {
 				session.GetScreenshotCall.Err = errors.New("some error")
-				err = page.Screenshot(filename)
-			})
-
-			It("should return an error indicating so", func() {
+				err := page.Screenshot(".test.screenshot.png")
 				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
 			})
-
-			It("should remove the newly-created file", func() {
-				_, err = os.Stat(filename)
-				Expect(err).To(HaveOccurred())
-			})
 		})
 
-		Context("when the screenshot cannot be written to a file", func() {
-			It("should remove the newly created file and return an error", func() {
-				// NOTE: would need to cause write-error to test
-			})
-		})
-
-		Context("when a screenshot is successfully written to a file", func() {
-			It("should successfully saves the screenshot", func() {
-				session.GetScreenshotCall.ReturnImage = []byte("some-image")
-				Expect(page.Screenshot(filename)).To(Succeed())
-				defer os.Remove(filename)
-				result, _ := ioutil.ReadFile(filename)
-				Expect(string(result)).To(Equal("some-image"))
+		Context("when an absolute path for the new file cannot be determined", func() {
+			It("should return an error", func() {
+				// NOTE: causing a filepath.Abs error is tricky and platform-specific
 			})
 		})
 	})

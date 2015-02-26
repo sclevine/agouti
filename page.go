@@ -3,8 +3,8 @@ package agouti
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -193,26 +193,20 @@ func (p *Page) Size(width, height int) error {
 }
 
 // Screenshot takes a screenshot and saves it to the provided filename.
+// The provided filename may be an absolute or relative path.
 func (p *Page) Screenshot(filename string) error {
-	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
-		return fmt.Errorf("failed to create directory for screenshot: %s", err)
-	}
-
-	file, err := os.Create(filename)
+	absFilePath, err := filepath.Abs(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create file for screenshot: %s", err)
+		return fmt.Errorf("failed to find absolute path for filename: %s", err)
 	}
-	defer file.Close()
 
 	screenshot, err := p.session.GetScreenshot()
 	if err != nil {
-		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
 	}
 
-	if _, err := file.Write(screenshot); err != nil {
-		os.Remove(filename)
-		return fmt.Errorf("failed to write file for screenshot: %s", err)
+	if err := ioutil.WriteFile(absFilePath, screenshot, 0666); err != nil {
+		return fmt.Errorf("failed to save screenshot: %s", err)
 	}
 
 	return nil
