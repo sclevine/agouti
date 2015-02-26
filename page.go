@@ -15,7 +15,7 @@ import (
 )
 
 // A Page represents an open browser session. Pages may be created using the
-// *WebDriver#Page() method or by calling the NewPage or SauceLabs functions.
+// *WebDriver.Page() method or by calling the NewPage or SauceLabs functions.
 type Page struct {
 	session pageSession
 	logs    map[string][]Log
@@ -318,7 +318,7 @@ func (p *Page) Refresh() error {
 }
 
 // SwitchToParentFrame focuses on the immediate parent frame of a frame selected
-// by Selection#Frame. After switching, all new and existing selections will refer
+// by Selection.Frame. After switching, all new and existing selections will refer
 // to the parent frame. All further Page methods will apply to this frame as well.
 //
 // This method is not supported by PhantomJS. Please use SwitchToRootFrame instead.
@@ -330,7 +330,7 @@ func (p *Page) SwitchToParentFrame() error {
 }
 
 // SwitchToRootFrame focuses on the original, default page frame before any calls
-// to Selection#Frame were made. After switching, all new and existing selections
+// to Selection.Frame were made. After switching, all new and existing selections
 // will refer to the root frame. All further Page methods will apply to this frame
 // as well.
 func (p *Page) SwitchToRootFrame() error {

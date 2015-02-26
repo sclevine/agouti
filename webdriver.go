@@ -46,8 +46,8 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 // For Selenium, a Browser Option (or a Desired Option with Capabilities that
 // specify a Browser) must be provided. For instance:
 //    seleniumDriver.NewPage(agouti.Browser("safari"))
-// Specific options (such as Browser) have precedence over capabilities
-// specified by the Desired option.
+// Specific Options (such as Browser) have precedence over Capabilities
+// specified by the Desired Option.
 func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
 	newOptions := w.defaultOptions.merge(options)
 	session, err := w.Open(newOptions.capabilities())

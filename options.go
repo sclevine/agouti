@@ -26,7 +26,7 @@ func Timeout(seconds int) Option {
 	}
 }
 
-// Desired provides an Option for specifying desired WebDriver capabilities.
+// Desired provides an Option for specifying desired WebDriver Capabilities.
 func Desired(capabilities Capabilities) Option {
 	return func(c *config) {
 		c.desired = capabilities

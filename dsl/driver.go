@@ -50,9 +50,9 @@ func CreatePage(browserName ...string) *agouti.Page {
 }
 
 // CustomPage creates a new session with a custom set of desired capabilities
-// using the current running WebDriver. The agouti.Use() function may be used
-// to generate this set of capabilities. For Selenium, the capabilities
-// Browser(string) method sets which browser to use for the session.
+// using the current running WebDriver. The agouti.NewCapabilities() function
+// may be used to generate this set of capabilities. For Selenium, the
+// Capabilities.Browser(string) method sets which browser to use for the session.
 func CustomPage(capabilities agouti.Capabilities) *agouti.Page {
 	if driver == nil {
 		globalFailHandler("WebDriver not started", 1)

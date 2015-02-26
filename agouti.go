@@ -7,7 +7,7 @@ import "fmt"
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
 // The RejectInvalidSSL Option must be provided to this PhantomJS function
-// (and not the NewPage method) for this option to take effect on any
+// (and not the NewPage method) for this Option to take effect on any
 // PhantomJS page.
 func PhantomJS(options ...Option) *WebDriver {
 	command := []string{"phantomjs", "--webdriver={{.Address}}"}
@@ -19,7 +19,7 @@ func PhantomJS(options ...Option) *WebDriver {
 }
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
-// Provided options will apply as default arguments for new pages.
+// Provided Options will apply as default arguments for new pages.
 // New pages will accept invalid SSL certificates by default. This
 // may be disabled using the RejectInvalidSSL Option.
 func ChromeDriver(options ...Option) *WebDriver {
@@ -28,7 +28,7 @@ func ChromeDriver(options ...Option) *WebDriver {
 }
 
 // Selenium returns an instance of a Selenium WebDriver.
-// Provided options will apply as default arguments for new pages.
+// Provided Options will apply as default arguments for new pages.
 // New pages will accept invalid SSL certificates by default. This
 // may be disabled using the RejectInvalidSSL Option.
 func Selenium(options ...Option) *WebDriver {
