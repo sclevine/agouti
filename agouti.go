@@ -1,5 +1,5 @@
 // Package agouti is a universal WebDriver client for Go.
-// It extends the api package to provide a feature-rich interface for
+// It extends the agouti/api package to provide a feature-rich interface for
 // controlling a web browser.
 package agouti
 
