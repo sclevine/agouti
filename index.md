@@ -175,8 +175,7 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
             StartMyApp(3000)
             
             var err error
-            capabilities := agouti.NewCapabilities().Browser("firefox")
-            page, err = agoutiDriver.NewPage(agouti.Desired(capabilities))
+            page, err = agoutiDriver.NewPage(agouti.Browser("firefox"))
             Expect(err).NotTo(HaveOccurred())
         })
 
@@ -381,8 +380,7 @@ To use Agouti with Gomega and XUnit style tests, check out this simple example:
 
         driver := agouti.Selenium()
         Expect(driver.Start()).To(Succeed())
-        capabilities := agouti.NewCapabilities().Browser("firefox")
-        page, err := driver.NewPage(agouti.Desired(capabilities))
+        page, err := driver.NewPage(agouti.Browser("firefox"))
         Expect(err).NotTo(HaveOccurred())
 
         StartMyApp(3000)
@@ -416,8 +414,7 @@ This is the most Go-like way of using Agouti for acceptance testing.
 
         driver := agouti.Selenium()
         gm.Expect(driver.Start()).To(gm.Succeed())
-        capabilities := agouti.NewCapabilities().Browser("firefox")
-        page, err := driver.NewPage(agouti.Desired(capabilities))
+        page, err := driver.NewPage(agouti.Browser("firefox"))
         gm.Expect(err).NotTo(gm.HaveOccurred())
 
         potato.StartMyApp(3000)
@@ -453,8 +450,7 @@ Alternatively:
 
         driver := agouti.Selenium()
         Expect(driver.Start()).To(Succeed())
-        capabilities := agouti.NewCapabilities().Browser("firefox")
-        page, err := driver.NewPage(agouti.Desired(capabilities))
+        page, err := driver.NewPage(agouti.Browser("firefox"))
         Expect(err).NotTo(HaveOccurred())
 
         potato.StartMyApp(3000)
@@ -483,8 +479,7 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega.
 
     func TestUserLoginPrompt(t *testing.T) {
         driver := agouti.Selenium()
-        capabilities := agouti.NewCapabilities().Browser("firefox")
-        page, err := driver.NewPage(agouti.Desired(capabilities))
+        page, err := driver.NewPage(agouti.Browser("firefox"))
         if err != nil {
             t.Error("Failed to open page.")
         }
