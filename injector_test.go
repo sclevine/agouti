@@ -10,7 +10,7 @@ func NewTestSelection(elements elementRepository, session selectionSession, firs
 func NewTestMultiSelection(elements elementRepository, session selectionSession, firstSelector string) *MultiSelection {
 	selector := target.Selector{Type: target.CSS, Value: firstSelector}
 	selection := Selection{elements, selectable{session, target.Selectors{selector}}}
-	return &MultiSelection{selectionWrapper{selection}}
+	return &MultiSelection{selection}
 }
 
 func NewTestPage(session pageSession) *Page {
