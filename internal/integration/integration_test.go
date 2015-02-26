@@ -12,22 +12,16 @@ import (
 )
 
 var _ = Describe("integration tests", func() {
-	itShouldBehaveLikeAPage("PhantomJS", func() (*agouti.Page, error) {
-		return phantomDriver.NewPage()
-	})
-
+	itShouldBehaveLikeAPage("PhantomJS", phantomDriver.NewPage)
 	if !headlessOnly {
-		itShouldBehaveLikeAPage("ChromeDriver", func() (*agouti.Page, error) {
-			return chromeDriver.NewPage()
-		})
-
-		itShouldBehaveLikeAPage("Firefox", func() (*agouti.Page, error) {
-			return seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("firefox")))
-		})
+		itShouldBehaveLikeAPage("ChromeDriver", chromeDriver.NewPage)
+		itShouldBehaveLikeAPage("Firefox", seleniumDriver.NewPage)
 	}
 })
 
-func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error)) {
+type pageFunc func(...agouti.Option) (*agouti.Page, error)
+
+func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 	Describe("integration test for "+name, func() {
 		var (
 			page      *agouti.Page
@@ -45,7 +39,7 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 			}))
 
 			var err error
-			page, err = pageFunc()
+			page, err = newPage()
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(page.Size(640, 480)).To(Succeed())

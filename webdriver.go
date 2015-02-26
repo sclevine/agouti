@@ -6,19 +6,23 @@ import (
 	"github.com/sclevine/agouti/api"
 )
 
-// A WebDriver controls a Selenium, PhantomJS, or ChromeDriver process.
-// This struct embeds api.WebDriver, which provides Start and Stop methods
-// for starting and stopping the process.
+// A WebDriver controls a WebDriver process. This struct embeds api.WebDriver,
+// which provides Start and Stop methods for starting and stopping the process.
 type WebDriver struct {
 	*api.WebDriver
+	defaultOptions *config
 }
 
 // NewWebDriver returns an instance of a WebDriver specified by
 // a templated URL and command. The URL should be the location of the
 // WebDriver Wire Protocol web service brought up by the command. The
-// command should be provided as a list of arguments (which are each
-// templated). The optional timeout specifies how long to wait for the
-// web service to become available. Default timeout is 5 seconds.
+// command should be provided as a list of arguments (each of which are
+// templated).
+//
+// The Timeout Option specifies how many seconds to wait for the web service
+// to become available. The default timeout is 5 seconds.
+//
+// Any other provided Options are treated as default Options for new pages.
 //
 // Valid template parameters are:
 //   {{.Host}} - local address to bind to (usually 127.0.0.1)
@@ -30,22 +34,25 @@ type WebDriver struct {
 //   agouti.NewWebDriver("http://{{.Address}}/wd/hub", command)
 func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	apiWebDriver := api.NewWebDriver(url, command)
-	defaultConfig := &config{timeout: apiWebDriver.Timeout}
-	apiWebDriver.Timeout = defaultConfig.apply(options).timeout
-	return &WebDriver{apiWebDriver}
+	defaultOptions := config{timeout: apiWebDriver.Timeout}.merge(options)
+	apiWebDriver.Timeout = defaultOptions.timeout
+	return &WebDriver{apiWebDriver, defaultOptions}
 }
 
 // NewPage returns a *Page that corresponds to a new WebDriver session.
-// Any provided options configure the page. For instance:
-//    driver.NewPage(agouti.Desired(agouti.NewCapabilities().Without("javascriptEnabled")))
-// For Selenium, this argument must include a browser. For instance:
-//    seleniumDriver.NewPage(agouti.Desired(agouti.NewCapabilities().Browser("safari")))
+// Provided Options configure the page. For instance, to disable JavaScript:
+//    capabilities := agouti.NewCapabilities().Without("javascriptEnabled")
+//    driver.NewPage(agouti.Desired(capabilities))
+// For Selenium, a Browser Option (or a Desired Option with Capabilities that
+// specify a Browser) must be provided. For instance:
+//    seleniumDriver.NewPage(agouti.Browser("safari"))
+// Specific options (such as Browser) have precedence over capabilities
+// specified by the Desired option.
 func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
-	desiredCapabilities := getOptions(options).desired
-
-	session, err := w.Open(desiredCapabilities)
+	newOptions := w.defaultOptions.merge(options)
+	session, err := w.Open(newOptions.capabilities())
 	if err != nil {
-		return nil, fmt.Errorf("failed to open session: %s", err)
+		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
 
 	return newPage(session), nil
