@@ -116,6 +116,29 @@ var _ = Describe("Element", func() {
 		})
 	})
 
+	Describe("#GetName", func() {
+		var text string
+
+		BeforeEach(func() {
+			bus.SendCall.Result = `"some-name"`
+			text, err = element.GetName()
+		})
+
+		ItShouldMakeAnElementRequest("GET", "name")
+
+		It("should return the tag name of the element", func() {
+			Expect(text).To(Equal("some-name"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to retrieve the tag name", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, err := element.GetName()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetAttribute", func() {
 		var value string
 

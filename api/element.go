@@ -43,6 +43,14 @@ func (e *Element) GetText() (string, error) {
 	return text, nil
 }
 
+func (e *Element) GetName() (string, error) {
+	var name string
+	if err := e.Session.sendElement(e.ID, "name", "GET", nil, &name); err != nil {
+		return "", err
+	}
+	return name, nil
+}
+
 func (e *Element) GetAttribute(attribute string) (string, error) {
 	var value string
 	if err := e.Session.sendElement(e.ID, path.Join("attribute", attribute), "GET", nil, &value); err != nil {

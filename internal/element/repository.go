@@ -20,6 +20,7 @@ type Client interface {
 type Element interface {
 	Client
 	GetText() (string, error)
+	GetName() (string, error)
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
 	IsSelected() (bool, error)

@@ -22,6 +22,11 @@ type Element struct {
 		Err        error
 	}
 
+	GetNameCall struct {
+		ReturnName string
+		Err        error
+	}
+
 	GetAttributeCall struct {
 		Attribute   string
 		ReturnValue string
@@ -88,6 +93,10 @@ func (e *Element) GetElements(selector api.Selector) ([]*api.Element, error) {
 
 func (e *Element) GetText() (string, error) {
 	return e.GetTextCall.ReturnText, e.GetTextCall.Err
+}
+
+func (e *Element) GetName() (string, error) {
+	return e.GetNameCall.ReturnName, e.GetNameCall.Err
 }
 
 func (e *Element) GetAttribute(attribute string) (string, error) {

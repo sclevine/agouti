@@ -2,6 +2,7 @@ package agouti_test
 
 import (
 	"errors"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -124,6 +125,77 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				secondElement.ValueCall.Err = errors.New("some error")
 				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
+			})
+		})
+	})
+
+	Describe("#UploadFile", func() {
+		BeforeEach(func() {
+			firstElement.GetAttributeCall.ReturnValue = "file"
+			firstElement.GetNameCall.ReturnName = "input"
+			secondElement.GetAttributeCall.ReturnValue = "file"
+			secondElement.GetNameCall.ReturnName = "input"
+		})
+
+		Context("when zero elements are returned", func() {
+			It("should return an error", func() {
+				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
+				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to select 'CSS: #selector': some error"))
+			})
+		})
+
+		It("should successfully enter the absolute file path into each element", func() {
+			Expect(selection.UploadFile("some-file")).To(Succeed())
+			Expect(firstElement.ValueCall.Text).To(HaveSuffix(filepath.Join("agouti", "some-file")))
+			Expect(secondElement.ValueCall.Text).To(HaveSuffix(filepath.Join("agouti", "some-file")))
+		})
+
+		It("should request the 'type' attribute for each element", func() {
+			selection.UploadFile("some-file")
+			Expect(firstElement.GetAttributeCall.Attribute).To(Equal("type"))
+			Expect(secondElement.GetAttributeCall.Attribute).To(Equal("type"))
+		})
+
+		Context("when there is no absolute path to the provided file", func() {
+			// NOTE: causing an error from filepath.Abs is difficult
+		})
+
+		Context("when any element has a tag name other than 'input'", func() {
+			It("should return an error", func() {
+				secondElement.GetNameCall.ReturnName = "notinput"
+				err := selection.UploadFile("some-file")
+				Expect(err).To(MatchError("element for CSS: #selector is not an input element"))
+			})
+		})
+
+		Context("when the tag name of any element is not retrievable", func() {
+			It("should return an error", func() {
+				secondElement.GetNameCall.Err = errors.New("some error")
+				err := selection.UploadFile("some-file")
+				Expect(err).To(MatchError("failed to determine tag name of 'CSS: #selector': some error"))
+			})
+		})
+
+		Context("when any element has a type attribute other than 'file'", func() {
+			It("should return an error", func() {
+				secondElement.GetAttributeCall.ReturnValue = "notfile"
+				err := selection.UploadFile("some-file")
+				Expect(err).To(MatchError("element for CSS: #selector is not a file uploader"))
+			})
+		})
+
+		Context("when the type attribute of any element is not retrievable", func() {
+			It("should return an error", func() {
+				secondElement.GetAttributeCall.Err = errors.New("some error")
+				err := selection.UploadFile("some-file")
+				Expect(err).To(MatchError("failed to determine type of 'CSS: #selector': some error"))
+			})
+		})
+
+		Context("when entering text into any element fails", func() {
+			It("should return an error", func() {
+				secondElement.ValueCall.Err = errors.New("some error")
+				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
 			})
 		})
 	})

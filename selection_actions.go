@@ -2,6 +2,7 @@ package agouti
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
@@ -54,6 +55,36 @@ func (s *Selection) Fill(text string) error {
 			return fmt.Errorf("failed to clear '%s': %s", s, err)
 		}
 		if err := selectedElement.Value(text); err != nil {
+			return fmt.Errorf("failed to enter text into '%s': %s", s, err)
+		}
+		return nil
+	})
+}
+
+// UploadFile uploads the provided file to all selected <input type="file" />.
+// The provided filename may be a relative or absolute path.
+// Returns an error if elements of any other type are in the selection.
+func (s *Selection) UploadFile(filename string) error {
+	absFilePath, err := filepath.Abs(filename)
+	if err != nil {
+		return fmt.Errorf("failed to find absolute path for filename: %s", err)
+	}
+	return s.forEachElement(func(selectedElement element.Element) error {
+		tagName, err := selectedElement.GetName()
+		if err != nil {
+			return fmt.Errorf("failed to determine tag name of '%s': %s", s, err)
+		}
+		if tagName != "input" {
+			return fmt.Errorf("element for %s is not an input element", s)
+		}
+		inputType, err := selectedElement.GetAttribute("type")
+		if err != nil {
+			return fmt.Errorf("failed to determine type of '%s': %s", s, err)
+		}
+		if inputType != "file" {
+			return fmt.Errorf("element for %s is not a file uploader", s)
+		}
+		if err := selectedElement.Value(absFilePath); err != nil {
 			return fmt.Errorf("failed to enter text into '%s': %s", s, err)
 		}
 		return nil

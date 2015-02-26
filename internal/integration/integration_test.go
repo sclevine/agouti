@@ -205,6 +205,15 @@ func itShouldBehaveLikeAPage(name string, pageFunc func() (*agouti.Page, error))
 				Expect(page.Find("#some_form").Submit()).To(Succeed())
 				Eventually(func() bool { return submitted }).Should(BeTrue())
 			})
+
+			if name != "PhantomJS" {
+				By("choosing a file", func() {
+					Expect(page.Find("#file_picker").UploadFile("test_page.html")).To(Succeed())
+					var result string
+					Expect(page.RunScript("return document.getElementById('file_picker').value;", nil, &result)).To(Succeed())
+					Expect(result).To(HaveSuffix("test_page.html"))
+				})
+			}
 		})
 
 		It("should support links and navigation", func() {
