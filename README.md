@@ -8,4 +8,4 @@ Acceptance/integration testing for Golang with support for Ginkgo and Gomega! Se
 
 Want to dive right in? Our [integration test](https://github.com/sclevine/agouti/blob/master/internal/integration/integration_test.go) is a great place to see everything in action.
 
-<p align="center"><img src="http://agouti.org/images/agouti_small.png" /></p>
+<p align="center"><a href=http://agouti.org><img src="http://agouti.org/images/agouti_small.png" /></a></p>
