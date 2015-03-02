@@ -190,18 +190,16 @@ Now let's start your app and tell Agouti to navigate to it. Agouti can test any 
             })
 
             By("allowing the user to fill out the login form and submit it", func() {
-                Eventually(page.FindByLabel("E-mail").Fill("spud@example.com")).Should(Succeed())
+                Eventually(func() error {
+                    return page.FindByLabel("E-mail").Fill("spud@example.com")
+                }).Should(Succeed())
                 Expect(page.FindByLabel("Password").Fill("secret-password")).To(Succeed())
                 Expect(page.Find("#remember_me").Check()).To(Succeed())
                 Expect(page.Find("#login_form").Submit()).To(Succeed())
             })
-
-            By("directing the user to the dashboard", func() {
-                Eventually(page).Should(HaveTitle("Dashboard"))
-            })
-
-            By("allowing the sure to view their profile", func() {
-                Expect(page.FindByLink("Profile Page").Click()).To(Succeed())
+            
+            By("allowing the user to view their profile", func() {
+                Eventually(page.FindByLink("Profile Page").Click).Should(Succeed())
                 profile := page.Find("section.profile")
                 Eventually(profile.Find(".greeting")).Should(HaveText("Hello Spud!"))
                 Expect(profile.Find("img#profile_pic")).To(BeVisible())
@@ -258,9 +256,9 @@ For easy [Sauce Labs](http://saucelabs.com) support, use `SauceLabs`. Note that 
 
 Agouti provides a [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package that reduces test setup and provides user interactions that fail tests automatically if they are unsuccessful. It is similar to the [Capybara](https://github.com/jnicklas/capybara) DSL, and intended for those who are familiar with Capybara or Cucumber.
 
-Note that the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package exports numerous identifiers that may conflict with your package identifiers (if both are dot-imported). It also only supports a single running WebDriver process (PhantomJS, Selenium, OR ChromeDriver). If you use Ginkgo for unit testing, your [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) Agouti tests will look very different from your Ginkgo unit tests. For these reasons, we do not necessarily encourage its use. It is a small package that provides little extra functionality.
+Note that the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package exports numerous identifiers that may conflict with your package identifiers (if both are dot-imported). It also only supports a single running WebDriver process (PhantomJS, Selenium, OR ChromeDriver). If you use Ginkgo for unit testing, your [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) Agouti tests will look very different from your Ginkgo unit tests. Furthermore, none of the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) functions are asynchronous, so your tests may need to mix [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) functions and non-[`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) assertions.
 
-Furthermore, `ginkgo generate --agouti filename` and `ginkgo bootstrap --agouti` do not support the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package.
+For these reasons, we do not encourage using the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package. The `ginkgo bootstrap --agouti` and `ginkgo generate --agouti` commands do not generate [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl)-compatible scaffolds. It is a small package that provides little extra functionality and may disappear in the future.
 
 That said, you may re-write the above login test using the [`dsl`](http://godoc.org/github.com/sclevine/agouti/dsl) package like so:
 
@@ -322,18 +320,16 @@ That said, you may re-write the above login test using the [`dsl`](http://godoc.
             })
 
             Step("allowing the user to fill out the login form and submit it", func() {
-                Fill(page.FindByLabel("E-mail"), "spud@example.com")
+                Eventually(func() error {
+                    return page.FindByLabel("E-mail").Fill("spud@example.com")
+                }).Should(Succeed())
                 Fill(page.FindByLabel("Password"), "secret-password")
                 Check(page.Find("#remember_me"))
                 Submit(page.Find("#login_form"))
             })
 
-            Step("directing the user to the dashboard", func() {
-                Eventually(page).Should(HaveTitle("Dashboard"))
-            })
-
             Step("allowing the user to view their profile", func() {
-                Click(page.FindByLink("Profile Page"))
+                Eventually(page.FindByLink("Profile Page").Click).Should(Succeed())
                 profile := page.Find("section.profile")
                 Eventually(profile.Find(".greeting")).Should(HaveText("Hello Spud!"))
                 Expect(profile.Find("img#profile_pic")).To(BeVisible())
