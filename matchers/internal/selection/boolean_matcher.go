@@ -3,13 +3,13 @@ package selection
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/onsi/gomega/format"
 )
 
 type BooleanMatcher struct {
 	Method string
+	State  string
 }
 
 func (m *BooleanMatcher) Match(actual interface{}) (success bool, err error) {
@@ -30,9 +30,9 @@ func (m *BooleanMatcher) Match(actual interface{}) (success bool, err error) {
 }
 
 func (m *BooleanMatcher) FailureMessage(actual interface{}) (message string) {
-	return booleanSelectorMessage(actual, "to be "+strings.ToLower(m.Method))
+	return booleanSelectorMessage(actual, "to be "+m.State)
 }
 
 func (m *BooleanMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return booleanSelectorMessage(actual, "not to be "+strings.ToLower(m.Method))
+	return booleanSelectorMessage(actual, "not to be "+m.State)
 }

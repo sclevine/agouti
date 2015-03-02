@@ -18,7 +18,7 @@ var _ = Describe("BooleanMatcher", func() {
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
 		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &BooleanMatcher{Method: "Visible"}
+		matcher = &BooleanMatcher{Method: "Visible", State: "visible"}
 	})
 
 	Describe("#Match", func() {
@@ -55,7 +55,7 @@ var _ = Describe("BooleanMatcher", func() {
 	})
 
 	Describe("#FailureMessage", func() {
-		It("should return a failure message with the downcased method name", func() {
+		It("should return a failure message with the provided state", func() {
 			selection.VisibleCall.ReturnVisible = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -64,7 +64,7 @@ var _ = Describe("BooleanMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("should return a negated failure message with the downcased method name", func() {
+		It("should return a negated failure message with the provided state", func() {
 			selection.VisibleCall.ReturnVisible = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)
