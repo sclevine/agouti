@@ -28,11 +28,11 @@ func (m *HavePopupTextMatcher) Match(actual interface{}) (success bool, err erro
 	return m.actualText == m.ExpectedText, nil
 }
 
-func (m *HavePopupTextMatcher) FailureMessage(_ interface{}) (message string) {
-	return pageMessage("to have popup text matching", m.ExpectedText, m.actualText)
+func (m *HavePopupTextMatcher) FailureMessage(actual interface{}) (message string) {
+	return valueMessage(actual, "to have popup text matching", m.ExpectedText, m.actualText)
 
 }
 
-func (m *HavePopupTextMatcher) NegatedFailureMessage(_ interface{}) (message string) {
-	return pageMessage("not to have popup text matching", m.ExpectedText, m.actualText)
+func (m *HavePopupTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
+	return valueMessage(actual, "not to have popup text matching", m.ExpectedText, m.actualText)
 }

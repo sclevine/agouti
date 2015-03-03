@@ -57,6 +57,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 			It("should support asserting on element identity", func() {
 				By("asserting on an element's existence", func() {
 					Expect(page.Find("header")).To(BeFound())
+					Expect(page.Find("header")).To(HaveCount(1))
 					Expect(page.Find("not-a-header")).NotTo(BeFound())
 				})
 

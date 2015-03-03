@@ -37,11 +37,11 @@ func (m *HaveLoggedInfoMatcher) Match(actual interface{}) (success bool, err err
 	return false, nil
 }
 
-func (m *HaveLoggedInfoMatcher) FailureMessage(_ interface{}) (message string) {
-	return pageMessage("to have info log matching", m.ExpectedMessage)
+func (m *HaveLoggedInfoMatcher) FailureMessage(actual interface{}) (message string) {
+	return equalityMessage(actual, "to have info log matching", m.ExpectedMessage)
 
 }
 
-func (m *HaveLoggedInfoMatcher) NegatedFailureMessage(_ interface{}) (message string) {
-	return pageMessage("not to have info log matching", m.ExpectedMessage)
+func (m *HaveLoggedInfoMatcher) NegatedFailureMessage(actual interface{}) (message string) {
+	return equalityMessage(actual, "not to have info log matching", m.ExpectedMessage)
 }

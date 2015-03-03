@@ -27,13 +27,3 @@ func expectedColorMessage(expectedValue string, expectedColor, actualColor inter
 	failureMessage := "The expected value:\n%s%s\nis a color:\n%s%s\nBut the actual value:\n%s%s\nis not.\n"
 	return fmt.Sprintf(failureMessage, tab, expectedValue, tab, expectedColor, tab, actualColor)
 }
-
-func pageMessage(message, expected string, actualValue ...string) string {
-	if len(actualValue) == 0 {
-		failureMessage := "Expected page %s\n%s%s"
-		return fmt.Sprintf(failureMessage, message, format.Indent, expected)
-	}
-
-	failureMessage := "Expected page %s\n%s%s\nbut found\n%s%s"
-	return fmt.Sprintf(failureMessage, message, format.Indent, expected, format.Indent, actualValue[0])
-}

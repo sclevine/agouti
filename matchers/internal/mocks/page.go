@@ -25,6 +25,10 @@ type Page struct {
 	}
 }
 
+func (*Page) String() string {
+	return "page"
+}
+
 func (p *Page) Title() (string, error) {
 	return p.TitleCall.ReturnTitle, p.TitleCall.Err
 }
