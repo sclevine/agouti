@@ -19,6 +19,7 @@ type driverService interface {
 	Start() error
 	Stop() error
 	WaitForBoot(timeout time.Duration) error
+	Debug(bool)
 }
 
 func NewWebDriver(url string, command []string) *WebDriver {
@@ -31,6 +32,10 @@ func NewWebDriver(url string, command []string) *WebDriver {
 		Timeout: 5 * time.Second,
 		service: driverService,
 	}
+}
+
+func (w *WebDriver) Debug(setting bool) {
+	w.service.Debug(setting)
 }
 
 func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, error) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -17,6 +18,7 @@ type Service struct {
 	CmdTemplate []string
 	url         string
 	command     *exec.Cmd
+	debug       bool
 }
 
 type addressInfo struct {
@@ -50,6 +52,11 @@ func (s *Service) Start() error {
 	command, err := buildCommand(s.CmdTemplate, address)
 	if err != nil {
 		return fmt.Errorf("failed to parse command: %s", err)
+	}
+
+	if s.debug {
+		command.Stdout = os.Stdout
+		command.Stderr = os.Stderr
 	}
 
 	if err := command.Start(); err != nil {
@@ -130,4 +137,9 @@ func (s *Service) checkStatus() bool {
 		return true
 	}
 	return false
+}
+
+// Debug sets whether we output debugging into when starting Driver
+func (s *Service) Debug(setting bool) {
+	s.debug = setting
 }
