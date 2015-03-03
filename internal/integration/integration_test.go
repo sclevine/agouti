@@ -279,7 +279,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 
 			It("should support switching windows", func() {
 				Expect(page.Find("#new_window").Click()).To(Succeed())
-				Expect(page.WindowCount()).To(Equal(2))
+				Expect(page).To(HaveWindowCount(2))
 
 				By("switching windows", func() {
 					Expect(page.SwitchToWindow("new window")).To(Succeed())
@@ -290,7 +290,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 
 				By("closing windows", func() {
 					Expect(page.CloseWindow()).To(Succeed())
-					Expect(page.WindowCount()).To(Equal(1))
+					Expect(page).To(HaveWindowCount(1))
 				})
 			})
 

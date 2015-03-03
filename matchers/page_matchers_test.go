@@ -53,6 +53,18 @@ var _ = Describe("Page Matchers", func() {
 		})
 	})
 
+	Describe("#HaveWindowCount", func() {
+		It("should return a ValueMatcher with the 'WindowCount' method", func() {
+			page.WindowCountCall.ReturnCount = 1
+			Expect(page).To(HaveWindowCount(1))
+			Expect(page).NotTo(HaveWindowCount(2))
+		})
+
+		It("should set the matcher property to 'window count'", func() {
+			Expect(HaveWindowCount(0).FailureMessage(nil)).To(ContainSubstring("to have window count"))
+		})
+	})
+
 	Describe("#HaveLoggedError", func() {
 		It("should return a HaveLoggedError matcher", func() {
 			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "WARNING", time.Time{}}}

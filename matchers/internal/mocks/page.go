@@ -18,6 +18,11 @@ type Page struct {
 		Err       error
 	}
 
+	WindowCountCall struct {
+		ReturnCount int
+		Err         error
+	}
+
 	ReadAllLogsCall struct {
 		LogType    string
 		ReturnLogs []agouti.Log
@@ -39,6 +44,10 @@ func (p *Page) PopupText() (string, error) {
 
 func (p *Page) URL() (string, error) {
 	return p.URLCall.ReturnURL, p.URLCall.Err
+}
+
+func (p *Page) WindowCount() (int, error) {
+	return p.WindowCountCall.ReturnCount, p.WindowCountCall.Err
 }
 
 func (p *Page) ReadAllLogs(logType string) ([]agouti.Log, error) {

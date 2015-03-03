@@ -20,6 +20,12 @@ func HavePopupText(text string) types.GomegaMatcher {
 	return &ValueMatcher{Method: "PopupText", Property: "popup text", Expected: text}
 }
 
+// HaveWindowCount passes when the expected window count is equivalent
+// to the number of open windows.
+func HaveWindowCount(count int) types.GomegaMatcher {
+	return &ValueMatcher{Method: "WindowCount", Property: "window count", Expected: count}
+}
+
 // HaveLoggedError passes when the expected log message is logged as
 // an error in the browser console.
 func HaveLoggedError(messageOrEmpty ...string) types.GomegaMatcher {
