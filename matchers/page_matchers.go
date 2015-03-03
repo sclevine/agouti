@@ -1,26 +1,23 @@
 package matchers
 
-import (
-	"github.com/onsi/gomega/types"
-	"github.com/sclevine/agouti/matchers/internal/page"
-)
+import "github.com/onsi/gomega/types"
 
 // HaveTitle passes when the expected title is equivalent to the
 // title of the provided page.
 func HaveTitle(title string) types.GomegaMatcher {
-	return &page.HaveTitleMatcher{ExpectedTitle: title}
+	return &ValueMatcher{Method: "Title", Property: "title", Expected: title}
 }
 
 // HaveURL passes when the expected URL is equivalent to the
 // current URL of the provided page.
 func HaveURL(URL string) types.GomegaMatcher {
-	return &page.HaveURLMatcher{ExpectedURL: URL}
+	return &ValueMatcher{Method: "URL", Property: "URL", Expected: URL}
 }
 
 // HavePopupText passes when the expected text is equivalent to the
 // text contents of an open alert, confirm, or prompt popup.
 func HavePopupText(text string) types.GomegaMatcher {
-	return &page.HavePopupTextMatcher{ExpectedText: text}
+	return &ValueMatcher{Method: "PopupText", Property: "popup text", Expected: text}
 }
 
 // HaveLoggedError passes when the expected log message is logged as
@@ -30,7 +27,7 @@ func HaveLoggedError(messageOrEmpty ...string) types.GomegaMatcher {
 	if len(messageOrEmpty) > 0 {
 		message = messageOrEmpty[0]
 	}
-	return &page.HaveLoggedErrorMatcher{ExpectedMessage: message}
+	return &HaveLoggedErrorMatcher{ExpectedMessage: message}
 }
 
 // HaveLoggedInfo passes when the expected log message is logged as
@@ -40,5 +37,5 @@ func HaveLoggedInfo(messageOrEmpty ...string) types.GomegaMatcher {
 	if len(messageOrEmpty) > 0 {
 		message = messageOrEmpty[0]
 	}
-	return &page.HaveLoggedInfoMatcher{ExpectedMessage: message}
+	return &HaveLoggedInfoMatcher{ExpectedMessage: message}
 }

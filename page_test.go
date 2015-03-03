@@ -635,4 +635,10 @@ var _ = Describe("Page", func() {
 			})
 		})
 	})
+
+	Describe("#String", func() {
+		It("should return 'page'", func() {
+			Expect(page.String()).To(Equal("page"))
+		})
+	})
 })

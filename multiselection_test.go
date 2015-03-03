@@ -23,7 +23,7 @@ var _ = Describe("MultiSelection", func() {
 
 	Describe("#At", func() {
 		It("should add an index to the current selection", func() {
-			Expect(selection.At(4).String()).To(Equal("CSS: #selector [4]"))
+			Expect(selection.At(4).String()).To(Equal("selection 'CSS: #selector [4]'"))
 		})
 
 		It("should provide the selectable's session to the element repository", func() {

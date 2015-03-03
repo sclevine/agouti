@@ -1,12 +1,12 @@
-package selection_test
+package matchers_test
 
 import (
-	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/selection"
-
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/matchers"
+	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
 
 var _ = Describe("BeFoundMatcher", func() {
@@ -17,7 +17,7 @@ var _ = Describe("BeFoundMatcher", func() {
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.StringCall.ReturnString = "CSS: #selector"
+		selection.StringCall.ReturnString = "selection 'CSS: #selector'"
 		matcher = &BeFoundMatcher{}
 	})
 
@@ -41,7 +41,7 @@ var _ = Describe("BeFoundMatcher", func() {
 		Context("when the actual object is not a selection", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("BeFound matcher requires a Selection.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("BeFound matcher requires a *Selection.  Got:\n    <string>: not a selection"))
 			})
 		})
 

@@ -18,31 +18,43 @@ var _ = Describe("Page Matchers", func() {
 	})
 
 	Describe("#HaveTitle", func() {
-		It("should return a page.HaveTitle matcher", func() {
+		It("should return a ValueMatcher with the 'Title' method", func() {
 			page.TitleCall.ReturnTitle = "Some Title"
 			Expect(page).To(HaveTitle("Some Title"))
 			Expect(page).NotTo(HaveTitle("Some Other Title"))
 		})
+
+		It("should set the matcher property to 'title'", func() {
+			Expect(HaveTitle("").FailureMessage(nil)).To(ContainSubstring("to have title"))
+		})
 	})
 
 	Describe("#HaveURL", func() {
-		It("should return a page.HaveURL matcher", func() {
+		It("should return a ValueMatcher with the 'URL' method", func() {
 			page.URLCall.ReturnURL = "some/url"
 			Expect(page).To(HaveURL("some/url"))
 			Expect(page).NotTo(HaveURL("some/other/url"))
 		})
+
+		It("should set the matcher property to 'URL'", func() {
+			Expect(HaveURL("").FailureMessage(nil)).To(ContainSubstring("to have URL"))
+		})
 	})
 
 	Describe("#HavePopupText", func() {
-		It("should return a page.HavePopupText matcher", func() {
+		It("should return a ValueMatcher with the 'PopupText' method", func() {
 			page.PopupTextCall.ReturnText = "some text"
 			Expect(page).To(HavePopupText("some text"))
 			Expect(page).NotTo(HavePopupText("some other text"))
 		})
+
+		It("should set the matcher property to 'popup text'", func() {
+			Expect(HavePopupText("").FailureMessage(nil)).To(ContainSubstring("to have popup text"))
+		})
 	})
 
 	Describe("#HaveLoggedError", func() {
-		It("should return a page.HaveLoggedError matcher", func() {
+		It("should return a HaveLoggedError matcher", func() {
 			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "WARNING", time.Time{}}}
 			Expect(page).To(HaveLoggedError("some log"))
 			Expect(page).NotTo(HaveLoggedError("some other log"))
@@ -50,7 +62,7 @@ var _ = Describe("Page Matchers", func() {
 	})
 
 	Describe("#HaveLoggedInfo", func() {
-		It("should return a page.HaveLoggedInfo matcher", func() {
+		It("should return a HaveLoggedInfo matcher", func() {
 			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "INFO", time.Time{}}}
 			Expect(page).To(HaveLoggedInfo("some log"))
 			Expect(page).NotTo(HaveLoggedInfo("some other log"))

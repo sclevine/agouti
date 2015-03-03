@@ -28,7 +28,7 @@ var _ = Describe("Selectable", func() {
 
 	itShouldSelect := func(method func(string) finder, expected string) {
 		It("should apply the appropriate selectors", func() {
-			Expect(method("selector").String()[22:]).To(Equal(expected))
+			Expect(method("selector").String()[33:]).To(Equal(expected + "'"))
 		})
 
 		It("should provide the selectable's session to the element repository", func() {

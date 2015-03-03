@@ -26,7 +26,7 @@ var _ = Describe("Selection", func() {
 	Describe("#String", func() {
 		It("should return a string representation of the selection", func() {
 			selection := NewTestMultiSelection(nil, nil, "#selector")
-			Expect(selection.AllByXPath("#subselector").String()).To(Equal("CSS: #selector | XPath: #subselector"))
+			Expect(selection.AllByXPath("#subselector").String()).To(Equal("selection 'CSS: #selector | XPath: #subselector'"))
 		})
 	})
 
@@ -83,7 +83,7 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				elementRepository.GetCall.Err = errors.New("some error")
 				_, err := selection.Count()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -140,7 +140,7 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				firstElementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := firstSelection.EqualsElement(secondSelection)
-				Expect(err).To(MatchError("failed to select 'CSS: #first_selector [single]': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #first_selector [single]': some error"))
 			})
 		})
 
@@ -148,7 +148,7 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				secondElementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := firstSelection.EqualsElement(secondSelection)
-				Expect(err).To(MatchError("failed to select 'CSS: #second_selector [single]': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #second_selector [single]': some error"))
 			})
 		})
 
@@ -156,7 +156,7 @@ var _ = Describe("Selection", func() {
 			It("should return an error", func() {
 				firstElement.IsEqualToCall.Err = errors.New("some error")
 				_, err := firstSelection.EqualsElement(secondSelection)
-				Expect(err).To(MatchError("failed to compare 'CSS: #first_selector [single]' to 'CSS: #second_selector [single]': some error"))
+				Expect(err).To(MatchError("failed to compare selection 'CSS: #first_selector [single]' to selection 'CSS: #second_selector [single]': some error"))
 			})
 		})
 	})

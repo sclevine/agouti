@@ -37,7 +37,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := selection.Text()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -45,7 +45,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				firstElement.GetTextCall.Err = errors.New("some error")
 				_, err := selection.Text()
-				Expect(err).To(MatchError("failed to retrieve text for 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve text for selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -66,7 +66,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := selection.Active()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -117,7 +117,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := selection.Attribute("some-attribute")
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -130,7 +130,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				firstElement.GetAttributeCall.Err = errors.New("some error")
 				_, err := selection.Attribute("some-attribute")
-				Expect(err).To(MatchError("failed to retrieve attribute value for 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve attribute value for selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -151,7 +151,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				_, err := selection.CSS("some-property")
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -164,7 +164,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				firstElement.GetCSSCall.Err = errors.New("some error")
 				_, err := selection.CSS("some-property")
-				Expect(err).To(MatchError("failed to retrieve CSS property value for 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to retrieve CSS property value for selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -185,7 +185,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
 				_, err := selection.Selected()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -194,7 +194,7 @@ var _ = Describe("Selection Properties", func() {
 				firstElement.IsSelectedCall.ReturnSelected = true
 				secondElement.IsSelectedCall.Err = errors.New("some error")
 				_, err := selection.Selected()
-				Expect(err).To(MatchError("failed to determine whether some 'CSS: #selector' is selected: some error"))
+				Expect(err).To(MatchError("failed to determine whether selection 'CSS: #selector' is selected: some error"))
 			})
 		})
 
@@ -222,7 +222,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
 				_, err := selection.Visible()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -231,7 +231,7 @@ var _ = Describe("Selection Properties", func() {
 				firstElement.IsDisplayedCall.ReturnDisplayed = true
 				secondElement.IsDisplayedCall.Err = errors.New("some error")
 				_, err := selection.Visible()
-				Expect(err).To(MatchError("failed to determine whether some 'CSS: #selector' is visible: some error"))
+				Expect(err).To(MatchError("failed to determine whether selection 'CSS: #selector' is visible: some error"))
 			})
 		})
 
@@ -259,7 +259,7 @@ var _ = Describe("Selection Properties", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
 				_, err := selection.Enabled()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -268,7 +268,7 @@ var _ = Describe("Selection Properties", func() {
 				firstElement.IsEnabledCall.ReturnEnabled = true
 				secondElement.IsEnabledCall.Err = errors.New("some error")
 				_, err := selection.Enabled()
-				Expect(err).To(MatchError("failed to determine whether some 'CSS: #selector' is enabled: some error"))
+				Expect(err).To(MatchError("failed to determine whether selection 'CSS: #selector' is enabled: some error"))
 			})
 		})
 

@@ -1,12 +1,12 @@
-package selection_test
+package matchers_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/matchers"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/selection"
 )
 
 var _ = Describe("BooleanMatcher", func() {
@@ -17,8 +17,8 @@ var _ = Describe("BooleanMatcher", func() {
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &BooleanMatcher{Method: "Visible", State: "visible"}
+		selection.StringCall.ReturnString = "selection 'CSS: #selector'"
+		matcher = &BooleanMatcher{Method: "Visible", Property: "visible"}
 	})
 
 	Describe("#Match", func() {
@@ -49,13 +49,13 @@ var _ = Describe("BooleanMatcher", func() {
 		Context("when the actual object does not have the corresponding method", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("missing method")
-				Expect(err).To(MatchError("Matcher requires a *Selection.  Got:\n    <string>: missing method"))
+				Expect(err).To(MatchError("BeVisible matcher requires a *Selection.  Got:\n    <string>: missing method"))
 			})
 		})
 	})
 
 	Describe("#FailureMessage", func() {
-		It("should return a failure message with the provided state", func() {
+		It("should return a failure message with the provided property name", func() {
 			selection.VisibleCall.ReturnVisible = false
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -64,7 +64,7 @@ var _ = Describe("BooleanMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("should return a negated failure message with the provided state", func() {
+		It("should return a negated failure message with the provided property name", func() {
 			selection.VisibleCall.ReturnVisible = true
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

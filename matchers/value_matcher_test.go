@@ -1,24 +1,24 @@
-package selection_test
+package matchers_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/matchers"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/selection"
 )
 
-var _ = Describe("HaveTextMatcher", func() {
+var _ = Describe("ValueMatcher", func() {
 	var (
-		matcher   *HaveTextMatcher
+		matcher   *ValueMatcher
 		selection *mocks.Selection
 	)
 
 	BeforeEach(func() {
 		selection = &mocks.Selection{}
-		selection.StringCall.ReturnString = "CSS: #selector"
-		matcher = &HaveTextMatcher{ExpectedText: "some text"}
+		selection.StringCall.ReturnString = "selection 'CSS: #selector'"
+		matcher = &ValueMatcher{Method: "Text", Property: "text", Expected: "some text"}
 	})
 
 	Describe("#Match", func() {
@@ -49,13 +49,13 @@ var _ = Describe("HaveTextMatcher", func() {
 		Context("when the actual object is not a selection", func() {
 			It("should return an error", func() {
 				_, err := matcher.Match("not a selection")
-				Expect(err).To(MatchError("HaveText matcher requires a Selection.  Got:\n    <string>: not a selection"))
+				Expect(err).To(MatchError("HaveText matcher requires a *Selection.  Got:\n    <string>: not a selection"))
 			})
 		})
 	})
 
 	Describe("#FailureMessage", func() {
-		It("should return a failure message", func() {
+		It("should return a failure message with the provided property name", func() {
 			selection.TextCall.ReturnText = "some other text"
 			matcher.Match(selection)
 			message := matcher.FailureMessage(selection)
@@ -65,7 +65,7 @@ var _ = Describe("HaveTextMatcher", func() {
 	})
 
 	Describe("#NegatedFailureMessage", func() {
-		It("should return a negated failure message", func() {
+		It("should return a negated failure message with the provided property name", func() {
 			selection.TextCall.ReturnText = "some text"
 			matcher.Match(selection)
 			message := matcher.NegatedFailureMessage(selection)

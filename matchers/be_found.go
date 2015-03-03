@@ -1,4 +1,4 @@
-package selection
+package matchers
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
 	})
 
 	if !ok {
-		return false, fmt.Errorf("BeFound matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
+		return false, fmt.Errorf("BeFound matcher requires a *Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
 	count, err := actualSelection.Count()
@@ -34,9 +34,9 @@ func (m *BeFoundMatcher) Match(actual interface{}) (success bool, err error) {
 }
 
 func (m *BeFoundMatcher) FailureMessage(actual interface{}) (message string) {
-	return booleanSelectorMessage(actual, "to be found")
+	return booleanMessage(actual, "to be found")
 }
 
 func (m *BeFoundMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return booleanSelectorMessage(actual, "not to be found")
+	return booleanMessage(actual, "not to be found")
 }

@@ -1,4 +1,4 @@
-package selection
+package matchers
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ func (m *HaveCSSMatcher) Match(actual interface{}) (success bool, err error) {
 	})
 
 	if !ok {
-		return false, fmt.Errorf("HaveCSS matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
+		return false, fmt.Errorf("HaveCSS matcher requires a *Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
 	m.actualValue, err = actualSelection.CSS(m.ExpectedProperty)
@@ -56,7 +56,7 @@ func (m *HaveCSSMatcher) FailureMessage(actual interface{}) (message string) {
 	} else {
 		expectedValue, actualValue = m.style(m.ExpectedValue), m.style(m.actualValue)
 	}
-	return selectorMessage(actual, "to have CSS matching", expectedValue, actualValue)
+	return valueMessage(actual, "to have CSS matching", expectedValue, actualValue)
 }
 
 func (m *HaveCSSMatcher) NegatedFailureMessage(actual interface{}) (message string) {
@@ -66,7 +66,7 @@ func (m *HaveCSSMatcher) NegatedFailureMessage(actual interface{}) (message stri
 	} else {
 		expectedValue, actualValue = m.style(m.ExpectedValue), m.style(m.actualValue)
 	}
-	return selectorMessage(actual, "not to have CSS matching", expectedValue, actualValue)
+	return valueMessage(actual, "not to have CSS matching", expectedValue, actualValue)
 }
 
 func (m *HaveCSSMatcher) style(value string) string {

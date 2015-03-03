@@ -14,7 +14,7 @@ type actionsFunc func(element.Element) error
 func (s *Selection) forEachElement(actions actionsFunc) error {
 	elements, err := s.elements.GetAtLeastOne(s.selectors)
 	if err != nil {
-		return fmt.Errorf("failed to select '%s': %s", s, err)
+		return fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}
 
 	for _, element := range elements {
@@ -29,7 +29,7 @@ func (s *Selection) forEachElement(actions actionsFunc) error {
 func (s *Selection) Click() error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		if err := selectedElement.Click(); err != nil {
-			return fmt.Errorf("failed to click on '%s': %s", s, err)
+			return fmt.Errorf("failed to click on %s: %s", s, err)
 		}
 		return nil
 	})
@@ -39,10 +39,10 @@ func (s *Selection) Click() error {
 func (s *Selection) DoubleClick() error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		if err := s.session.MoveTo(selectedElement.(*api.Element), nil); err != nil {
-			return fmt.Errorf("failed to move mouse to '%s': %s", s, err)
+			return fmt.Errorf("failed to move mouse to %s: %s", s, err)
 		}
 		if err := s.session.DoubleClick(); err != nil {
-			return fmt.Errorf("failed to double-click on '%s': %s", s, err)
+			return fmt.Errorf("failed to double-click on %s: %s", s, err)
 		}
 		return nil
 	})
@@ -52,10 +52,10 @@ func (s *Selection) DoubleClick() error {
 func (s *Selection) Fill(text string) error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		if err := selectedElement.Clear(); err != nil {
-			return fmt.Errorf("failed to clear '%s': %s", s, err)
+			return fmt.Errorf("failed to clear %s: %s", s, err)
 		}
 		if err := selectedElement.Value(text); err != nil {
-			return fmt.Errorf("failed to enter text into '%s': %s", s, err)
+			return fmt.Errorf("failed to enter text into %s: %s", s, err)
 		}
 		return nil
 	})
@@ -72,20 +72,20 @@ func (s *Selection) UploadFile(filename string) error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		tagName, err := selectedElement.GetName()
 		if err != nil {
-			return fmt.Errorf("failed to determine tag name of '%s': %s", s, err)
+			return fmt.Errorf("failed to determine tag name of %s: %s", s, err)
 		}
 		if tagName != "input" {
 			return fmt.Errorf("element for %s is not an input element", s)
 		}
 		inputType, err := selectedElement.GetAttribute("type")
 		if err != nil {
-			return fmt.Errorf("failed to determine type of '%s': %s", s, err)
+			return fmt.Errorf("failed to determine type attribute of %s: %s", s, err)
 		}
 		if inputType != "file" {
 			return fmt.Errorf("element for %s is not a file uploader", s)
 		}
 		if err := selectedElement.Value(absFilePath); err != nil {
-			return fmt.Errorf("failed to enter text into '%s': %s", s, err)
+			return fmt.Errorf("failed to enter text into %s: %s", s, err)
 		}
 		return nil
 	})
@@ -105,21 +105,21 @@ func (s *Selection) setChecked(checked bool) error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		elementType, err := selectedElement.GetAttribute("type")
 		if err != nil {
-			return fmt.Errorf("failed to retrieve type of '%s': %s", s, err)
+			return fmt.Errorf("failed to retrieve type attribute of %s: %s", s, err)
 		}
 
 		if elementType != "checkbox" {
-			return fmt.Errorf("'%s' does not refer to a checkbox", s)
+			return fmt.Errorf("%s does not refer to a checkbox", s)
 		}
 
 		elementChecked, err := selectedElement.IsSelected()
 		if err != nil {
-			return fmt.Errorf("failed to retrieve state of '%s': %s", s, err)
+			return fmt.Errorf("failed to retrieve state of %s: %s", s, err)
 		}
 
 		if elementChecked != checked {
 			if err := selectedElement.Click(); err != nil {
-				return fmt.Errorf("failed to click on '%s': %s", s, err)
+				return fmt.Errorf("failed to click on %s: %s", s, err)
 			}
 		}
 		return nil
@@ -134,16 +134,16 @@ func (s *Selection) Select(text string) error {
 		optionToSelect := target.Selector{Type: target.XPath, Value: optionXPath}
 		options, err := selectedElement.GetElements(optionToSelect.API())
 		if err != nil {
-			return fmt.Errorf("failed to select specified option for some '%s': %s", s, err)
+			return fmt.Errorf("failed to select specified option for %s: %s", s, err)
 		}
 
 		if len(options) == 0 {
-			return fmt.Errorf(`no options with text "%s" found for some '%s'`, text, s)
+			return fmt.Errorf(`no options with text "%s" found for %s`, text, s)
 		}
 
 		for _, option := range options {
 			if err := option.Click(); err != nil {
-				return fmt.Errorf(`failed to click on option with text "%s" for some '%s': %s`, text, s, err)
+				return fmt.Errorf(`failed to click on option with text "%s" for %s: %s`, text, s, err)
 			}
 		}
 		return nil
@@ -155,7 +155,7 @@ func (s *Selection) Select(text string) error {
 func (s *Selection) Submit() error {
 	return s.forEachElement(func(selectedElement element.Element) error {
 		if err := selectedElement.Submit(); err != nil {
-			return fmt.Errorf("failed to submit '%s': %s", s, err)
+			return fmt.Errorf("failed to submit %s: %s", s, err)
 		}
 		return nil
 	})

@@ -12,11 +12,11 @@ import (
 func (s *Selection) SwitchToFrame() error {
 	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
 	if err != nil {
-		return fmt.Errorf("failed to select '%s': %s", s, err)
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
 	if err := s.session.Frame(selectedElement.(*api.Element)); err != nil {
-		return fmt.Errorf("failed to switch to frame '%s': %s", s, err)
+		return fmt.Errorf("failed to switch to frame referred to by %s: %s", s, err)
 	}
 	return nil
 }

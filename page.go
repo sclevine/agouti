@@ -453,6 +453,10 @@ func (p *Page) ReadAllLogs(logType string) ([]Log, error) {
 	return append([]Log(nil), p.logs[logType]...), nil
 }
 
+func (p *Page) String() string {
+	return "page"
+}
+
 func msToTime(ms int64) time.Time {
 	seconds := ms / 1000
 	nanoseconds := (ms % 1000) * 1000000

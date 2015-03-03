@@ -40,7 +40,7 @@ var _ = Describe("Selection Frames", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				err := selection.SwitchToFrame()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector [single]': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector [single]': some error"))
 			})
 		})
 
@@ -48,7 +48,7 @@ var _ = Describe("Selection Frames", func() {
 			It("should return an error", func() {
 				session.FrameCall.Err = errors.New("some error")
 				err := selection.SwitchToFrame()
-				Expect(err).To(MatchError("failed to switch to frame 'CSS: #selector [single]': some error"))
+				Expect(err).To(MatchError("failed to switch to frame referred to by selection 'CSS: #selector [single]': some error"))
 			})
 		})
 	})

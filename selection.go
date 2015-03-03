@@ -39,7 +39,7 @@ func newSelection(session selectionSession, selectors target.Selectors) *Selecti
 // String returns a string representation of the selection, ex.
 //    CSS: .some-class | XPath: //table [3] | Link "click me" [single]
 func (s *Selection) String() string {
-	return s.selectors.String()
+	return fmt.Sprintf("selection '%s'", s.selectors)
 }
 
 // Elements returns a []*api.Element that can be used to send direct commands
@@ -60,7 +60,7 @@ func (s *Selection) Elements() ([]*api.Element, error) {
 func (s *Selection) Count() (int, error) {
 	elements, err := s.elements.Get(s.selectors)
 	if err != nil {
-		return 0, fmt.Errorf("failed to select '%s': %s", s, err)
+		return 0, fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}
 
 	return len(elements), nil
@@ -82,17 +82,17 @@ func (s *Selection) EqualsElement(other interface{}) (bool, error) {
 
 	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
 	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", s, err)
+		return false, fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
 	otherElement, err := otherSelection.elements.GetExactlyOne(s.selectors)
 	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", other, err)
+		return false, fmt.Errorf("failed to select element from %s: %s", other, err)
 	}
 
 	equal, err := selectedElement.IsEqualTo(otherElement.(*api.Element))
 	if err != nil {
-		return false, fmt.Errorf("failed to compare '%s' to '%s': %s", s, other, err)
+		return false, fmt.Errorf("failed to compare %s to %s: %s", s, other, err)
 	}
 
 	return equal, nil

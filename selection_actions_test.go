@@ -40,14 +40,14 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.Click()).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.Click()).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when any click fails", func() {
 			It("should return an error", func() {
 				secondElement.ClickCall.Err = errors.New("some error")
-				Expect(selection.Click()).To(MatchError("failed to click on 'CSS: #selector': some error"))
+				Expect(selection.Click()).To(MatchError("failed to click on selection 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -70,14 +70,14 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.DoubleClick()).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.DoubleClick()).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when moving over any element fails", func() {
 			It("should retun an error", func() {
 				session.MoveToCall.Err = errors.New("some error")
-				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to 'CSS: #selector': some error"))
+				Expect(selection.DoubleClick()).To(MatchError("failed to move mouse to selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -89,7 +89,7 @@ var _ = Describe("Selection Actions", func() {
 		Context("when the double-clicking any element fails", func() {
 			It("should return an error", func() {
 				session.DoubleClickCall.Err = errors.New("some error")
-				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on 'CSS: #selector': some error"))
+				Expect(selection.DoubleClick()).To(MatchError("failed to double-click on selection 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -104,14 +104,14 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.Fill("some text")).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.Fill("some text")).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when clearing any element fails", func() {
 			It("should return an error", func() {
 				secondElement.ClearCall.Err = errors.New("some error")
-				Expect(selection.Fill("some text")).To(MatchError("failed to clear 'CSS: #selector': some error"))
+				Expect(selection.Fill("some text")).To(MatchError("failed to clear selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -124,7 +124,7 @@ var _ = Describe("Selection Actions", func() {
 		Context("when entering text into any element fails", func() {
 			It("should return an error", func() {
 				secondElement.ValueCall.Err = errors.New("some error")
-				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
+				Expect(selection.Fill("some text")).To(MatchError("failed to enter text into selection 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -140,7 +140,7 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -164,7 +164,7 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				secondElement.GetNameCall.ReturnName = "notinput"
 				err := selection.UploadFile("some-file")
-				Expect(err).To(MatchError("element for CSS: #selector is not an input element"))
+				Expect(err).To(MatchError("element for selection 'CSS: #selector' is not an input element"))
 			})
 		})
 
@@ -172,7 +172,7 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				secondElement.GetNameCall.Err = errors.New("some error")
 				err := selection.UploadFile("some-file")
-				Expect(err).To(MatchError("failed to determine tag name of 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to determine tag name of selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -180,7 +180,7 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				secondElement.GetAttributeCall.ReturnValue = "notfile"
 				err := selection.UploadFile("some-file")
-				Expect(err).To(MatchError("element for CSS: #selector is not a file uploader"))
+				Expect(err).To(MatchError("element for selection 'CSS: #selector' is not a file uploader"))
 			})
 		})
 
@@ -188,14 +188,14 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				secondElement.GetAttributeCall.Err = errors.New("some error")
 				err := selection.UploadFile("some-file")
-				Expect(err).To(MatchError("failed to determine type of 'CSS: #selector': some error"))
+				Expect(err).To(MatchError("failed to determine type attribute of selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when entering text into any element fails", func() {
 			It("should return an error", func() {
 				secondElement.ValueCall.Err = errors.New("some error")
-				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to enter text into 'CSS: #selector': some error"))
+				Expect(selection.UploadFile("/some/file")).To(MatchError("failed to enter text into selection 'CSS: #selector': some error"))
 			})
 		})
 	})
@@ -212,7 +212,7 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.Check()).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.Check()).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -220,7 +220,7 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				firstElement.GetAttributeCall.ReturnValue = "checkbox"
 				secondElement.GetAttributeCall.Err = errors.New("some error")
-				Expect(selection.Check()).To(MatchError("failed to retrieve type of 'CSS: #selector': some error"))
+				Expect(selection.Check()).To(MatchError("failed to retrieve type attribute of selection 'CSS: #selector': some error"))
 			})
 		})
 
@@ -228,7 +228,7 @@ var _ = Describe("Selection Actions", func() {
 			It("should return an error", func() {
 				firstElement.GetAttributeCall.ReturnValue = "checkbox"
 				secondElement.GetAttributeCall.ReturnValue = "banana"
-				Expect(selection.Check()).To(MatchError("'CSS: #selector' does not refer to a checkbox"))
+				Expect(selection.Check()).To(MatchError("selection 'CSS: #selector' does not refer to a checkbox"))
 			})
 		})
 
@@ -253,14 +253,14 @@ var _ = Describe("Selection Actions", func() {
 			Context("when the determining the selected status of any element fails", func() {
 				It("should return an error", func() {
 					secondElement.IsSelectedCall.Err = errors.New("some error")
-					Expect(selection.Check()).To(MatchError("failed to retrieve state of 'CSS: #selector': some error"))
+					Expect(selection.Check()).To(MatchError("failed to retrieve state of selection 'CSS: #selector': some error"))
 				})
 			})
 
 			Context("when clicking on the checkbox fails", func() {
 				It("should return an error", func() {
 					secondElement.ClickCall.Err = errors.New("some error")
-					Expect(selection.Check()).To(MatchError("failed to click on 'CSS: #selector': some error"))
+					Expect(selection.Check()).To(MatchError("failed to click on selection 'CSS: #selector': some error"))
 				})
 			})
 		})
@@ -311,21 +311,21 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.Select("some text")).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.Select("some text")).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when we fail to retrieve any option", func() {
 			It("should return an error", func() {
 				secondElement.GetElementsCall.Err = errors.New("some error")
-				Expect(selection.Select("some text")).To(MatchError("failed to select specified option for some 'CSS: #selector': some error"))
+				Expect(selection.Select("some text")).To(MatchError("failed to select specified option for selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when any of the elements has no options with matching text", func() {
 			It("should return an error", func() {
 				secondElement.GetElementsCall.ReturnElements = []*api.Element{}
-				Expect(selection.Select("some text")).To(MatchError(`no options with text "some text" found for some 'CSS: #selector'`))
+				Expect(selection.Select("some text")).To(MatchError(`no options with text "some text" found for selection 'CSS: #selector'`))
 			})
 		})
 
@@ -340,7 +340,7 @@ var _ = Describe("Selection Actions", func() {
 		Context("when the click fails for any of the options", func() {
 			It("should return an error", func() {
 				secondOptionBuses[1].SendCall.Err = errors.New("some error")
-				Expect(selection.Select("some text")).To(MatchError(`failed to click on option with text "some text" for some 'CSS: #selector': some error`))
+				Expect(selection.Select("some text")).To(MatchError(`failed to click on option with text "some text" for selection 'CSS: #selector': some error`))
 			})
 		})
 	})
@@ -355,14 +355,14 @@ var _ = Describe("Selection Actions", func() {
 		Context("when zero elements are returned", func() {
 			It("should return an error", func() {
 				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
-				Expect(selection.Submit()).To(MatchError("failed to select 'CSS: #selector': some error"))
+				Expect(selection.Submit()).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
 			})
 		})
 
 		Context("when any submit fails", func() {
 			It("should return an error", func() {
 				secondElement.SubmitCall.Err = errors.New("some error")
-				Expect(selection.Submit()).To(MatchError("failed to submit 'CSS: #selector': some error"))
+				Expect(selection.Submit()).To(MatchError("failed to submit selection 'CSS: #selector': some error"))
 			})
 		})
 	})

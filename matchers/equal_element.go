@@ -1,4 +1,4 @@
-package selection
+package matchers
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func (m *EqualElementMatcher) Match(actual interface{}) (success bool, err error
 	})
 
 	if !ok {
-		return false, fmt.Errorf("EqualElement matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
+		return false, fmt.Errorf("EqualElement matcher requires a *Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
 	same, err := actualSelection.EqualsElement(m.ExpectedSelection)
@@ -28,9 +28,9 @@ func (m *EqualElementMatcher) Match(actual interface{}) (success bool, err error
 }
 
 func (m *EqualElementMatcher) FailureMessage(actual interface{}) (message string) {
-	return binarySelectorMessage(actual, "to equal element", m.ExpectedSelection)
+	return equalityMessage(actual, "to equal element of", m.ExpectedSelection)
 }
 
 func (m *EqualElementMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return binarySelectorMessage(actual, "not to equal element", m.ExpectedSelection)
+	return equalityMessage(actual, "not to equal element of", m.ExpectedSelection)
 }

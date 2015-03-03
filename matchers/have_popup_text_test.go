@@ -1,12 +1,12 @@
-package page_test
+package matchers_test
 
 import (
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/matchers"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
-	. "github.com/sclevine/agouti/matchers/internal/page"
 )
 
 var _ = Describe("HavePopupTextMatcher", func() {

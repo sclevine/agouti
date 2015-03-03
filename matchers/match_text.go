@@ -1,4 +1,4 @@
-package selection
+package matchers
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func (m *MatchTextMatcher) Match(actual interface{}) (success bool, err error) {
 	})
 
 	if !ok {
-		return false, fmt.Errorf("MatchText matcher requires a Selection.  Got:\n%s", format.Object(actual, 1))
+		return false, fmt.Errorf("MatchText matcher requires a *Selection.  Got:\n%s", format.Object(actual, 1))
 	}
 
 	m.actualText, err = actualSelection.Text()
@@ -30,9 +30,9 @@ func (m *MatchTextMatcher) Match(actual interface{}) (success bool, err error) {
 }
 
 func (m *MatchTextMatcher) FailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "to have text matching", m.Regexp, m.actualText)
+	return valueMessage(actual, "to have text matching", m.Regexp, m.actualText)
 }
 
 func (m *MatchTextMatcher) NegatedFailureMessage(actual interface{}) (message string) {
-	return selectorMessage(actual, "not to have text matching", m.Regexp, m.actualText)
+	return valueMessage(actual, "not to have text matching", m.Regexp, m.actualText)
 }
