@@ -23,13 +23,13 @@ var _ = Describe("Element", func() {
 		element = &Element{"some-id", session}
 	})
 
-	ItShouldMakeAnElementRequest := func(method, endpoint string, body ...string) {
-		It("should make a "+method+" request", func() {
-			Expect(bus.SendCall.Method).To(Equal(method))
-		})
-
+	ItShouldMakeAnElementRequest := func(endpoint, method string, body ...string) {
 		It("should hit the desired endpoint", func() {
 			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/" + endpoint))
+		})
+
+		It("should make a "+method+" request", func() {
+			Expect(bus.SendCall.Method).To(Equal(method))
 		})
 
 		It("should not return an error", func() {
@@ -43,6 +43,29 @@ var _ = Describe("Element", func() {
 		}
 	}
 
+	Describe("#Send", func() {
+		var result string
+
+		BeforeEach(func() {
+			bus.SendCall.Result = `"some result"`
+			err = element.Send("endpoint", "method", "body", &result)
+		})
+
+		ItShouldMakeAnElementRequest("endpoint", "method", `"body"`)
+
+		It("should retrieve the result", func() {
+			Expect(result).To(Equal("some result"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				err := element.Send("endpoint", "method", "body", &result)
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#GetElement", func() {
 		var singleElement *Element
 
@@ -51,7 +74,7 @@ var _ = Describe("Element", func() {
 			singleElement, err = element.GetElement(Selector{"css selector", "#selector"})
 		})
 
-		ItShouldMakeAnElementRequest("POST", "element", `{"using": "css selector", "value": "#selector"}`)
+		ItShouldMakeAnElementRequest("element", "POST", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return an element with an ID and session", func() {
 			Expect(singleElement.ID).To(Equal("some-id"))
@@ -75,7 +98,7 @@ var _ = Describe("Element", func() {
 			elements, err = element.GetElements(Selector{"css selector", "#selector"})
 		})
 
-		ItShouldMakeAnElementRequest("POST", "elements", `{"using": "css selector", "value": "#selector"}`)
+		ItShouldMakeAnElementRequest("elements", "POST", `{"using": "css selector", "value": "#selector"}`)
 
 		It("should return a slice of elements with IDs and sessions", func() {
 			Expect(elements[0].ID).To(Equal("some-id"))
@@ -101,7 +124,7 @@ var _ = Describe("Element", func() {
 			text, err = element.GetText()
 		})
 
-		ItShouldMakeAnElementRequest("GET", "text")
+		ItShouldMakeAnElementRequest("text", "GET")
 
 		It("should return the visible text on the element", func() {
 			Expect(text).To(Equal("some text"))
@@ -124,7 +147,7 @@ var _ = Describe("Element", func() {
 			text, err = element.GetName()
 		})
 
-		ItShouldMakeAnElementRequest("GET", "name")
+		ItShouldMakeAnElementRequest("name", "GET")
 
 		It("should return the tag name of the element", func() {
 			Expect(text).To(Equal("some-name"))
@@ -147,7 +170,7 @@ var _ = Describe("Element", func() {
 			value, err = element.GetAttribute("some-name")
 		})
 
-		ItShouldMakeAnElementRequest("GET", "attribute/some-name")
+		ItShouldMakeAnElementRequest("attribute/some-name", "GET")
 
 		It("should return the value of the attribute", func() {
 			Expect(value).To(Equal("some value"))
@@ -170,7 +193,7 @@ var _ = Describe("Element", func() {
 			value, err = element.GetCSS("some-property")
 		})
 
-		ItShouldMakeAnElementRequest("GET", "css/some-property")
+		ItShouldMakeAnElementRequest("css/some-property", "GET")
 
 		It("should return the value of the CSS property", func() {
 			Expect(value).To(Equal("some value"))
@@ -190,7 +213,7 @@ var _ = Describe("Element", func() {
 			err = element.Click()
 		})
 
-		ItShouldMakeAnElementRequest("POST", "click")
+		ItShouldMakeAnElementRequest("click", "POST")
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
@@ -205,7 +228,7 @@ var _ = Describe("Element", func() {
 			err = element.Clear()
 		})
 
-		ItShouldMakeAnElementRequest("POST", "clear")
+		ItShouldMakeAnElementRequest("clear", "POST")
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
@@ -220,7 +243,7 @@ var _ = Describe("Element", func() {
 			err = element.Value("text")
 		})
 
-		ItShouldMakeAnElementRequest("POST", "value", `{"value": ["t", "e", "x", "t"]}`)
+		ItShouldMakeAnElementRequest("value", "POST", `{"value": ["t", "e", "x", "t"]}`)
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
@@ -238,7 +261,7 @@ var _ = Describe("Element", func() {
 			value, err = element.IsSelected()
 		})
 
-		ItShouldMakeAnElementRequest("GET", "selected")
+		ItShouldMakeAnElementRequest("selected", "GET")
 
 		It("should return the selected status", func() {
 			Expect(value).To(BeTrue())
@@ -261,7 +284,7 @@ var _ = Describe("Element", func() {
 			value, err = element.IsDisplayed()
 		})
 
-		ItShouldMakeAnElementRequest("GET", "displayed")
+		ItShouldMakeAnElementRequest("displayed", "GET")
 
 		It("should return the displayed status", func() {
 			Expect(value).To(BeTrue())
@@ -284,7 +307,7 @@ var _ = Describe("Element", func() {
 			value, err = element.IsEnabled()
 		})
 
-		ItShouldMakeAnElementRequest("GET", "enabled")
+		ItShouldMakeAnElementRequest("enabled", "GET")
 
 		It("should return the enabled status", func() {
 			Expect(value).To(BeTrue())
@@ -304,7 +327,7 @@ var _ = Describe("Element", func() {
 			err = element.Submit()
 		})
 
-		ItShouldMakeAnElementRequest("POST", "submit")
+		ItShouldMakeAnElementRequest("submit", "POST")
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {
@@ -326,7 +349,7 @@ var _ = Describe("Element", func() {
 			equal, err = element.IsEqualTo(otherElement)
 		})
 
-		ItShouldMakeAnElementRequest("GET", "equals/other-id")
+		ItShouldMakeAnElementRequest("equals/other-id", "GET")
 
 		It("should return whether the elements are equal", func() {
 			Expect(equal).To(BeTrue())

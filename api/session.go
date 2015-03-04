@@ -2,9 +2,8 @@ package api
 
 import (
 	"encoding/base64"
-	"path"
-
 	"errors"
+
 	"github.com/sclevine/agouti/api/internal/bus"
 )
 
@@ -294,12 +293,4 @@ func (s *Session) GetLogTypes() ([]string, error) {
 		return nil, err
 	}
 	return types, nil
-}
-
-func (s *Session) sendElement(id, endpoint, method string, body, result interface{}) error {
-	return s.Send(path.Join("element", id, endpoint), method, body, result)
-}
-
-func (s *Session) sendWindow(id, endpoint, method string, body interface{}, result interface{}) error {
-	return s.Send(path.Join("window", id, endpoint), method, body, result)
 }
