@@ -17,6 +17,7 @@ const (
 	A11yID     Type = "Accessibility ID: %s"
 	AndroidAut Type = "Android UIAut.: %s"
 	IOSAut     Type = "iOS UIAut.: %s"
+	Class      Type = "Class: %s"
 
 	labelXPath  = `//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%[1]s"]/input`
 	buttonXPath = `//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%[1]s"]`
@@ -53,6 +54,8 @@ func (s Selector) apiType() string {
 	switch s.Type {
 	case CSS:
 		return "css selector"
+	case Class:
+		return "class name"
 	case Link:
 		return "link text"
 	case A11yID:
