@@ -66,18 +66,38 @@ var _ = Describe("Page Matchers", func() {
 	})
 
 	Describe("#HaveLoggedError", func() {
-		It("should return a HaveLoggedError matcher", func() {
-			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "WARNING", time.Time{}}}
+		It("should return a LogMatcher matcher for SEVERE and WARNING browser logs", func() {
+			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
+				agouti.Log{"some log", "", "SEVERE", time.Time{}},
+				agouti.Log{"some other log", "", "WARNING", time.Time{}},
+				agouti.Log{"another log", "", "INFO", time.Time{}},
+			}
 			Expect(page).To(HaveLoggedError("some log"))
-			Expect(page).NotTo(HaveLoggedError("some other log"))
+			Expect(page).To(HaveLoggedError("some other log"))
+			Expect(page).NotTo(HaveLoggedError("another log"))
+			Expect(page.ReadAllLogsCall.LogType).To(Equal("browser"))
+		})
+
+		It("should set the log name to 'error'", func() {
+			Expect(HaveLoggedError().FailureMessage(nil)).To(ContainSubstring("to have logged error"))
 		})
 	})
 
 	Describe("#HaveLoggedInfo", func() {
-		It("should return a HaveLoggedInfo matcher", func() {
-			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{agouti.Log{"some log", "", "INFO", time.Time{}}}
-			Expect(page).To(HaveLoggedInfo("some log"))
+		It("should return a LogMatcher matcher for INFO browser logs", func() {
+			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
+				agouti.Log{"some log", "", "SEVERE", time.Time{}},
+				agouti.Log{"some other log", "", "WARNING", time.Time{}},
+				agouti.Log{"another log", "", "INFO", time.Time{}},
+			}
+			Expect(page).NotTo(HaveLoggedInfo("some log"))
 			Expect(page).NotTo(HaveLoggedInfo("some other log"))
+			Expect(page).To(HaveLoggedInfo("another log"))
+			Expect(page.ReadAllLogsCall.LogType).To(Equal("browser"))
+		})
+
+		It("should set the log name to 'info'", func() {
+			Expect(HaveLoggedInfo().FailureMessage(nil)).To(ContainSubstring("to have logged info"))
 		})
 	})
 })
