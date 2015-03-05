@@ -1,4 +1,4 @@
-package matchers
+package internal
 
 import (
 	"errors"

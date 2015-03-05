@@ -1,10 +1,10 @@
-package matchers_test
+package internal_test
 
 import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/matchers"
+	. "github.com/sclevine/agouti/matchers/internal"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
 

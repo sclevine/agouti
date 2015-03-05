@@ -1,29 +1,32 @@
 package matchers
 
-import "github.com/onsi/gomega/types"
+import (
+	"github.com/onsi/gomega/types"
+	"github.com/sclevine/agouti/matchers/internal"
+)
 
 // HaveTitle passes when the expected title is equivalent to the
 // title of the provided page.
 func HaveTitle(title string) types.GomegaMatcher {
-	return &ValueMatcher{Method: "Title", Property: "title", Expected: title}
+	return &internal.ValueMatcher{Method: "Title", Property: "title", Expected: title}
 }
 
 // HaveURL passes when the expected URL is equivalent to the
 // current URL of the provided page.
 func HaveURL(URL string) types.GomegaMatcher {
-	return &ValueMatcher{Method: "URL", Property: "URL", Expected: URL}
+	return &internal.ValueMatcher{Method: "URL", Property: "URL", Expected: URL}
 }
 
 // HavePopupText passes when the expected text is equivalent to the
 // text contents of an open alert, confirm, or prompt popup.
 func HavePopupText(text string) types.GomegaMatcher {
-	return &ValueMatcher{Method: "PopupText", Property: "popup text", Expected: text}
+	return &internal.ValueMatcher{Method: "PopupText", Property: "popup text", Expected: text}
 }
 
 // HaveWindowCount passes when the expected window count is equivalent
 // to the number of open windows.
 func HaveWindowCount(count int) types.GomegaMatcher {
-	return &ValueMatcher{Method: "WindowCount", Property: "window count", Expected: count}
+	return &internal.ValueMatcher{Method: "WindowCount", Property: "window count", Expected: count}
 }
 
 // HaveLoggedError passes when the expected log message is logged as
@@ -33,7 +36,7 @@ func HaveLoggedError(messageOrEmpty ...string) types.GomegaMatcher {
 	if len(messageOrEmpty) > 0 {
 		message = messageOrEmpty[0]
 	}
-	return &HaveLoggedErrorMatcher{ExpectedMessage: message}
+	return &internal.HaveLoggedErrorMatcher{ExpectedMessage: message}
 }
 
 // HaveLoggedInfo passes when the expected log message is logged as
@@ -43,5 +46,5 @@ func HaveLoggedInfo(messageOrEmpty ...string) types.GomegaMatcher {
 	if len(messageOrEmpty) > 0 {
 		message = messageOrEmpty[0]
 	}
-	return &HaveLoggedInfoMatcher{ExpectedMessage: message}
+	return &internal.HaveLoggedInfoMatcher{ExpectedMessage: message}
 }
