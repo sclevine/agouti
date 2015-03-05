@@ -32,7 +32,7 @@ type elementRepository interface {
 	GetExactlyOne(selectors target.Selectors) (element.Element, error)
 }
 
-func newSelection(session selectionSession, selectors target.Selectors) *Selection {
+func NewSelection(session selectionSession, selectors target.Selectors) *Selection {
 	return &Selection{&element.Repository{Client: session}, selectable{session, selectors}}
 }
 
