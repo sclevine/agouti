@@ -3,7 +3,7 @@ package mobile
 import "github.com/sclevine/agouti/api"
 
 type Element struct {
-	api.Element
+	*api.Element
 	Session *Session
 }
 
@@ -16,7 +16,7 @@ func (e *Element) SetThing() (string, error) {
 }
 
 // override methods like this and return mobile.Element!
-func (e *Element) GetElement(selector Selector) (*Element, error) {
+func (e *Element) GetElement(selector api.Selector) (*Element, error) {
 	apiElement, err := e.Element.GetElement(selector)
 	if err != nil {
 		return nil, err
