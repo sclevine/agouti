@@ -42,3 +42,6 @@ func (s *Service) WaitForBoot(timeout time.Duration) error {
 	s.WaitForBootCall.Timeout = timeout
 	return s.WaitForBootCall.Err
 }
+
+func (s *Service) Debug(state bool) {
+}
