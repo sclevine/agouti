@@ -7,11 +7,14 @@ import (
 )
 
 const (
-	CSS    = "CSS: %s"
-	XPath  = "XPath: %s"
-	Link   = `Link: "%s"`
-	Label  = `Label: "%s"`
-	Button = `Button: "%s"`
+	CSS        = "CSS: %s"
+	XPath      = "XPath: %s"
+	Link       = `Link: "%s"`
+	Label      = `Label: "%s"`
+	Button     = `Button: "%s"`
+	A11yID     = "Accessibility ID: %s"
+	AndroidAut = "Android UIAut.: %s"
+	IOSAut     = "iOS UIAut.: %s"
 
 	labelXPath  = `//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%[1]s"]/input`
 	buttonXPath = `//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%[1]s"]`
@@ -46,6 +49,12 @@ func (s Selector) apiType() string {
 		return "css selector"
 	case Link:
 		return "link text"
+	case A11yID:
+		return "accessibility id"
+	case AndroidAut:
+		return "-android uiautomator"
+	case IOSAut:
+		return "-ios uiautomation"
 	}
 	return "xpath"
 }
