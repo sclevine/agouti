@@ -18,12 +18,12 @@ type MultiSelection struct {
 }
 
 func newMultiSelection(session apiSession, selectors target.Selectors) *MultiSelection {
-	return &MultiSelection{*newSelection(session, selectors)}
+	return &MultiSelection{*NewSelection(session, selectors)}
 }
 
 // At finds an element at the provided index. It only applies to the immediate selection,
 // meaning that the returned selection may still refer to multiple elements if any parent
 // of the immediate selection is also a *MultiSelection.
 func (s *MultiSelection) At(index int) *Selection {
-	return newSelection(s.session, s.selectors.At(index))
+	return NewSelection(s.session, s.selectors.At(index))
 }
