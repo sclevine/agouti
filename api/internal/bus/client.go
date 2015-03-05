@@ -52,7 +52,7 @@ func (c *Client) Send(endpoint, method string, body interface{}, result interfac
 
 		var errMessage struct{ ErrorMessage string }
 		if err := json.Unmarshal([]byte(errBody.Value.Message), &errMessage); err != nil {
-			return fmt.Errorf("request unsuccessful: error message unreadable")
+			return fmt.Errorf("request unsuccessful: non-json: %s", errBody.Value.Message)
 		}
 
 		return fmt.Errorf("request unsuccessful: %s", errMessage.ErrorMessage)
