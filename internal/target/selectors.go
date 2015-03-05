@@ -40,6 +40,18 @@ func (s Selectors) AppendButton(text string) Selectors {
 	return appendSelector(s, Selector{Type: Button, Value: text})
 }
 
+func (s Selectors) AppendAndroid(uiautomatorQuery string) Selectors {
+	return appendSelector(s, Selector{Type: AndroidAut, Value: uiautomatorQuery})
+}
+
+func (s Selectors) AppendiOS(uiautomationQuery string) Selectors {
+	return appendSelector(s, Selector{Type: IOSAut, Value: uiautomationQuery})
+}
+
+func (s Selectors) AppendClass(text string) Selectors {
+	return appendSelector(s, Selector{Type: Class, Value: text})
+}
+
 func (s Selectors) Single() Selectors {
 	lastIndex := len(s) - 1
 	if lastIndex < 0 {
