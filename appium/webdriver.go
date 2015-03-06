@@ -12,8 +12,10 @@ type WebDriver struct {
 }
 
 func New(options ...Option) *WebDriver {
-	capabilities := config{}.merge(options).desired
+	opts := config{}.merge(options)
+	capabilities := opts.desired
 	agoutiWebDriver := agouti.NewWebDriver("http://{{.Address}}/wd/hub", []string{"appium", "-p", "{{.Port}}"}, agouti.Desired(capabilities))
+	agoutiWebDriver.Debug = opts.debug
 	return &WebDriver{agoutiWebDriver}
 }
 
@@ -34,8 +36,4 @@ func (w *WebDriver) Start() error {
 
 func (w *WebDriver) Stop() error {
 	return w.driver.Stop()
-}
-
-func (w *WebDriver) Debug(state bool) {
-	//w.driver.Debug(state)
 }
