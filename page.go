@@ -453,6 +453,7 @@ func (p *Page) ReadAllLogs(logType string) ([]Log, error) {
 	return append([]Log(nil), p.logs[logType]...), nil
 }
 
+// String returns a string representation of the Page. Currently: "page"
 func (p *Page) String() string {
 	return "page"
 }

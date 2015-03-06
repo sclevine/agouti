@@ -37,7 +37,7 @@ func newSelection(session selectionSession, selectors target.Selectors) *Selecti
 }
 
 // String returns a string representation of the selection, ex.
-//    CSS: .some-class | XPath: //table [3] | Link "click me" [single]
+//    selection 'CSS: .some-class | XPath: //table [3] | Link "click me" [single]'
 func (s *Selection) String() string {
 	return fmt.Sprintf("selection '%s'", s.selectors)
 }
