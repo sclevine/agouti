@@ -8,8 +8,16 @@ func Desired(capabilities agouti.Capabilities) Option {
 	}
 }
 
+// Debug is used to configure a WebDriver in debug mode.
+func Debug(state bool) Option {
+	return func(c *config) {
+		c.debug = true
+	}
+}
+
 type config struct {
 	desired agouti.Capabilities
+	debug   bool
 }
 
 type Option func(*config)
