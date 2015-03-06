@@ -91,7 +91,14 @@ var _ = Describe("WebDriver", func() {
 		It("should successfully start the WebDriver service", func() {
 			Expect(webDriver.Start()).To(Succeed())
 			Expect(service.StartCall.Called).To(BeTrue())
+			Expect(service.StartCall.Debug).To(BeFalse())
 			Expect(service.WaitForBootCall.Timeout).To(Equal(2 * time.Second))
+		})
+
+		It("should start the service in debug mode when specified", func() {
+			webDriver.Debug = true
+			Expect(webDriver.Start()).To(Succeed())
+			Expect(service.StartCall.Debug).To(BeTrue())
 		})
 
 		Context("when the WebDriver service cannot be started", func() {

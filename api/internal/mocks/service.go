@@ -9,6 +9,7 @@ type Service struct {
 	}
 
 	StartCall struct {
+		Debug  bool
 		Called bool
 		Err    error
 	}
@@ -28,7 +29,8 @@ func (s *Service) URL() (string, error) {
 	return s.URLCall.ReturnURL, s.URLCall.Err
 }
 
-func (s *Service) Start() error {
+func (s *Service) Start(debug bool) error {
+	s.StartCall.Debug = debug
 	s.StartCall.Called = true
 	return s.StartCall.Err
 }
@@ -41,7 +43,4 @@ func (s *Service) Stop() error {
 func (s *Service) WaitForBoot(timeout time.Duration) error {
 	s.WaitForBootCall.Timeout = timeout
 	return s.WaitForBootCall.Err
-}
-
-func (s *Service) Debug(state bool) {
 }

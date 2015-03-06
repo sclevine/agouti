@@ -31,7 +31,7 @@ var _ = Describe("Service", func() {
 		Context("when the server is running", func() {
 			It("should successfully return the URL", func() {
 				defer service.Stop()
-				Expect(service.Start()).To(Succeed())
+				Expect(service.Start(false)).To(Succeed())
 				Expect(service.URL()).To(MatchRegexp("some-url"))
 			})
 		})
@@ -41,15 +41,22 @@ var _ = Describe("Service", func() {
 		Context("when the service is started multiple times", func() {
 			It("should return an error indicating that service is already running", func() {
 				defer service.Stop()
-				Expect(service.Start()).To(Succeed())
-				Expect(service.Start()).To(MatchError("already running"))
+				Expect(service.Start(false)).To(Succeed())
+				Expect(service.Start(false)).To(MatchError("already running"))
 			})
 		})
 
 		Context("when the binary is not available in PATH", func() {
 			It("should return an error indicating the binary needs to be installed", func() {
 				service.CmdTemplate = []string{"not-in-path"}
-				Expect(service.Start()).To(MatchError("failed to run command: exec: \"not-in-path\": executable file not found in $PATH"))
+				Expect(service.Start(false)).To(MatchError("failed to run command: exec: \"not-in-path\": executable file not found in $PATH"))
+			})
+		})
+
+		Context("when the service is started in debug mode", func() {
+			It("should successfully start", func() {
+				defer service.Stop()
+				Expect(service.Start(true)).To(Succeed())
 			})
 		})
 
@@ -58,7 +65,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.URLTemplate = "{{}}"
-					Expect(service.Start()).To(MatchError("failed to parse URL: template: URL:1: missing value for command"))
+					Expect(service.Start(false)).To(MatchError("failed to parse URL: template: URL:1: missing value for command"))
 				})
 			})
 
@@ -66,7 +73,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.URLTemplate = "{{.Bad}}"
-					Expect(service.Start()).To(MatchError("failed to parse URL: template: URL:1:2: executing \"URL\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
+					Expect(service.Start(false)).To(MatchError("failed to parse URL: template: URL:1:2: executing \"URL\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
 				})
 			})
 
@@ -74,7 +81,7 @@ var _ = Describe("Service", func() {
 				It("should store a templated URL", func() {
 					defer service.Stop()
 					service.URLTemplate += "/status?test&{{.Address}}&{{.Host}}:{{.Port}}"
-					service.Start()
+					service.Start(false)
 					Expect(service.URL()).To(MatchRegexp(`test&127\.0\.0\.1:\d+&127\.0\.0\.1:\d+`))
 				})
 			})
@@ -85,7 +92,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{"correct", "{{}}"}
-					Expect(service.Start()).To(MatchError("failed to parse command: template: command:1: missing value for command"))
+					Expect(service.Start(false)).To(MatchError("failed to parse command: template: command:1: missing value for command"))
 				})
 			})
 
@@ -93,7 +100,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{"correct", "{{.Bad}}"}
-					Expect(service.Start()).To(MatchError("failed to parse command: template: command:1:2: executing \"command\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
+					Expect(service.Start(false)).To(MatchError("failed to parse command: template: command:1:2: executing \"command\" at <.Bad>: Bad is not a field of struct type service.addressInfo"))
 				})
 			})
 
@@ -101,7 +108,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{}
-					Expect(service.Start()).To(MatchError("failed to parse command: empty command"))
+					Expect(service.Start(false)).To(MatchError("failed to parse command: empty command"))
 				})
 			})
 
@@ -109,7 +116,7 @@ var _ = Describe("Service", func() {
 				It("should not return an error", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{"true", "{{.Address}}{{.Host}}{{.Port}}"}
-					Expect(service.Start()).To(Succeed())
+					Expect(service.Start(false)).To(Succeed())
 				})
 			})
 		})
@@ -118,9 +125,9 @@ var _ = Describe("Service", func() {
 	Describe("#Stop", func() {
 		It("should stop a running server", func() {
 			defer service.Stop()
-			Expect(service.Start()).To(Succeed())
+			Expect(service.Start(false)).To(Succeed())
 			Expect(service.Stop()).To(Succeed())
-			Expect(service.Start()).To(Succeed())
+			Expect(service.Start(false)).To(Succeed())
 		})
 
 		Context("when the command is not started", func() {
@@ -162,7 +169,7 @@ var _ = Describe("Service", func() {
 					time.Sleep(3000 * time.Millisecond)
 					started = true
 				}()
-				Expect(service.Start()).To(Succeed())
+				Expect(service.Start(false)).To(Succeed())
 				Expect(service.WaitForBoot(1500 * time.Millisecond)).To(MatchError("failed to start before timeout"))
 			})
 		})
@@ -174,7 +181,7 @@ var _ = Describe("Service", func() {
 					time.Sleep(200 * time.Millisecond)
 					started = true
 				}()
-				Expect(service.Start()).To(Succeed())
+				Expect(service.Start(false)).To(Succeed())
 				Expect(service.WaitForBoot(1500 * time.Millisecond)).To(Succeed())
 			})
 		})

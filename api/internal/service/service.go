@@ -18,7 +18,6 @@ type Service struct {
 	CmdTemplate []string
 	url         string
 	command     *exec.Cmd
-	debug       bool
 }
 
 type addressInfo struct {
@@ -35,7 +34,7 @@ func (s *Service) URL() (string, error) {
 	return s.url, nil
 }
 
-func (s *Service) Start() error {
+func (s *Service) Start(debug bool) error {
 	if s.command != nil {
 		return errors.New("already running")
 	}
@@ -54,7 +53,7 @@ func (s *Service) Start() error {
 		return fmt.Errorf("failed to parse command: %s", err)
 	}
 
-	if s.debug {
+	if debug {
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
 	}
@@ -137,9 +136,4 @@ func (s *Service) checkStatus() bool {
 		return true
 	}
 	return false
-}
-
-// Debug sets whether we output debugging into when starting Driver
-func (s *Service) Debug(setting bool) {
-	s.debug = setting
 }
