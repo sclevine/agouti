@@ -118,7 +118,7 @@ var _ = Describe("Session", func() {
 			})
 
 			Context("when the server does not have a valid message", func() {
-				It("should return an error from the server indicating that the request failed", func() {
+				It("should return an error indicating that the request failed with no details", func() {
 					responseStatus = 400
 					responseBody = `{}}`
 					err := client.Send("some/endpoint", "GET", nil, nil)
@@ -126,12 +126,12 @@ var _ = Describe("Session", func() {
 				})
 			})
 
-			Context("when the server does not have a valid error message", func() {
-				It("should return an error from the server indicating that the request failed", func() {
+			Context("when the server does not have a valid JSON-encoded error message", func() {
+				It("should return an error with the entire message output", func() {
 					responseStatus = 400
 					responseBody = `{"value": {"message": "{}}"}}`
 					err := client.Send("some/endpoint", "GET", nil, nil)
-					Expect(err).To(MatchError("request unsuccessful: error message unreadable"))
+					Expect(err).To(MatchError("request unsuccessful: {}}"))
 				})
 			})
 		})
