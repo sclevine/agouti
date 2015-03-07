@@ -6,6 +6,8 @@ import (
 	"github.com/sclevine/agouti/internal/target"
 )
 
+type Selectors target.Selectors
+
 type selectable struct {
 	session   selectionSession
 	selectors target.Selectors
@@ -21,54 +23,54 @@ type selectionSession interface {
 
 // Find finds exactly one element by CSS selector.
 func (s *selectable) Find(selector string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.CSS, selector).Single())
+	return newSelection(s.session, s.selectors.Append(target.CSS, selector).Single())
 }
 
 // FindByXPath finds exactly one element by XPath selector.
 func (s *selectable) FindByXPath(selector string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.XPath, selector).Single())
+	return newSelection(s.session, s.selectors.Append(target.XPath, selector).Single())
 }
 
 // FindByLink finds exactly one anchor element by its text content.
 func (s *selectable) FindByLink(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Link, text).Single())
+	return newSelection(s.session, s.selectors.Append(target.Link, text).Single())
 }
 
 // FindByLabel finds exactly one element by associated label text.
 func (s *selectable) FindByLabel(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Label, text).Single())
+	return newSelection(s.session, s.selectors.Append(target.Label, text).Single())
 }
 
 // FindByButton finds exactly one button element with the provided text.
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) FindByButton(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Button, text).Single())
+	return newSelection(s.session, s.selectors.Append(target.Button, text).Single())
 }
 
 // First finds the first element by CSS selector.
 func (s *selectable) First(selector string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
+	return newSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
 }
 
 // FirstByXPath finds the first element by XPath selector.
 func (s *selectable) FirstByXPath(selector string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.XPath, selector).At(0))
+	return newSelection(s.session, s.selectors.Append(target.XPath, selector).At(0))
 }
 
 // FirstByLink finds the first anchor element by its text content.
 func (s *selectable) FirstByLink(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Link, text).At(0))
+	return newSelection(s.session, s.selectors.Append(target.Link, text).At(0))
 }
 
 // FirstByLabel finds the first element by associated label text.
 func (s *selectable) FirstByLabel(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Label, text).At(0))
+	return newSelection(s.session, s.selectors.Append(target.Label, text).At(0))
 }
 
 // FirstByButton finds the first button element with the provided text.
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) FirstByButton(text string) *Selection {
-	return NewSelection(s.session, s.selectors.Append(target.Button, text).At(0))
+	return newSelection(s.session, s.selectors.Append(target.Button, text).At(0))
 }
 
 // All finds zero or more elements by CSS selector.
@@ -95,4 +97,12 @@ func (s *selectable) AllByLabel(text string) *MultiSelection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) AllByButton(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Button, text))
+}
+
+func (s *selectable) WithSelectors(selectors Selectors) *Selection {
+	return newSelection(s.session, target.Selectors(selectors))
+}
+
+func (s *selectable) Selectors() Selectors {
+	return Selectors(s.selectors)
 }

@@ -19,13 +19,8 @@ func (s *Selection) SomeAppiumSelectionMethod() (string, error) {
 	return "", nil
 }
 
-// override finder methods
-func (s *Selection) Find(selector string) *Selection {
-	return &Selection{s.Selection.Find(selector), s.session}
-}
-
-func (s *Selection) FindByID(id string) *Selection {
-	sel := target.Selectors{}
-	apiSession := s.session.Session
-	return &Selection{agouti.NewSelection(apiSession, sel), s.session}
+// Override Find to find by A11y
+func (s *Selection) Find(id string) *Selection {
+	selectors := target.Selectors(s.Selectors()).Append(target.A11yID, id)
+	return &Selection{s.WithSelectors(agouti.Selectors(selectors)), s.session}
 }
