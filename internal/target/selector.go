@@ -6,19 +6,25 @@ import (
 	"github.com/sclevine/agouti/api"
 )
 
+type Type string
+
 const (
-	CSS    = "CSS: %s"
-	XPath  = "XPath: %s"
-	Link   = `Link: "%s"`
-	Label  = `Label: "%s"`
-	Button = `Button: "%s"`
+	CSS    Type = "CSS: %s"
+	XPath  Type = "XPath: %s"
+	Link   Type = `Link: "%s"`
+	Label  Type = `Label: "%s"`
+	Button Type = `Button: "%s"`
 
 	labelXPath  = `//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%[1]s"]/input`
 	buttonXPath = `//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%[1]s"]`
 )
 
+func (t Type) format(value string) string {
+	return fmt.Sprintf(string(t), value)
+}
+
 type Selector struct {
-	Type    string
+	Type    Type
 	Value   string
 	Index   int
 	Indexed bool
@@ -34,7 +40,7 @@ func (s Selector) String() string {
 		suffix = fmt.Sprintf(" [%d]", s.Index)
 	}
 
-	return fmt.Sprintf(s.Type, s.Value) + suffix
+	return s.Type.format(s.Value) + suffix
 }
 
 func (s Selector) API() api.Selector {
