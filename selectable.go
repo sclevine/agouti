@@ -6,6 +6,8 @@ import (
 	"github.com/sclevine/agouti/internal/target"
 )
 
+type Selectors target.Selectors
+
 type selectable struct {
 	session   apiSession
 	selectors target.Selectors
@@ -121,4 +123,12 @@ func (s *selectable) AllByLabel(text string) *MultiSelection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) AllByButton(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Button, text))
+}
+
+func (s *selectable) WithSelectors(selectors Selectors) *Selection {
+	return newSelection(s.session, target.Selectors(selectors))
+}
+
+func (s *selectable) Selectors() Selectors {
+	return Selectors(s.selectors)
 }
