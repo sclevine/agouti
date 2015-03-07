@@ -36,6 +36,7 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	apiWebDriver := api.NewWebDriver(url, command)
 	defaultOptions := config{timeout: apiWebDriver.Timeout}.merge(options)
 	apiWebDriver.Timeout = defaultOptions.timeout
+	apiWebDriver.Debug = defaultOptions.debug
 	return &WebDriver{apiWebDriver, defaultOptions}
 }
 

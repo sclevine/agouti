@@ -7,6 +7,7 @@ type config struct {
 	desired          Capabilities
 	browser          string
 	rejectInvalidSSL bool
+	debug            bool
 }
 
 // An Option specifies configuration for a new WebDriver or Page.
@@ -36,8 +37,13 @@ func Desired(capabilities Capabilities) Option {
 // RejectInvalidSSL is an Option specifying that the WebDriver should reject
 // invalid SSL certificates. All WebDrivers should accept invalid SSL certificates
 // by default. See: http://www.w3.org/TR/webdriver/#invalid-ssl-certificates
-func RejectInvalidSSL(c *config) {
+var RejectInvalidSSL Option = func(c *config) {
 	c.rejectInvalidSSL = true
+}
+
+// Debug is an Option that connects the running WebDriver to stdout and stdin.
+var Debug Option = func(c *config) {
+	c.debug = true
 }
 
 func (c config) merge(options []Option) *config {
