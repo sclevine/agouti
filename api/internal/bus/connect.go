@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -53,8 +54,12 @@ func openSession(url string, body io.Reader) (sessionID string, err error) {
 	}
 
 	var sessionResponse struct{ SessionID string }
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
 
-	if err := json.NewDecoder(response.Body).Decode(&sessionResponse); err != nil {
+	if err := json.Unmarshal(responseBody, &sessionResponse); err != nil {
 		return "", err
 	}
 
