@@ -5,11 +5,26 @@ import (
 
 	"github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api/mobile"
+	"github.com/sclevine/agouti/internal/target"
 )
+
+type mobileSession interface {
+	SetEndpoint(thing string) error
+	LaunchApp() error
+	CloseApp() error
+	InstallApp(appPath string) error
+}
 
 type Device struct {
 	*agouti.Page
-	session *mobile.Session
+	session mobileSession
+}
+
+func newDevice(session *mobile.Session, page *agouti.Page) *Device {
+	return &Device{
+		Page:    page,
+		session: session,
+	}
 }
 
 func (d *Device) DeviceMethod(thing string) error {
@@ -19,20 +34,35 @@ func (d *Device) DeviceMethod(thing string) error {
 	return nil
 }
 
-// override finder methods
-func (d *Device) Find(selector string) *Selection {
-	return &Selection{d.Page.Find(selector), d.session}
+// Override Find to find by A11y instead of CSS selector
+// Note: embedded overrides don't need the same signature - just method name.
+func (d *Device) Find(id string) *Selection {
+	return d.addSelector(target.A11yID, id)
 }
 
-func (d *Device) FindByID(resourceId string) *Selection {
-	return &Selection{&agouti.Selection{}, d.session}
+func (d *Device) FindByID(resourceID string) *Selection {
+	return d.addSelector(target.A11yID, resourceID) // needs new target type
 }
 
-func newDevice(session *mobile.Session, page *agouti.Page) *Device {
-	return &Device{
-		Page:       page,
-		session:    session,
-	}
+func (d *Device) FindByClass(class string) *Selection {
+	return d.addSelector(target.Class, class)
+}
+
+func (d *Device) FindByXPath(xPath string) *Selection {
+	return d.addSelector(target.XPath, xPath)
+}
+
+// Make this behave differently on different devices
+// Consider appium.Android() and appium.IOS() just like
+// agouti has agouti.PhantomJS() and agouti.Selenium().
+func (d *Device) FindByUI(uiQuery string) *Selection {
+	return d.addSelector(target.AndroidAut, uiQuery)
+}
+
+func (d *Device) addSelector(selectorType target.Type, value string) *Selection {
+	selectors := target.Selectors{}.Append(selectorType, value)
+	selection := d.WithSelectors(agouti.Selectors(selectors))
+	return &Selection{selection, d.session}
 }
 
 func (d *Device) LaunchApp() error {
@@ -56,30 +86,15 @@ func (d *Device) InstallApp(appPath string) error {
 	return nil
 }
 
+// Don't return anything from the mobile package. Bring TouchAction up
+// to the appium level.
 func (d *Device) TouchAction() *mobile.TouchAction {
 	return &mobile.TouchAction{
-		Session: d.session,
+		// Bringing TouchAction up will get rid of this ugly type assertion
+		Session: d.session.(*mobile.Session),
 	}
 }
 
 func (d *Device) PerformMultiTouch(actions ...*mobile.TouchAction) {
-}
 
-func (s *Device) FindID(selector string) *agouti.Selection {
-	return nil
-}
-func (s *Device) FindByXPath() *agouti.Selection {
-	return nil
-}
-func (s *Device) FindA11yID(id string) *agouti.Selection {
-	return nil
-}
-func (s *Device) FindByClass(class string) *agouti.Selection {
-	return nil
-}
-func (s *Device) FindiOS(uiautomationQuery string) *agouti.Selection {
-	return nil
-}
-func (s *Device) FindAndroid(uiautomatorQuery string) *agouti.Selection {
-	return nil
 }

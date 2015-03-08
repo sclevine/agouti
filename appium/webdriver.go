@@ -12,16 +12,16 @@ type WebDriver struct {
 }
 
 func New(options ...Option) *WebDriver {
-	opts := config{}.merge(options)
-	capabilities := opts.desired
-	agoutiWebDriver := agouti.NewWebDriver("http://{{.Address}}/wd/hub", []string{"appium", "-p", "{{.Port}}"}, agouti.Desired(capabilities))
-	agoutiWebDriver.Debug = opts.debug
+	newOptions := config{}.merge(options)
+	url := "http://{{.Address}}/wd/hub"
+	command := []string{"appium", "-p", "{{.Port}}"}
+	agoutiWebDriver := agouti.NewWebDriver(url, command, newOptions.agoutiOptions...)
 	return &WebDriver{agoutiWebDriver}
 }
 
 func (w *WebDriver) NewDevice(options ...Option) (*Device, error) {
-	capabilities := config{}.merge(options).desired
-	page, err := w.driver.NewPage(agouti.Desired(capabilities))
+	newOptions := config{}.merge(options)
+	page, err := w.driver.NewPage(newOptions.agoutiOptions...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
