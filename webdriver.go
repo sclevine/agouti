@@ -34,9 +34,9 @@ type WebDriver struct {
 //   agouti.NewWebDriver("http://{{.Address}}/wd/hub", command)
 func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	apiWebDriver := api.NewWebDriver(url, command)
-	defaultOptions := config{timeout: apiWebDriver.Timeout}.merge(options)
-	apiWebDriver.Timeout = defaultOptions.timeout
-	apiWebDriver.Debug = defaultOptions.debug
+	defaultOptions := config{Timeout: apiWebDriver.Timeout}.Merge(options)
+	apiWebDriver.Timeout = defaultOptions.Timeout
+	apiWebDriver.Debug = defaultOptions.Debug
 	return &WebDriver{apiWebDriver, defaultOptions}
 }
 
@@ -50,8 +50,8 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 // Specific Options (such as Browser) have precedence over Capabilities
 // specified by the Desired Option.
 func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
-	newOptions := w.defaultOptions.merge(options)
-	session, err := w.Open(newOptions.capabilities())
+	newOptions := w.defaultOptions.Merge(options)
+	session, err := w.Open(newOptions.Capabilities())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}

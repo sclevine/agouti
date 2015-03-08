@@ -70,7 +70,7 @@ type Log struct {
 // NewPage opens a Page using the provided WebDriver URL. This method takes
 // the same Options as *WebDriver.NewPage.
 func NewPage(url string, options ...Option) (*Page, error) {
-	desiredCapabilities := config{}.merge(options).capabilities()
+	desiredCapabilities := config{}.Merge(options).Capabilities()
 	session, err := api.Open(url, desiredCapabilities)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)

@@ -11,8 +11,8 @@ import "fmt"
 // PhantomJS page.
 func PhantomJS(options ...Option) *WebDriver {
 	command := []string{"phantomjs", "--webdriver={{.Address}}"}
-	defaultOptions := config{}.merge(options)
-	if !defaultOptions.rejectInvalidSSL {
+	defaultOptions := config{}.Merge(options)
+	if !defaultOptions.RejectInvalidSSL {
 		command = append(command, "--ignore-ssl-errors=true")
 	}
 	return NewWebDriver("http://{{.Address}}", command, options...)

@@ -16,3 +16,7 @@ func NewTestMultiSelection(elements elementRepository, session selectionSession,
 func NewTestPage(session pageSession) *Page {
 	return &Page{session, nil, selectable{}}
 }
+
+func NewTestConfig() *config {
+	return &config{}
+}
