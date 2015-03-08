@@ -22,6 +22,8 @@ var _ = Describe("Session", func() {
 	)
 
 	BeforeEach(func() {
+		responseBody, responseStatus = "", 200
+		requestPath, requestMethod, requestBody, requestContentType = "", "", "", ""
 		server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 			requestPath = request.URL.Path
 			requestMethod = request.Method
@@ -31,8 +33,6 @@ var _ = Describe("Session", func() {
 			response.WriteHeader(responseStatus)
 			response.Write([]byte(responseBody))
 		}))
-
-		responseStatus = 200
 	})
 
 	AfterEach(func() {
@@ -120,7 +120,7 @@ var _ = Describe("Session", func() {
 			Context("when the server does not have a valid message", func() {
 				It("should return an error indicating that the request failed with no details", func() {
 					responseStatus = 400
-					responseBody = `{}}`
+					responseBody = `$$$`
 					err := client.Send("some/endpoint", "GET", nil, nil)
 					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
 				})
@@ -129,9 +129,9 @@ var _ = Describe("Session", func() {
 			Context("when the server does not have a valid JSON-encoded error message", func() {
 				It("should return an error with the entire message output", func() {
 					responseStatus = 400
-					responseBody = `{"value": {"message": "{}}"}}`
+					responseBody = `{"value": {"message": "$$$"}}`
 					err := client.Send("some/endpoint", "GET", nil, nil)
-					Expect(err).To(MatchError("request unsuccessful: {}}"))
+					Expect(err).To(MatchError("request unsuccessful: $$$"))
 				})
 			})
 		})
@@ -156,63 +156,6 @@ var _ = Describe("Session", func() {
 					err := client.Send("some/endpoint", "GET", nil, &result)
 					Expect(err).To(MatchError("failed to parse response value: json: cannot unmarshal string into Go value of type struct { Some string }"))
 				})
-			})
-		})
-	})
-
-	Describe(".Connect", func() {
-		It("should make a POST request with the provided desired capabilities", func() {
-			Connect(server.URL, map[string]interface{}{"some": "json"})
-			Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"some": "json"}}`))
-		})
-
-		It("should make the request with content type application/json", func() {
-			Connect(server.URL, map[string]interface{}{"some": "json"})
-			Expect(requestContentType).To(Equal("application/json"))
-		})
-
-		Context("when the capabilities are invalid", func() {
-			It("should return an error", func() {
-				_, err := Connect(server.URL, map[string]interface{}{"some": func() {}})
-				Expect(err).To(MatchError("json: unsupported type: func()"))
-			})
-		})
-
-		Context("when the capabilities are nil", func() {
-			It("should make a POST request with empty capabilities", func() {
-				Connect(server.URL, nil)
-				Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {}}`))
-			})
-		})
-
-		Context("when the request is invalid", func() {
-			It("should return the invalid request error", func() {
-				_, err := Connect("%@#$%", map[string]interface{}{"some": "json"})
-				Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
-			})
-		})
-
-		Context("when the request fails", func() {
-			It("should return the failed request error", func() {
-				_, err := Connect("http://#", map[string]interface{}{"some": "json"})
-				Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
-			})
-		})
-
-		Context("if the request does not contain a session ID", func() {
-			It("should return an error indicating that it failed to receive a session ID", func() {
-				responseBody = "{}"
-				_, err := Connect(server.URL, map[string]interface{}{"some": "json"})
-				Expect(err).To(MatchError("failed to retrieve a session ID"))
-			})
-		})
-
-		Context("if the request succeeds", func() {
-			It("should return a session with session URL", func() {
-				responseBody = `{"sessionId": "some-id"}`
-				client, err := Connect(server.URL, map[string]interface{}{"some": "json"})
-				Expect(err).NotTo(HaveOccurred())
-				Expect(client.SessionURL).To(ContainSubstring("/session/some-id"))
 			})
 		})
 	})
