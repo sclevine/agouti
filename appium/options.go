@@ -2,25 +2,23 @@ package appium
 
 import "github.com/sclevine/agouti"
 
-func Desired(capabilities agouti.Capabilities) Option {
+type Option func(*config)
+
+func AgoutiOptions(options ...agouti.Option) Option {
 	return func(c *config) {
-		c.desired = capabilities
+		c.agoutiOptions = options
 	}
 }
 
-// Debug is used to configure a WebDriver in debug mode.
-func Debug(state bool) Option {
+func Desired(capabilities agouti.Capabilities) Option {
 	return func(c *config) {
-		c.debug = true
+		c.agoutiOptions = append(c.agoutiOptions, agouti.Desired(capabilities))
 	}
 }
 
 type config struct {
-	desired agouti.Capabilities
-	debug   bool
+	agoutiOptions []agouti.Option
 }
-
-type Option func(*config)
 
 func (c config) merge(options []Option) *config {
 	for _, option := range options {

@@ -7,6 +7,8 @@ import (
 	"github.com/sclevine/agouti/api"
 )
 
+// Move all this to appium, there are no TouchAction objects according to the API
+
 type TouchAction struct {
 	Actions []Action
 	Element *api.Element
