@@ -11,10 +11,14 @@ import (
 )
 
 func init() {
-	fmt.Fprintln(os.Stderr, `****************`)
-	fmt.Fprintln(os.Stderr, `NOTICE: "github.com/sclevine/agouti/core" has been deprecated in favor of "github.com/sclevine/agouti" and may soon perish.`)
-	fmt.Fprintln(os.Stderr, `Please switch to "github.com/sclevine/agouti" (which does not encourage dot-imports) as soon as possible.`)
-	fmt.Fprintln(os.Stderr, `****************`)
+	if os.Getenv("SUPPRESS_DEPRECATION_NOTICE") == "true" {
+		return
+	}
+	fmt.Fprintln(os.Stderr, `****************
+NOTICE: "github.com/sclevine/agouti/core" has been deprecated and may soon
+perish. Please switch to "github.com/sclevine/agouti" (which should not be
+dot-imported) as soon as possible.
+****************`)
 }
 
 // NewWebDriver returns an instance of a WebDriver specified by

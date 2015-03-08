@@ -4,7 +4,24 @@
 // a single running WebDriver.
 package dsl
 
-import "github.com/onsi/ginkgo"
+import (
+	"fmt"
+	"os"
+
+	"github.com/onsi/ginkgo"
+)
+
+func init() {
+	if os.Getenv("SUPPRESS_DEPRECATION_NOTICE") == "true" {
+		return
+	}
+	fmt.Fprintln(os.Stderr, `****************
+NOTICE: The "github.com/sclevine/agouti/dsl" package is deprecated and may
+eventually perish. Importing "github.com/sclevine/agouti" and dot-importing
+"github.com/sclevine/agouti/matchers" is the prefered way of writing
+intergation tests when using Agouti with Ginkgo/Gomega.
+****************`)
+}
 
 // Background is equivalent to Ginkgo BeforeEach.
 func Background(body interface{}, timeout ...float64) bool {
