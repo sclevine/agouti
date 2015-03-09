@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti"
-	"github.com/sclevine/agouti/api/mobile"
 	"github.com/sclevine/agouti/internal/target"
 )
 
@@ -20,7 +19,7 @@ type Device struct {
 	session mobileSession
 }
 
-func newDevice(session *mobile.Session, page *agouti.Page) *Device {
+func newDevice(session mobileSession, page *agouti.Page) *Device {
 	return &Device{
 		Page:    page,
 		session: session,
@@ -81,13 +80,6 @@ func (d *Device) InstallApp(appPath string) error {
 
 // Don't return anything from the mobile package. Bring TouchAction up
 // to the appium level.
-func (d *Device) TouchAction() *mobile.TouchAction {
-	return &mobile.TouchAction{
-		// Bringing TouchAction up will get rid of this ugly type assertion
-		Session: d.session.(*mobile.Session),
-	}
-}
-
-func (d *Device) PerformMultiTouch(actions ...*mobile.TouchAction) {
-
+func (d *Device) TouchAction() *TouchAction {
+	return NewTouchAction(d.session)
 }
