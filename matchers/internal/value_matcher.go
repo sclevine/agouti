@@ -33,7 +33,6 @@ func (m *ValueMatcher) Match(actual interface{}) (success bool, err error) {
 
 func (m *ValueMatcher) FailureMessage(actual interface{}) (message string) {
 	return valueMessage(actual, fmt.Sprintf("to have %s equaling", m.Property), m.Expected, m.actualValue)
-
 }
 
 func (m *ValueMatcher) NegatedFailureMessage(actual interface{}) (message string) {

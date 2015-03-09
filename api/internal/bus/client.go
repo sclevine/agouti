@@ -13,7 +13,7 @@ type Client struct {
 	SessionURL string
 }
 
-func (c *Client) Send(endpoint, method string, body interface{}, result interface{}) error {
+func (c *Client) Send(method, endpoint string, body interface{}, result interface{}) error {
 	requestBody, err := bodyToJSON(body)
 	if err != nil {
 		return err

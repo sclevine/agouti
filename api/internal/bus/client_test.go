@@ -49,44 +49,44 @@ var _ = Describe("Session", func() {
 		Context("with a valid request body", func() {
 			It("should make a request with the provided body", func() {
 				body := struct{ SomeValue string }{"some request value"}
-				client.Send("some/endpoint", "POST", body, nil)
+				client.Send("POST", "some/endpoint", body, nil)
 				Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))
 			})
 
 			It("should make a request with content type application/json", func() {
 				body := struct{ SomeValue string }{"some request value"}
-				client.Send("some/endpoint", "POST", body, nil)
+				client.Send("POST", "some/endpoint", body, nil)
 				Expect(requestContentType).To(Equal("application/json"))
 			})
 		})
 
 		Context("with an invalid request body", func() {
 			It("should return an invalid request body error", func() {
-				err := client.Send("some/endpoint", "POST", func() {}, nil)
+				err := client.Send("POST", "some/endpoint", func() {}, nil)
 				Expect(err).To(MatchError("invalid request body: json: unsupported type: func()"))
 			})
 		})
 
 		Context("when the provided body is nil", func() {
 			It("should make a request without a body", func() {
-				Expect(client.Send("some/endpoint", "POST", nil, nil)).To(Succeed())
+				Expect(client.Send("POST", "some/endpoint", nil, nil)).To(Succeed())
 				Expect(requestBody).To(BeEmpty())
 			})
 		})
 
 		It("should make a request with the full session endpoint", func() {
-			client.Send("some/endpoint", "GET", nil, nil)
+			client.Send("GET", "some/endpoint", nil, nil)
 			Expect(requestPath).To(Equal("/session/some-id/some/endpoint"))
 		})
 
 		It("should make a request with the given method", func() {
-			client.Send("some/endpoint", "GET", nil, nil)
+			client.Send("GET", "some/endpoint", nil, nil)
 			Expect(requestMethod).To(Equal("GET"))
 		})
 
 		Context("when the session endpoint is empty", func() {
 			It("should make a request to the session itself", func() {
-				client.Send("", "GET", nil, nil)
+				client.Send("GET", "", nil, nil)
 				Expect(requestPath).To(Equal("/session/some-id"))
 			})
 		})
@@ -94,7 +94,7 @@ var _ = Describe("Session", func() {
 		Context("with an invalid URL", func() {
 			It("should return an invalid request error", func() {
 				client.SessionURL = "%@#$%"
-				err := client.Send("some/endpoint", "GET", nil, nil)
+				err := client.Send("GET", "some/endpoint", nil, nil)
 				Expect(err).To(MatchError(`invalid request: parse %@: invalid URL escape "%@"`))
 			})
 		})
@@ -102,7 +102,7 @@ var _ = Describe("Session", func() {
 		Context("when the request fails entirely", func() {
 			It("should return an error indicating that the request failed", func() {
 				server.Close()
-				err := client.Send("some/endpoint", "GET", nil, nil)
+				err := client.Send("GET", "some/endpoint", nil, nil)
 				Expect(err.Error()).To(MatchRegexp("request failed: .+ connection refused"))
 			})
 		})
@@ -112,7 +112,7 @@ var _ = Describe("Session", func() {
 				It("should return an error from the server indicating that the request failed", func() {
 					responseStatus = 400
 					responseBody = `{"value": {"message": "{\"errorMessage\": \"some error\"}"}}`
-					err := client.Send("some/endpoint", "GET", nil, nil)
+					err := client.Send("GET", "some/endpoint", nil, nil)
 					Expect(err).To(MatchError("request unsuccessful: some error"))
 				})
 			})
@@ -121,7 +121,7 @@ var _ = Describe("Session", func() {
 				It("should return an error indicating that the request failed with no details", func() {
 					responseStatus = 400
 					responseBody = `$$$`
-					err := client.Send("some/endpoint", "GET", nil, nil)
+					err := client.Send("GET", "some/endpoint", nil, nil)
 					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
 				})
 			})
@@ -130,7 +130,7 @@ var _ = Describe("Session", func() {
 				It("should return an error with the entire message output", func() {
 					responseStatus = 400
 					responseBody = `{"value": {"message": "$$$"}}`
-					err := client.Send("some/endpoint", "GET", nil, nil)
+					err := client.Send("GET", "some/endpoint", nil, nil)
 					Expect(err).To(MatchError("request unsuccessful: $$$"))
 				})
 			})
@@ -145,7 +145,7 @@ var _ = Describe("Session", func() {
 
 			Context("with a valid response body", func() {
 				It("should successfully unmarshal the returned JSON into the result", func() {
-					Expect(client.Send("some/endpoint", "GET", nil, &result)).To(Succeed())
+					Expect(client.Send("GET", "some/endpoint", nil, &result)).To(Succeed())
 					Expect(result.Some).To(Equal("response value"))
 				})
 			})
@@ -153,7 +153,7 @@ var _ = Describe("Session", func() {
 			Context("with a response body value that cannot be read", func() {
 				It("should return a failed to extract value from response error", func() {
 					responseBody = `{"value": "unexpected string"}`
-					err := client.Send("some/endpoint", "GET", nil, &result)
+					err := client.Send("GET", "some/endpoint", nil, &result)
 					Expect(err).To(MatchError("failed to parse response value: json: cannot unmarshal string into Go value of type struct { Some string }"))
 				})
 			})

@@ -21,13 +21,13 @@ var _ = Describe("Window", func() {
 		window = &Window{"some-id", &Session{bus}}
 	})
 
-	ItShouldMakeAWindowRequest := func(endpoint, method string, body ...string) {
-		It("should hit the desired endpoint", func() {
-			Expect(bus.SendCall.Endpoint).To(Equal("window/some-id/" + endpoint))
-		})
-
+	ItShouldMakeAWindowRequest := func(method, endpoint string, body ...string) {
 		It("should make a "+method+" request", func() {
 			Expect(bus.SendCall.Method).To(Equal(method))
+		})
+
+		It("should hit the desired endpoint", func() {
+			Expect(bus.SendCall.Endpoint).To(Equal("window/some-id/" + endpoint))
 		})
 
 		It("should not return an error", func() {
@@ -46,10 +46,10 @@ var _ = Describe("Window", func() {
 
 		BeforeEach(func() {
 			bus.SendCall.Result = `"some result"`
-			err = window.Send("endpoint", "method", "body", &result)
+			err = window.Send("method", "endpoint", "body", &result)
 		})
 
-		ItShouldMakeAWindowRequest("endpoint", "method", `"body"`)
+		ItShouldMakeAWindowRequest("method", "endpoint", `"body"`)
 
 		It("should retrieve the result", func() {
 			Expect(result).To(Equal("some result"))
@@ -69,7 +69,7 @@ var _ = Describe("Window", func() {
 			err = window.SetSize(640, 480)
 		})
 
-		ItShouldMakeAWindowRequest("size", "POST", `{"width":640,"height":480}`)
+		ItShouldMakeAWindowRequest("POST", "size", `{"width":640,"height":480}`)
 
 		Context("when the bus indicates a failure", func() {
 			It("should return an error", func() {

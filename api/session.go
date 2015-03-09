@@ -12,7 +12,7 @@ type Session struct {
 }
 
 type Bus interface {
-	Send(endpoint, method string, body, result interface{}) error
+	Send(method, endpoint string, body, result interface{}) error
 }
 
 func Open(url string, capabilities map[string]interface{}) (*Session, error) {
@@ -24,13 +24,13 @@ func Open(url string, capabilities map[string]interface{}) (*Session, error) {
 }
 
 func (s *Session) Delete() error {
-	return s.Send("", "DELETE", nil, nil)
+	return s.Send("DELETE", "", nil, nil)
 }
 
 func (s *Session) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 
-	if err := s.Send("element", "POST", selector, &result); err != nil {
+	if err := s.Send("POST", "element", selector, &result); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (s *Session) GetElement(selector Selector) (*Element, error) {
 func (s *Session) GetElements(selector Selector) ([]*Element, error) {
 	var results []struct{ Element string }
 
-	if err := s.Send("elements", "POST", selector, &results); err != nil {
+	if err := s.Send("POST", "elements", selector, &results); err != nil {
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func (s *Session) GetElements(selector Selector) ([]*Element, error) {
 func (s *Session) GetActiveElement() (*Element, error) {
 	var result struct{ Element string }
 
-	if err := s.Send("element/active", "POST", nil, &result); err != nil {
+	if err := s.Send("POST", "element/active", nil, &result); err != nil {
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func (s *Session) GetActiveElement() (*Element, error) {
 
 func (s *Session) GetWindow() (*Window, error) {
 	var windowID string
-	if err := s.Send("window_handle", "GET", nil, &windowID); err != nil {
+	if err := s.Send("GET", "window_handle", nil, &windowID); err != nil {
 		return nil, err
 	}
 	return &Window{windowID, s}, nil
@@ -72,7 +72,7 @@ func (s *Session) GetWindow() (*Window, error) {
 
 func (s *Session) GetWindows() ([]*Window, error) {
 	var windowsID []string
-	if err := s.Send("window_handles", "GET", nil, &windowsID); err != nil {
+	if err := s.Send("GET", "window_handles", nil, &windowsID); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func (s *Session) SetWindow(window *Window) error {
 		Name string `json:"name"`
 	}{window.ID}
 
-	return s.Send("window", "POST", request, nil)
+	return s.Send("POST", "window", request, nil)
 }
 
 func (s *Session) SetWindowByName(name string) error {
@@ -96,11 +96,11 @@ func (s *Session) SetWindowByName(name string) error {
 		Name string `json:"name"`
 	}{name}
 
-	return s.Send("window", "POST", request, nil)
+	return s.Send("POST", "window", request, nil)
 }
 
 func (s *Session) DeleteWindow() error {
-	if err := s.Send("window", "DELETE", nil, nil); err != nil {
+	if err := s.Send("DELETE", "window", nil, nil); err != nil {
 		return err
 	}
 	return nil
@@ -108,7 +108,7 @@ func (s *Session) DeleteWindow() error {
 
 func (s *Session) GetCookies() ([]*Cookie, error) {
 	var cookies []*Cookie
-	if err := s.Send("cookie", "GET", nil, &cookies); err != nil {
+	if err := s.Send("GET", "cookie", nil, &cookies); err != nil {
 		return nil, err
 	}
 	return cookies, nil
@@ -122,21 +122,21 @@ func (s *Session) SetCookie(cookie *Cookie) error {
 		Cookie *Cookie `json:"cookie"`
 	}{cookie}
 
-	return s.Send("cookie", "POST", request, nil)
+	return s.Send("POST", "cookie", request, nil)
 }
 
 func (s *Session) DeleteCookie(cookieName string) error {
-	return s.Send("cookie/"+cookieName, "DELETE", nil, nil)
+	return s.Send("DELETE", "cookie/"+cookieName, nil, nil)
 }
 
 func (s *Session) DeleteCookies() error {
-	return s.Send("cookie", "DELETE", nil, nil)
+	return s.Send("DELETE", "cookie", nil, nil)
 }
 
 func (s *Session) GetScreenshot() ([]byte, error) {
 	var base64Image string
 
-	if err := s.Send("screenshot", "GET", nil, &base64Image); err != nil {
+	if err := s.Send("GET", "screenshot", nil, &base64Image); err != nil {
 		return nil, err
 	}
 
@@ -145,7 +145,7 @@ func (s *Session) GetScreenshot() ([]byte, error) {
 
 func (s *Session) GetURL() (string, error) {
 	var url string
-	if err := s.Send("url", "GET", nil, &url); err != nil {
+	if err := s.Send("GET", "url", nil, &url); err != nil {
 		return "", err
 	}
 
@@ -157,12 +157,12 @@ func (s *Session) SetURL(url string) error {
 		URL string `json:"url"`
 	}{url}
 
-	return s.Send("url", "POST", request, nil)
+	return s.Send("POST", "url", request, nil)
 }
 
 func (s *Session) GetTitle() (string, error) {
 	var title string
-	if err := s.Send("title", "GET", nil, &title); err != nil {
+	if err := s.Send("GET", "title", nil, &title); err != nil {
 		return "", err
 	}
 
@@ -171,7 +171,7 @@ func (s *Session) GetTitle() (string, error) {
 
 func (s *Session) GetSource() (string, error) {
 	var source string
-	if err := s.Send("source", "GET", nil, &source); err != nil {
+	if err := s.Send("GET", "source", nil, &source); err != nil {
 		return "", err
 	}
 
@@ -179,7 +179,7 @@ func (s *Session) GetSource() (string, error) {
 }
 
 func (s *Session) DoubleClick() error {
-	return s.Send("doubleclick", "POST", nil, nil)
+	return s.Send("POST", "doubleclick", nil, nil)
 }
 
 func (s *Session) MoveTo(region *Element, offset Offset) error {
@@ -200,7 +200,7 @@ func (s *Session) MoveTo(region *Element, offset Offset) error {
 		}
 	}
 
-	return s.Send("moveto", "POST", request, nil)
+	return s.Send("POST", "moveto", request, nil)
 }
 
 func (s *Session) Frame(frame *Element) error {
@@ -216,11 +216,11 @@ func (s *Session) Frame(frame *Element) error {
 		ID interface{} `json:"id"`
 	}{elementID}
 
-	return s.Send("frame", "POST", request, nil)
+	return s.Send("POST", "frame", request, nil)
 }
 
 func (s *Session) FrameParent() error {
-	return s.Send("frame/parent", "POST", nil, nil)
+	return s.Send("POST", "frame/parent", nil, nil)
 }
 
 func (s *Session) Execute(body string, arguments []interface{}, result interface{}) error {
@@ -233,7 +233,7 @@ func (s *Session) Execute(body string, arguments []interface{}, result interface
 		Args   []interface{} `json:"args"`
 	}{body, arguments}
 
-	if err := s.Send("execute", "POST", request, result); err != nil {
+	if err := s.Send("POST", "execute", request, result); err != nil {
 		return err
 	}
 
@@ -241,20 +241,20 @@ func (s *Session) Execute(body string, arguments []interface{}, result interface
 }
 
 func (s *Session) Forward() error {
-	return s.Send("forward", "POST", nil, nil)
+	return s.Send("POST", "forward", nil, nil)
 }
 
 func (s *Session) Back() error {
-	return s.Send("back", "POST", nil, nil)
+	return s.Send("POST", "back", nil, nil)
 }
 
 func (s *Session) Refresh() error {
-	return s.Send("refresh", "POST", nil, nil)
+	return s.Send("POST", "refresh", nil, nil)
 }
 
 func (s *Session) GetAlertText() (string, error) {
 	var text string
-	if err := s.Send("alert_text", "GET", nil, &text); err != nil {
+	if err := s.Send("GET", "alert_text", nil, &text); err != nil {
 		return "", err
 	}
 	return text, nil
@@ -264,15 +264,15 @@ func (s *Session) SetAlertText(text string) error {
 	request := struct {
 		Text string `json:"text"`
 	}{text}
-	return s.Send("alert_text", "POST", request, nil)
+	return s.Send("POST", "alert_text", request, nil)
 }
 
 func (s *Session) AcceptAlert() error {
-	return s.Send("accept_alert", "POST", nil, nil)
+	return s.Send("POST", "accept_alert", nil, nil)
 }
 
 func (s *Session) DismissAlert() error {
-	return s.Send("dismiss_alert", "POST", nil, nil)
+	return s.Send("POST", "dismiss_alert", nil, nil)
 }
 
 func (s *Session) NewLogs(logType string) ([]Log, error) {
@@ -281,7 +281,7 @@ func (s *Session) NewLogs(logType string) ([]Log, error) {
 	}{logType}
 
 	var logs []Log
-	if err := s.Send("log", "POST", request, &logs); err != nil {
+	if err := s.Send("POST", "log", request, &logs); err != nil {
 		return nil, err
 	}
 	return logs, nil
@@ -289,7 +289,7 @@ func (s *Session) NewLogs(logType string) ([]Log, error) {
 
 func (s *Session) GetLogTypes() ([]string, error) {
 	var types []string
-	if err := s.Send("log/types", "GET", nil, &types); err != nil {
+	if err := s.Send("GET", "log/types", nil, &types); err != nil {
 		return nil, err
 	}
 	return types, nil
