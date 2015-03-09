@@ -84,6 +84,10 @@ func (s *Session) GetWindows() ([]*Window, error) {
 }
 
 func (s *Session) SetWindow(window *Window) error {
+	if window == nil {
+		return errors.New("nil window is invalid")
+	}
+
 	request := struct {
 		Name string `json:"name"`
 	}{window.ID}

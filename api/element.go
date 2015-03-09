@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"path"
 	"strings"
 )
@@ -116,6 +117,9 @@ func (e *Element) Submit() error {
 }
 
 func (e *Element) IsEqualTo(other *Element) (bool, error) {
+	if other == nil {
+		return false, errors.New("nil element is invalid")
+	}
 	var equal bool
 	if err := e.Send("GET", path.Join("equals", other.ID), nil, &equal); err != nil {
 		return false, err
