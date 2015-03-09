@@ -1,4 +1,4 @@
-package mobile
+package appium
 
 import (
 	"fmt"
@@ -7,18 +7,16 @@ import (
 	"github.com/sclevine/agouti/api"
 )
 
-// Move all this to appium, there are no TouchAction objects according to the API
-
 type TouchAction struct {
 	Actions []Action
 	Element *api.Element
-	Session *Session
+	session mobileSession
 }
 
-func newTouchAction(session *Session) *TouchAction {
+func NewTouchAction(session mobileSession) *TouchAction {
 	return &TouchAction{
 		Actions: make([]Action, 0),
-		Session: session,
+		session: session,
 	}
 }
 
@@ -58,7 +56,12 @@ func (ma *TouchAction) MoveTo() *TouchAction {
 }
 
 func (ma *TouchAction) Perform() error {
-	err := ma.Session.Send("touch/perform", "POST", ma, nil)
+	var actions []interface{}
+	for _, act := range ma.Actions {
+		actions = append(actions, interface{}(act))
+	}
+
+	err := ma.session.PerformTouch(actions)
 	if err != nil {
 		return fmt.Errorf("error performing touch actions '%s': %s", ma, err)
 	}

@@ -9,10 +9,10 @@ import (
 )
 
 type mobileSession interface {
-	SetEndpoint(thing string) error
 	LaunchApp() error
 	CloseApp() error
 	InstallApp(appPath string) error
+	PerformTouch(actions []interface{}) error
 }
 
 type Device struct {
@@ -25,13 +25,6 @@ func newDevice(session *mobile.Session, page *agouti.Page) *Device {
 		Page:    page,
 		session: session,
 	}
-}
-
-func (d *Device) DeviceMethod(thing string) error {
-	if err := d.session.SetEndpoint(thing); err != nil {
-		return fmt.Errorf("failed to do stuff: %s", err)
-	}
-	return nil
 }
 
 // Override Find to find by A11y instead of CSS selector

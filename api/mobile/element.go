@@ -15,22 +15,6 @@ func (e *Element) SetThing() (string, error) {
 	return text, nil
 }
 
-func (e *Element) Tap() error {
-	ma := newTouchAction(e.Session)
-	ma.Element = e.Element
-	return ma.Perform()
-}
-
-func (e *Element) Actions() *TouchAction {
-	ma := newTouchAction(e.Session)
-	ma.Element = e.Element
-	return ma
-}
-
-func (e *Element) PerformMultiTouch(actions ...*TouchAction) error {
-	return nil
-}
-
 // override methods like this and return mobile.Element!
 func (e *Element) GetElement(selector api.Selector) (*Element, error) {
 	apiElement, err := e.Element.GetElement(selector)

@@ -8,14 +8,6 @@ type Session struct {
 	*api.Session
 }
 
-func (s *Session) SetEndpoint(thing string) error {
-	if err := s.Send("endpoint", "POST", thing, nil); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // override methods like this and return mobile.Element!
 func (s *Session) GetElement(selector api.Selector) (*Element, error) {
 	apiElement, err := s.Session.GetElement(selector)
@@ -29,6 +21,15 @@ func (s *Session) GetElement(selector api.Selector) (*Element, error) {
 //
 // Appium-centric functions
 //
+
+func (s *Session) PerformTouch(actions []interface{}) error {
+	request := struct {
+		Actions []interface{} `json:"actions"`
+	}{actions}
+
+	return s.Send("POST", "touch/perform", request, nil)
+}
+
 
 func (s *Session) InstallApp(appPath string) error {
 	request := struct {
