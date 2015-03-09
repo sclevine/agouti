@@ -44,11 +44,12 @@ func (d *Device) FindByXPath(xPath string) *Selection {
 	return d.addSelector(target.XPath, xPath)
 }
 
-// Make this behave differently on different devices
-// Consider appium.Android() and appium.IOS() just like
-// agouti has agouti.PhantomJS() and agouti.Selenium().
-func (d *Device) FindByUI(uiQuery string) *Selection {
-	return d.addSelector(target.AndroidAut, uiQuery)
+func (d *Device) FindByAndroidUI(uiautomatorQuery string) *Selection {
+	return d.addSelector(target.AndroidAut, uiautomatorQuery)
+}
+
+func (d *Device) FindByiOSUI(uiautomationQuery string) *Selection {
+	return d.addSelector(target.IOSAut, uiautomationQuery)
 }
 
 func (d *Device) addSelector(selectorType target.Type, value string) *Selection {

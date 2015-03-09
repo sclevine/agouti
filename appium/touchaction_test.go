@@ -11,7 +11,7 @@ var _ = i.Describe("TouchAction", func() {
 
 	i.It("should work", func() {
 		ta := appium.NewTouchAction(session)
-		ta.Tap()
-		Expect(ta.String()).To(Equal("tap"))
+		ta.Tap().Tap()
+		Expect(ta.String()).To(Equal("tap, tap"))
 	})
 })
