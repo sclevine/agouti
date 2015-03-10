@@ -2,11 +2,13 @@ package appium
 
 import (
 	"github.com/sclevine/agouti"
+	"github.com/sclevine/agouti/internal/element"
 	"github.com/sclevine/agouti/internal/target"
 )
 
 type Selection struct {
 	*agouti.Selection
+	elements elementRepository
 	session mobileSession
 }
 
@@ -42,15 +44,19 @@ func (s *Selection) FindByiOSUI(uiautomationQuery string) *Selection {
 	return s.newSelection(s.appendSelector(target.IOSAut, uiautomationQuery).Single())
 }
 
-
-
 // Selection helpers
 func (s *Selection) appendSelector(selectorType target.Type, value string) target.Selectors {
 	return target.Selectors(s.Selectors()).Append(selectorType, value)
 }
 func (s *Selection) newSelection(selectors target.Selectors) *Selection {
-	return &Selection{s.WithSelectors(agouti.Selectors(selectors)), s.session}
+	return &Selection{s.WithSelectors(agouti.Selectors(selectors)), &element.Repository{Client: s.session}, s.session}
 }
 func (s *Selection) wrap(selection *agouti.Selection) *Selection {
-	return &Selection{selection, s.session}
+	return &Selection{selection, &element.Repository{Client: s.session}, s.session}
+}
+
+type elementRepository interface {
+	Get(selectors target.Selectors) ([]element.Element, error)
+	GetAtLeastOne(selectors target.Selectors) ([]element.Element, error)
+	GetExactlyOne(selectors target.Selectors) (element.Element, error)
 }

@@ -4,10 +4,12 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti"
+	"github.com/sclevine/agouti/internal/element"
 	"github.com/sclevine/agouti/internal/target"
 )
 
 type mobileSession interface {
+	element.Client
 	LaunchApp() error
 	CloseApp() error
 	InstallApp(appPath string) error
@@ -100,13 +102,13 @@ func (d *Device) addSelector(selectorType target.Type, value string) target.Sele
 	return target.Selectors(target.Selectors{}.Append(selectorType, value))
 }
 func (d *Device) newSelection(selectors target.Selectors) *Selection {
-	return &Selection{d.WithSelectors(agouti.Selectors(selectors)), d.session}
+	return &Selection{d.WithSelectors(agouti.Selectors(selectors)), &element.Repository{Client: d.session}, d.session}
 }
 func (d *Device) newMultiSelection(selectors target.Selectors) *MultiSelection {
 	return &MultiSelection{*d.newSelection(selectors), d.newSelection}
 }
 func (d *Device) wrapSelection(selection *agouti.Selection) *Selection {
-	return &Selection{selection, d.session}
+	return &Selection{selection, &element.Repository{Client: d.session}, d.session}
 }
 func (d *Device) wrapMultiSelection(selection *agouti.MultiSelection) *MultiSelection {
 	return &MultiSelection{*d.wrapSelection(&selection.Selection), d.newSelection}

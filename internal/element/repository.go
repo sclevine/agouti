@@ -19,6 +19,7 @@ type Client interface {
 
 type Element interface {
 	Client
+	GetID() string
 	GetText() (string, error)
 	GetName() (string, error)
 	GetAttribute(attribute string) (string, error)

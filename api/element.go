@@ -15,6 +15,10 @@ func (e *Element) Send(method, endpoint string, body, result interface{}) error 
 	return e.Session.Send(method, path.Join("element", e.ID, endpoint), body, result)
 }
 
+func (e *Element) GetID() string {
+	return e.ID
+}
+
 func (e *Element) GetElement(selector Selector) (*Element, error) {
 	var result struct{ Element string }
 

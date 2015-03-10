@@ -3,6 +3,18 @@ package appium_test
 import "github.com/sclevine/agouti/api"
 
 type mockMobileSession struct {
+	GetElementCall struct {
+		Selector      api.Selector
+		ReturnElement *api.Element
+		Err           error
+	}
+
+	GetElementsCall struct {
+		Selector       api.Selector
+		ReturnElements []*api.Element
+		Err            error
+	}
+
 	PerformTouchCall struct {
 		Selector      api.Selector
 		ReturnElement *api.Element
@@ -22,18 +34,28 @@ type mockMobileSession struct {
 	}
 }
 
-func (ms *mockMobileSession) LaunchApp() error {
-	return ms.LaunchAppCall.Err
+func (s *mockMobileSession) GetElement(selector api.Selector) (*api.Element, error) {
+	s.GetElementCall.Selector = selector
+	return s.GetElementCall.ReturnElement, s.GetElementCall.Err
 }
 
-func (ms *mockMobileSession) CloseApp() error {
-	return ms.CloseAppCall.Err
+func (s *mockMobileSession) GetElements(selector api.Selector) ([]*api.Element, error) {
+	s.GetElementsCall.Selector = selector
+	return s.GetElementsCall.ReturnElements, s.GetElementsCall.Err
 }
 
-func (ms *mockMobileSession) InstallApp(appPath string) error {
-	return ms.InstallAppCall.Err
+func (s *mockMobileSession) LaunchApp() error {
+	return s.LaunchAppCall.Err
 }
 
-func (ms *mockMobileSession) PerformTouch(actions []interface{}) error {
-	return ms.PerformTouchCall.Err
+func (s *mockMobileSession) CloseApp() error {
+	return s.CloseAppCall.Err
+}
+
+func (s *mockMobileSession) InstallApp(appPath string) error {
+	return s.InstallAppCall.Err
+}
+
+func (s *mockMobileSession) PerformTouch(actions []interface{}) error {
+	return s.PerformTouchCall.Err
 }

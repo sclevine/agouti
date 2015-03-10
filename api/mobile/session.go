@@ -8,16 +8,6 @@ type Session struct {
 	*api.Session
 }
 
-// override methods like this and return mobile.Element!
-func (s *Session) GetElement(selector api.Selector) (*Element, error) {
-	apiElement, err := s.Session.GetElement(selector)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Element{apiElement, s}, nil
-}
-
 //
 // Appium-centric functions
 //
