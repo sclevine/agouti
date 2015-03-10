@@ -92,6 +92,14 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 					Expect(page.FindByButton("Some Submit Button")).To(HaveAttribute("type", "submit"))
 				})
 
+				By("finding an element by class", func() {
+					Expect(page.FindByClass("some-element")).To(HaveAttribute("id", "some_element"))
+				})
+
+				By("finding an element by ID", func() {
+					Expect(page.FindByID("some_element")).To(HaveAttribute("class", "some-element"))
+				})
+
 				By("finding multiple elements", func() {
 					Expect(page.All("select").All("option")).To(BeVisible())
 					Expect(page.All("h1,h2")).NotTo(BeVisible())

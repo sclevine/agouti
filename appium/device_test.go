@@ -17,6 +17,10 @@ var _ = Describe("Device selection methods", func() {
 		Expect(dev.Find(".go#css").String()).To(Equal(`selection 'CSS: .go#css [single]'`))
 	})
 
+	It("should successfully FindByID", func() {
+		Expect(dev.FindByID("an-id").String()).To(Equal(`selection 'ID: an-id [single]'`))
+	})
+
 	It("should successfully FindByXPath", func() {
 		Expect(dev.FindByXPath("//node").String()).To(Equal(`selection 'XPath: //node [single]'`))
 	})

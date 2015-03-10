@@ -57,6 +57,16 @@ var _ = Describe("Selectable", func() {
 		})
 	})
 
+	Describe("#FindByClass", func() {
+		method := func(selector string) finder { return selection.FindByClass(selector) }
+		itShouldSelect(method, `Class: selector [single]`)
+	})
+
+	Describe("#FindByID", func() {
+		method := func(selector string) finder { return selection.FindByID(selector) }
+		itShouldSelect(method, `ID: selector [single]`)
+	})
+
 	Describe("#First", func() {
 		It("should apply a zero-indexed CSS selector and return a selection with the same session", func() {
 			Expect(page.First("selector").String()).To(Equal("selection 'CSS: selector [0]'"))
@@ -92,6 +102,11 @@ var _ = Describe("Selectable", func() {
 		})
 	})
 
+	Describe("#FirstByClass", func() {
+		method := func(selector string) finder { return selection.FirstByClass(selector) }
+		itShouldSelect(method, `Class: selector [0]`)
+	})
+
 	Describe("#All", func() {
 		It("should apply an un-indexed CSS selector and return a selection with the same session", func() {
 			Expect(page.All("selector").String()).To(Equal("selection 'CSS: selector'"))
@@ -125,5 +140,10 @@ var _ = Describe("Selectable", func() {
 			Expect(page.AllByButton("selector").String()).To(Equal(`selection 'Button: "selector"'`))
 			Expect(page.AllByButton("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
 		})
+	})
+
+	Describe("#AllByClass", func() {
+		method := func(selector string) finder { return selection.AllByClass(selector) }
+		itShouldSelect(method, `Class: selector`)
 	})
 })

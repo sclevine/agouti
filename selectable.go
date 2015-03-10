@@ -73,6 +73,16 @@ func (s *selectable) FindByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).Single())
 }
 
+// FindByClass finds exactly one element with a given CSS class.
+func (s *selectable) FindByClass(text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).Single())
+}
+
+// FindByID finds exactly one element that has the given ID.
+func (s *selectable) FindByID(id string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.ID, id).Single())
+}
+
 // First finds the first element by CSS selector.
 func (s *selectable) First(selector string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
@@ -99,6 +109,11 @@ func (s *selectable) FirstByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).At(0))
 }
 
+// FirstByClass finds the first element with a given CSS class.
+func (s *selectable) FirstByClass(text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
+}
+
 // All finds zero or more elements by CSS selector.
 func (s *selectable) All(selector string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.CSS, selector))
@@ -123,6 +138,11 @@ func (s *selectable) AllByLabel(text string) *MultiSelection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) AllByButton(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Button, text))
+}
+
+// AllByClass finds zero or more elements with a given CSS class.
+func (s *selectable) AllByClass(text string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.Class, text))
 }
 
 func (s *selectable) WithSelectors(selectors Selectors) *Selection {

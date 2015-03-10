@@ -16,6 +16,10 @@ func (s *Selection) Find(selector string) *Selection {
 	return s.wrap(s.Selection.Find(selector))
 }
 
+func (s *Selection) FindByID(selector string) *Selection {
+	return s.wrap(s.Selection.FindByID(selector))
+}
+
 func (s *Selection) FindByXPath(xPath string) *Selection {
 	return s.wrap(s.Selection.FindByXPath(xPath))
 }

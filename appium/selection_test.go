@@ -18,6 +18,10 @@ var _ = Describe("Selection", func() {
 		Expect(baseSel.Find(".go#css").String()).To(Equal(`selection 'CSS: .root [single] | CSS: .go#css [single]'`))
 	})
 
+	It("should successfully FindByID", func() {
+		Expect(baseSel.FindByID("an-id").String()).To(Equal(`selection 'CSS: .root [single] | ID: an-id [single]'`))
+	})
+
 	It("should successfully FindByXPath", func() {
 		Expect(baseSel.FindByXPath("//node").String()).To(Equal(`selection 'CSS: .root [single] | XPath: //node [single]'`))
 	})

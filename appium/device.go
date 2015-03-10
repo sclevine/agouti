@@ -40,8 +40,17 @@ func (d *Device) FindByLink(text string) *Selection {
 	return d.wrapSelection(d.Page.FindByLink(text))
 }
 
+// Finds exactly one element by class. Native views query the class of the widgets with this method.
+func (d *Device) FindByClass(text string) *Selection {
+	return d.wrapSelection(d.Page.FindByClass(text))
+}
+
 func (d *Device) All(selector string) *MultiSelection {
 	return d.wrapMultiSelection(d.Page.All(selector))
+}
+
+func (d *Device) AllByClass(selector string) *MultiSelection {
+	return d.wrapMultiSelection(d.Page.AllByClass(selector))
 }
 
 // Appium-specific selectors
@@ -49,11 +58,6 @@ func (d *Device) All(selector string) *MultiSelection {
 // Finds by Accessibility ID, under Android and iOS
 func (d *Device) FindByA11yID(id string) *Selection {
 	return d.newSelection(d.addSelector(target.A11yID, id).Single())
-}
-
-// Finds by class, Appium searches native view classes with this method.
-func (d *Device) FindByClass(class string) *Selection {
-	return d.newSelection(d.addSelector(target.Class, class).Single())
 }
 
 func (d *Device) FindByAndroidUI(uiautomatorQuery string) *Selection {
