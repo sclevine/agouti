@@ -1,80 +1,39 @@
-package appium
+package appium_test
 
-import (
-	"github.com/onsi/gomega/types"
-	"github.com/sclevine/agouti"
-)
+import "github.com/sclevine/agouti/appium"
 
-var _ = Describe("Device", func() {
-	var dev *Device
-	var baseSel *Selection
+var _ = Describe("Device action methods", func() {
+})
+
+var _ = Describe("Device selection methods", func() {
+	var dev *appium.Device
 
 	BeforeEach(func() {
 		session := &mockMobileSession{}
-		dev = newDevice(session, &agouti.Page{})
-		baseSel = dev.Find(".root")
+		dev = appium.NewTestDevice(session)
 	})
 
-	bePrefixed := func(prefix string) types.GomegaMatcher {
-		return Equal("selection '" + prefix + "'")
-	}
-	beBasePrefixed := func(prefix string) types.GomegaMatcher {
-		return Equal("selection 'CSS: .root [single] | " + prefix + "'")
-	}
+	It("should successfully Find", func() {
+		Expect(dev.Find(".go#css").String()).To(Equal(`selection 'CSS: .go#css [single]'`))
+	})
 
-	expectDeviceAndSelectionOutput := func(deviceSelection *Selection, chainedSelection *Selection, output string) {
-		Expect(deviceSelection.String()).To(bePrefixed(output))
-		Expect(chainedSelection.String()).To(beBasePrefixed(output))
-	}
+	It("should successfully FindByXPath", func() {
+		Expect(dev.FindByXPath("//node").String()).To(Equal(`selection 'XPath: //node [single]'`))
+	})
 
-	Describe("#Find... methods", func() {
-		It("should Find", func() {
-			expectDeviceAndSelectionOutput(
-				dev.Find(".go#css"),
-				baseSel.Find(".go#css"),
-				`CSS: .go#css [single]`,
-			)
-		})
+	It("should successfully FindByA11yID", func() {
+		Expect(dev.FindByA11yID("this-id").String()).To(Equal(`selection 'Accessibility ID: this-id [single]'`))
+	})
 
-		It("should FindByXPath", func() {
-			expectDeviceAndSelectionOutput(
-				dev.FindByXPath("//node"),
-				baseSel.FindByXPath("//node"),
-				`XPath: //node [single]`,
-			)
-		})
+	It("should successfully FindByAndroidUI", func() {
+		Expect(dev.FindByAndroidUI("this-ui").String()).To(Equal(`selection 'Android UIAut.: this-ui [single]'`))
+	})
 
-		It("should FindByA11yID", func() {
-			expectDeviceAndSelectionOutput(
-				dev.FindByA11yID("this-id"),
-				baseSel.FindByA11yID("this-id"),
-				`Accessibility ID: this-id [single]`,
-			)
-		})
+	It("should successfully FindByiOSUI", func() {
+		Expect(dev.FindByiOSUI("this-ui").String()).To(Equal(`selection 'iOS UIAut.: this-ui [single]'`))
+	})
 
-		It("should FindByAndroidUI", func() {
-			expectDeviceAndSelectionOutput(
-				dev.FindByAndroidUI("this-ui"),
-				baseSel.FindByAndroidUI("this-ui"),
-				`Android UIAut.: this-ui [single]`,
-			)
-		})
-
-		It("should FindByiOSUI", func() {
-			expectDeviceAndSelectionOutput(
-				dev.FindByiOSUI("this-ui"),
-				baseSel.FindByiOSUI("this-ui"),
-				`iOS UIAut.: this-ui [single]`,
-			)
-		})
-
-		It("should FindByLink", func() {
-			expectDeviceAndSelectionOutput(
-				dev.FindByLink("a link"),
-				baseSel.FindByLink("a link"),
-				`Link: "a link" [single]`,
-			)
-		})
-
+	It("should successfully FindByLink", func() {
+		Expect(dev.FindByLink("a link").String()).To(Equal(`selection 'Link: "a link" [single]'`))
 	})
 })

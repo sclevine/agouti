@@ -40,6 +40,10 @@ func (d *Device) FindByLink(text string) *Selection {
 	return d.wrapSelection(d.Page.FindByLink(text))
 }
 
+func (d *Device) All(selector string) *MultiSelection {
+	return d.wrapMultiSelection(d.Page.All(selector))
+}
+
 // Appium-specific selectors
 
 // Finds by Accessibility ID, under Android and iOS
@@ -94,6 +98,12 @@ func (d *Device) addSelector(selectorType target.Type, value string) target.Sele
 func (d *Device) newSelection(selectors target.Selectors) *Selection {
 	return &Selection{d.WithSelectors(agouti.Selectors(selectors)), d.session}
 }
+func (d *Device) newMultiSelection(selectors target.Selectors) *MultiSelection {
+	return &MultiSelection{*d.newSelection(selectors), d.newSelection}
+}
 func (d *Device) wrapSelection(selection *agouti.Selection) *Selection {
 	return &Selection{selection, d.session}
+}
+func (d *Device) wrapMultiSelection(selection *agouti.MultiSelection) *MultiSelection {
+	return &MultiSelection{*d.wrapSelection(&selection.Selection), d.newSelection}
 }

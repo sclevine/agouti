@@ -1,4 +1,4 @@
-package appium
+package appium_test
 
 import "github.com/sclevine/agouti/api"
 
