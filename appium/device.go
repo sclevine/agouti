@@ -26,37 +26,41 @@ func newDevice(session mobileSession, page *agouti.Page) *Device {
 	}
 }
 
-// Override Find to find by A11y instead of CSS selector
-// Note: embedded overrides don't need the same signature - just method name.
-func (d *Device) Find(id string) *Selection {
-	return d.addSelector(target.A11yID, id)
-}
+// Agouti wrapped selectors
 
-func (d *Device) FindByID(resourceID string) *Selection {
-	return d.addSelector(target.A11yID, resourceID) // needs new target type
-}
-
-func (d *Device) FindByClass(class string) *Selection {
-	return d.addSelector(target.Class, class)
+func (d *Device) Find(selector string) *Selection {
+	return d.wrapSelection(d.Page.Find(selector))
 }
 
 func (d *Device) FindByXPath(xPath string) *Selection {
-	return d.addSelector(target.XPath, xPath)
+	return d.wrapSelection(d.Page.FindByXPath(xPath))
+}
+
+func (d *Device) FindByLink(text string) *Selection {
+	return d.wrapSelection(d.Page.FindByLink(text))
+}
+
+// Appium-specific selectors
+
+// Finds by Accessibility ID, under Android and iOS
+func (d *Device) FindByA11yID(id string) *Selection {
+	return d.newSelection(d.addSelector(target.A11yID, id).Single())
+}
+
+// Finds by class, Appium searches native view classes with this method.
+func (d *Device) FindByClass(class string) *Selection {
+	return d.newSelection(d.addSelector(target.Class, class).Single())
 }
 
 func (d *Device) FindByAndroidUI(uiautomatorQuery string) *Selection {
-	return d.addSelector(target.AndroidAut, uiautomatorQuery)
+	return d.newSelection(d.addSelector(target.AndroidAut, uiautomatorQuery).Single())
 }
 
 func (d *Device) FindByiOSUI(uiautomationQuery string) *Selection {
-	return d.addSelector(target.IOSAut, uiautomationQuery)
+	return d.newSelection(d.addSelector(target.IOSAut, uiautomationQuery).Single())
 }
 
-func (d *Device) addSelector(selectorType target.Type, value string) *Selection {
-	selectors := target.Selectors{}.Append(selectorType, value)
-	selection := d.WithSelectors(agouti.Selectors(selectors))
-	return &Selection{selection, d.session}
-}
+// Device methods
 
 func (d *Device) LaunchApp() error {
 	if err := d.session.LaunchApp(); err != nil {
@@ -79,8 +83,17 @@ func (d *Device) InstallApp(appPath string) error {
 	return nil
 }
 
-// Don't return anything from the mobile package. Bring TouchAction up
-// to the appium level.
 func (d *Device) TouchAction() *TouchAction {
 	return NewTouchAction(d.session)
+}
+
+// Selection helpers
+func (d *Device) addSelector(selectorType target.Type, value string) target.Selectors {
+	return target.Selectors(target.Selectors{}.Append(selectorType, value))
+}
+func (d *Device) newSelection(selectors target.Selectors) *Selection {
+	return &Selection{d.WithSelectors(agouti.Selectors(selectors)), d.session}
+}
+func (d *Device) wrapSelection(selection *agouti.Selection) *Selection {
+	return &Selection{selection, d.session}
 }

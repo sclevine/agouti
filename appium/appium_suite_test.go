@@ -1,13 +1,25 @@
-package appium_test
+package appium
 
 import (
-        "testing"
+	"testing"
 
-        . "github.com/onsi/ginkgo"
-        . "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 )
 
 func TestAppium(t *testing.T) {
-        RegisterFailHandler(Fail)
-        RunSpecs(t, "Appium Suite")
+	gomega.RegisterFailHandler(ginkgo.Fail)
+	ginkgo.RunSpecs(t, "Appium Suite")
 }
+
+// gomega shortcuts
+var Expect = gomega.Expect
+var ExpectWithOffset = gomega.ExpectWithOffset
+var BeTrue = gomega.BeTrue
+var Equal = gomega.Equal
+
+// ginkgo shortcuts
+var Describe = ginkgo.Describe
+var It = ginkgo.It
+var BeforeEach = ginkgo.BeforeEach
+var Context = ginkgo.Context

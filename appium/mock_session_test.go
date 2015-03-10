@@ -1,4 +1,4 @@
-package appium_test
+package appium
 
 import "github.com/sclevine/agouti/api"
 
@@ -10,18 +10,17 @@ type mockMobileSession struct {
 	}
 
 	LaunchAppCall struct {
-		Err           error
+		Err error
 	}
 
 	CloseAppCall struct {
-		Err           error
+		Err error
 	}
 
 	InstallAppCall struct {
-		Err           error
+		Err error
 	}
 }
-
 
 func (ms *mockMobileSession) LaunchApp() error {
 	return ms.LaunchAppCall.Err
