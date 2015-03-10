@@ -22,8 +22,8 @@ import (
 //    selection.Find("table").All("tr").Find("td").All("input[type=checkbox]").Check()
 // Checks all checkboxes in the first-and-only cell of each row in the only table.
 type Selection struct {
-	elements elementRepository
 	selectable
+	elements elementRepository
 }
 
 type elementRepository interface {
@@ -32,8 +32,8 @@ type elementRepository interface {
 	GetExactlyOne(selectors target.Selectors) (element.Element, error)
 }
 
-func newSelection(session selectionSession, selectors target.Selectors) *Selection {
-	return &Selection{&element.Repository{Client: session}, selectable{session, selectors}}
+func newSelection(session apiSession, selectors target.Selectors) *Selection {
+	return &Selection{selectable{session, selectors}, &element.Repository{Client: session}}
 }
 
 // String returns a string representation of the selection, ex.

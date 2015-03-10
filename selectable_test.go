@@ -10,106 +10,120 @@ import (
 
 var _ = Describe("Selectable", func() {
 	var (
-		bus       *mocks.Bus
-		session   *api.Session
-		selection *Selection
+		bus     *mocks.Bus
+		session *api.Session
+		page    *Page
 	)
 
 	BeforeEach(func() {
 		bus = &mocks.Bus{}
 		session = &api.Session{Bus: bus}
-		selection = NewTestSelection(nil, session, "#test")
+		page = NewTestPage(session)
+		bus.SendCall.Result = `[{"ELEMENT": ""}]`
 	})
 
-	type finder interface {
-		String() string
-		Find(selector string) *Selection
-	}
-
-	itShouldSelect := func(method func(string) finder, expected string) {
-		It("should apply the appropriate selectors", func() {
-			Expect(method("selector").String()[33:]).To(Equal(expected + "'"))
-		})
-
-		It("should provide the selectable's session to the element repository", func() {
-			bus.SendCall.Result = `[{"ELEMENT": "some-id"}]`
-			elements, _ := method("a").Find("b").Elements()
-			Expect(elements[0].ID).To(Equal("some-id"))
-		})
-	}
-
 	Describe("#Find", func() {
-		method := func(selector string) finder { return selection.Find(selector) }
-		itShouldSelect(method, "CSS: selector [single]")
+		It("should apply a single CSS selector and return a selection with the same session", func() {
+			Expect(page.Find("selector").String()).To(Equal("selection 'CSS: selector [single]'"))
+			Expect(page.Find("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FindByXPath", func() {
-		method := func(selector string) finder { return selection.FindByXPath(selector) }
-		itShouldSelect(method, "XPath: selector [single]")
+		It("should apply a single XPath selector and return a selection with the same session", func() {
+			Expect(page.FindByXPath("selector").String()).To(Equal("selection 'XPath: selector [single]'"))
+			Expect(page.FindByXPath("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FindByLink", func() {
-		method := func(selector string) finder { return selection.FindByLink(selector) }
-		itShouldSelect(method, `Link: "selector" [single]`)
+		It("should apply a single link selector and return a selection with the same session", func() {
+			Expect(page.FindByLink("selector").String()).To(Equal(`selection 'Link: "selector" [single]'`))
+			Expect(page.FindByLink("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FindByLabel", func() {
-		method := func(selector string) finder { return selection.FindByLabel(selector) }
-		itShouldSelect(method, `Label: "selector" [single]`)
+		It("should apply a single label selector and return a selection with the same session", func() {
+			Expect(page.FindByLabel("selector").String()).To(Equal(`selection 'Label: "selector" [single]'`))
+			Expect(page.FindByLabel("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FindByButton", func() {
-		method := func(selector string) finder { return selection.FindByButton(selector) }
-		itShouldSelect(method, `Button: "selector" [single]`)
+		It("should apply a single button text selector and return a selection with the same session", func() {
+			Expect(page.FindByButton("selector").String()).To(Equal(`selection 'Button: "selector" [single]'`))
+			Expect(page.FindByButton("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#First", func() {
-		method := func(selector string) finder { return selection.First(selector) }
-		itShouldSelect(method, "CSS: selector [0]")
+		It("should apply a zero-indexed CSS selector and return a selection with the same session", func() {
+			Expect(page.First("selector").String()).To(Equal("selection 'CSS: selector [0]'"))
+			Expect(page.First("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FirstByXPath", func() {
-		method := func(selector string) finder { return selection.FirstByXPath(selector) }
-		itShouldSelect(method, "XPath: selector [0]")
+		It("should apply a zero-indexed XPath selector and return a selection with the same session", func() {
+			Expect(page.FirstByXPath("selector").String()).To(Equal("selection 'XPath: selector [0]'"))
+			Expect(page.FirstByXPath("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FirstByLink", func() {
-		method := func(selector string) finder { return selection.FirstByLink(selector) }
-		itShouldSelect(method, `Link: "selector" [0]`)
+		It("should apply a zero-indexed link selector and return a selection with the same session", func() {
+			Expect(page.FirstByLink("selector").String()).To(Equal(`selection 'Link: "selector" [0]'`))
+			Expect(page.FirstByLink("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FirstByLabel", func() {
-		method := func(selector string) finder { return selection.FirstByLabel(selector) }
-		itShouldSelect(method, `Label: "selector" [0]`)
+		It("should apply a zero-indexed label selector and return a selection with the same session", func() {
+			Expect(page.FirstByLabel("selector").String()).To(Equal(`selection 'Label: "selector" [0]'`))
+			Expect(page.FirstByLabel("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FirstByButton", func() {
-		method := func(selector string) finder { return selection.FirstByButton(selector) }
-		itShouldSelect(method, `Button: "selector" [0]`)
+		It("should apply a zero-indexed button text selector and return a selection with the same session", func() {
+			Expect(page.FirstByButton("selector").String()).To(Equal(`selection 'Button: "selector" [0]'`))
+			Expect(page.FirstByButton("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#All", func() {
-		method := func(selector string) finder { return selection.All(selector) }
-		itShouldSelect(method, "CSS: selector")
+		It("should apply an un-indexed CSS selector and return a selection with the same session", func() {
+			Expect(page.All("selector").String()).To(Equal("selection 'CSS: selector'"))
+			Expect(page.All("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#AllByXPath", func() {
-		method := func(selector string) finder { return selection.AllByXPath(selector) }
-		itShouldSelect(method, "XPath: selector")
+		It("should apply an un-indexed XPath selector and return a selection with the same session", func() {
+			Expect(page.AllByXPath("selector").String()).To(Equal("selection 'XPath: selector'"))
+			Expect(page.AllByXPath("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#AllByLink", func() {
-		method := func(selector string) finder { return selection.AllByLink(selector) }
-		itShouldSelect(method, `Link: "selector"`)
+		It("should apply an un-indexed link selector and return a selection with the same session", func() {
+			Expect(page.AllByLink("selector").String()).To(Equal(`selection 'Link: "selector"'`))
+			Expect(page.AllByLink("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#AllByLabel", func() {
-		method := func(selector string) finder { return selection.AllByLabel(selector) }
-		itShouldSelect(method, `Label: "selector"`)
+		It("should apply an un-indexed label selector and return a selection with the same session", func() {
+			Expect(page.AllByLabel("selector").String()).To(Equal(`selection 'Label: "selector"'`))
+			Expect(page.AllByLabel("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#AllByButton", func() {
-		method := func(selector string) finder { return selection.AllByButton(selector) }
-		itShouldSelect(method, `Button: "selector"`)
+		It("should apply an un-indexed button text selector and return a selection with the same session", func() {
+			Expect(page.AllByButton("selector").String()).To(Equal(`selection 'Button: "selector"'`))
+			Expect(page.AllByButton("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 })

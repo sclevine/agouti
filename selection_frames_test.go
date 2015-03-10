@@ -20,7 +20,7 @@ var _ = Describe("Selection Frames", func() {
 	BeforeEach(func() {
 		session = &mocks.Session{}
 		elementRepository = &mocks.ElementRepository{}
-		selection = NewTestSelection(elementRepository, session, "#selector")
+		selection = NewTestSelection(session, elementRepository, "#selector")
 	})
 
 	Describe("#SwitchToFrame", func() {

@@ -38,7 +38,7 @@ var _ = Describe("Selection", func() {
 
 		BeforeEach(func() {
 			elementRepository = &mocks.ElementRepository{}
-			selection = NewTestSelection(elementRepository, nil, "#selector")
+			selection = NewTestSelection(nil, elementRepository, "#selector")
 		})
 
 		It("should return a []*api.Elements retrieved from the element repository", func() {
@@ -64,7 +64,7 @@ var _ = Describe("Selection", func() {
 
 		BeforeEach(func() {
 			elementRepository = &mocks.ElementRepository{}
-			selection = NewTestMultiSelection(elementRepository, nil, "#selector")
+			selection = NewTestMultiSelection(nil, elementRepository, "#selector")
 			elementRepository.GetCall.ReturnElements = []element.Element{firstElement, secondElement}
 		})
 
@@ -99,11 +99,11 @@ var _ = Describe("Selection", func() {
 		BeforeEach(func() {
 			firstElementRepository = &mocks.ElementRepository{}
 			firstElementRepository.GetExactlyOneCall.ReturnElement = firstElement
-			firstSelection = NewTestSelection(firstElementRepository, nil, "#first_selector")
+			firstSelection = NewTestSelection(nil, firstElementRepository, "#first_selector")
 
 			secondElementRepository = &mocks.ElementRepository{}
 			secondElementRepository.GetExactlyOneCall.ReturnElement = secondElement
-			secondSelection = NewTestSelection(secondElementRepository, nil, "#second_selector")
+			secondSelection = NewTestSelection(nil, secondElementRepository, "#second_selector")
 		})
 
 		It("should compare the selection elements for equality", func() {
@@ -123,7 +123,7 @@ var _ = Describe("Selection", func() {
 
 		Context("when the provided object is a *MultiSelection", func() {
 			It("should not fail", func() {
-				multiSelection := NewTestMultiSelection(secondElementRepository, nil, "#multi_selector")
+				multiSelection := NewTestMultiSelection(nil, secondElementRepository, "#multi_selector")
 				Expect(firstSelection.EqualsElement(multiSelection)).To(BeFalse())
 				Expect(firstElement.IsEqualToCall.Element).To(Equal(secondElement))
 			})

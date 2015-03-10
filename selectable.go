@@ -7,16 +7,42 @@ import (
 )
 
 type selectable struct {
-	session   selectionSession
+	session   apiSession
 	selectors target.Selectors
 }
 
-type selectionSession interface {
+type apiSession interface {
 	element.Client
+	Delete() error
 	GetActiveElement() (*api.Element, error)
+	GetWindow() (*api.Window, error)
+	GetWindows() ([]*api.Window, error)
+	SetWindow(window *api.Window) error
+	SetWindowByName(name string) error
+	DeleteWindow() error
+	GetScreenshot() ([]byte, error)
+	GetCookies() ([]*api.Cookie, error)
+	SetCookie(cookie *api.Cookie) error
+	DeleteCookie(name string) error
+	DeleteCookies() error
+	GetURL() (string, error)
+	SetURL(url string) error
+	GetTitle() (string, error)
+	GetSource() (string, error)
 	DoubleClick() error
 	MoveTo(element *api.Element, point api.Offset) error
 	Frame(frame *api.Element) error
+	FrameParent() error
+	Execute(body string, arguments []interface{}, result interface{}) error
+	Forward() error
+	Back() error
+	Refresh() error
+	GetAlertText() (string, error)
+	SetAlertText(text string) error
+	AcceptAlert() error
+	DismissAlert() error
+	NewLogs(logType string) ([]api.Log, error)
+	GetLogTypes() ([]string, error)
 }
 
 // Find finds exactly one element by CSS selector.

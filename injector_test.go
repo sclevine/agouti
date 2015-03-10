@@ -2,19 +2,19 @@ package agouti
 
 import "github.com/sclevine/agouti/internal/target"
 
-func NewTestSelection(elements elementRepository, session selectionSession, firstSelector string) *Selection {
+func NewTestSelection(session apiSession, elements elementRepository, firstSelector string) *Selection {
 	selector := target.Selector{Type: target.CSS, Value: firstSelector, Single: true}
-	return &Selection{elements, selectable{session, target.Selectors{selector}}}
+	return &Selection{selectable{session, target.Selectors{selector}}, elements}
 }
 
-func NewTestMultiSelection(elements elementRepository, session selectionSession, firstSelector string) *MultiSelection {
+func NewTestMultiSelection(session apiSession, elements elementRepository, firstSelector string) *MultiSelection {
 	selector := target.Selector{Type: target.CSS, Value: firstSelector}
-	selection := Selection{elements, selectable{session, target.Selectors{selector}}}
+	selection := Selection{selectable{session, target.Selectors{selector}}, elements}
 	return &MultiSelection{selection}
 }
 
-func NewTestPage(session pageSession) *Page {
-	return &Page{session, nil, selectable{}}
+func NewTestPage(session apiSession) *Page {
+	return &Page{selectable{session, nil}, nil}
 }
 
 func NewTestConfig() *config {

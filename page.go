@@ -17,39 +17,8 @@ import (
 // A Page represents an open browser session. Pages may be created using the
 // *WebDriver.Page() method or by calling the NewPage or SauceLabs functions.
 type Page struct {
-	session pageSession
-	logs    map[string][]Log
 	selectable
-}
-
-type pageSession interface {
-	Delete() error
-	GetWindow() (*api.Window, error)
-	GetWindows() ([]*api.Window, error)
-	SetWindow(window *api.Window) error
-	SetWindowByName(name string) error
-	DeleteWindow() error
-	GetScreenshot() ([]byte, error)
-	GetCookies() ([]*api.Cookie, error)
-	SetCookie(cookie *api.Cookie) error
-	DeleteCookie(name string) error
-	DeleteCookies() error
-	GetURL() (string, error)
-	SetURL(url string) error
-	GetTitle() (string, error)
-	GetSource() (string, error)
-	Frame(frame *api.Element) error
-	FrameParent() error
-	Execute(body string, arguments []interface{}, result interface{}) error
-	Forward() error
-	Back() error
-	Refresh() error
-	GetAlertText() (string, error)
-	SetAlertText(text string) error
-	AcceptAlert() error
-	DismissAlert() error
-	NewLogs(logType string) ([]api.Log, error)
-	GetLogTypes() ([]string, error)
+	logs map[string][]Log
 }
 
 // A Log represents a single log message
@@ -79,7 +48,7 @@ func NewPage(url string, options ...Option) (*Page, error) {
 }
 
 func newPage(session *api.Session) *Page {
-	return &Page{session, nil, selectable{session, nil}}
+	return &Page{selectable{session, nil}, nil}
 }
 
 // Session returns a *api.Session that can be used to send direct commands
