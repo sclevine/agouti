@@ -238,7 +238,7 @@ Agouti supports managing any WebDriver that supports the [WebDriver Wire Protoco
     ...
     Expect(page.Destroy()).To(Succeed()) // end session
 
-Agouti supports connecting to any running WebDriver that supports the [WebDriver Wire Protocol](https://code.google.com/p/selenium/wiki/JsonWireProtocol). This can be accomplished using `Connect` in [`core`](http://godoc.org/github.com/sclevine/agouti/core):
+Agouti also supports connecting to a WebDriver that is already running. This can be accomplished using `NewPage`:
 
     page, err := agouti.NewPage("http://example.com:1234/wd/hub")
     ...
