@@ -6,7 +6,9 @@ import (
 	"github.com/sclevine/agouti/internal/target"
 )
 
-type Selectors target.Selectors
+type Selectors interface {
+	String() string
+}
 
 type selectable struct {
 	session   apiSession
@@ -145,10 +147,11 @@ func (s *selectable) AllByClass(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Class, text))
 }
 
-func (s *selectable) WithSelectors(selectors Selectors) *Selection {
-	return newSelection(s.session, target.Selectors(selectors))
+// FirstByClass finds the first element with a given CSS class.
+func (s *selectable) FindForAppium(selectorType string, text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
 }
 
 func (s *selectable) Selectors() Selectors {
-	return Selectors(s.selectors)
+	return s.selectors
 }

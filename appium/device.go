@@ -5,7 +5,6 @@ import (
 
 	"github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/internal/element"
-	"github.com/sclevine/agouti/internal/target"
 )
 
 type mobileSession interface {
@@ -26,48 +25,6 @@ func newDevice(session mobileSession, page *agouti.Page) *Device {
 		Page:    page,
 		session: session,
 	}
-}
-
-// Agouti wrapped selectors
-
-func (d *Device) Find(selector string) *Selection {
-	return d.wrapSelection(d.Page.Find(selector))
-}
-
-func (d *Device) FindByXPath(xPath string) *Selection {
-	return d.wrapSelection(d.Page.FindByXPath(xPath))
-}
-
-func (d *Device) FindByLink(text string) *Selection {
-	return d.wrapSelection(d.Page.FindByLink(text))
-}
-
-// Finds exactly one element by class. Native views query the class of the widgets with this method.
-func (d *Device) FindByClass(text string) *Selection {
-	return d.wrapSelection(d.Page.FindByClass(text))
-}
-
-func (d *Device) All(selector string) *MultiSelection {
-	return d.wrapMultiSelection(d.Page.All(selector))
-}
-
-func (d *Device) AllByClass(selector string) *MultiSelection {
-	return d.wrapMultiSelection(d.Page.AllByClass(selector))
-}
-
-// Appium-specific selectors
-
-// Finds by Accessibility ID, under Android and iOS
-func (d *Device) FindByA11yID(id string) *Selection {
-	return d.newSelection(d.addSelector(target.A11yID, id).Single())
-}
-
-func (d *Device) FindByAndroidUI(uiautomatorQuery string) *Selection {
-	return d.newSelection(d.addSelector(target.AndroidAut, uiautomatorQuery).Single())
-}
-
-func (d *Device) FindByiOSUI(uiautomationQuery string) *Selection {
-	return d.newSelection(d.addSelector(target.IOSAut, uiautomationQuery).Single())
 }
 
 // Device methods
@@ -95,21 +52,4 @@ func (d *Device) InstallApp(appPath string) error {
 
 func (d *Device) TouchAction() *TouchAction {
 	return NewTouchAction(d.session)
-}
-
-// Selection helpers
-func (d *Device) addSelector(selectorType target.Type, value string) target.Selectors {
-	return target.Selectors(target.Selectors{}.Append(selectorType, value))
-}
-func (d *Device) newSelection(selectors target.Selectors) *Selection {
-	return &Selection{d.WithSelectors(agouti.Selectors(selectors)), &element.Repository{Client: d.session}, d.session}
-}
-func (d *Device) newMultiSelection(selectors target.Selectors) *MultiSelection {
-	return &MultiSelection{*d.newSelection(selectors), d.newSelection}
-}
-func (d *Device) wrapSelection(selection *agouti.Selection) *Selection {
-	return &Selection{selection, &element.Repository{Client: d.session}, d.session}
-}
-func (d *Device) wrapMultiSelection(selection *agouti.MultiSelection) *MultiSelection {
-	return &MultiSelection{*d.wrapSelection(&selection.Selection), d.newSelection}
 }

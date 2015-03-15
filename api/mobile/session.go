@@ -12,14 +12,28 @@ type Session struct {
 // Appium-centric functions
 //
 
-func (s *Session) PerformTouch(actions []interface{}) error {
+type Action struct {
+	Action  string        `json:"action"`
+	Options ActionOptions `json:"options,omitempty"`
+}
+
+type ActionOptions struct {
+	// TODO: check which means what, what are the differences between ms and duration ?
+	Duration    int    `json:"duration,omitempty"` // which units ??
+	Millisecond int    `json:"ms,omitempty"`       // duplicates with Duration ??
+	X           int    `json:"x,omitempty"`
+	Y           int    `json:"y,omitempty"`
+	Element     string `json:"element,omitempty"` // element ID
+	Count       int    `json:"count,omitempty"`   // meaning ??
+}
+
+func (s *Session) PerformTouch(actions []Action) error {
 	request := struct {
-		Actions []interface{} `json:"actions"`
+		Actions []Action `json:"actions"`
 	}{actions}
 
 	return s.Send("POST", "touch/perform", request, nil)
 }
-
 
 func (s *Session) InstallApp(appPath string) error {
 	request := struct {

@@ -4,29 +4,32 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
+	"github.com/sclevine/agouti/api/mobile"
+	"github.com/sclevine/agouti/internal/element"
 	"github.com/sclevine/agouti/internal/target"
 )
 
 type TouchAction struct {
-	Actions []Action
-	Element *api.Element
-	session mobileSession
+	actions  []action
+	elements elementRepository
+	session  mobileSession
+}
+
+type action struct {
+	mobile.Action
+	selectors target.Selectors
 }
 
 func NewTouchAction(session mobileSession) *TouchAction {
 	return &TouchAction{
-		Actions: make([]Action, 0),
-		session: session,
+		elements: element.Repository{Client: session},
+		session:  session,
 	}
 }
 
-type Action struct {
-	Action  string        `json:"action"`
-	Options ActionOptions `json:"options,omitempty"`
-}
-
-func (a *Action) String() string {
+func (a *action) String() string {
 	out := []string{}
 	opts := a.Options
 
@@ -52,95 +55,92 @@ func (a *Action) String() string {
 	return fmt.Sprintf("%s(%s)", a.Action, strings.Join(out, ", "))
 }
 
-type ActionOptions struct {
-	// TODO: check which means what, what are the differences between ms and duration ?
-	Duration         int        `json:"duration,omitempty"` // which units ??
-	Millisecond      int        `json:"ms,omitempty"`       // duplicates with Duration ??
-	X                int        `json:"x,omitempty"`
-	Y                int        `json:"y,omitempty"`
-	Element          string     `json:"element,omitempty"` // element ID
-	ElementSelection *Selection `json:"-"`                 // element, to be resolved as an element ID before performing
-	Count            int        `json:"count,omitempty"`   // meaning ??
+func (t *TouchAction) Tap() *TouchAction {
+	action := mobile.Action{Action: "tap"}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) Tap() *TouchAction {
-	return ma.appendAction(newAction("tap", ma.Element))
+func (t *TouchAction) append(action mobile.Action, selectors agouti.Selectors) *TouchAction {
+	newAction := action{action, selectors.(target.Selectors)}
+	touchAction := NewTouchAction(t.session)
+	touchAction.actions = append(t.actions, newAction)
+	return touchAction
 }
 
-func (ma *TouchAction) PressPosition(x, y int) *TouchAction {
-	act := newAction("press", ma.Element)
-	act.Options.X = x
-	act.Options.Y = y
-	return ma.appendAction(act)
+func (t *TouchAction) PressPosition(x, y int) *TouchAction {
+	action := mobile.Action{
+		Action:  "press",
+		Options: {X: x, Y: y},
+	}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) PressElement(sel *Selection) *TouchAction {
-	act := newAction("press", ma.Element)
-	act.Options.ElementSelection = sel
-	return ma.appendAction(act)
+func (t *TouchAction) PressElement(selection *agouti.Selection) *TouchAction {
+	action := mobile.Action{Action: "press"}
+	return t.append(action, selection.Selectors())
 }
 
-func (ma *TouchAction) LongPressPosition(x, y, duration int) *TouchAction {
-	act := newAction("longPress", ma.Element)
-	act.Options.X = x
-	act.Options.Y = y
-	act.Options.Duration = duration
-	return ma.appendAction(act)
+func (t *TouchAction) LongPressPosition(x, y, duration int) *TouchAction {
+	action := mobile.Action{
+		Action:  "longPress",
+		Options: {X: x, Y: y, Duration: duration},
+	}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) LongPressElement(sel *Selection, duration int) *TouchAction {
-	act := newAction("longPress", ma.Element)
-	act.Options.ElementSelection = sel
-	act.Options.Duration = duration
-	return ma.appendAction(act)
+func (t *TouchAction) LongPressElement(selection *agouti.Selection, duration int) *TouchAction {
+	action := mobile.Action{
+		Action:  "longPress",
+		Options: {Duration: duration},
+	}
+	return t.append(action, selection.Selectors())
 }
 
-
-
-func (ma *TouchAction) Release() *TouchAction {
-	return ma.appendAction(newAction("release", ma.Element))
+func (t *TouchAction) Release() *TouchAction {
+	action := mobile.Action{Action: "release"}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) Wait(ms int) *TouchAction {
-	act := newAction("wait", ma.Element)
-	act.Options.Millisecond = ms
-	return ma.appendAction(act)
+func (t *TouchAction) Wait(ms int) *TouchAction {
+	action := mobile.Action{
+		Action:  "longPress",
+		Options: {Millisecond: ms},
+	}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) MoveToPosition(x, y int) *TouchAction {
-	act := newAction("moveTo", ma.Element)
-	act.Options.X = x
-	act.Options.Y = y
-	return ma.appendAction(act)
+func (t *TouchAction) MoveToPosition(x, y int) *TouchAction {
+	action := mobile.Action{
+		Action:  "moveTo",
+		Options: {X: x, Y: y},
+	}
+	return t.append(action, nil)
 }
 
-func (ma *TouchAction) MoveToElement(sel *Selection) *TouchAction {
-	act := newAction("moveTo", ma.Element)
-	act.Options.ElementSelection = sel
-	return ma.appendAction(act)
+func (t *TouchAction) MoveToElement(selection *agouti.Selection) *TouchAction {
+	action := mobile.Action{Action: "moveTo"}
+	return t.append(action, selection.Selectors())
 }
 
-func (ma *TouchAction) Perform() error {
-	var actions []interface{}
+func (t *TouchAction) Perform() error {
+	var actions []mobile.Action
 
-	for _, act := range ma.Actions {
+	for _, action := range t.actions {
 
 		// resolve elements if present
-		if act.Options.ElementSelection != nil {
-			sel := act.Options.ElementSelection
-			el, err := sel.elements.GetExactlyOne(target.Selectors(sel.Selectors()))
+		if action.selectors != nil {
+			selectedElement, err := t.elements.GetExactlyOne(action.selectors)
 			if err != nil {
-				return fmt.Errorf("failed to resolve element on action '%s': %s", act.Action, err)
+				return fmt.Errorf("failed to retrieve element for selection '%s': %s", action.selectors, err)
 			}
-			act.Options.Element = el.GetID()
+			action.Options.Element = selectedElement.(*api.Element).ID
 		}
 
-		actions = append(actions, interface{}(act))
+		actions = append(actions, action.Action)
 	}
 
-	err := ma.session.PerformTouch(actions)
-	if err != nil {
-		return fmt.Errorf("error performing touch actions '%s': %s", ma, err)
+	if err := t.session.PerformTouch(actions); err != nil {
+		return fmt.Errorf("error performing touch actions '%s': %s", t, err)
 	}
 	return nil
 }
@@ -151,20 +151,4 @@ func (ma *TouchAction) String() string {
 		actions = append(actions, act.String())
 	}
 	return strings.Join(actions, " -> ")
-}
-
-func (ma *TouchAction) appendAction(action Action) *TouchAction {
-	ma.Actions = append(ma.Actions, action)
-	return ma
-}
-
-func newAction(actionType string, element *api.Element) Action {
-	action := Action{
-		Action:  actionType,
-		Options: ActionOptions{},
-	}
-	if element != nil {
-		action.Options.Element = element.ID
-	}
-	return action
 }
