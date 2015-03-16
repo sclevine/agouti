@@ -58,13 +58,17 @@ var _ = Describe("Selectable", func() {
 	})
 
 	Describe("#FindByClass", func() {
-		method := func(selector string) finder { return selection.FindByClass(selector) }
-		itShouldSelect(method, `Class: selector [single]`)
+		It("should apply a single class selector and return a selection with the same session", func() {
+			Expect(page.FindByClass("selector").String()).To(Equal(`selection 'Class: selector [single]'`))
+			Expect(page.FindByClass("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#FindByID", func() {
-		method := func(selector string) finder { return selection.FindByID(selector) }
-		itShouldSelect(method, `ID: selector [single]`)
+		It("should apply a single ID selector and return a selection with the same session", func() {
+			Expect(page.FindByID("selector").String()).To(Equal(`selection 'ID: selector [single]'`))
+			Expect(page.FindByID("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#First", func() {
@@ -103,8 +107,10 @@ var _ = Describe("Selectable", func() {
 	})
 
 	Describe("#FirstByClass", func() {
-		method := func(selector string) finder { return selection.FirstByClass(selector) }
-		itShouldSelect(method, `Class: selector [0]`)
+		It("should apply a zero-indexed class selector and return a selection with the same session", func() {
+			Expect(page.FirstByClass("selector").String()).To(Equal(`selection 'Class: selector [0]'`))
+			Expect(page.FirstByClass("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 
 	Describe("#All", func() {
@@ -143,7 +149,9 @@ var _ = Describe("Selectable", func() {
 	})
 
 	Describe("#AllByClass", func() {
-		method := func(selector string) finder { return selection.AllByClass(selector) }
-		itShouldSelect(method, `Class: selector`)
+		It("should apply an un-indexed class selector and return a selection with the same session", func() {
+			Expect(page.AllByClass("selector").String()).To(Equal(`selection 'Class: selector'`))
+			Expect(page.AllByClass("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
 	})
 })

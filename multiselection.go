@@ -17,7 +17,7 @@ type MultiSelection struct {
 	Selection
 }
 
-func newMultiSelection(session selectionSession, selectors target.Selectors) *MultiSelection {
+func newMultiSelection(session apiSession, selectors target.Selectors) *MultiSelection {
 	return &MultiSelection{*newSelection(session, selectors)}
 }
 

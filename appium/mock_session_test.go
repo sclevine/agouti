@@ -1,6 +1,9 @@
 package appium_test
 
-import "github.com/sclevine/agouti/api"
+import (
+	"github.com/sclevine/agouti/api"
+	"github.com/sclevine/agouti/api/mobile"
+)
 
 type mockMobileSession struct {
 	GetElementCall struct {
@@ -56,6 +59,6 @@ func (s *mockMobileSession) InstallApp(appPath string) error {
 	return s.InstallAppCall.Err
 }
 
-func (s *mockMobileSession) PerformTouch(actions []interface{}) error {
+func (s *mockMobileSession) PerformTouch(actions []mobile.Action) error {
 	return s.PerformTouchCall.Err
 }

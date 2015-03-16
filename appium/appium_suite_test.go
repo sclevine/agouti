@@ -21,5 +21,6 @@ var Equal = gomega.Equal
 // ginkgo shortcuts
 var Describe = ginkgo.Describe
 var It = ginkgo.It
+var FIt = ginkgo.FIt
 var BeforeEach = ginkgo.BeforeEach
 var Context = ginkgo.Context

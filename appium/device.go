@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/sclevine/agouti"
+	"github.com/sclevine/agouti/api/mobile"
 	"github.com/sclevine/agouti/internal/element"
 )
 
@@ -12,7 +13,7 @@ type mobileSession interface {
 	LaunchApp() error
 	CloseApp() error
 	InstallApp(appPath string) error
-	PerformTouch(actions []interface{}) error
+	PerformTouch(actions []mobile.Action) error
 }
 
 type Device struct {

@@ -19,12 +19,12 @@ type TouchAction struct {
 
 type action struct {
 	mobile.Action
-	selectors target.Selectors
+	selectors *target.Selectors
 }
 
 func NewTouchAction(session mobileSession) *TouchAction {
 	return &TouchAction{
-		elements: element.Repository{Client: session},
+		elements: &element.Repository{Client: session},
 		session:  session,
 	}
 }
@@ -33,8 +33,8 @@ func (a *action) String() string {
 	out := []string{}
 	opts := a.Options
 
-	if opts.ElementSelection != nil {
-		out = append(out, fmt.Sprintf("element='%s'", opts.ElementSelection.String()))
+	if a.selectors != nil {
+		out = append(out, fmt.Sprintf(`element="%s"`, a.selectors))
 	}
 	if opts.X != 0 {
 		out = append(out, fmt.Sprintf("x=%d", opts.X))
@@ -60,8 +60,13 @@ func (t *TouchAction) Tap() *TouchAction {
 	return t.append(action, nil)
 }
 
-func (t *TouchAction) append(action mobile.Action, selectors agouti.Selectors) *TouchAction {
-	newAction := action{action, selectors.(target.Selectors)}
+func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors) *TouchAction {
+	if selectors != nil {
+		selectors = selectors.(*target.Selectors)
+	} else {
+		selectors = make(target.Selectors, 0)
+	}
+	newAction := action{actionObj, selectors}
 	touchAction := NewTouchAction(t.session)
 	touchAction.actions = append(t.actions, newAction)
 	return touchAction
@@ -70,7 +75,7 @@ func (t *TouchAction) append(action mobile.Action, selectors agouti.Selectors) *
 func (t *TouchAction) PressPosition(x, y int) *TouchAction {
 	action := mobile.Action{
 		Action:  "press",
-		Options: {X: x, Y: y},
+		Options: mobile.ActionOptions{X: x,	Y: y},
 	}
 	return t.append(action, nil)
 }
@@ -83,7 +88,11 @@ func (t *TouchAction) PressElement(selection *agouti.Selection) *TouchAction {
 func (t *TouchAction) LongPressPosition(x, y, duration int) *TouchAction {
 	action := mobile.Action{
 		Action:  "longPress",
-		Options: {X: x, Y: y, Duration: duration},
+		Options: mobile.ActionOptions{
+			X: x,
+			Y: y,
+			Duration: duration,
+		},
 	}
 	return t.append(action, nil)
 }
@@ -91,7 +100,7 @@ func (t *TouchAction) LongPressPosition(x, y, duration int) *TouchAction {
 func (t *TouchAction) LongPressElement(selection *agouti.Selection, duration int) *TouchAction {
 	action := mobile.Action{
 		Action:  "longPress",
-		Options: {Duration: duration},
+		Options: mobile.ActionOptions{Duration: duration},
 	}
 	return t.append(action, selection.Selectors())
 }
@@ -104,7 +113,7 @@ func (t *TouchAction) Release() *TouchAction {
 func (t *TouchAction) Wait(ms int) *TouchAction {
 	action := mobile.Action{
 		Action:  "longPress",
-		Options: {Millisecond: ms},
+		Options: mobile.ActionOptions{Millisecond: ms},
 	}
 	return t.append(action, nil)
 }
@@ -112,7 +121,7 @@ func (t *TouchAction) Wait(ms int) *TouchAction {
 func (t *TouchAction) MoveToPosition(x, y int) *TouchAction {
 	action := mobile.Action{
 		Action:  "moveTo",
-		Options: {X: x, Y: y},
+		Options: mobile.ActionOptions{X: x, Y: y},
 	}
 	return t.append(action, nil)
 }
@@ -129,7 +138,7 @@ func (t *TouchAction) Perform() error {
 
 		// resolve elements if present
 		if action.selectors != nil {
-			selectedElement, err := t.elements.GetExactlyOne(action.selectors)
+			selectedElement, err := t.elements.GetExactlyOne(*action.selectors)
 			if err != nil {
 				return fmt.Errorf("failed to retrieve element for selection '%s': %s", action.selectors, err)
 			}
@@ -147,7 +156,7 @@ func (t *TouchAction) Perform() error {
 
 func (ma *TouchAction) String() string {
 	var actions []string
-	for _, act := range ma.Actions {
+	for _, act := range ma.actions {
 		actions = append(actions, act.String())
 	}
 	return strings.Join(actions, " -> ")
