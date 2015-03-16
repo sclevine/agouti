@@ -33,7 +33,7 @@ func (a *action) String() string {
 	out := []string{}
 	opts := a.Options
 
-	if a.selectors != nil {
+	if a.selectors != nil && a.selectors.String() != "" {
 		out = append(out, fmt.Sprintf(`element="%s"`, a.selectors))
 	}
 	if opts.X != 0 {
@@ -52,12 +52,7 @@ func (a *action) String() string {
 		out = append(out, fmt.Sprintf("duration=%d", opts.Duration))
 	}
 
-	return fmt.Sprintf("%s(%s)", a.Action, strings.Join(out, ", "))
-}
-
-func (t *TouchAction) Tap() *TouchAction {
-	action := mobile.Action{Action: "tap"}
-	return t.append(action, nil)
+	return fmt.Sprintf("%s(%s)", a.Action.Action, strings.Join(out, ", "))
 }
 
 func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors) *TouchAction {
@@ -68,6 +63,11 @@ func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors
 	touchAction := NewTouchAction(t.session)
 	touchAction.actions = append(t.actions, newAction)
 	return touchAction
+}
+
+func (t *TouchAction) Tap() *TouchAction {
+	action := mobile.Action{Action: "tap"}
+	return t.append(action, nil)
 }
 
 func (t *TouchAction) PressPosition(x, y int) *TouchAction {

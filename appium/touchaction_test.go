@@ -7,11 +7,13 @@ var _ = Describe("TouchAction", func() {
 
 	It("should chain taps", func() {
 		ta := appium.NewTouchAction(session)
-		ta.Tap().Tap()
+
+		ta = ta.Tap().Tap()
+
 		Expect(ta.String()).To(Equal("tap() -> tap()"))
 	})
 
-	FIt("should moveTo a position", func() {
+	It("should moveTo a position", func() {
 		ta := appium.NewTouchAction(session)
 
 		ta = ta.MoveToPosition(1, 2)
