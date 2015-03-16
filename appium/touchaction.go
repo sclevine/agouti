@@ -19,7 +19,7 @@ type TouchAction struct {
 
 type action struct {
 	mobile.Action
-	selectors *target.Selectors
+	selectors agouti.Selectors
 }
 
 func NewTouchAction(session mobileSession) *TouchAction {
@@ -61,9 +61,7 @@ func (t *TouchAction) Tap() *TouchAction {
 }
 
 func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors) *TouchAction {
-	if selectors != nil {
-		selectors = selectors.(*target.Selectors)
-	} else {
+	if selectors == nil {
 		selectors = make(target.Selectors, 0)
 	}
 	newAction := action{actionObj, selectors}
@@ -75,7 +73,7 @@ func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors
 func (t *TouchAction) PressPosition(x, y int) *TouchAction {
 	action := mobile.Action{
 		Action:  "press",
-		Options: mobile.ActionOptions{X: x,	Y: y},
+		Options: mobile.ActionOptions{X: x, Y: y},
 	}
 	return t.append(action, nil)
 }
@@ -87,10 +85,10 @@ func (t *TouchAction) PressElement(selection *agouti.Selection) *TouchAction {
 
 func (t *TouchAction) LongPressPosition(x, y, duration int) *TouchAction {
 	action := mobile.Action{
-		Action:  "longPress",
+		Action: "longPress",
 		Options: mobile.ActionOptions{
-			X: x,
-			Y: y,
+			X:        x,
+			Y:        y,
 			Duration: duration,
 		},
 	}
@@ -138,7 +136,7 @@ func (t *TouchAction) Perform() error {
 
 		// resolve elements if present
 		if action.selectors != nil {
-			selectedElement, err := t.elements.GetExactlyOne(*action.selectors)
+			selectedElement, err := t.elements.GetExactlyOne(action.selectors.(target.Selectors))
 			if err != nil {
 				return fmt.Errorf("failed to retrieve element for selection '%s': %s", action.selectors, err)
 			}
