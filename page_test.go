@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 
@@ -30,7 +31,7 @@ var _ = Describe("Page", func() {
 		It("should return the unexported session as a *api.Session", func() {
 			apiSession := &api.Session{}
 			page = NewTestPage(apiSession)
-			Expect(page.Session()).To(Equal(apiSession))
+			Expect(page.Session()).To(ExactlyEqual(apiSession))
 		})
 	})
 

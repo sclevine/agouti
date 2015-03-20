@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/api/internal/mocks"
+	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("Element", func() {
@@ -60,7 +61,7 @@ var _ = Describe("Element", func() {
 			singleElement, err := element.GetElement(Selector{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(singleElement.ID).To(Equal("some-id"))
-			Expect(singleElement.Session).To(Equal(session))
+			Expect(singleElement.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -86,9 +87,9 @@ var _ = Describe("Element", func() {
 			elements, err := element.GetElements(Selector{"css selector", "#selector"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(elements[0].ID).To(Equal("some-id"))
-			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[0].Session).To(ExactlyEqual(session))
 			Expect(elements[1].ID).To(Equal("some-other-id"))
-			Expect(elements[1].Session).To(Equal(session))
+			Expect(elements[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {

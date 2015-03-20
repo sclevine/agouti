@@ -8,8 +8,8 @@ import (
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
-	"github.com/sclevine/agouti/internal/target"
 )
 
 var _ = Describe("Selection", func() {
@@ -42,7 +42,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("should return a []*api.Elements retrieved from the element repository", func() {
-			elements := []*api.Element{&api.Element{}, &api.Element{}}
+			elements := []*api.Element{&api.Element{ID: "first"}, &api.Element{ID: "second"}}
 			elementRepository.GetCall.ReturnElements = []element.Element{elements[0], elements[1]}
 			Expect(selection.Elements()).To(Equal(elements))
 		})
@@ -68,15 +68,8 @@ var _ = Describe("Selection", func() {
 			elementRepository.GetCall.ReturnElements = []element.Element{firstElement, secondElement}
 		})
 
-		It("should request elements from the session using the provided selector", func() {
-			selection.Count()
-			Expect(elementRepository.GetCall.Selectors).To(Equal(target.Selectors{target.Selector{Type: target.CSS, Value: "#selector"}}))
-		})
-
-		Context("when the session succeeds in retrieving the elements", func() {
-			It("should successfully return the text", func() {
-				Expect(selection.Count()).To(Equal(2))
-			})
+		It("should successfully return the number of elements", func() {
+			Expect(selection.Count()).To(Equal(2))
 		})
 
 		Context("when the the session fails to retrieve the elements", func() {
@@ -108,7 +101,7 @@ var _ = Describe("Selection", func() {
 
 		It("should compare the selection elements for equality", func() {
 			firstSelection.EqualsElement(secondSelection)
-			Expect(firstElement.IsEqualToCall.Element).To(Equal(secondElement))
+			Expect(firstElement.IsEqualToCall.Element).To(ExactlyEqual(secondElement))
 		})
 
 		It("should successfully return true if they are equal", func() {
@@ -125,7 +118,7 @@ var _ = Describe("Selection", func() {
 			It("should not fail", func() {
 				multiSelection := NewTestMultiSelection(nil, secondElementRepository, "#multi_selector")
 				Expect(firstSelection.EqualsElement(multiSelection)).To(BeFalse())
-				Expect(firstElement.IsEqualToCall.Element).To(Equal(secondElement))
+				Expect(firstElement.IsEqualToCall.Element).To(ExactlyEqual(secondElement))
 			})
 		})
 

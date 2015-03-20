@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 
@@ -33,7 +34,7 @@ var _ = Describe("Selection Frames", func() {
 
 		It("should successfully switch to the frame indicated by the selection", func() {
 			Expect(selection.SwitchToFrame()).To(Succeed())
-			Expect(session.FrameCall.Frame).To(Equal(apiElement))
+			Expect(session.FrameCall.Frame).To(ExactlyEqual(apiElement))
 		})
 
 		Context("when there is an error retrieving exactly one element", func() {

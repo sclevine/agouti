@@ -63,6 +63,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 
 				By("comparing two selections for equality", func() {
 					Expect(page.Find("#some_element")).To(EqualElement(page.FindByXPath("//div[@class='some-element']")))
+					Expect(page.Find("#some_element")).NotTo(EqualElement(page.Find("header")))
 				})
 			})
 

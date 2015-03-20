@@ -9,6 +9,7 @@ import (
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 
@@ -63,7 +64,7 @@ var _ = Describe("Selection Actions", func() {
 
 		It("should successfully move the mouse to the middle of each selected element", func() {
 			Expect(selection.DoubleClick()).To(Succeed())
-			Expect(session.MoveToCall.Element).To(Equal(apiElement))
+			Expect(session.MoveToCall.Element).To(ExactlyEqual(apiElement))
 			Expect(session.MoveToCall.Offset).To(BeNil())
 		})
 

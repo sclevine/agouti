@@ -12,7 +12,7 @@ import (
 type actionsFunc func(element.Element) error
 
 func (s *Selection) forEachElement(actions actionsFunc) error {
-	elements, err := s.elements.GetAtLeastOne(s.selectors)
+	elements, err := s.elements.GetAtLeastOne()
 	if err != nil {
 		return fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}

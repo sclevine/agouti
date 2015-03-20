@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/api/internal/mocks"
+	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("Bus", func() {
@@ -49,7 +50,7 @@ var _ = Describe("Bus", func() {
 			element, err := session.GetElement(Selector{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(element.ID).To(Equal("some-id"))
-			Expect(element.Session).To(Equal(session))
+			Expect(element.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -75,9 +76,9 @@ var _ = Describe("Bus", func() {
 			elements, err := session.GetElements(Selector{"css selector", "#selector"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(elements[0].ID).To(Equal("some-id"))
-			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[0].Session).To(ExactlyEqual(session))
 			Expect(elements[1].ID).To(Equal("some-other-id"))
-			Expect(elements[1].Session).To(Equal(session))
+			Expect(elements[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -102,7 +103,7 @@ var _ = Describe("Bus", func() {
 			element, err := session.GetActiveElement()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(element.ID).To(Equal("some-id"))
-			Expect(element.Session).To(Equal(session))
+			Expect(element.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -127,7 +128,7 @@ var _ = Describe("Bus", func() {
 			window, err := session.GetWindow()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(window.ID).To(Equal("some-id"))
-			Expect(window.Session).To(Equal(session))
+			Expect(window.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -152,9 +153,9 @@ var _ = Describe("Bus", func() {
 			windows, err := session.GetWindows()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(windows[0].ID).To(Equal("some-id"))
-			Expect(windows[0].Session).To(Equal(session))
+			Expect(windows[0].Session).To(ExactlyEqual(session))
 			Expect(windows[1].ID).To(Equal("some-other-id"))
-			Expect(windows[1].Session).To(Equal(session))
+			Expect(windows[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {

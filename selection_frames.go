@@ -10,7 +10,7 @@ import (
 // existing selections will refer to the new frame. All further Page methods
 // will apply to this frame as well.
 func (s *Selection) SwitchToFrame() error {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
 		return fmt.Errorf("failed to select element from %s: %s", s, err)
 	}

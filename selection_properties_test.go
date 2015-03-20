@@ -8,6 +8,7 @@ import (
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 
@@ -82,7 +83,7 @@ var _ = Describe("Selection Properties", func() {
 			activeElement := &api.Element{}
 			session.GetActiveElementCall.ReturnElement = activeElement
 			selection.Active()
-			Expect(firstElement.IsEqualToCall.Element).To(Equal(activeElement))
+			Expect(firstElement.IsEqualToCall.Element).To(ExactlyEqual(activeElement))
 		})
 
 		Context("when the session fails to compare active element to the selected element", func() {
