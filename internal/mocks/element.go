@@ -77,6 +77,12 @@ type Element struct {
 		ReturnEquals bool
 		Err          error
 	}
+
+	GetLocationCall struct {
+		ReturnX int
+		ReturnY int
+		Err     error
+	}
 }
 
 func (e *Element) GetElement(selector api.Selector) (*api.Element, error) {
@@ -142,4 +148,8 @@ func (e *Element) Submit() error {
 func (e *Element) IsEqualTo(other *api.Element) (bool, error) {
 	e.IsEqualToCall.Element = other
 	return e.IsEqualToCall.ReturnEquals, e.IsEqualToCall.Err
+}
+
+func (e *Element) GetLocation() (x, y int, err error) {
+	return e.GetLocationCall.ReturnX, e.GetLocationCall.ReturnY, e.GetLocationCall.Err
 }

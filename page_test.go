@@ -27,6 +27,12 @@ var _ = Describe("Page", func() {
 		page = NewTestPage(session)
 	})
 
+	Describe("#String", func() {
+		It("should return 'page'", func() {
+			Expect(page.String()).To(Equal("page"))
+		})
+	})
+
 	Describe("#Session", func() {
 		It("should return the unexported session as a *api.Session", func() {
 			apiSession := &api.Session{}
@@ -260,12 +266,6 @@ var _ = Describe("Page", func() {
 				session.GetScreenshotCall.Err = errors.New("some error")
 				err := page.Screenshot(".test.screenshot.png")
 				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
-			})
-		})
-
-		Context("when an absolute path for the new file cannot be determined", func() {
-			It("should return an error", func() {
-				// NOTE: causing a filepath.Abs error is tricky and platform-specific
 			})
 		})
 	})
@@ -637,9 +637,62 @@ var _ = Describe("Page", func() {
 		})
 	})
 
-	Describe("#String", func() {
-		It("should return 'page'", func() {
-			Expect(page.String()).To(Equal("page"))
+	Describe("#MoveMouseBy", func() {
+		It("should successfully instruct the session to move the mouse by the provided offset", func() {
+			Expect(page.MoveMouseBy(100, 200)).To(Succeed())
+			Expect(session.MoveToCall.Offset).To(Equal(api.XYOffset{X: 100, Y: 200}))
+		})
+
+		Context("when moving the mouse fails", func() {
+			It("should return an error", func() {
+				session.MoveToCall.Err = errors.New("some error")
+				Expect(page.MoveMouseBy(100, 200)).To(MatchError("failed to move mouse: some error"))
+			})
+		})
+	})
+
+	Describe("#DoubleClick", func() {
+		It("should successfully instruct the session to double click", func() {
+			Expect(page.DoubleClick()).To(Succeed())
+			Expect(session.DoubleClickCall.Called).To(BeTrue())
+		})
+
+		Context("when double clicking fails", func() {
+			It("should return an error", func() {
+				session.DoubleClickCall.Err = errors.New("some error")
+				Expect(page.DoubleClick()).To(MatchError("failed to double click: some error"))
+			})
+		})
+	})
+
+	Describe("#Click", func() {
+		It("should successfully instruct the session to click on the provided button for each event type", func() {
+			Expect(page.Click(SingleClick, LeftButton)).To(Succeed())
+			Expect(page.Click(HoldClick, RightButton)).To(Succeed())
+			Expect(page.Click(ReleaseClick, MiddleButton)).To(Succeed())
+
+			Expect(session.ClickCall.Button).To(Equal(api.LeftButton))
+			Expect(session.ButtonDownCall.Button).To(Equal(api.RightButton))
+			Expect(session.ButtonUpCall.Button).To(Equal(api.MiddleButton))
+		})
+
+		Context("when double clicking fails", func() {
+			It("should return an error of each event type", func() {
+				session.ClickCall.Err = errors.New("some click error")
+				session.ButtonDownCall.Err = errors.New("some button down error")
+				session.ButtonUpCall.Err = errors.New("some button up error")
+
+				Expect(page.Click(SingleClick, LeftButton)).To(MatchError("failed to single click left mouse button: some click error"))
+				Expect(page.Click(HoldClick, RightButton)).To(MatchError("failed to hold right mouse button: some button down error"))
+				Expect(page.Click(ReleaseClick, MiddleButton)).To(MatchError("failed to release middle mouse button: some button up error"))
+			})
+		})
+
+		Context("when the click event is invalid", func() {
+			It("should return an error", func() {
+				err := page.Click(-1, -1)
+				Expect(err).To(MatchError("failed to unknown unknown: invalid touch event"))
+			})
 		})
 	})
 })

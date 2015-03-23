@@ -361,4 +361,29 @@ var _ = Describe("Element", func() {
 			})
 		})
 	})
+
+	Describe("#GetLocation", func() {
+		It("should successfully send a GET request to the location endpoint", func() {
+			_, _, err := element.GetLocation()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bus.SendCall.Method).To(Equal("GET"))
+			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/location"))
+		})
+
+		It("should return the location of the element", func() {
+			bus.SendCall.Result = `{"x": 100, "y": 200}`
+			x, y, err := element.GetLocation()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(x).To(Equal(100))
+			Expect(y).To(Equal(200))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to retrieve the location", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, _, err := element.GetLocation()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })

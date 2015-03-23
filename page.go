@@ -51,6 +51,11 @@ func newPage(session *api.Session) *Page {
 	return &Page{selectable{session, nil}, nil}
 }
 
+// String returns a string representation of the Page. Currently: "page"
+func (p *Page) String() string {
+	return "page"
+}
+
 // Session returns a *api.Session that can be used to send direct commands
 // to the WebDriver. See: https://code.google.com/p/selenium/wiki/JsonWireProtocol
 func (p *Page) Session() *api.Session {
@@ -422,13 +427,48 @@ func (p *Page) ReadAllLogs(logType string) ([]Log, error) {
 	return append([]Log(nil), p.logs[logType]...), nil
 }
 
-// String returns a string representation of the Page. Currently: "page"
-func (p *Page) String() string {
-	return "page"
-}
-
 func msToTime(ms int64) time.Time {
 	seconds := ms / 1000
 	nanoseconds := (ms % 1000) * 1000000
 	return time.Unix(seconds, nanoseconds)
+}
+
+// MoveMouseBy moves the mouse by the provided offset.
+func (p *Page) MoveMouseBy(xOffset, yOffset int) error {
+	if err := p.session.MoveTo(nil, api.XYOffset{X: xOffset, Y: yOffset}); err != nil {
+		return fmt.Errorf("failed to move mouse: %s", err)
+	}
+
+	return nil
+}
+
+// DoubleClick double clicks the left mouse button at the current mouse
+// position.
+func (p *Page) DoubleClick() error {
+	if err := p.session.DoubleClick(); err != nil {
+		return fmt.Errorf("failed to double click: %s", err)
+	}
+
+	return nil
+}
+
+// Click performs the provided Click event using the provided Button at the
+// current mouse position.
+func (p *Page) Click(event Click, button Button) error {
+	var err error
+	switch event {
+	case SingleClick:
+		err = p.session.Click(api.Button(button))
+	case HoldClick:
+		err = p.session.ButtonDown(api.Button(button))
+	case ReleaseClick:
+		err = p.session.ButtonUp(api.Button(button))
+	default:
+		err = errors.New("invalid touch event")
+	}
+	if err != nil {
+		return fmt.Errorf("failed to %s %s: %s", event, button, err)
+	}
+
+	return nil
 }

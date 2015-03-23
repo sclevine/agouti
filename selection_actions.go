@@ -160,3 +160,80 @@ func (s *Selection) Submit() error {
 		return nil
 	})
 }
+
+// Tap performs the provided Tap event on each element in the selection.
+func (s *Selection) Tap(event Tap) error {
+	var touchFunc func(*api.Element) error
+	switch event {
+	case SingleTap:
+		touchFunc = s.session.TouchClick
+	case DoubleTap:
+		touchFunc = s.session.TouchDoubleClick
+	case LongTap:
+		touchFunc = s.session.TouchLongClick
+	default:
+		return fmt.Errorf("failed to %s on %s: invalid tap event", event, s)
+	}
+
+	return s.forEachElement(func(selectedElement element.Element) error {
+		if err := touchFunc(selectedElement.(*api.Element)); err != nil {
+			return fmt.Errorf("failed to %s on %s: %s", event, s, err)
+		}
+		return nil
+	})
+}
+
+// Touch performs the provided Touch event at the location of each element in the
+// selection.
+func (s *Selection) Touch(event Touch) error {
+	var touchFunc func(x, y int) error
+	switch event {
+	case HoldFinger:
+		touchFunc = s.session.TouchDown
+	case ReleaseFinger:
+		touchFunc = s.session.TouchUp
+	case MoveFinger:
+		touchFunc = s.session.TouchMove
+	default:
+		return fmt.Errorf("failed to %s on %s: invalid touch event", event, s)
+	}
+
+	return s.forEachElement(func(selectedElement element.Element) error {
+		x, y, err := selectedElement.GetLocation()
+		if err != nil {
+			return fmt.Errorf("failed to retrieve location of %s: %s", s, err)
+		}
+		if err := touchFunc(x, y); err != nil {
+			return fmt.Errorf("failed to flick finger on %s: %s", s, err)
+		}
+		return nil
+	})
+}
+
+// FlickFinger performs a flick touch action by the provided offset and at the
+// provided speed on exactly one element.
+func (s *Selection) FlickFinger(xOffset, yOffset int, speed uint) error {
+	selectedElement, err := s.elements.GetExactlyOne()
+	if err != nil {
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
+	}
+
+	if err := s.session.TouchFlick(selectedElement.(*api.Element), api.XYOffset{X: xOffset, Y: yOffset}, api.ScalarSpeed(speed)); err != nil {
+		return fmt.Errorf("failed to flick finger on %s: %s", s, err)
+	}
+	return nil
+}
+
+// FlickFinger performs a scroll touch action by the provided offset on exactly
+// one element.
+func (s *Selection) ScrollFinger(xOffset, yOffset int) error {
+	selectedElement, err := s.elements.GetExactlyOne()
+	if err != nil {
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
+	}
+
+	if err := s.session.TouchScroll(selectedElement.(*api.Element), api.XYOffset{X: xOffset, Y: yOffset}); err != nil {
+		return fmt.Errorf("failed to scroll finger on %s: %s", s, err)
+	}
+	return nil
+}

@@ -46,6 +46,7 @@ func (s Selector) String() string {
 func (s Selector) API() api.Selector {
 	return api.Selector{Using: s.apiType(), Value: s.value()}
 }
+
 func (s Selector) apiType() string {
 	switch s.Type {
 	case CSS:

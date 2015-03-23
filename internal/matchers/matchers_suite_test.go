@@ -9,5 +9,5 @@ import (
 
 func TestMatchers(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Internal Matchers Suite")
+	RunSpecs(t, "Internal Custom Matchers Suite")
 }

@@ -73,10 +73,8 @@ func (s *Selection) Count() (int, error) {
 }
 
 // EqualsElement returns whether or not two selections of exactly
-// one element each refer to the same element.
+// one element refer to the same element.
 func (s *Selection) EqualsElement(other interface{}) (bool, error) {
-	var otherSelection *Selection
-
 	otherSelection, ok := other.(*Selection)
 	if !ok {
 		multiSelection, ok := other.(*MultiSelection)
@@ -102,4 +100,18 @@ func (s *Selection) EqualsElement(other interface{}) (bool, error) {
 	}
 
 	return equal, nil
+}
+
+// MouseToElement moves the mouse over exactly one element in the selection.
+func (s *Selection) MouseToElement() error {
+	selectedElement, err := s.elements.GetExactlyOne()
+	if err != nil {
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
+	}
+
+	if err := s.session.MoveTo(selectedElement.(*api.Element), nil); err != nil {
+		return fmt.Errorf("failed to move mouse to element for %s: %s", s, err)
+	}
+
+	return nil
 }

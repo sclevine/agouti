@@ -153,4 +153,41 @@ var _ = Describe("Selection", func() {
 			})
 		})
 	})
+
+	Describe("#MouseToElement", func() {
+		var (
+			selection         *Selection
+			session           *mocks.Session
+			elementRepository *mocks.ElementRepository
+		)
+
+		BeforeEach(func() {
+			elementRepository = &mocks.ElementRepository{}
+			elementRepository.GetExactlyOneCall.ReturnElement = secondElement
+			session = &mocks.Session{}
+			selection = NewTestSelection(session, elementRepository, "#selector")
+		})
+
+		It("should successfully instruct the session to move the mouse over the selection", func() {
+			Expect(selection.MouseToElement()).To(Succeed())
+			Expect(session.MoveToCall.Element).To(Equal(secondElement))
+			Expect(session.MoveToCall.Offset).To(BeNil())
+		})
+
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				err := selection.MouseToElement()
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector [single]': some error"))
+			})
+		})
+
+		Context("when the session fails to move the mouse to the element", func() {
+			It("should return an error", func() {
+				session.MoveToCall.Err = errors.New("some error")
+				err := selection.MouseToElement()
+				Expect(err).To(MatchError("failed to move mouse to element for selection 'CSS: #selector [single]': some error"))
+			})
+		})
+	})
 })

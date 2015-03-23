@@ -29,7 +29,6 @@ type apiSession interface {
 	SetURL(url string) error
 	GetTitle() (string, error)
 	GetSource() (string, error)
-	DoubleClick() error
 	MoveTo(element *api.Element, point api.Offset) error
 	Frame(frame *api.Element) error
 	FrameParent() error
@@ -43,6 +42,18 @@ type apiSession interface {
 	DismissAlert() error
 	NewLogs(logType string) ([]api.Log, error)
 	GetLogTypes() ([]string, error)
+	DoubleClick() error
+	Click(button api.Button) error
+	ButtonDown(button api.Button) error
+	ButtonUp(button api.Button) error
+	TouchDown(x, y int) error
+	TouchUp(x, y int) error
+	TouchMove(x, y int) error
+	TouchClick(element *api.Element) error
+	TouchDoubleClick(element *api.Element) error
+	TouchLongClick(element *api.Element) error
+	TouchFlick(element *api.Element, offset api.Offset, speed api.Speed) error
+	TouchScroll(element *api.Element, offset api.Offset) error
 }
 
 // Find finds exactly one element by CSS selector.

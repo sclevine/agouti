@@ -32,6 +32,7 @@ type Element interface {
 	Clear() error
 	Value(text string) error
 	Submit() error
+	GetLocation() (x, y int, err error)
 }
 
 func (e *Repository) GetAtLeastOne() ([]Element, error) {
