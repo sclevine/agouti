@@ -23,8 +23,8 @@ var _ = Describe("integration tests", func() {
 
 type pageFunc func(...agouti.Option) (*agouti.Page, error)
 
-func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
-	Describe("integration test for "+name, func() {
+func itShouldBehaveLikeAPage(browserName string, newPage pageFunc) {
+	Describe("integration test for "+browserName, func() {
 		var (
 			page      *agouti.Page
 			server    *httptest.Server
@@ -65,6 +65,12 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 					Expect(page.Find("#some_element")).To(EqualElement(page.FindByXPath("//div[@class='some-element']")))
 					Expect(page.Find("#some_element")).NotTo(EqualElement(page.Find("header")))
 				})
+			})
+
+			It("should support moving the mouse pointer over a selected element", func() {
+				Expect(page.Find("#some_checkbox").MouseToElement()).To(Succeed())
+				Expect(page.Click(agouti.SingleClick, agouti.LeftButton)).To(Succeed())
+				Expect(page.Find("#some_checkbox")).To(BeSelected())
 			})
 
 			It("should support selecting elements", func() {
@@ -160,7 +166,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 				})
 
 				// NOTE: PhantomJS regression causes crash on file upload
-				if name != "PhantomJS" {
+				if browserName != "PhantomJS" {
 					By("uploading a file", func() {
 						Expect(page.Find("#file_picker").UploadFile("test_page.html")).To(Succeed())
 						var result string
@@ -208,7 +214,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 				})
 
 				// NOTE: disabled due to recent Firefox regression with passing args
-				if name != "Firefox" {
+				if browserName != "Firefox" {
 					By("executing provided JavaScript", func() {
 						arguments := map[string]interface{}{"elementID": "some_element"}
 						var result string
@@ -248,7 +254,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 			})
 
 			// NOTE: browsers besides PhantomJS do not support JavaScript logs
-			if name == "PhantomJS" {
+			if browserName == "PhantomJS" {
 				It("should support retrieving logs", func() {
 					Eventually(page).Should(HaveLoggedInfo("some log"))
 					Expect(page).NotTo(HaveLoggedError())
@@ -263,7 +269,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 				})
 
 				// NOTE: PhantomJS does not support Page.SwitchToParentFrame
-				if name != "PhantomJS" {
+				if browserName != "PhantomJS" {
 					By("switching back to the default frame by referring to the parent frame", func() {
 						Expect(page.SwitchToParentFrame()).To(Succeed())
 						Expect(page.Find("body")).NotTo(MatchText("Example Domain"))
@@ -296,7 +302,7 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 			})
 
 			// NOTE: PhantomJS does not support popup boxes
-			if name != "PhantomJS" {
+			if browserName != "PhantomJS" {
 				It("should support popup boxes", func() {
 					By("interacting with alert popups", func() {
 						Expect(page.Find("#popup_alert").Click()).To(Succeed())
@@ -343,6 +349,39 @@ func itShouldBehaveLikeAPage(name string, newPage pageFunc) {
 				Expect(page.GetCookies()).To(HaveLen(1))
 				Expect(page.ClearCookies()).To(Succeed())
 				Expect(page.GetCookies()).To(HaveLen(0))
+			})
+
+			It("should support various mouse events", func() {
+				checkbox := page.Find("#some_checkbox")
+
+				By("moving from the disabled checkbox a regular checkbox", func() {
+					disabledCheckbox := page.Find("#some_disabled_checkbox")
+					Expect(disabledCheckbox.MouseToElement())
+					Expect(page.MoveMouseBy(-24, 0)).To(Succeed())
+
+					// NOTE: Firefox does not move the mouse by an offset correctly
+					if browserName == "Firefox" {
+						Expect(checkbox.MouseToElement())
+					}
+				})
+
+				By("single clicking on a checkbox", func() {
+					Expect(page.Click(agouti.SingleClick, agouti.LeftButton)).To(Succeed())
+					Expect(checkbox).To(BeSelected())
+				})
+
+				By("holding and releasing a click on a checkbox", func() {
+					Expect(page.Click(agouti.HoldClick, agouti.LeftButton)).To(Succeed())
+					Expect(page.Click(agouti.ReleaseClick, agouti.LeftButton)).To(Succeed())
+					Expect(checkbox).NotTo(BeSelected())
+				})
+
+				By("moving the mouse pointer and double clicking", func() {
+					doubleClick := page.Find("#double_click")
+					Expect(doubleClick.MouseToElement()).To(Succeed())
+					Expect(page.DoubleClick()).To(Succeed())
+					Expect(doubleClick).To(HaveText("double-click success"))
+				})
 			})
 		})
 	})

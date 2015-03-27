@@ -370,11 +370,11 @@ var _ = Describe("Element", func() {
 			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/location"))
 		})
 
-		It("should return the location of the element", func() {
-			bus.SendCall.Result = `{"x": 100, "y": 200}`
+		It("should return the rounded location of the element", func() {
+			bus.SendCall.Result = `{"x": 100.7, "y": 200}`
 			x, y, err := element.GetLocation()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(x).To(Equal(100))
+			Expect(x).To(Equal(101))
 			Expect(y).To(Equal(200))
 		})
 
