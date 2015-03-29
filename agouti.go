@@ -3,10 +3,18 @@
 // controlling a web browser.
 package agouti
 
-import "fmt"
+import (
+	"fmt"
+	"path/filepath"
+)
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
-// The RejectInvalidSSL Option must be provided to this PhantomJS function
+//
+// Provided Options will apply as default arguments for new pages.
+// New pages will accept invalid SSL certificates by default. This
+// may be disabled using the RejectInvalidSSL Option.
+//
+// The RejectInvalidSSL Option must be provided to the PhantomJS function
 // (and not the NewPage method) for this Option to take effect on any
 // PhantomJS page.
 func PhantomJS(options ...Option) *WebDriver {
@@ -19,15 +27,17 @@ func PhantomJS(options ...Option) *WebDriver {
 }
 
 // ChromeDriver returns an instance of a ChromeDriver WebDriver.
+//
 // Provided Options will apply as default arguments for new pages.
 // New pages will accept invalid SSL certificates by default. This
 // may be disabled using the RejectInvalidSSL Option.
 func ChromeDriver(options ...Option) *WebDriver {
-	command := []string{"chromedriver", "--silent", "--port={{.Port}}"}
+	command := []string{"chromedriver", "--port={{.Port}}"}
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
 
 // Selenium returns an instance of a Selenium WebDriver.
+//
 // Provided Options will apply as default arguments for new pages.
 // New pages will accept invalid SSL certificates by default. This
 // may be disabled using the RejectInvalidSSL Option.
@@ -36,11 +46,33 @@ func Selenium(options ...Option) *WebDriver {
 	return NewWebDriver("http://{{.Address}}/wd/hub", command, options...)
 }
 
+// Selendroid returns an instance of a Selendroid WebDriver.
+//
+// Provided Options will apply as default arguments for new pages.
+// New pages will accept invalid SSL certificates by default. This
+// may be disabled using the RejectInvalidSSL Option.
+//
+// The jarFile is a relative or absolute path to Selendroid JAR file.
+// Selendroid will return nil if an invalid path is provided.
+func Selendroid(jarFile string, options ...Option) *WebDriver {
+	absJARPath, err := filepath.Abs(jarFile)
+	if err != nil {
+		return nil
+	}
+
+	command := []string{
+		"java",
+		"-jar", absJARPath,
+		"-port", "{{.Port}}",
+	}
+	options = append([]Option{Timeout(90), Browser("android")}, options...)
+	return NewWebDriver("http://{{.Address}}/wd/hub", command, options...)
+}
+
 // SauceLabs opens a Sauce Labs session and returns a *Page. Does not support Sauce Connect.
 func SauceLabs(name, platform, browser, version, username, accessKey string) (*Page, error) {
 	url := fmt.Sprintf("http://%s:%s@ondemand.saucelabs.com/wd/hub", username, accessKey)
 	capabilities := NewCapabilities().Browser(name).Platform(platform).Version(version)
 	capabilities["name"] = name
-
 	return NewPage(url, Desired(capabilities))
 }
