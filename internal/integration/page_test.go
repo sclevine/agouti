@@ -190,6 +190,28 @@ func testPage(browserName string, newPage pageFunc) {
 			Expect(page.GetCookies()).To(HaveLen(0))
 		})
 
+		It("should support resetting the page", func() {
+			Expect(page.SetCookie(&http.Cookie{Name: "webdriver-test-cookie", Value: "webdriver value"})).To(Succeed())
+			Expect(page.GetCookies()).To(HaveLen(2))
+			Expect(page.Find("#popup_alert").Click()).To(Succeed())
+			Expect(page.Reset()).To(Succeed())
+
+			By("navigating to about:blank", func() {
+				Expect(page.URL()).To(Equal("about:blank"))
+			})
+
+			By("deleting all cookies for the current domain", func() {
+				Expect(page.Navigate(server.URL)).To(Succeed())
+				Expect(page.GetCookies()).To(HaveLen(1))
+			})
+
+			By("allowing reset to be called multiple times", func() {
+				Expect(page.Reset()).To(Succeed())
+				Expect(page.Reset()).To(Succeed())
+				Expect(page.Navigate(server.URL)).To(Succeed())
+			})
+		})
+
 		It("should support various mouse events", func() {
 			checkbox := page.Find("#some_checkbox")
 

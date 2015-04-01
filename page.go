@@ -62,12 +62,25 @@ func (p *Page) Session() *api.Session {
 	return p.session.(*api.Session)
 }
 
-// Destroy closes the session and any open browsers processes.
+// Destroy closes any open browsers by ending the session.
 func (p *Page) Destroy() error {
 	if err := p.session.Delete(); err != nil {
 		return fmt.Errorf("failed to destroy session: %s", err)
 	}
 	return nil
+}
+
+// Reset deletes all cookies set for the current domain and navigates to a blank page.
+// Unlike Destroy, Reset will permit the page to be re-used after it is called.
+// Reset is faster than Destroy, but any cookies from domains outside the current
+// domain will remain after a page is reset.
+func (p *Page) Reset() error {
+	p.ConfirmPopup()
+	if err := p.ClearCookies(); err != nil {
+		return err
+	}
+
+	return p.Navigate("about:blank")
 }
 
 // Navigate navigates to the provided URL.

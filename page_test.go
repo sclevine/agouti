@@ -55,6 +55,36 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#Reset", func() {
+		It("should attempt to confirm a popup box, ignoring any error", func() {
+			session.AcceptAlertCall.Err = errors.New("some error")
+			Expect(page.Reset()).To(Succeed())
+			Expect(session.AcceptAlertCall.Called).To(BeTrue())
+		})
+
+		It("should clear all cookies for the current domain and navigate to about:blank", func() {
+			Expect(page.Reset()).To(Succeed())
+			Expect(session.DeleteCookiesCall.Called).To(BeTrue())
+			Expect(session.SetURLCall.URL).To(Equal("about:blank"))
+		})
+
+		Context("when clearing the cookies fails", func() {
+			It("should return an error", func() {
+				session.DeleteCookiesCall.Err = errors.New("some error")
+				err := page.Reset()
+				Expect(err).To(MatchError("failed to clear cookies: some error"))
+			})
+		})
+
+		Context("when navigating fails", func() {
+			It("should return an error", func() {
+				session.SetURLCall.Err = errors.New("some error")
+				err := page.Reset()
+				Expect(err).To(MatchError("failed to navigate: some error"))
+			})
+		})
+	})
+
 	Describe("#Navigate", func() {
 		It("should successfully instruct the session to navigate to the provided URL", func() {
 			Expect(page.Navigate("http://example.com")).To(Succeed())
