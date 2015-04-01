@@ -79,7 +79,7 @@ var _ = Describe("WebDriver", func() {
 			It("should return an error", func() {
 				responseBody = `{"sessionId": ""}`
 				_, err := webDriver.Open(nil)
-				Expect(err).To(MatchError("failed to connect: failed to retrieve a session ID"))
+				Expect(err).To(MatchError("failed to retrieve a session ID"))
 			})
 		})
 	})

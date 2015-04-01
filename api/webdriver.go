@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sclevine/agouti/api/internal/bus"
 	"github.com/sclevine/agouti/api/internal/service"
 )
 
@@ -44,12 +43,11 @@ func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, e
 		return nil, fmt.Errorf("service not started")
 	}
 
-	busClient, err := bus.Connect(url, desiredCapabilites)
+	session, err := Open(url, desiredCapabilites)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %s", err)
+		return nil, err
 	}
 
-	session := &Session{busClient}
 	w.sessions = append(w.sessions, session)
 	return session, nil
 }
