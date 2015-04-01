@@ -144,9 +144,9 @@ var _ = Describe("Session", func() {
 
 			Context("with a response body value that cannot be read", func() {
 				It("should return a failed to extract value from response error", func() {
-					responseBody = `{"value": "unexpected string"}`
+					responseBody = "some unexpected response"
 					err := client.Send("GET", "some/endpoint", nil, &result)
-					Expect(err).To(MatchError("failed to parse response value: json: cannot unmarshal string into Go value of type struct { Some string }"))
+					Expect(err).To(MatchError("unexpected response: some unexpected response"))
 				})
 			})
 		})

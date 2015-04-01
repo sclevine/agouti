@@ -28,7 +28,7 @@ func (c *Client) Send(method, endpoint string, body interface{}, result interfac
 	if result != nil {
 		bodyValue := struct{ Value interface{} }{result}
 		if err := json.Unmarshal(responseBody, &bodyValue); err != nil {
-			return fmt.Errorf("failed to parse response value: %s", err)
+			return fmt.Errorf("unexpected response: %s", responseBody)
 		}
 	}
 
