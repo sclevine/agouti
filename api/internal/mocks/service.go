@@ -5,7 +5,6 @@ import "time"
 type Service struct {
 	URLCall struct {
 		ReturnURL string
-		Err       error
 	}
 
 	StartCall struct {
@@ -25,8 +24,8 @@ type Service struct {
 	}
 }
 
-func (s *Service) URL() (string, error) {
-	return s.URLCall.ReturnURL, s.URLCall.Err
+func (s *Service) URL() string {
+	return s.URLCall.ReturnURL
 }
 
 func (s *Service) Start(debug bool) error {

@@ -22,9 +22,11 @@ var _ = Describe("Service", func() {
 
 	Describe("#URL", func() {
 		Context("when the server is not running", func() {
-			It("should return an error", func() {
-				_, err := service.URL()
-				Expect(err).To(MatchError("not running"))
+			It("should return an empty string", func() {
+				Expect(service.URL()).To(BeEmpty())
+				Expect(service.Start(false)).To(Succeed())
+				Expect(service.Stop()).To(Succeed())
+				Expect(service.URL()).To(BeEmpty())
 			})
 		})
 

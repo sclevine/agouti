@@ -16,7 +16,7 @@ type WebDriver struct {
 }
 
 type driverService interface {
-	URL() (string, error)
+	URL() string
 	Start(debug bool) error
 	Stop() error
 	WaitForBoot(timeout time.Duration) error
@@ -34,10 +34,14 @@ func NewWebDriver(url string, command []string) *WebDriver {
 	}
 }
 
+func (w *WebDriver) URL() string {
+	return w.service.URL()
+}
+
 func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, error) {
-	url, err := w.service.URL()
-	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve URL: %s", err)
+	url := w.service.URL()
+	if url == "" {
+		return nil, fmt.Errorf("service not started")
 	}
 
 	busClient, err := bus.Connect(url, desiredCapabilites)

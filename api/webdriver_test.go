@@ -57,7 +57,7 @@ var _ = Describe("WebDriver", func() {
 		})
 
 		Context("when the WebDriver is stopped", func() {
-			It("should delete the opened session", func() {
+			It("should delete the opened session stored by the WebDriver", func() {
 				_, err := webDriver.Open(nil)
 				Expect(err).NotTo(HaveOccurred())
 				requestMethod = ""
@@ -67,11 +67,11 @@ var _ = Describe("WebDriver", func() {
 			})
 		})
 
-		Context("when the service URL cannot be retrieved", func() {
+		Context("when the WebDriver is not running", func() {
 			It("should return an error", func() {
-				service.URLCall.Err = errors.New("some error")
+				service.URLCall.ReturnURL = ""
 				_, err := webDriver.Open(nil)
-				Expect(err).To(MatchError("cannot retrieve URL: some error"))
+				Expect(err).To(MatchError("service not started"))
 			})
 		})
 
