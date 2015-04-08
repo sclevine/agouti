@@ -1,24 +1,19 @@
 package integration_test
 
-import (
-	. "github.com/onsi/ginkgo"
-	"github.com/sclevine/agouti"
-)
+import . "github.com/onsi/ginkgo"
 
 var _ = Describe("integration tests", func() {
-	testPage("PhantomJS", phantomDriver.NewPage)
-	testSelection("PhantomJS", phantomDriver.NewPage)
+	testPage("PhantomJS", &phantomURL)
+	testSelection("PhantomJS", &phantomURL)
 
 	if !headlessOnly {
-		testPage("ChromeDriver", chromeDriver.NewPage)
-		testSelection("ChromeDriver", chromeDriver.NewPage)
-		testPage("Firefox", seleniumDriver.NewPage)
-		testSelection("Firefox", seleniumDriver.NewPage)
+		testPage("ChromeDriver", &chromeURL)
+		testSelection("ChromeDriver", &chromeURL)
+		testPage("Firefox", &seleniumURL)
+		testSelection("Firefox", &seleniumURL)
 	}
 
 	if mobile {
-		testMobile("Android", selendroidDriver.NewPage)
+		testMobile("Android", &selendroidURL)
 	}
 })
-
-type pageFunc func(...agouti.Option) (*agouti.Page, error)

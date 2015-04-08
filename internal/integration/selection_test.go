@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 )
 
-func testSelection(browserName string, newPage pageFunc) {
+func testSelection(browserName string, url *string) {
 	Describe("selection test for "+browserName, func() {
 		var (
 			page      *agouti.Page
@@ -28,7 +28,7 @@ func testSelection(browserName string, newPage pageFunc) {
 			}))
 
 			var err error
-			page, err = newPage()
+			page, err = agouti.NewPage(*url)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(page.Size(640, 480)).To(Succeed())

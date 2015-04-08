@@ -12,7 +12,7 @@ import (
 	. "github.com/sclevine/agouti/matchers"
 )
 
-func testMobile(browserName string, newPage pageFunc) {
+func testMobile(browserName string, url *string) {
 	Describe("mobile test for "+browserName, func() {
 		var (
 			page   *agouti.Page
@@ -26,7 +26,7 @@ func testMobile(browserName string, newPage pageFunc) {
 			}))
 
 			var err error
-			page, err = newPage()
+			page, err = agouti.NewPage(*url)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(page.Size(640, 480)).To(Succeed())
