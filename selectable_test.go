@@ -154,4 +154,11 @@ var _ = Describe("Selectable", func() {
 			Expect(page.AllByClass("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
 		})
 	})
+
+	Describe("#AllByID", func() {
+		It("should apply an un-indexed id selector and return a selection with the same session", func() {
+			Expect(page.AllByID("selector").String()).To(Equal(`selection 'ID: selector'`))
+			Expect(page.AllByID("selector").Elements()).To(ContainElement(&api.Element{Session: session}))
+		})
+	})
 })
