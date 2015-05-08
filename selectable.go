@@ -147,6 +147,11 @@ func (s *selectable) AllByClass(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Class, text))
 }
 
+// AllByID finds zero or more elements with a given ID.
+func (s *selectable) AllByID(text string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.ID, text))
+}
+
 // FirstByClass finds the first element with a given CSS class.
 func (s *selectable) FindForAppium(selectorType string, text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
