@@ -13,6 +13,7 @@ type mobileSession interface {
 	LaunchApp() error
 	CloseApp() error
 	InstallApp(appPath string) error
+	Reset() error
 	PerformTouch(actions []mobile.Action) error
 }
 
@@ -47,6 +48,13 @@ func (d *Device) CloseApp() error {
 func (d *Device) InstallApp(appPath string) error {
 	if err := d.session.InstallApp(appPath); err != nil {
 		return fmt.Errorf("failed to install app: %s", err)
+	}
+	return nil
+}
+
+func (d *Device) Reset() error {
+	if err := d.session.Reset(); err != nil {
+		return fmt.Errorf("failed to reset app: %s", err)
 	}
 	return nil
 }
