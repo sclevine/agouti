@@ -39,6 +39,10 @@ type mockMobileSession struct {
 	ResetCall struct {
 		Err error
 	}
+
+	ReplaceValueCall struct {
+		Err error
+	}
 }
 
 func (s *mockMobileSession) GetElement(selector api.Selector) (*api.Element, error) {
@@ -65,6 +69,10 @@ func (s *mockMobileSession) InstallApp(appPath string) error {
 
 func (s *mockMobileSession) Reset() error {
 	return s.ResetCall.Err
+}
+
+func (s *mockMobileSession) ReplaceValue(elementId, newValue string) error {
+	return s.ReplaceValueCall.Err
 }
 
 func (s *mockMobileSession) PerformTouch(actions []mobile.Action) error {

@@ -1,8 +1,6 @@
 package mobile
 
-import (
-	"github.com/sclevine/agouti/api"
-)
+import "github.com/sclevine/agouti/api"
 
 type Session struct {
 	*api.Session
@@ -40,7 +38,7 @@ func (s *Session) InstallApp(appPath string) error {
 		AppPath string `json:"appPath"`
 	}{appPath}
 
-	return s.Send("appium/device/install_app", "POST", request, nil)
+	return s.Send("POST", "appium/device/install_app", request, nil)
 }
 
 func (s *Session) RemoveApp(appId string) error {
@@ -48,7 +46,7 @@ func (s *Session) RemoveApp(appId string) error {
 		AppID string `json:"appId"`
 	}{appId}
 
-	return s.Send("appium/device/remove_app", "POST", request, nil)
+	return s.Send("POST", "appium/device/remove_app", request, nil)
 }
 
 func (s *Session) IsAppInstalled(bundleId string) (bool, error) {
@@ -57,18 +55,18 @@ func (s *Session) IsAppInstalled(bundleId string) (bool, error) {
 	}{bundleId}
 
 	var out bool
-	if err := s.Send("appium/device/app_installed", "POST", request, &out); err != nil {
+	if err := s.Send("POST", "appium/device/app_installed", request, &out); err != nil {
 		return false, err
 	}
 	return out, nil
 }
 
 func (s *Session) LaunchApp() error {
-	return s.Send("appium/app/launch", "POST", nil, nil)
+	return s.Send("POST", "appium/app/launch", nil, nil)
 }
 
 func (s *Session) CloseApp() error {
-	return s.Send("appium/app/launch", "POST", nil, nil)
+	return s.Send("POST", "appium/app/launch", nil, nil)
 }
 
 func (s *Session) GetAppStrings(language string) ([]string, error) {
@@ -77,7 +75,7 @@ func (s *Session) GetAppStrings(language string) ([]string, error) {
 	}{language}
 
 	var strs []string
-	if err := s.Send("appium/app/strings", "POST", request, &strs); err != nil {
+	if err := s.Send("POST", "appium/app/strings", request, &strs); err != nil {
 		return nil, err
 	}
 	return strs, nil
@@ -85,32 +83,32 @@ func (s *Session) GetAppStrings(language string) ([]string, error) {
 
 func (s *Session) GetCurrentActivity() (string, error) {
 	var activity string
-	if err := s.Send("appium/device/current_activity", "GET", nil, &activity); err != nil {
+	if err := s.Send("POST", "appium/device/current_activity", nil, &activity); err != nil {
 		return "", err
 	}
 	return activity, nil
 }
 
 func (s *Session) Lock() error {
-	return s.Send("appium/device/lock", "POST", nil, nil)
+	return s.Send("POST", "appium/device/lock", nil, nil)
 }
 
 func (s *Session) Shake() error {
-	return s.Send("appium/device/shake", "POST", nil, nil)
+	return s.Send("POST", "appium/device/shake", nil, nil)
 }
 
 func (s *Session) Reset() error {
-	return s.Send("appium/app/reset", "POST", nil, nil)
+	return s.Send("POST", "appium/app/reset", nil, nil)
 }
 
 func (s *Session) OpenNotifications() error {
-	return s.Send("appium/device/open_notifications", "POST", nil, nil)
+	return s.Send("POST", "appium/device/open_notifications", nil, nil)
 }
 
 func (s *Session) GetSettings() (map[string]interface{}, error) {
 	var out map[string]interface{}
 
-	if err := s.Send("appium/settings", "GET", nil, &out); err != nil {
+	if err := s.Send("GET", "appium/settings", nil, &out); err != nil {
 		return nil, err
 	}
 	return out, nil
@@ -121,11 +119,21 @@ func (s *Session) UpdateSettings(settings map[string]interface{}) error {
 		Settings map[string]interface{} `json:"settings"`
 	}{settings}
 
-	return s.Send("appium/settings", "POST", request, nil)
+	return s.Send("POST", "appium/settings", request, nil)
 }
 
 func (s *Session) ToggleLocationServices() error {
-	return s.Send("appium/device/toggle_location_services", "POST", nil, nil)
+	return s.Send("POST", "appium/device/toggle_location_services", nil, nil)
+}
+
+func (s *Session) ReplaceValue(elementID, newValue string) error {
+	request := struct {
+		ElementId string   `json:"elementId"`
+		Value     []string `json:"value"`
+	}{elementID, []string{newValue}}
+
+	endpoint := "appium/element/" + elementID + "/replace_value"
+	return s.Send("POST", endpoint, request, nil)
 }
 
 var _ = `
