@@ -83,7 +83,7 @@ func (s *Session) GetAppStrings(language string) ([]string, error) {
 
 func (s *Session) GetCurrentActivity() (string, error) {
 	var activity string
-	if err := s.Send("POST", "appium/device/current_activity", nil, &activity); err != nil {
+	if err := s.Send("GET", "appium/device/current_activity", nil, &activity); err != nil {
 		return "", err
 	}
 	return activity, nil
