@@ -66,7 +66,7 @@ func (s *Session) LaunchApp() error {
 }
 
 func (s *Session) CloseApp() error {
-	return s.Send("POST", "appium/app/launch", nil, nil)
+	return s.Send("POST", "appium/app/close", nil, nil)
 }
 
 func (s *Session) GetAppStrings(language string) ([]string, error) {
