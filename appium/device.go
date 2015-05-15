@@ -16,6 +16,7 @@ type mobileSession interface {
 	Reset() error
 	PerformTouch(actions []mobile.Action) error
 	ReplaceValue(elementID, newValue string) error
+	Swipe(touch_count, start_x, start_y, end_x, end_y, duration int, element string) error
 }
 
 type Device struct {
@@ -77,4 +78,8 @@ func (d *Device) ReplaceElementValue(element *agouti.Selection, newValue string)
 	}
 
 	return nil
+}
+
+func (d *Device) Swipe(start_x, start_y, end_x, end_y, duration int) error {
+	return d.TouchAction().PressPosition(start_x, start_y).Wait(duration).MoveToPosition(end_x, end_y).Release().Perform()
 }
