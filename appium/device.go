@@ -16,7 +16,6 @@ type mobileSession interface {
 	Reset() error
 	PerformTouch(actions []mobile.Action) error
 	ReplaceValue(elementID, newValue string) error
-	Swipe(touch_count, start_x, start_y, end_x, end_y, duration int, element string) error
 }
 
 type Device struct {
