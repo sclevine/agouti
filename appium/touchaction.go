@@ -56,17 +56,25 @@ func (a *action) String() string {
 }
 
 func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors) *TouchAction {
-	if selectors == nil {
-		selectors = make(target.Selectors, 0)
-	}
 	newAction := action{actionObj, selectors}
 	touchAction := NewTouchAction(t.session)
 	touchAction.actions = append(t.actions, newAction)
 	return touchAction
 }
 
-func (t *TouchAction) Tap() *TouchAction {
-	action := mobile.Action{Action: "tap"}
+func (t *TouchAction) TapElement(selection *agouti.Selection, count int) *TouchAction {
+	action := mobile.Action{
+		Action:  "tap",
+		Options: mobile.ActionOptions{Count: count},
+	}
+	return t.append(action, selection.Selectors())
+}
+
+func (t *TouchAction) TapPosition(x, y, count int) *TouchAction {
+	action := mobile.Action{
+		Action:  "tap",
+		Options: mobile.ActionOptions{Count: count, X: x, Y: y},
+	}
 	return t.append(action, nil)
 }
 
@@ -110,7 +118,7 @@ func (t *TouchAction) Release() *TouchAction {
 
 func (t *TouchAction) Wait(ms int) *TouchAction {
 	action := mobile.Action{
-		Action:  "longPress",
+		Action:  "wait",
 		Options: mobile.ActionOptions{Millisecond: ms},
 	}
 	return t.append(action, nil)

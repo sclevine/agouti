@@ -15,6 +15,7 @@ type mobileSession interface {
 	InstallApp(appPath string) error
 	Reset() error
 	PerformTouch(actions []mobile.Action) error
+	ReplaceValue(elementID, newValue string) error
 }
 
 type Device struct {
@@ -61,4 +62,23 @@ func (d *Device) Reset() error {
 
 func (d *Device) TouchAction() *TouchAction {
 	return NewTouchAction(d.session)
+}
+
+func (d *Device) ReplaceElementValue(element *agouti.Selection, newValue string) error {
+	elements, err := element.Elements()
+	if err != nil {
+		return err
+	}
+
+	for _, el := range elements {
+		if err := d.session.ReplaceValue(el.GetID(), newValue); err != nil {
+			return fmt.Errorf("failed to replace element value: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func (d *Device) Swipe(start_x, start_y, end_x, end_y, duration int) error {
+	return d.TouchAction().PressPosition(start_x, start_y).Wait(duration).MoveToPosition(end_x, end_y).Release().Perform()
 }
