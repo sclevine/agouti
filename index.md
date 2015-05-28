@@ -371,39 +371,42 @@ Here is a part of a login test that does not depend on Ginkgo or Gomega.
 
     func TestUserLoginPrompt(t *testing.T) {
         driver := agouti.Selenium()
+        if err := driver.Start(); err != nil {
+            t.Fatal("Failed to start Selenium:", err)
+        }
         page, err := driver.NewPage(agouti.Browser("firefox"))
         if err != nil {
-            t.Error("Failed to open page.")
+            t.Fatal("Failed to open page:", err)
         }
 
         potato.StartMyApp(3000)
 
         if err := page.Navigate("http://localhost:3000"); err != nil {
-            t.Error("Failed to navigate.")
+            t.Fatal("Failed to navigate:", err)
         }
 
         loginURL, err := page.URL()
         if err != nil {
-            t.Error("Failed to get page URL.")
+            t.Fatal("Failed to get page URL:", err)
         }
 
         expectedLoginURL := "http://localhost:3000/login"
         if loginURL != expectedLoginURL {
-            t.Error("Expected URL to be", expectedLoginURL, "but got", loginURL)
+            t.Fatal("Expected URL to be", expectedLoginURL, "but got", loginURL)
         }
 
         loginPrompt, err := page.Find("#prompt").Text()
         if err != nil {
-            t.Error("Failed to get login prompt text.")
+            t.Fatal("Failed to get login prompt text:", err)
         }
 
         expectedPrompt := "Please login."
         if loginPrompt != expectedPrompt {
-            t.Error("Expected login prompt to be", expectedPrompt, "but got", loginPrompt)
+            t.Fatal("Expected login prompt to be", expectedPrompt, "but got", loginPrompt)
         }
 
         if err := driver.Stop(); err != nil {
-            t.Error("Failed close open pages and stop WebDriver.")
+            t.Fatal("Failed to close pages and stop WebDriver:", err)
         }
     }
 
