@@ -1019,4 +1019,19 @@ var _ = Describe("Bus", func() {
 			})
 		})
 	})
+
+	Describe("#DeleteLocalStorage", func() {
+		It("should successfully send a POST to the delete local storage endpoint", func() {
+			Expect(session.DeleteLocalStorage()).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("DELETE"))
+			Expect(bus.SendCall.Endpoint).To(Equal("local_storage"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DeleteLocalStorage()).To(MatchError("some error"))
+			})
+		})
+	})
 })

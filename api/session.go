@@ -422,3 +422,7 @@ func (s *Session) TouchScroll(element *Element, offset Offset) error {
 	}{element.ID, xOffset, yOffset}
 	return s.Send("POST", "touch/scroll", request, nil)
 }
+
+func (s *Session) DeleteLocalStorage() error {
+	return s.Send("DELETE", "local_storage", nil, nil)
+}

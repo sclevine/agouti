@@ -54,6 +54,7 @@ type apiSession interface {
 	TouchLongClick(element *api.Element) error
 	TouchFlick(element *api.Element, offset api.Offset, speed api.Speed) error
 	TouchScroll(element *api.Element, offset api.Offset) error
+	DeleteLocalStorage() error
 }
 
 // Find finds exactly one element by CSS selector.

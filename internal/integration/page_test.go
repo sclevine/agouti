@@ -193,7 +193,12 @@ func testPage(browserName string, newPage pageFunc) {
 		It("should support resetting the page", func() {
 			Expect(page.SetCookie(&http.Cookie{Name: "webdriver-test-cookie", Value: "webdriver value"})).To(Succeed())
 			Expect(page.GetCookies()).To(HaveLen(2))
+			Expect(page.RunScript("localStorage.setItem('some-local-storage-key', 'some-local-storage-value');", nil, nil)).To(Succeed())
+			var localStorageTest string
+			Expect(page.RunScript("return localStorage.getItem('some-local-storage-key')", nil, &localStorageTest)).To(Succeed())
+			Expect(localStorageTest).To(Equal("some-local-storage-value"))
 			Expect(page.Find("#popup_alert").Click()).To(Succeed())
+
 			Expect(page.Reset()).To(Succeed())
 
 			By("navigating to about:blank", func() {
@@ -203,6 +208,12 @@ func testPage(browserName string, newPage pageFunc) {
 			By("deleting all cookies for the current domain", func() {
 				Expect(page.Navigate(server.URL)).To(Succeed())
 				Expect(page.GetCookies()).To(HaveLen(1))
+			})
+
+			By("deleting local storage for the current domain", func() {
+				var localStorageTest string
+				Expect(page.RunScript("return localStorage.getItem('some-local-storage-key');", nil, &localStorageTest)).To(Succeed())
+				Expect(localStorageTest).To(BeEmpty())
 			})
 
 			By("allowing reset to be called multiple times", func() {

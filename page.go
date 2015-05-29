@@ -76,8 +76,23 @@ func (p *Page) Destroy() error {
 // domain will remain after a page is reset.
 func (p *Page) Reset() error {
 	p.ConfirmPopup()
+
+	url, err := p.URL()
+	if err != nil {
+		return err
+	}
+	if url == "about:blank" {
+		return nil
+	}
+
 	if err := p.ClearCookies(); err != nil {
 		return err
+	}
+
+	if err := p.session.DeleteLocalStorage(); err != nil {
+		if err := p.RunScript("localStorage.clear();", nil, nil); err != nil {
+			return err
+		}
 	}
 
 	return p.Navigate("about:blank")

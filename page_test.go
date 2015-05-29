@@ -62,10 +62,38 @@ var _ = Describe("Page", func() {
 			Expect(session.AcceptAlertCall.Called).To(BeTrue())
 		})
 
-		It("should clear all cookies for the current domain and navigate to about:blank", func() {
+		It("should clear all cookies for the current domain", func() {
 			Expect(page.Reset()).To(Succeed())
 			Expect(session.DeleteCookiesCall.Called).To(BeTrue())
+		})
+
+		It("should navigate to about:blank", func() {
+			Expect(page.Reset()).To(Succeed())
 			Expect(session.SetURLCall.URL).To(Equal("about:blank"))
+		})
+
+		It("should clear the local storage for the domain", func() {
+			Expect(page.Reset()).To(Succeed())
+			Expect(session.DeleteLocalStorageCall.Called).To(BeTrue())
+		})
+
+		Context("when the page is already about:blank", func() {
+			It("should confirm a possible popup and immediately return", func() {
+				session.GetURLCall.ReturnURL = "about:blank"
+				Expect(page.Reset()).To(Succeed())
+				Expect(session.AcceptAlertCall.Called).To(BeTrue())
+				Expect(session.DeleteCookiesCall.Called).To(BeFalse())
+				Expect(session.DeleteLocalStorageCall.Called).To(BeFalse())
+				Expect(session.SetURLCall.URL).To(BeEmpty())
+			})
+		})
+
+		Context("when checking the current URL fails", func() {
+			It("should return an error", func() {
+				session.GetURLCall.Err = errors.New("some error")
+				err := page.Reset()
+				Expect(err).To(MatchError("failed to retrieve URL: some error"))
+			})
 		})
 
 		Context("when clearing the cookies fails", func() {
@@ -73,6 +101,25 @@ var _ = Describe("Page", func() {
 				session.DeleteCookiesCall.Err = errors.New("some error")
 				err := page.Reset()
 				Expect(err).To(MatchError("failed to clear cookies: some error"))
+			})
+		})
+
+		Context("when deleting local storage fails", func() {
+			BeforeEach(func() {
+				session.DeleteLocalStorageCall.Err = errors.New("some error")
+			})
+
+			It("should successfully use JavaScript to delete the local storage", func() {
+				Expect(page.Reset()).To(Succeed())
+				Expect(session.ExecuteCall.Body).To(ContainSubstring("localStorage.clear()"))
+			})
+
+			Context("when the javascript fallback fails", func() {
+				It("should return an error", func() {
+					session.ExecuteCall.Err = errors.New("some error")
+					err := page.Reset()
+					Expect(err).To(MatchError("failed to run script: some error"))
+				})
 			})
 		})
 
