@@ -238,6 +238,11 @@ type Session struct {
 		Called bool
 		Err    error
 	}
+
+	DeleteSessionStorageCall struct {
+		Called bool
+		Err    error
+	}
 }
 
 func (s *Session) Delete() error {
@@ -457,5 +462,11 @@ func (s *Session) TouchScroll(element *api.Element, offset api.Offset) error {
 func (s *Session) DeleteLocalStorage() error {
 	s.DeleteLocalStorageCall.Called = true
 	return s.DeleteLocalStorageCall.Err
+
+}
+
+func (s *Session) DeleteSessionStorage() error {
+	s.DeleteSessionStorageCall.Called = true
+	return s.DeleteSessionStorageCall.Err
 
 }

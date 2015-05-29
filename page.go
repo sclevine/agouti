@@ -95,6 +95,12 @@ func (p *Page) Reset() error {
 		}
 	}
 
+	if err := p.session.DeleteSessionStorage(); err != nil {
+		if err := p.RunScript("sessionStorage.clear();", nil, nil); err != nil {
+			return err
+		}
+	}
+
 	return p.Navigate("about:blank")
 }
 

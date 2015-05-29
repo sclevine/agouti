@@ -67,14 +67,19 @@ var _ = Describe("Page", func() {
 			Expect(session.DeleteCookiesCall.Called).To(BeTrue())
 		})
 
-		It("should navigate to about:blank", func() {
-			Expect(page.Reset()).To(Succeed())
-			Expect(session.SetURLCall.URL).To(Equal("about:blank"))
-		})
-
 		It("should clear the local storage for the domain", func() {
 			Expect(page.Reset()).To(Succeed())
 			Expect(session.DeleteLocalStorageCall.Called).To(BeTrue())
+		})
+
+		It("should clear the session storage for the domain", func() {
+			Expect(page.Reset()).To(Succeed())
+			Expect(session.DeleteSessionStorageCall.Called).To(BeTrue())
+		})
+
+		It("should navigate to about:blank", func() {
+			Expect(page.Reset()).To(Succeed())
+			Expect(session.SetURLCall.URL).To(Equal("about:blank"))
 		})
 
 		Context("when the page is already about:blank", func() {
@@ -112,6 +117,25 @@ var _ = Describe("Page", func() {
 			It("should successfully use JavaScript to delete the local storage", func() {
 				Expect(page.Reset()).To(Succeed())
 				Expect(session.ExecuteCall.Body).To(ContainSubstring("localStorage.clear()"))
+			})
+
+			Context("when the javascript fallback fails", func() {
+				It("should return an error", func() {
+					session.ExecuteCall.Err = errors.New("some error")
+					err := page.Reset()
+					Expect(err).To(MatchError("failed to run script: some error"))
+				})
+			})
+		})
+
+		Context("when deleting session storage fails", func() {
+			BeforeEach(func() {
+				session.DeleteSessionStorageCall.Err = errors.New("some error")
+			})
+
+			It("should successfully use JavaScript to delete the session storage", func() {
+				Expect(page.Reset()).To(Succeed())
+				Expect(session.ExecuteCall.Body).To(ContainSubstring("sessionStorage.clear()"))
 			})
 
 			Context("when the javascript fallback fails", func() {

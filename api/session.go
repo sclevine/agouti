@@ -426,3 +426,7 @@ func (s *Session) TouchScroll(element *Element, offset Offset) error {
 func (s *Session) DeleteLocalStorage() error {
 	return s.Send("DELETE", "local_storage", nil, nil)
 }
+
+func (s *Session) DeleteSessionStorage() error {
+	return s.Send("DELETE", "session_storage", nil, nil)
+}

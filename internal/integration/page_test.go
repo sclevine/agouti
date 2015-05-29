@@ -193,10 +193,17 @@ func testPage(browserName string, newPage pageFunc) {
 		It("should support resetting the page", func() {
 			Expect(page.SetCookie(&http.Cookie{Name: "webdriver-test-cookie", Value: "webdriver value"})).To(Succeed())
 			Expect(page.GetCookies()).To(HaveLen(2))
+
 			Expect(page.RunScript("localStorage.setItem('some-local-storage-key', 'some-local-storage-value');", nil, nil)).To(Succeed())
 			var localStorageTest string
 			Expect(page.RunScript("return localStorage.getItem('some-local-storage-key')", nil, &localStorageTest)).To(Succeed())
 			Expect(localStorageTest).To(Equal("some-local-storage-value"))
+
+			Expect(page.RunScript("sessionStorage.setItem('some-session-storage-key', 'some-session-storage-value');", nil, nil)).To(Succeed())
+			var sessionStorageTest string
+			Expect(page.RunScript("return sessionStorage.getItem('some-session-storage-key')", nil, &sessionStorageTest)).To(Succeed())
+			Expect(sessionStorageTest).To(Equal("some-session-storage-value"))
+
 			Expect(page.Find("#popup_alert").Click()).To(Succeed())
 
 			Expect(page.Reset()).To(Succeed())
@@ -205,8 +212,9 @@ func testPage(browserName string, newPage pageFunc) {
 				Expect(page.URL()).To(Equal("about:blank"))
 			})
 
+			Expect(page.Navigate(server.URL)).To(Succeed())
+
 			By("deleting all cookies for the current domain", func() {
-				Expect(page.Navigate(server.URL)).To(Succeed())
 				Expect(page.GetCookies()).To(HaveLen(1))
 			})
 
@@ -214,6 +222,12 @@ func testPage(browserName string, newPage pageFunc) {
 				var localStorageTest string
 				Expect(page.RunScript("return localStorage.getItem('some-local-storage-key');", nil, &localStorageTest)).To(Succeed())
 				Expect(localStorageTest).To(BeEmpty())
+			})
+
+			By("deleting session storage for the current domain", func() {
+				var sessionStorageTest string
+				Expect(page.RunScript("return sessionStorage.getItem('some-session-storage-key');", nil, &sessionStorageTest)).To(Succeed())
+				Expect(sessionStorageTest).To(BeEmpty())
 			})
 
 			By("allowing reset to be called multiple times", func() {
