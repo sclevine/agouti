@@ -76,7 +76,7 @@ func makeRequest(url, method string, body []byte) ([]byte, error) {
 func parseResponseError(body []byte) error {
 	var errBody struct{ Value struct{ Message string } }
 	if err := json.Unmarshal(body, &errBody); err != nil {
-		return fmt.Errorf("request unsuccessful: error unreadable")
+		return fmt.Errorf("request unsuccessful: %s", body)
 	}
 
 	var errMessage struct{ ErrorMessage string }

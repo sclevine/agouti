@@ -115,7 +115,7 @@ var _ = Describe("Session", func() {
 				It("should return an error indicating that the request failed with no details", func() {
 					responseBody = `$$$`
 					err := client.Send("GET", "some/endpoint", nil, nil)
-					Expect(err).To(MatchError("request unsuccessful: error unreadable"))
+					Expect(err).To(MatchError("request unsuccessful: $$$"))
 				})
 			})
 
