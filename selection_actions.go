@@ -224,7 +224,7 @@ func (s *Selection) FlickFinger(xOffset, yOffset int, speed uint) error {
 	return nil
 }
 
-// FlickFinger performs a scroll touch action by the provided offset on exactly
+// ScrollFinger performs a scroll touch action by the provided offset on exactly
 // one element.
 func (s *Selection) ScrollFinger(xOffset, yOffset int) error {
 	selectedElement, err := s.elements.GetExactlyOne()

@@ -100,14 +100,14 @@ var _ = Describe("ElementRepository", func() {
 
 		BeforeEach(func() {
 			firstParentBus = &mocks.Bus{}
-			firstParent = &api.Element{ID: "first parent", Session: &api.Session{firstParentBus}}
+			firstParent = &api.Element{ID: "first parent", Session: &api.Session{Bus: firstParentBus}}
 			secondParentBus = &mocks.Bus{}
-			secondParent = &api.Element{ID: "second parent", Session: &api.Session{secondParentBus}}
+			secondParent = &api.Element{ID: "second parent", Session: &api.Session{Bus: secondParentBus}}
 			children = []Element{
-				Element(&api.Element{ID: "first child", Session: &api.Session{firstParentBus}}),
-				Element(&api.Element{ID: "second child", Session: &api.Session{firstParentBus}}),
-				Element(&api.Element{ID: "third child", Session: &api.Session{secondParentBus}}),
-				Element(&api.Element{ID: "fourth child", Session: &api.Session{secondParentBus}}),
+				Element(&api.Element{ID: "first child", Session: &api.Session{Bus: firstParentBus}}),
+				Element(&api.Element{ID: "second child", Session: &api.Session{Bus: firstParentBus}}),
+				Element(&api.Element{ID: "third child", Session: &api.Session{Bus: secondParentBus}}),
+				Element(&api.Element{ID: "fourth child", Session: &api.Session{Bus: secondParentBus}}),
 			}
 			firstParentBus.SendCall.Result = `[{"ELEMENT": "first child"}, {"ELEMENT": "second child"}]`
 			secondParentBus.SendCall.Result = `[{"ELEMENT": "third child"}, {"ELEMENT": "fourth child"}]`
