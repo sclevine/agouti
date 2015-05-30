@@ -70,7 +70,7 @@ var _ = Describe("ElementRepository", func() {
 
 		Context("when the client retrieves more than one element", func() {
 			It("should return an error", func() {
-				client.GetElementsCall.ReturnElements = []*api.Element{&api.Element{}, &api.Element{}}
+				client.GetElementsCall.ReturnElements = []*api.Element{{}, {}}
 				_, err := repository.GetExactlyOne()
 				Expect(err).To(MatchError("method does not support multiple elements (2)"))
 			})

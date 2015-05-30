@@ -37,9 +37,9 @@ var _ = Describe("LogMatcher", func() {
 			Context("when all expected logs have been logged with an expected level", func() {
 				It("should successfully return true", func() {
 					page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-						agouti.Log{"some log", "", "SECOND", time.Time{}},
-						agouti.Log{"some other log", "", "FIRST", time.Time{}},
-						agouti.Log{"another log", "", "OTHER", time.Time{}},
+						{"some log", "", "SECOND", time.Time{}},
+						{"some other log", "", "FIRST", time.Time{}},
+						{"another log", "", "OTHER", time.Time{}},
 					}
 					Expect(matcher.Match(page)).To(BeTrue())
 				})
@@ -48,9 +48,9 @@ var _ = Describe("LogMatcher", func() {
 			Context("when not all expected logs have been logged", func() {
 				It("should successfully return false", func() {
 					page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-						agouti.Log{"some log", "", "FIRST", time.Time{}},
-						agouti.Log{"another log", "", "SECOND", time.Time{}},
-						agouti.Log{"yet another log", "", "THIRD", time.Time{}},
+						{"some log", "", "FIRST", time.Time{}},
+						{"another log", "", "SECOND", time.Time{}},
+						{"yet another log", "", "THIRD", time.Time{}},
 					}
 					Expect(matcher.Match(page)).To(BeFalse())
 				})
@@ -59,9 +59,9 @@ var _ = Describe("LogMatcher", func() {
 			Context("when not all expected logs have been logged with expected levels", func() {
 				It("should successfully return false", func() {
 					page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-						agouti.Log{"some log", "", "FIRST", time.Time{}},
-						agouti.Log{"some other log", "", "OTHER", time.Time{}},
-						agouti.Log{"another log", "", "SECOND", time.Time{}},
+						{"some log", "", "FIRST", time.Time{}},
+						{"some other log", "", "OTHER", time.Time{}},
+						{"another log", "", "SECOND", time.Time{}},
 					}
 					Expect(matcher.Match(page)).To(BeFalse())
 				})
@@ -75,8 +75,8 @@ var _ = Describe("LogMatcher", func() {
 				Context("when any log of an expected type is logged", func() {
 					It("should successfully return true", func() {
 						page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-							agouti.Log{"first log", "", "OTHER", time.Time{}},
-							agouti.Log{"second log", "", "SECOND", time.Time{}},
+							{"first log", "", "OTHER", time.Time{}},
+							{"second log", "", "SECOND", time.Time{}},
 						}
 						Expect(matcher.Match(page)).To(BeTrue())
 					})
@@ -85,8 +85,8 @@ var _ = Describe("LogMatcher", func() {
 				Context("when no logs of an expected type are logged", func() {
 					It("should successfully return false", func() {
 						page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-							agouti.Log{"first log", "", "OTHER", time.Time{}},
-							agouti.Log{"second log", "", "ANOTHER", time.Time{}},
+							{"first log", "", "OTHER", time.Time{}},
+							{"second log", "", "ANOTHER", time.Time{}},
 						}
 						Expect(matcher.Match(page)).To(BeFalse())
 					})

@@ -42,7 +42,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("should return a []*api.Elements retrieved from the element repository", func() {
-			elements := []*api.Element{&api.Element{ID: "first"}, &api.Element{ID: "second"}}
+			elements := []*api.Element{{ID: "first"}, {ID: "second"}}
 			elementRepository.GetCall.ReturnElements = []element.Element{elements[0], elements[1]}
 			Expect(selection.Elements()).To(Equal(elements))
 		})

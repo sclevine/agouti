@@ -68,9 +68,9 @@ var _ = Describe("Page Matchers", func() {
 	Describe("#HaveLoggedError", func() {
 		It("should return a LogMatcher matcher for SEVERE and WARNING browser logs", func() {
 			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-				agouti.Log{"some log", "", "SEVERE", time.Time{}},
-				agouti.Log{"some other log", "", "WARNING", time.Time{}},
-				agouti.Log{"another log", "", "INFO", time.Time{}},
+				{"some log", "", "SEVERE", time.Time{}},
+				{"some other log", "", "WARNING", time.Time{}},
+				{"another log", "", "INFO", time.Time{}},
 			}
 			Expect(page).To(HaveLoggedError("some log"))
 			Expect(page).To(HaveLoggedError("some other log"))
@@ -86,9 +86,9 @@ var _ = Describe("Page Matchers", func() {
 	Describe("#HaveLoggedInfo", func() {
 		It("should return a LogMatcher matcher for INFO browser logs", func() {
 			page.ReadAllLogsCall.ReturnLogs = []agouti.Log{
-				agouti.Log{"some log", "", "SEVERE", time.Time{}},
-				agouti.Log{"some other log", "", "WARNING", time.Time{}},
-				agouti.Log{"another log", "", "INFO", time.Time{}},
+				{"some log", "", "SEVERE", time.Time{}},
+				{"some other log", "", "WARNING", time.Time{}},
+				{"another log", "", "INFO", time.Time{}},
 			}
 			Expect(page).NotTo(HaveLoggedInfo("some log"))
 			Expect(page).NotTo(HaveLoggedInfo("some other log"))

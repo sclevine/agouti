@@ -173,7 +173,7 @@ var _ = Describe("Page", func() {
 	Describe("#GetCookies", func() {
 		It("should sucessfully retrieve all cookies from the session", func() {
 			session.GetCookiesCall.ReturnCookies = []*api.Cookie{
-				&api.Cookie{
+				{
 					Name:     "some cookie",
 					Value:    "some value",
 					Path:     "/",
@@ -182,7 +182,7 @@ var _ = Describe("Page", func() {
 					HTTPOnly: true,
 					Expiry:   100,
 				},
-				&api.Cookie{
+				{
 					Name:     "some other cookie",
 					Value:    "some other value",
 					Path:     "/other",
@@ -193,7 +193,7 @@ var _ = Describe("Page", func() {
 				},
 			}
 			Expect(page.GetCookies()).To(Equal([]*http.Cookie{
-				&http.Cookie{
+				{
 					Name:     "some cookie",
 					Value:    "some value",
 					Path:     "/",
@@ -202,7 +202,7 @@ var _ = Describe("Page", func() {
 					HttpOnly: true,
 					Expires:  time.Unix(100, 0),
 				},
-				&http.Cookie{
+				{
 					Name:     "some other cookie",
 					Value:    "some other value",
 					Path:     "/other",
@@ -631,7 +631,7 @@ var _ = Describe("Page", func() {
 
 	Describe("#WindowCount", func() {
 		It("should successfully return the number of windows from the session", func() {
-			session.GetWindowsCall.ReturnWindows = []*api.Window{&api.Window{}, &api.Window{}}
+			session.GetWindowsCall.ReturnWindows = []*api.Window{{}, {}}
 			Expect(page.WindowCount()).To(Equal(2))
 		})
 
@@ -662,12 +662,12 @@ var _ = Describe("Page", func() {
 		Context("when only new logs are requested", func() {
 			It("should return only new logs with the correct time and code location", func() {
 				session.NewLogsCall.ReturnLogs = []api.Log{
-					api.Log{Message: "old log", Level: "old level", Timestamp: 1418196096123},
+					{Message: "old log", Level: "old level", Timestamp: 1418196096123},
 				}
 				page.ReadNewLogs("some type")
 				session.NewLogsCall.ReturnLogs = []api.Log{
-					api.Log{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
-					api.Log{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
+					{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
+					{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
 				}
 
 				logs, err := page.ReadNewLogs("some type")
@@ -688,12 +688,12 @@ var _ = Describe("Page", func() {
 	Describe("#ReadAllLogs", func() {
 		It("should call ReadNewLogs and return previously read logs", func() {
 			session.NewLogsCall.ReturnLogs = []api.Log{
-				api.Log{Message: "old log", Level: "old level", Timestamp: 1418196096123},
+				{Message: "old log", Level: "old level", Timestamp: 1418196096123},
 			}
 			page.ReadNewLogs("some type")
 			session.NewLogsCall.ReturnLogs = []api.Log{
-				api.Log{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
-				api.Log{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
+				{Message: "new log (1:22)", Level: "new level", Timestamp: 1418196097543},
+				{Message: "newer log (:)", Level: "newer level", Timestamp: 1418196098376},
 			}
 
 			logs, err := page.ReadAllLogs("some type")
@@ -706,7 +706,7 @@ var _ = Describe("Page", func() {
 
 		It("should return a copy of the stored logs", func() {
 			session.NewLogsCall.ReturnLogs = []api.Log{
-				api.Log{Message: "some log", Level: "some level", Timestamp: 1418196096123},
+				{Message: "some log", Level: "some level", Timestamp: 1418196096123},
 			}
 			logs, _ := page.ReadAllLogs("some type")
 			logs[0].Message = "some changed log"

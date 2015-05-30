@@ -235,8 +235,8 @@ var _ = Describe("Bus", func() {
 			cookies, err := session.GetCookies()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cookies).To(Equal([]*Cookie{
-				&Cookie{Name: "some-cookie"},
-				&Cookie{Name: "some-other-cookie"},
+				{Name: "some-cookie"},
+				{Name: "some-other-cookie"},
 			}))
 		})
 
