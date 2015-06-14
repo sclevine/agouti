@@ -21,6 +21,7 @@ var _ = Describe("Selector", func() {
 			Expect(Selector{Type: Link, Value: "value"}.String()).To(Equal(`Link: "value"`))
 			Expect(Selector{Type: Label, Value: "value"}.String()).To(Equal(`Label: "value"`))
 			Expect(Selector{Type: Button, Value: "value"}.String()).To(Equal(`Button: "value"`))
+			Expect(Selector{Type: Name, Value: "value"}.String()).To(Equal(`Name: "value"`))
 
 		})
 	})
@@ -32,6 +33,7 @@ var _ = Describe("Selector", func() {
 			Expect(Selector{Type: Link, Value: "value"}.API()).To(Equal(api.Selector{Using: "link text", Value: "value"}))
 			Expect(Selector{Type: Label, Value: "value"}.API()).To(Equal(api.Selector{Using: "xpath", Value: `//input[@id=(//label[normalize-space()="value"]/@for)] | //label[normalize-space()="value"]/input`}))
 			Expect(Selector{Type: Button, Value: "value"}.API()).To(Equal(api.Selector{Using: "xpath", Value: `//input[@type="submit" or @type="button"][normalize-space(@value)="value"] | //button[normalize-space()="value"]`}))
+			Expect(Selector{Type: Name, Value: "value"}.API()).To(Equal(api.Selector{Using: "name", Value: "value"}))
 		})
 	})
 })

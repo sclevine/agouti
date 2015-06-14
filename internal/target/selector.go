@@ -14,6 +14,7 @@ const (
 	Link   Type = `Link: "%s"`
 	Label  Type = `Label: "%s"`
 	Button Type = `Button: "%s"`
+	Name   Type = `Name: "%s"`
 
 	labelXPath  = `//input[@id=(//label[normalize-space()="%s"]/@for)] | //label[normalize-space()="%[1]s"]/input`
 	buttonXPath = `//input[@type="submit" or @type="button"][normalize-space(@value)="%s"] | //button[normalize-space()="%[1]s"]`
@@ -53,6 +54,8 @@ func (s Selector) apiType() string {
 		return "css selector"
 	case Link:
 		return "link text"
+	case Name:
+		return "name"
 	}
 	return "xpath"
 }

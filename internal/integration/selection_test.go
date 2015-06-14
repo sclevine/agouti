@@ -85,6 +85,10 @@ func testSelection(browserName string, newPage pageFunc) {
 				Expect(page.FindByButton("Some Submit Button")).To(HaveAttribute("type", "submit"))
 			})
 
+			By("finding an element by name attibute", func() {
+				Expect(page.FindByName("some button name")).To(HaveAttribute("name", "some button name"))
+			})
+
 			By("finding multiple elements", func() {
 				Expect(page.All("select").All("option")).To(BeVisible())
 				Expect(page.All("h1,h2")).NotTo(BeVisible())

@@ -84,6 +84,11 @@ func (s *selectable) FindByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).Single())
 }
 
+// FindByName finds exactly element with the provided name attribute.
+func (s *selectable) FindByName(name string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Name, name).Single())
+}
+
 // First finds the first element by CSS selector.
 func (s *selectable) First(selector string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
@@ -110,6 +115,11 @@ func (s *selectable) FirstByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).At(0))
 }
 
+// FirstByName finds the first element with the provided name attribute.
+func (s *selectable) FirstByName(name string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Name, name).At(0))
+}
+
 // All finds zero or more elements by CSS selector.
 func (s *selectable) All(selector string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.CSS, selector))
@@ -134,4 +144,9 @@ func (s *selectable) AllByLabel(text string) *MultiSelection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) AllByButton(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Button, text))
+}
+
+// AllByName finds zero or more elements with the provided name attribute.
+func (s *selectable) AllByName(name string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.Name, name))
 }
