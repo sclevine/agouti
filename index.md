@@ -186,7 +186,7 @@ Now let's start your application and tell Agouti to navigate to it. Agouti can t
             })
 
             By("allowing the user to fill out the login form and submit it", func() {
-                Eventually(page.FindyByLabel("E-mail")).Should(BeFound())
+                Eventually(page.FindByLabel("E-mail")).Should(BeFound())
                 Expect(page.FindByLabel("E-mail").Fill("spud@example.com")).To(Succeed())
                 Expect(page.FindByLabel("Password").Fill("secret-password")).To(Succeed())
                 Expect(page.Find("#remember_me").Check()).To(Succeed())
