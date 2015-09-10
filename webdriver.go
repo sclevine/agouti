@@ -53,6 +53,10 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 //    seleniumDriver.NewPage(agouti.Browser("safari"))
 // Specific Options (such as Browser) have precedence over Capabilities
 // specified by the Desired Option.
+//
+// The HTTPClient Option will be ignored if passed to this function. New pages
+// will always use the *http.Client provided to their WebDriver, or
+// http.DefaultClient if none was provided.
 func (w *WebDriver) NewPage(options ...Option) (*Page, error) {
 	newOptions := w.defaultOptions.Merge(options)
 	session, err := w.Open(newOptions.Capabilities())
