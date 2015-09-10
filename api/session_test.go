@@ -10,7 +10,7 @@ import (
 	. "github.com/sclevine/agouti/internal/matchers"
 )
 
-var _ = Describe("Bus", func() {
+var _ = Describe("Session", func() {
 	var (
 		bus     *mocks.Bus
 		session *Session

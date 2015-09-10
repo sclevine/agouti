@@ -11,6 +11,7 @@ import (
 
 type Client struct {
 	SessionURL string
+	HTTPClient *http.Client
 }
 
 func (c *Client) Send(method, endpoint string, body interface{}, result interface{}) error {
@@ -20,7 +21,7 @@ func (c *Client) Send(method, endpoint string, body interface{}, result interfac
 	}
 
 	requestURL := strings.TrimSuffix(c.SessionURL+"/"+endpoint, "/")
-	responseBody, err := makeRequest(requestURL, method, requestBody)
+	responseBody, err := c.makeRequest(requestURL, method, requestBody)
 	if err != nil {
 		return err
 	}
@@ -46,7 +47,7 @@ func bodyToJSON(body interface{}) ([]byte, error) {
 	return bodyJSON, nil
 }
 
-func makeRequest(url, method string, body []byte) ([]byte, error) {
+func (c *Client) makeRequest(url, method string, body []byte) ([]byte, error) {
 	request, err := http.NewRequest(method, url, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("invalid request: %s", err)
@@ -56,7 +57,7 @@ func makeRequest(url, method string, body []byte) ([]byte, error) {
 		request.Header.Add("Content-Type", "application/json")
 	}
 
-	response, err := http.DefaultClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %s", err)
 	}

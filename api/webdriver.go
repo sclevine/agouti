@@ -2,16 +2,18 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/sclevine/agouti/api/internal/service"
 )
 
 type WebDriver struct {
-	Timeout  time.Duration
-	Debug    bool
-	service  driverService
-	sessions []*Session
+	Timeout    time.Duration
+	Debug      bool
+	HTTPClient *http.Client
+	service    driverService
+	sessions   []*Session
 }
 
 type driverService interface {
@@ -43,7 +45,7 @@ func (w *WebDriver) Open(desiredCapabilites map[string]interface{}) (*Session, e
 		return nil, fmt.Errorf("service not started")
 	}
 
-	session, err := Open(url, desiredCapabilites)
+	session, err := OpenWithClient(url, desiredCapabilites, w.HTTPClient)
 	if err != nil {
 		return nil, err
 	}

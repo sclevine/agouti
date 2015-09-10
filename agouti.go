@@ -70,9 +70,12 @@ func Selendroid(jarFile string, options ...Option) *WebDriver {
 }
 
 // SauceLabs opens a Sauce Labs session and returns a *Page. Does not support Sauce Connect.
-func SauceLabs(name, platform, browser, version, username, accessKey string) (*Page, error) {
+//
+// This method takes the same Options as *WebDriver.NewPage. Passing the Desired Option will
+// completely override the provided name, platform, browser, and version.
+func SauceLabs(name, platform, browser, version, username, accessKey string, options ...Option) (*Page, error) {
 	url := fmt.Sprintf("http://%s:%s@ondemand.saucelabs.com/wd/hub", username, accessKey)
 	capabilities := NewCapabilities().Browser(name).Platform(platform).Version(version)
 	capabilities["name"] = name
-	return NewPage(url, Desired(capabilities))
+	return NewPage(url, append([]Option{Desired(capabilities)}, options...)...)
 }

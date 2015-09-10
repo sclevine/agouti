@@ -1,6 +1,7 @@
 package bus_test
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -43,7 +44,10 @@ var _ = Describe("Session", func() {
 		var client *Client
 
 		BeforeEach(func() {
-			client = &Client{SessionURL: server.URL + "/session/some-id"}
+			client = &Client{
+				SessionURL: server.URL + "/session/some-id",
+				HTTPClient: http.DefaultClient,
+			}
 		})
 
 		It("should make a request with the method and full session endpoint", func() {
@@ -52,8 +56,19 @@ var _ = Describe("Session", func() {
 			Expect(requestMethod).To(Equal("GET"))
 		})
 
+		It("should use the provided HTTP client", func() {
+			var path string
+			client.HTTPClient = &http.Client{Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
+				path = request.URL.Path
+				return nil, errors.New("some error")
+			})}
+			err := client.Send("GET", "some/endpoint", nil, nil)
+			Expect(err).To(MatchError(ContainSubstring("some error")))
+			Expect(path).To(Equal("/session/some-id/some/endpoint"))
+		})
+
 		Context("with a valid request body", func() {
-			It("should make a application/json request with the provided body", func() {
+			It("should make a request with the provided body and application/json content type", func() {
 				body := struct{ SomeValue string }{"some request value"}
 				Expect(client.Send("POST", "some/endpoint", body, nil)).To(Succeed())
 				Expect(requestBody).To(Equal(`{"SomeValue":"some request value"}`))

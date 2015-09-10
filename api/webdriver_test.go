@@ -13,6 +13,12 @@ import (
 	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (r roundTripperFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return r(request)
+}
+
 var _ = Describe("WebDriver", func() {
 	var (
 		webDriver *WebDriver
@@ -80,6 +86,19 @@ var _ = Describe("WebDriver", func() {
 				responseBody = `{"sessionId": ""}`
 				_, err := webDriver.Open(nil)
 				Expect(err).To(MatchError("failed to retrieve a session ID"))
+			})
+		})
+
+		Context("when a custom HTTP client is set", func() {
+			It("should open the session using that client", func() {
+				var path string
+				webDriver.HTTPClient = &http.Client{Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
+					path = request.URL.Path
+					return nil, errors.New("some error")
+				})}
+				_, err := webDriver.Open(nil)
+				Expect(err).To(MatchError(ContainSubstring("some error")))
+				Expect(path).To(Equal("/session"))
 			})
 		})
 	})

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/base64"
 	"errors"
+	"net/http"
 
 	"github.com/sclevine/agouti/api/internal/bus"
 )
@@ -16,7 +17,11 @@ type Bus interface {
 }
 
 func Open(url string, capabilities map[string]interface{}) (*Session, error) {
-	busClient, err := bus.Connect(url, capabilities)
+	return OpenWithClient(url, capabilities, nil)
+}
+
+func OpenWithClient(url string, capabilities map[string]interface{}, client *http.Client) (*Session, error) {
+	busClient, err := bus.Connect(url, capabilities, client)
 	if err != nil {
 		return nil, err
 	}

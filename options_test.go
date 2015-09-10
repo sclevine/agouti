@@ -1,11 +1,13 @@
 package agouti_test
 
 import (
+	"net/http"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
+	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("Options", func() {
@@ -49,6 +51,15 @@ var _ = Describe("Options", func() {
 			Expect(config.Debug).To(BeFalse())
 			Debug(config)
 			Expect(config.Debug).To(BeTrue())
+		})
+	})
+
+	Describe("#HTTPClient", func() {
+		It("should return an Option that sets a *http.Client", func() {
+			config := NewTestConfig()
+			client := &http.Client{}
+			HTTPClient(client)(config)
+			Expect(config.HTTPClient).To(ExactlyEqual(client))
 		})
 	})
 
