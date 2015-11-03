@@ -1,4 +1,4 @@
-package internal_test
+package matchers_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestInternal(t *testing.T) {
+func TestMatchers(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Matchers Internal Suite")
+	RunSpecs(t, "Internal Custom Matchers Suite")
 }

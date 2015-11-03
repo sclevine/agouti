@@ -8,8 +8,8 @@ import (
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/internal/element"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
-	"github.com/sclevine/agouti/internal/target"
 )
 
 var _ = Describe("Selection", func() {
@@ -42,7 +42,7 @@ var _ = Describe("Selection", func() {
 		})
 
 		It("should return a []*api.Elements retrieved from the element repository", func() {
-			elements := []*api.Element{&api.Element{}, &api.Element{}}
+			elements := []*api.Element{{ID: "first"}, {ID: "second"}}
 			elementRepository.GetCall.ReturnElements = []element.Element{elements[0], elements[1]}
 			Expect(selection.Elements()).To(Equal(elements))
 		})
@@ -68,15 +68,8 @@ var _ = Describe("Selection", func() {
 			elementRepository.GetCall.ReturnElements = []element.Element{firstElement, secondElement}
 		})
 
-		It("should request elements from the session using the provided selector", func() {
-			selection.Count()
-			Expect(elementRepository.GetCall.Selectors).To(Equal(target.Selectors{target.Selector{Type: target.CSS, Value: "#selector"}}))
-		})
-
-		Context("when the session succeeds in retrieving the elements", func() {
-			It("should successfully return the text", func() {
-				Expect(selection.Count()).To(Equal(2))
-			})
+		It("should successfully return the number of elements", func() {
+			Expect(selection.Count()).To(Equal(2))
 		})
 
 		Context("when the the session fails to retrieve the elements", func() {
@@ -108,7 +101,7 @@ var _ = Describe("Selection", func() {
 
 		It("should compare the selection elements for equality", func() {
 			firstSelection.EqualsElement(secondSelection)
-			Expect(firstElement.IsEqualToCall.Element).To(Equal(secondElement))
+			Expect(firstElement.IsEqualToCall.Element).To(ExactlyEqual(secondElement))
 		})
 
 		It("should successfully return true if they are equal", func() {
@@ -125,7 +118,7 @@ var _ = Describe("Selection", func() {
 			It("should not fail", func() {
 				multiSelection := NewTestMultiSelection(nil, secondElementRepository, "#multi_selector")
 				Expect(firstSelection.EqualsElement(multiSelection)).To(BeFalse())
-				Expect(firstElement.IsEqualToCall.Element).To(Equal(secondElement))
+				Expect(firstElement.IsEqualToCall.Element).To(ExactlyEqual(secondElement))
 			})
 		})
 
@@ -157,6 +150,43 @@ var _ = Describe("Selection", func() {
 				firstElement.IsEqualToCall.Err = errors.New("some error")
 				_, err := firstSelection.EqualsElement(secondSelection)
 				Expect(err).To(MatchError("failed to compare selection 'CSS: #first_selector [single]' to selection 'CSS: #second_selector [single]': some error"))
+			})
+		})
+	})
+
+	Describe("#MouseToElement", func() {
+		var (
+			selection         *Selection
+			session           *mocks.Session
+			elementRepository *mocks.ElementRepository
+		)
+
+		BeforeEach(func() {
+			elementRepository = &mocks.ElementRepository{}
+			elementRepository.GetExactlyOneCall.ReturnElement = secondElement
+			session = &mocks.Session{}
+			selection = NewTestSelection(session, elementRepository, "#selector")
+		})
+
+		It("should successfully instruct the session to move the mouse over the selection", func() {
+			Expect(selection.MouseToElement()).To(Succeed())
+			Expect(session.MoveToCall.Element).To(Equal(secondElement))
+			Expect(session.MoveToCall.Offset).To(BeNil())
+		})
+
+		Context("when the element repository fails to return exactly one element", func() {
+			It("should return an error", func() {
+				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
+				err := selection.MouseToElement()
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector [single]': some error"))
+			})
+		})
+
+		Context("when the session fails to move the mouse to the element", func() {
+			It("should return an error", func() {
+				session.MoveToCall.Err = errors.New("some error")
+				err := selection.MouseToElement()
+				Expect(err).To(MatchError("failed to move mouse to element for selection 'CSS: #selector [single]': some error"))
 			})
 		})
 	})

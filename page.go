@@ -37,10 +37,11 @@ type Log struct {
 }
 
 // NewPage opens a Page using the provided WebDriver URL. This method takes
-// the same Options as *WebDriver.NewPage.
+// the same Options as *WebDriver.NewPage. Unlike *WebDriver.NewPage, this
+// method will respect the HTTPClient Option if provided.
 func NewPage(url string, options ...Option) (*Page, error) {
-	desiredCapabilities := config{}.Merge(options).Capabilities()
-	session, err := api.Open(url, desiredCapabilities)
+	pageOptions := config{}.Merge(options)
+	session, err := api.OpenWithClient(url, pageOptions.Capabilities(), pageOptions.HTTPClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
@@ -51,18 +52,57 @@ func newPage(session *api.Session) *Page {
 	return &Page{selectable{session, nil}, nil}
 }
 
+// String returns a string representation of the Page. Currently: "page"
+func (p *Page) String() string {
+	return "page"
+}
+
 // Session returns a *api.Session that can be used to send direct commands
 // to the WebDriver. See: https://code.google.com/p/selenium/wiki/JsonWireProtocol
 func (p *Page) Session() *api.Session {
 	return p.session.(*api.Session)
 }
 
-// Destroy closes the session and any open browsers processes.
+// Destroy closes any open browsers by ending the session.
 func (p *Page) Destroy() error {
 	if err := p.session.Delete(); err != nil {
 		return fmt.Errorf("failed to destroy session: %s", err)
 	}
 	return nil
+}
+
+// Reset deletes all cookies set for the current domain and navigates to a blank page.
+// Unlike Destroy, Reset will permit the page to be re-used after it is called.
+// Reset is faster than Destroy, but any cookies from domains outside the current
+// domain will remain after a page is reset.
+func (p *Page) Reset() error {
+	p.ConfirmPopup()
+
+	url, err := p.URL()
+	if err != nil {
+		return err
+	}
+	if url == "about:blank" {
+		return nil
+	}
+
+	if err := p.ClearCookies(); err != nil {
+		return err
+	}
+
+	if err := p.session.DeleteLocalStorage(); err != nil {
+		if err := p.RunScript("localStorage.clear();", nil, nil); err != nil {
+			return err
+		}
+	}
+
+	if err := p.session.DeleteSessionStorage(); err != nil {
+		if err := p.RunScript("sessionStorage.clear();", nil, nil); err != nil {
+			return err
+		}
+	}
+
+	return p.Navigate("about:blank")
 }
 
 // Navigate navigates to the provided URL.
@@ -422,13 +462,48 @@ func (p *Page) ReadAllLogs(logType string) ([]Log, error) {
 	return append([]Log(nil), p.logs[logType]...), nil
 }
 
-// String returns a string representation of the Page. Currently: "page"
-func (p *Page) String() string {
-	return "page"
-}
-
 func msToTime(ms int64) time.Time {
 	seconds := ms / 1000
 	nanoseconds := (ms % 1000) * 1000000
 	return time.Unix(seconds, nanoseconds)
+}
+
+// MoveMouseBy moves the mouse by the provided offset.
+func (p *Page) MoveMouseBy(xOffset, yOffset int) error {
+	if err := p.session.MoveTo(nil, api.XYOffset{X: xOffset, Y: yOffset}); err != nil {
+		return fmt.Errorf("failed to move mouse: %s", err)
+	}
+
+	return nil
+}
+
+// DoubleClick double clicks the left mouse button at the current mouse
+// position.
+func (p *Page) DoubleClick() error {
+	if err := p.session.DoubleClick(); err != nil {
+		return fmt.Errorf("failed to double click: %s", err)
+	}
+
+	return nil
+}
+
+// Click performs the provided Click event using the provided Button at the
+// current mouse position.
+func (p *Page) Click(event Click, button Button) error {
+	var err error
+	switch event {
+	case SingleClick:
+		err = p.session.Click(api.Button(button))
+	case HoldClick:
+		err = p.session.ButtonDown(api.Button(button))
+	case ReleaseClick:
+		err = p.session.ButtonUp(api.Button(button))
+	default:
+		err = errors.New("invalid touch event")
+	}
+	if err != nil {
+		return fmt.Errorf("failed to %s %s: %s", event, button, err)
+	}
+
+	return nil
 }

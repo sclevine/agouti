@@ -7,9 +7,10 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/api/internal/mocks"
+	. "github.com/sclevine/agouti/internal/matchers"
 )
 
-var _ = Describe("Bus", func() {
+var _ = Describe("Session", func() {
 	var (
 		bus     *mocks.Bus
 		session *Session
@@ -49,7 +50,7 @@ var _ = Describe("Bus", func() {
 			element, err := session.GetElement(Selector{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(element.ID).To(Equal("some-id"))
-			Expect(element.Session).To(Equal(session))
+			Expect(element.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -75,9 +76,9 @@ var _ = Describe("Bus", func() {
 			elements, err := session.GetElements(Selector{"css selector", "#selector"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(elements[0].ID).To(Equal("some-id"))
-			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[0].Session).To(ExactlyEqual(session))
 			Expect(elements[1].ID).To(Equal("some-other-id"))
-			Expect(elements[1].Session).To(Equal(session))
+			Expect(elements[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -102,7 +103,7 @@ var _ = Describe("Bus", func() {
 			element, err := session.GetActiveElement()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(element.ID).To(Equal("some-id"))
-			Expect(element.Session).To(Equal(session))
+			Expect(element.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -127,7 +128,7 @@ var _ = Describe("Bus", func() {
 			window, err := session.GetWindow()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(window.ID).To(Equal("some-id"))
-			Expect(window.Session).To(Equal(session))
+			Expect(window.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -152,9 +153,9 @@ var _ = Describe("Bus", func() {
 			windows, err := session.GetWindows()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(windows[0].ID).To(Equal("some-id"))
-			Expect(windows[0].Session).To(Equal(session))
+			Expect(windows[0].Session).To(ExactlyEqual(session))
 			Expect(windows[1].ID).To(Equal("some-other-id"))
-			Expect(windows[1].Session).To(Equal(session))
+			Expect(windows[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -234,8 +235,8 @@ var _ = Describe("Bus", func() {
 			cookies, err := session.GetCookies()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cookies).To(Equal([]*Cookie{
-				&Cookie{Name: "some-cookie"},
-				&Cookie{Name: "some-other-cookie"},
+				{Name: "some-cookie"},
+				{Name: "some-other-cookie"},
 			}))
 		})
 
@@ -418,21 +419,6 @@ var _ = Describe("Bus", func() {
 				bus.SendCall.Err = errors.New("some error")
 				_, err := session.GetSource()
 				Expect(err).To(MatchError("some error"))
-			})
-		})
-	})
-
-	Describe("#DoubleClick", func() {
-		It("should successfully send a POST to the doubleclick endpoint", func() {
-			Expect(session.DoubleClick()).To(Succeed())
-			Expect(bus.SendCall.Method).To(Equal("POST"))
-			Expect(bus.SendCall.Endpoint).To(Equal("doubleclick"))
-		})
-
-		Context("when the bus indicates a failure", func() {
-			It("should return an error", func() {
-				bus.SendCall.Err = errors.New("some error")
-				Expect(session.DoubleClick()).To(MatchError("some error"))
 			})
 		})
 	})
@@ -722,6 +708,344 @@ var _ = Describe("Bus", func() {
 				bus.SendCall.Err = errors.New("some error")
 				_, err := session.GetLogTypes()
 				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DoubleClick", func() {
+		It("should successfully send a POST to the doubleclick endpoint", func() {
+			Expect(session.DoubleClick()).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("doubleclick"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DoubleClick()).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#Click", func() {
+		It("should successfully send a POST to the click endpoint", func() {
+			Expect(session.Click(RightButton)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("click"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"button": 2}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Click(RightButton)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#ButtonDown", func() {
+		It("should successfully send a POST to the buttondown endpoint", func() {
+			Expect(session.ButtonDown(RightButton)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("buttondown"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"button": 2}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.ButtonDown(RightButton)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#ButtonUp", func() {
+		It("should successfully send a POST to the buttonup endpoint", func() {
+			Expect(session.ButtonUp(RightButton)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("buttonup"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"button": 2}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.ButtonUp(RightButton)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#TouchDown", func() {
+		It("should successfully send a POST to the touch/down endpoint", func() {
+			Expect(session.TouchDown(100, 200)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/down"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"x": 100, "y": 200}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchDown(100, 200)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#TouchUp", func() {
+		It("should successfully send a POST to the touch/up endpoint", func() {
+			Expect(session.TouchUp(100, 200)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/up"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"x": 100, "y": 200}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchUp(100, 200)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#TouchMove", func() {
+		It("should successfully send a POST to the touch/move endpoint", func() {
+			Expect(session.TouchMove(100, 200)).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/move"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"x": 100, "y": 200}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchMove(100, 200)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#TouchClick", func() {
+		It("should successfully send a POST to the touch/click endpoint", func() {
+			Expect(session.TouchClick(&Element{ID: "some-element-id"})).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/click"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"element": "some-element-id"}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchClick(&Element{ID: "some-element-id"})).To(MatchError("some error"))
+			})
+		})
+
+		Context("when the element is nil", func() {
+			It("shoul return an error", func() {
+				Expect(session.TouchClick(nil)).To(MatchError("nil element is invalid"))
+			})
+		})
+	})
+
+	Describe("#TouchDoubleClick", func() {
+		It("should successfully send a POST to the touch/doubleclick endpoint", func() {
+			Expect(session.TouchDoubleClick(&Element{ID: "some-element-id"})).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/doubleclick"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"element": "some-element-id"}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchDoubleClick(&Element{ID: "some-element-id"})).To(MatchError("some error"))
+			})
+		})
+
+		Context("when the element is nil", func() {
+			It("shoul return an error", func() {
+				Expect(session.TouchDoubleClick(nil)).To(MatchError("nil element is invalid"))
+			})
+		})
+	})
+
+	Describe("#TouchLongClick", func() {
+		It("should successfully send a POST to the touch/longclick endpoint", func() {
+			Expect(session.TouchLongClick(&Element{ID: "some-element-id"})).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("touch/longclick"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"element": "some-element-id"}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchLongClick(&Element{ID: "some-element-id"})).To(MatchError("some error"))
+			})
+		})
+
+		Context("when the element is nil", func() {
+			It("shoul return an error", func() {
+				Expect(session.TouchLongClick(nil)).To(MatchError("nil element is invalid"))
+			})
+		})
+	})
+
+	Describe("#TouchFlick", func() {
+		Context("when provided with an offset and element", func() {
+			var (
+				element *Element
+				offset  Offset
+			)
+
+			BeforeEach(func() {
+				element = &Element{ID: "some-element-id"}
+				offset = XYOffset{X: 100, Y: 200}
+			})
+
+			Context("when provided with a scalar speed", func() {
+				It("should successfully send a POST to the touch/flick endpoint", func() {
+					Expect(session.TouchFlick(element, offset, ScalarSpeed(300))).To(Succeed())
+					Expect(bus.SendCall.Method).To(Equal("POST"))
+					Expect(bus.SendCall.Endpoint).To(Equal("touch/flick"))
+					Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+						"element": "some-element-id",
+						"xoffset": 100,
+						"yoffset": 200,
+						"speed": 300
+					}`))
+				})
+			})
+
+			Context("when provided with a vector speed", func() {
+				It("should successfully send a POST to the touch/flick endpoint", func() {
+					Expect(session.TouchFlick(element, offset, VectorSpeed{X: 300, Y: 400})).To(Succeed())
+					Expect(bus.SendCall.Method).To(Equal("POST"))
+					Expect(bus.SendCall.Endpoint).To(Equal("touch/flick"))
+					Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+						"element": "some-element-id",
+						"xoffset": 100,
+						"yoffset": 200,
+						"speed": 500
+					}`))
+				})
+			})
+		})
+
+		Context("when provided with no offset or element", func() {
+			Context("when provided with a scalar speed", func() {
+				It("should successfully send a POST to the touch/flick endpoint", func() {
+					Expect(session.TouchFlick(nil, nil, ScalarSpeed(5))).To(Succeed())
+					Expect(bus.SendCall.Method).To(Equal("POST"))
+					Expect(bus.SendCall.Endpoint).To(Equal("touch/flick"))
+					Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+						"xspeed": 3,
+						"yspeed": 3
+					}`))
+				})
+			})
+
+			Context("when provided with a vector speed", func() {
+				It("should successfully send a POST to the touch/flick endpoint", func() {
+					Expect(session.TouchFlick(nil, nil, VectorSpeed{X: 100, Y: 200})).To(Succeed())
+					Expect(bus.SendCall.Method).To(Equal("POST"))
+					Expect(bus.SendCall.Endpoint).To(Equal("touch/flick"))
+					Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+						"xspeed": 100,
+						"yspeed": 200
+					}`))
+				})
+			})
+		})
+
+		Context("when provided with an element but no offset", func() {
+			It("should return an error", func() {
+				Expect(session.TouchFlick(&Element{}, nil, ScalarSpeed(0))).To(MatchError("element must be provided if offset is provided and vice versa"))
+			})
+		})
+
+		Context("when provided with an offset but no element", func() {
+			It("should return an error", func() {
+				Expect(session.TouchFlick(nil, XYOffset{}, ScalarSpeed(0))).To(MatchError("element must be provided if offset is provided and vice versa"))
+			})
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.TouchFlick(nil, nil, ScalarSpeed(0))).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#TouchScroll", func() {
+		Context("when provided with an offset and element", func() {
+			It("should successfully send a POST to the touch/scroll endpoint", func() {
+				element := &Element{ID: "some-element-id"}
+				offset := XYOffset{X: 100, Y: 200}
+				Expect(session.TouchScroll(element, offset)).To(Succeed())
+				Expect(bus.SendCall.Method).To(Equal("POST"))
+				Expect(bus.SendCall.Endpoint).To(Equal("touch/scroll"))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+					"element": "some-element-id",
+					"xoffset": 100,
+					"yoffset": 200
+				}`))
+			})
+		})
+
+		Context("when provided with only an offset", func() {
+			It("should successfully send a POST to the touch/scroll endpoint", func() {
+				offset := XYOffset{X: 100, Y: 200}
+				Expect(session.TouchScroll(nil, offset)).To(Succeed())
+				Expect(bus.SendCall.Method).To(Equal("POST"))
+				Expect(bus.SendCall.Endpoint).To(Equal("touch/scroll"))
+				Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{
+					"xoffset": 100,
+					"yoffset": 200
+				}`))
+			})
+		})
+
+		Context("when provided with no offset", func() {
+			It("should return an error", func() {
+				Expect(session.TouchScroll(&Element{}, nil)).To(MatchError("nil offset is invalid"))
+			})
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				offset := XYOffset{X: 100, Y: 200}
+				Expect(session.TouchScroll(nil, offset)).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DeleteLocalStorage", func() {
+		It("should successfully send a POST to the delete local storage endpoint", func() {
+			Expect(session.DeleteLocalStorage()).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("DELETE"))
+			Expect(bus.SendCall.Endpoint).To(Equal("local_storage"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DeleteLocalStorage()).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#DeleteSessionStorage", func() {
+		It("should successfully send a POST to the delete session storage endpoint", func() {
+			Expect(session.DeleteSessionStorage()).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("DELETE"))
+			Expect(bus.SendCall.Endpoint).To(Equal("session_storage"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.DeleteSessionStorage()).To(MatchError("some error"))
 			})
 		})
 	})

@@ -130,3 +130,18 @@ func (e *Element) IsEqualTo(other *Element) (bool, error) {
 	}
 	return equal, nil
 }
+
+func (e *Element) GetLocation() (x, y int, err error) {
+	var location struct {
+		X float64 `json:"x"`
+		Y float64 `json:"y"`
+	}
+	if err := e.Send("GET", "location", nil, &location); err != nil {
+		return 0, 0, err
+	}
+	return round(location.X), round(location.Y), nil
+}
+
+func round(number float64) int {
+	return int(number + 0.5)
+}

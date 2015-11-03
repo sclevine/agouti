@@ -26,12 +26,8 @@ type addressInfo struct {
 	Port    string
 }
 
-func (s *Service) URL() (string, error) {
-	if s.command == nil {
-		return "", errors.New("not running")
-	}
-
-	return s.url, nil
+func (s *Service) URL() string {
+	return s.url
 }
 
 func (s *Service) Start(debug bool) error {
@@ -44,7 +40,8 @@ func (s *Service) Start(debug bool) error {
 		return fmt.Errorf("failed to locate a free port: %s", err)
 	}
 
-	if s.url, err = buildURL(s.URLTemplate, address); err != nil {
+	url, err := buildURL(s.URLTemplate, address)
+	if err != nil {
 		return fmt.Errorf("failed to parse URL: %s", err)
 	}
 
@@ -67,6 +64,7 @@ func (s *Service) Start(debug bool) error {
 	}
 
 	s.command = command
+	s.url = url
 
 	return nil
 }
@@ -88,6 +86,7 @@ func (s *Service) Stop() error {
 
 	s.command.Wait()
 	s.command = nil
+	s.url = ""
 
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/api/internal/mocks"
+	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("Element", func() {
@@ -60,7 +61,7 @@ var _ = Describe("Element", func() {
 			singleElement, err := element.GetElement(Selector{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(singleElement.ID).To(Equal("some-id"))
-			Expect(singleElement.Session).To(Equal(session))
+			Expect(singleElement.Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -86,9 +87,9 @@ var _ = Describe("Element", func() {
 			elements, err := element.GetElements(Selector{"css selector", "#selector"})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(elements[0].ID).To(Equal("some-id"))
-			Expect(elements[0].Session).To(Equal(session))
+			Expect(elements[0].Session).To(ExactlyEqual(session))
 			Expect(elements[1].ID).To(Equal("some-other-id"))
-			Expect(elements[1].Session).To(Equal(session))
+			Expect(elements[1].Session).To(ExactlyEqual(session))
 		})
 
 		Context("when the bus indicates a failure", func() {
@@ -356,6 +357,31 @@ var _ = Describe("Element", func() {
 			It("should return an error", func() {
 				bus.SendCall.Err = errors.New("some error")
 				_, err := element.IsEqualTo(&Element{})
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetLocation", func() {
+		It("should successfully send a GET request to the location endpoint", func() {
+			_, _, err := element.GetLocation()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bus.SendCall.Method).To(Equal("GET"))
+			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/location"))
+		})
+
+		It("should return the rounded location of the element", func() {
+			bus.SendCall.Result = `{"x": 100.7, "y": 200}`
+			x, y, err := element.GetLocation()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(x).To(Equal(101))
+			Expect(y).To(Equal(200))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to retrieve the location", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, _, err := element.GetLocation()
 				Expect(err).To(MatchError("some error"))
 			})
 		})

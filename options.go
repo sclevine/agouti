@@ -1,6 +1,9 @@
 package agouti
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 type config struct {
 	Timeout             time.Duration
@@ -8,6 +11,7 @@ type config struct {
 	BrowserName         string
 	RejectInvalidSSL    bool
 	Debug               bool
+	HTTPClient          *http.Client
 }
 
 // An Option specifies configuration for a new WebDriver or Page.
@@ -44,6 +48,13 @@ var RejectInvalidSSL Option = func(c *config) {
 // Debug is an Option that connects the running WebDriver to stdout and stdin.
 var Debug Option = func(c *config) {
 	c.Debug = true
+}
+
+// HTTPClient provides an Option for specifying a *http.Client
+func HTTPClient(client *http.Client) Option {
+	return func(c *config) {
+		c.HTTPClient = client
+	}
 }
 
 func (c config) Merge(options []Option) *config {

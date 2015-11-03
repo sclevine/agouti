@@ -4,6 +4,7 @@ import (
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/sclevine/agouti/internal/matchers"
 	. "github.com/sclevine/agouti/matchers/internal"
 	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
@@ -27,7 +28,7 @@ var _ = Describe("EqualElementMatcher", func() {
 		Context("when the actual object is a selection", func() {
 			It("should compare the selections for element equality", func() {
 				matcher.Match(selection)
-				Expect(selection.EqualsElementCall.Selection).To(Equal(equalSelection))
+				Expect(selection.EqualsElementCall.Selection).To(ExactlyEqual(equalSelection))
 			})
 
 			Context("when the expected element equals the actual element", func() {

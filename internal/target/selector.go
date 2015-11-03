@@ -14,6 +14,7 @@ const (
 	Link       Type = `Link: "%s"`
 	Label      Type = `Label: "%s"`
 	Button     Type = `Button: "%s"`
+	Name       Type = `Name: "%s"`
 	A11yID     Type = "Accessibility ID: %s"
 	AndroidAut Type = "Android UIAut.: %s"
 	IOSAut     Type = "iOS UIAut.: %s"
@@ -51,6 +52,7 @@ func (s Selector) String() string {
 func (s Selector) API() api.Selector {
 	return api.Selector{Using: s.apiType(), Value: s.value()}
 }
+
 func (s Selector) apiType() string {
 	switch s.Type {
 	case CSS:
@@ -61,6 +63,8 @@ func (s Selector) apiType() string {
 		return "id"
 	case Link:
 		return "link text"
+	case Name:
+		return "name"
 	case A11yID:
 		return "accessibility id"
 	case AndroidAut:

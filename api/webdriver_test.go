@@ -13,6 +13,12 @@ import (
 	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (r roundTripperFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return r(request)
+}
+
 var _ = Describe("WebDriver", func() {
 	var (
 		webDriver *WebDriver
@@ -34,6 +40,7 @@ var _ = Describe("WebDriver", func() {
 		)
 
 		BeforeEach(func() {
+			responseBody = `{"sessionId": "some-id"}`
 			server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 				requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 				requestBody = string(requestBodyBytes)
@@ -47,42 +54,51 @@ var _ = Describe("WebDriver", func() {
 			server.Close()
 		})
 
-		It("should successfully return a session with a bus that talks to the WebDriver", func() {
-			responseBody = `{"sessionId": "some-id"}`
-			session, err := webDriver.Open(nil)
+		It("should successfully return a session with the desired capabilities", func() {
+			session, err := webDriver.Open(map[string]interface{}{"some": "capability"})
 			Expect(err).NotTo(HaveOccurred())
+			Expect(requestBody).To(Equal(`{"desiredCapabilities":{"some":"capability"}}`))
 			responseBody = `{"value": "some title"}`
 			Expect(session.GetTitle()).To(Equal("some title"))
 		})
 
-		It("should open the connection with the provided desired capabilities", func() {
-			webDriver.Open(map[string]interface{}{"some": "capability"})
-			Expect(requestBody).To(Equal(`{"desiredCapabilities":{"some":"capability"}}`))
+		Context("when the WebDriver is stopped", func() {
+			It("should delete the opened session stored by the WebDriver", func() {
+				_, err := webDriver.Open(nil)
+				Expect(err).NotTo(HaveOccurred())
+				requestMethod = ""
+				Expect(webDriver.Stop()).To(Succeed())
+				Expect(requestBody).To(Equal(""))
+				Expect(requestMethod).To(Equal("DELETE"))
+			})
 		})
 
-		Context("when the service URL cannot be retrieved", func() {
+		Context("when the WebDriver is not running", func() {
 			It("should return an error", func() {
-				service.URLCall.Err = errors.New("some error")
+				service.URLCall.ReturnURL = ""
 				_, err := webDriver.Open(nil)
-				Expect(err).To(MatchError("cannot retrieve URL: some error"))
+				Expect(err).To(MatchError("service not started"))
 			})
 		})
 
 		Context("when we cannot connect to the WebDriver bus", func() {
 			It("should return an error", func() {
+				responseBody = `{"sessionId": ""}`
 				_, err := webDriver.Open(nil)
-				Expect(err).To(MatchError("failed to connect: failed to retrieve a session ID"))
+				Expect(err).To(MatchError("failed to retrieve a session ID"))
 			})
 		})
 
-		Context("when the WebDriver is stopped", func() {
-			It("should delete the opened session", func() {
-				responseBody = `{"sessionId": "some-id"}`
-				webDriver.Open(nil)
-				requestMethod = ""
-				webDriver.Stop()
-				Expect(requestBody).To(Equal(""))
-				Expect(requestMethod).To(Equal("DELETE"))
+		Context("when a custom HTTP client is set", func() {
+			It("should open the session using that client", func() {
+				var path string
+				webDriver.HTTPClient = &http.Client{Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
+					path = request.URL.Path
+					return nil, errors.New("some error")
+				})}
+				_, err := webDriver.Open(nil)
+				Expect(err).To(MatchError(ContainSubstring("some error")))
+				Expect(path).To(Equal("/session"))
 			})
 		})
 	})
@@ -110,17 +126,10 @@ var _ = Describe("WebDriver", func() {
 		})
 
 		Context("when the WebDriver fails to start within the allotted timeout", func() {
-			BeforeEach(func() {
+			It("should return an error and stop the service", func() {
 				service.WaitForBootCall.Err = errors.New("some error")
-			})
-
-			It("should return an error", func() {
 				err := webDriver.Start()
 				Expect(err).To(MatchError("some error"))
-			})
-
-			It("should stop the service", func() {
-				webDriver.Start()
 				Expect(service.StopCall.Called).To(BeTrue())
 			})
 		})

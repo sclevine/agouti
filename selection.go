@@ -27,13 +27,19 @@ type Selection struct {
 }
 
 type elementRepository interface {
-	Get(selectors target.Selectors) ([]element.Element, error)
-	GetAtLeastOne(selectors target.Selectors) ([]element.Element, error)
-	GetExactlyOne(selectors target.Selectors) (element.Element, error)
+	Get() ([]element.Element, error)
+	GetAtLeastOne() ([]element.Element, error)
+	GetExactlyOne() (element.Element, error)
 }
 
 func newSelection(session apiSession, selectors target.Selectors) *Selection {
-	return &Selection{selectable{session, selectors}, &element.Repository{Client: session}}
+	return &Selection{
+		selectable{session, selectors},
+		&element.Repository{
+			Client:    session,
+			Selectors: selectors,
+		},
+	}
 }
 
 // String returns a string representation of the selection, ex.
@@ -45,7 +51,7 @@ func (s *Selection) String() string {
 // Elements returns a []*api.Element that can be used to send direct commands
 // to WebDriver elements. See: https://code.google.com/p/selenium/wiki/JsonWireProtocol
 func (s *Selection) Elements() ([]*api.Element, error) {
-	elements, err := s.elements.Get(s.selectors)
+	elements, err := s.elements.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +64,7 @@ func (s *Selection) Elements() ([]*api.Element, error) {
 
 // Count returns the number of elements that the selection refers to.
 func (s *Selection) Count() (int, error) {
-	elements, err := s.elements.Get(s.selectors)
+	elements, err := s.elements.Get()
 	if err != nil {
 		return 0, fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}
@@ -67,10 +73,8 @@ func (s *Selection) Count() (int, error) {
 }
 
 // EqualsElement returns whether or not two selections of exactly
-// one element each refer to the same element.
+// one element refer to the same element.
 func (s *Selection) EqualsElement(other interface{}) (bool, error) {
-	var otherSelection *Selection
-
 	otherSelection, ok := other.(*Selection)
 	if !ok {
 		multiSelection, ok := other.(*MultiSelection)
@@ -80,12 +84,12 @@ func (s *Selection) EqualsElement(other interface{}) (bool, error) {
 		otherSelection = &multiSelection.Selection
 	}
 
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
 		return false, fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
-	otherElement, err := otherSelection.elements.GetExactlyOne(s.selectors)
+	otherElement, err := otherSelection.elements.GetExactlyOne()
 	if err != nil {
 		return false, fmt.Errorf("failed to select element from %s: %s", other, err)
 	}
@@ -96,4 +100,18 @@ func (s *Selection) EqualsElement(other interface{}) (bool, error) {
 	}
 
 	return equal, nil
+}
+
+// MouseToElement moves the mouse over exactly one element in the selection.
+func (s *Selection) MouseToElement() error {
+	selectedElement, err := s.elements.GetExactlyOne()
+	if err != nil {
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
+	}
+
+	if err := s.session.MoveTo(selectedElement.(*api.Element), nil); err != nil {
+		return fmt.Errorf("failed to move mouse to element for %s: %s", s, err)
+	}
+
+	return nil
 }

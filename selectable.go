@@ -33,7 +33,6 @@ type apiSession interface {
 	SetURL(url string) error
 	GetTitle() (string, error)
 	GetSource() (string, error)
-	DoubleClick() error
 	MoveTo(element *api.Element, point api.Offset) error
 	Frame(frame *api.Element) error
 	FrameParent() error
@@ -47,6 +46,20 @@ type apiSession interface {
 	DismissAlert() error
 	NewLogs(logType string) ([]api.Log, error)
 	GetLogTypes() ([]string, error)
+	DoubleClick() error
+	Click(button api.Button) error
+	ButtonDown(button api.Button) error
+	ButtonUp(button api.Button) error
+	TouchDown(x, y int) error
+	TouchUp(x, y int) error
+	TouchMove(x, y int) error
+	TouchClick(element *api.Element) error
+	TouchDoubleClick(element *api.Element) error
+	TouchLongClick(element *api.Element) error
+	TouchFlick(element *api.Element, offset api.Offset, speed api.Speed) error
+	TouchScroll(element *api.Element, offset api.Offset) error
+	DeleteLocalStorage() error
+	DeleteSessionStorage() error
 }
 
 // Find finds exactly one element by CSS selector.
@@ -73,6 +86,11 @@ func (s *selectable) FindByLabel(text string) *Selection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) FindByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).Single())
+}
+
+// FindByName finds exactly element with the provided name attribute.
+func (s *selectable) FindByName(name string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Name, name).Single())
 }
 
 // FindByClass finds exactly one element with a given CSS class.
@@ -111,6 +129,11 @@ func (s *selectable) FirstByButton(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Button, text).At(0))
 }
 
+// FirstByName finds the first element with the provided name attribute.
+func (s *selectable) FirstByName(name string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Name, name).At(0))
+}
+
 // FirstByClass finds the first element with a given CSS class.
 func (s *selectable) FirstByClass(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
@@ -140,6 +163,11 @@ func (s *selectable) AllByLabel(text string) *MultiSelection {
 // Supports <button>, <input type="button">, and <input type="submit">.
 func (s *selectable) AllByButton(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Button, text))
+}
+
+// AllByName finds zero or more elements with the provided name attribute.
+func (s *selectable) AllByName(name string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.Name, name))
 }
 
 // AllByClass finds zero or more elements with a given CSS class.

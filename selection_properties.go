@@ -8,7 +8,7 @@ import (
 
 // Text returns the entirety of the text content for exactly one element.
 func (s *Selection) Text() (string, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
 		return "", fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
@@ -22,7 +22,7 @@ func (s *Selection) Text() (string, error) {
 
 // Active returns true if the single element that the selection refers to is active.
 func (s *Selection) Active() (bool, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
 		return false, fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
@@ -43,7 +43,7 @@ func (s *Selection) Active() (bool, error) {
 type propertyMethod func(element element.Element, property string) (string, error)
 
 func (s *Selection) hasProperty(method propertyMethod, property, name string) (string, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
 		return "", fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
@@ -68,7 +68,7 @@ func (s *Selection) CSS(property string) (string, error) {
 type stateMethod func(element element.Element) (bool, error)
 
 func (s *Selection) hasState(method stateMethod, name string) (bool, error) {
-	elements, err := s.elements.GetAtLeastOne(s.selectors)
+	elements, err := s.elements.GetAtLeastOne()
 	if err != nil {
 		return false, fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}

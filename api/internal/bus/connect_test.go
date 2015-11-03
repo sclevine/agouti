@@ -1,6 +1,7 @@
 package bus_test
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -21,10 +22,10 @@ var _ = Describe(".Connect", func() {
 	)
 
 	BeforeEach(func() {
-		responseBody = ""
+		responseBody = `{"sessionId": "some-id"}`
 		requestPath, requestMethod, requestBody, requestContentType = "", "", "", ""
 		server = httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-			requestPath = request.URL.Path // TODO: use
+			requestPath = request.URL.Path
 			requestMethod = request.Method
 			requestBodyBytes, _ := ioutil.ReadAll(request.Body)
 			requestBody = string(requestBodyBytes)
@@ -37,78 +38,105 @@ var _ = Describe(".Connect", func() {
 		server.Close()
 	})
 
-	It("should make a POST request", func() {
-		Connect(server.URL, nil)
+	It("should successfully make an POST request with content type application/json to the session endpoint", func() {
+		_, err := Connect(server.URL, nil, nil)
+		Expect(err).NotTo(HaveOccurred())
 		Expect(requestMethod).To(Equal("POST"))
-	})
-
-	It("should make the request to the session endpoint", func() {
-		Connect(server.URL, nil)
 		Expect(requestPath).To(Equal("/session"))
-	})
-
-	It("should make the request with the provided desired capabilities", func() {
-		Connect(server.URL, map[string]interface{}{"some": "json"})
-		Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"some": "json"}}`))
-	})
-
-	It("should make the request with content type application/json", func() {
-		Connect(server.URL, nil)
 		Expect(requestContentType).To(Equal("application/json"))
 	})
 
-	Context("when the capabilities are invalid", func() {
-		It("should return an error", func() {
-			_, err := Connect(server.URL, map[string]interface{}{"some": func() {}})
-			Expect(err).To(MatchError("json: unsupported type: func()"))
-		})
+	It("should make the request using the provided HTTP client", func() {
+		var path string
+		client := &http.Client{Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
+			path = request.URL.Path
+			return nil, errors.New("some error")
+		})}
+		_, err := Connect(server.URL, nil, client)
+		Expect(err).To(MatchError(ContainSubstring("some error")))
+		Expect(path).To(Equal("/session"))
+	})
+
+	It("should return a client with a session URL", func() {
+		client, err := Connect(server.URL, nil, nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(client.SessionURL).To(ContainSubstring("/session/some-id"))
+	})
+
+	It("should make the request with the provided desired capabilities", func() {
+		_, err := Connect(server.URL, map[string]interface{}{"some": "json"}, nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {"some": "json"}}`))
 	})
 
 	Context("when the capabilities are nil", func() {
 		It("should make the request with empty capabilities", func() {
-			Connect(server.URL, nil)
+			_, err := Connect(server.URL, nil, nil)
+			Expect(err).NotTo(HaveOccurred())
 			Expect(requestBody).To(MatchJSON(`{"desiredCapabilities": {}}`))
+		})
+	})
+
+	Context("when the capabilities are invalid", func() {
+		It("should return an error", func() {
+			_, err := Connect(server.URL, map[string]interface{}{"some": func() {}}, nil)
+			Expect(err).To(MatchError("json: unsupported type: func()"))
+		})
+	})
+
+	Context("when the provided HTTP client is nil", func() {
+		var (
+			defaultClient *http.Client
+			path          string
+		)
+
+		BeforeEach(func() {
+			defaultClient = http.DefaultClient
+			http.DefaultClient = &http.Client{Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
+				path = request.URL.Path
+				return nil, errors.New("some error")
+			})}
+
+		})
+
+		AfterEach(func() {
+			http.DefaultClient = defaultClient
+		})
+
+		It("should use the default HTTP client", func() {
+			_, err := Connect(server.URL, nil, nil)
+			Expect(err).To(MatchError(ContainSubstring("some error")))
+			Expect(path).To(Equal("/session"))
 		})
 	})
 
 	Context("when the request is invalid", func() {
 		It("should return an error", func() {
-			_, err := Connect("%@#$%", nil)
+			_, err := Connect("%@#$%", nil, nil)
 			Expect(err.Error()).To(ContainSubstring(`parse %@: invalid URL escape "%@"`))
 		})
 	})
 
 	Context("when the request fails", func() {
 		It("should return an error", func() {
-			_, err := Connect("http://#", nil)
+			_, err := Connect("http://#", nil, nil)
 			Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
 		})
 	})
 
-	Context("if the request succeeds", func() {
-		Context("with a valid response body", func() {
-			It("should return a session with session URL", func() {
-				responseBody = `{"sessionId": "some-id"}`
-				client, err := Connect(server.URL, nil)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(client.SessionURL).To(ContainSubstring("/session/some-id"))
-			})
+	Context("when the response contains invalid JSON", func() {
+		It("should return an error", func() {
+			responseBody = "$$$"
+			_, err := Connect(server.URL, nil, nil)
+			Expect(err).To(MatchError("invalid character '$' looking for beginning of value"))
 		})
+	})
 
-		Context("with an response that is invalid JSON", func() {
-			It("should return an error", func() {
-				responseBody = "$$$"
-				_, err := Connect(server.URL, nil)
-				Expect(err).To(MatchError("invalid character '$' looking for beginning of value"))
-			})
-		})
-
-		Context("with a response that does not contain a session ID", func() {
-			It("should return an error", func() {
-				responseBody = "{}"
-				_, err := Connect(server.URL, nil)
-				Expect(err).To(MatchError("failed to retrieve a session ID"))
-			})
+	Context("when the response does not contain a session ID", func() {
+		It("should return an error", func() {
+			responseBody = "{}"
+			_, err := Connect(server.URL, nil, nil)
+			Expect(err).To(MatchError("failed to retrieve a session ID"))
 		})
 	})
 })

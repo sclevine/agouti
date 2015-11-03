@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/base64"
 	"errors"
+	"net/http"
 
 	"github.com/sclevine/agouti/api/internal/bus"
 )
@@ -16,7 +17,11 @@ type Bus interface {
 }
 
 func Open(url string, capabilities map[string]interface{}) (*Session, error) {
-	busClient, err := bus.Connect(url, capabilities)
+	return OpenWithClient(url, capabilities, nil)
+}
+
+func OpenWithClient(url string, capabilities map[string]interface{}, client *http.Client) (*Session, error) {
+	busClient, err := bus.Connect(url, capabilities, client)
 	if err != nil {
 		return nil, err
 	}
@@ -182,15 +187,10 @@ func (s *Session) GetSource() (string, error) {
 	return source, nil
 }
 
-func (s *Session) DoubleClick() error {
-	return s.Send("POST", "doubleclick", nil, nil)
-}
-
 func (s *Session) MoveTo(region *Element, offset Offset) error {
 	request := map[string]interface{}{}
 
 	if region != nil {
-		// TODO: return error if not an element
 		request["element"] = region.ID
 	}
 
@@ -297,4 +297,141 @@ func (s *Session) GetLogTypes() ([]string, error) {
 		return nil, err
 	}
 	return types, nil
+}
+
+func (s *Session) DoubleClick() error {
+	return s.Send("POST", "doubleclick", nil, nil)
+}
+
+func (s *Session) Click(button Button) error {
+	request := struct {
+		Button Button `json:"button"`
+	}{button}
+	return s.Send("POST", "click", request, nil)
+}
+
+func (s *Session) ButtonDown(button Button) error {
+	request := struct {
+		Button Button `json:"button"`
+	}{button}
+	return s.Send("POST", "buttondown", request, nil)
+}
+
+func (s *Session) ButtonUp(button Button) error {
+	request := struct {
+		Button Button `json:"button"`
+	}{button}
+	return s.Send("POST", "buttonup", request, nil)
+}
+
+func (s *Session) TouchDown(x, y int) error {
+	request := struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}{x, y}
+	return s.Send("POST", "touch/down", request, nil)
+}
+
+func (s *Session) TouchUp(x, y int) error {
+	request := struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}{x, y}
+	return s.Send("POST", "touch/up", request, nil)
+}
+
+func (s *Session) TouchMove(x, y int) error {
+	request := struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}{x, y}
+	return s.Send("POST", "touch/move", request, nil)
+}
+
+func (s *Session) TouchClick(element *Element) error {
+	if element == nil {
+		return errors.New("nil element is invalid")
+	}
+
+	request := struct {
+		Element string `json:"element"`
+	}{element.ID}
+	return s.Send("POST", "touch/click", request, nil)
+}
+
+func (s *Session) TouchDoubleClick(element *Element) error {
+	if element == nil {
+		return errors.New("nil element is invalid")
+	}
+
+	request := struct {
+		Element string `json:"element"`
+	}{element.ID}
+	return s.Send("POST", "touch/doubleclick", request, nil)
+}
+
+func (s *Session) TouchLongClick(element *Element) error {
+	if element == nil {
+		return errors.New("nil element is invalid")
+	}
+
+	request := struct {
+		Element string `json:"element"`
+	}{element.ID}
+	return s.Send("POST", "touch/longclick", request, nil)
+}
+
+func (s *Session) TouchFlick(element *Element, offset Offset, speed Speed) error {
+	if speed == nil {
+		return errors.New("nil speed is invalid")
+	}
+
+	if (element == nil) != (offset == nil) {
+		return errors.New("element must be provided if offset is provided and vice versa")
+	}
+
+	var request interface{}
+	if element == nil {
+		xSpeed, ySpeed := speed.vector()
+		request = struct {
+			XSpeed int `json:"xspeed"`
+			YSpeed int `json:"yspeed"`
+		}{xSpeed, ySpeed}
+	} else {
+		xOffset, yOffset := offset.position()
+		request = struct {
+			Element string `json:"element"`
+			XOffset int    `json:"xoffset"`
+			YOffset int    `json:"yoffset"`
+			Speed   uint   `json:"speed"`
+		}{element.ID, xOffset, yOffset, speed.scalar()}
+	}
+
+	return s.Send("POST", "touch/flick", request, nil)
+}
+
+func (s *Session) TouchScroll(element *Element, offset Offset) error {
+	if element == nil {
+		element = &Element{}
+	}
+
+	if offset == nil {
+		return errors.New("nil offset is invalid")
+	}
+
+	xOffset, yOffset := offset.position()
+	request := struct {
+		Element string `json:"element,omitempty"`
+		XOffset int    `json:"xoffset"`
+		YOffset int    `json:"yoffset"`
+	}{element.ID, xOffset, yOffset}
+	return s.Send("POST", "touch/scroll", request, nil)
+}
+
+func (s *Session) DeleteLocalStorage() error {
+	return s.Send("DELETE", "local_storage", nil, nil)
+}
+
+func (s *Session) DeleteSessionStorage() error {
+	return s.Send("DELETE", "session_storage", nil, nil)
 }
