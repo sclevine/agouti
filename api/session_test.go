@@ -1020,6 +1020,22 @@ var _ = Describe("Session", func() {
 		})
 	})
 
+	Describe("#Keys", func() {
+		It("should successfully send a POST request to the keys endpoint", func() {
+			Expect(session.Keys("text")).To(Succeed())
+			Expect(bus.SendCall.Method).To(Equal("POST"))
+			Expect(bus.SendCall.Endpoint).To(Equal("keys"))
+			Expect(bus.SendCall.BodyJSON).To(MatchJSON(`{"value": ["t", "e", "x", "t"]}`))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				Expect(session.Keys("text")).To(MatchError("some error"))
+			})
+		})
+	})
+
 	Describe("#DeleteLocalStorage", func() {
 		It("should successfully send a POST to the delete local storage endpoint", func() {
 			Expect(session.DeleteLocalStorage()).To(Succeed())
