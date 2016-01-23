@@ -6,6 +6,7 @@ package agouti
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 )
 
 // PhantomJS returns an instance of a PhantomJS WebDriver.
@@ -32,7 +33,13 @@ func PhantomJS(options ...Option) *WebDriver {
 // New pages will accept invalid SSL certificates by default. This
 // may be disabled using the RejectInvalidSSL Option.
 func ChromeDriver(options ...Option) *WebDriver {
-	command := []string{"chromedriver", "--port={{.Port}}"}
+	var binaryName string
+	if runtime.GOOS == "windows" {
+		binaryName = "chromedriver.exe"
+	} else {
+		binaryName = "chromedriver"
+	}
+	command := []string{binaryName, "--port={{.Port}}"}
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
 
