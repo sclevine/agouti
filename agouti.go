@@ -5,6 +5,7 @@ package agouti
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 )
@@ -103,4 +104,26 @@ func SauceLabs(name, platform, browser, version, username, accessKey string, opt
 	capabilities := NewCapabilities().Browser(name).Platform(platform).Version(version)
 	capabilities["name"] = name
 	return NewPage(url, append([]Option{Desired(capabilities)}, options...)...)
+}
+
+func getFirefoxDriverBinaryArgument() string {
+	list := []string{"C:\\Program Files\\Firefox Developer Edition\\firefox.exe", "C:\\Program Files (x86)\\Firefox Developer Edition\\firefox.exe", "C:\\Program Files\\Mozilla Firefox\\firefox.exe", "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"}
+	for _, binaryPath := range list {
+		if _, err := os.Stat(binaryPath); os.IsNotExist(err) {
+			continue
+		}
+		return "--binary=" + binaryPath
+	}
+	return "--connect-existing"
+}
+
+func FirefoxDriver(options ...Option) *WebDriver {
+	var binaryName string
+	if runtime.GOOS == "windows" {
+		binaryName = "wires.exe"
+	} else {
+		binaryName = "wires"
+	}
+	command := []string{binaryName, getFirefoxDriverBinaryArgument(), "--webdriver-port={{.Port}}"}
+	return NewWebDriver("http://{{.Address}}", command, options...)
 }
