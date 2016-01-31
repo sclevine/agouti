@@ -5,7 +5,6 @@ package agouti
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 )
