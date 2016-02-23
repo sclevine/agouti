@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/sclevine/agouti/api/internal/bus"
 )
@@ -426,6 +427,14 @@ func (s *Session) TouchScroll(element *Element, offset Offset) error {
 		YOffset int    `json:"yoffset"`
 	}{element.ID, xOffset, yOffset}
 	return s.Send("POST", "touch/scroll", request, nil)
+}
+
+func (s *Session) Keys(text string) error {
+	splitText := strings.Split(text, "")
+	request := struct {
+		Value []string `json:"value"`
+	}{splitText}
+	return s.Send("POST", "keys", request, nil)
 }
 
 func (s *Session) DeleteLocalStorage() error {
