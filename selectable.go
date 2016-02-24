@@ -60,6 +60,9 @@ type apiSession interface {
 	TouchScroll(element *api.Element, offset api.Offset) error
 	DeleteLocalStorage() error
 	DeleteSessionStorage() error
+	SetImplicitWait(timout int) error
+	SetPageLoad(timout int) error
+	SetScriptTimeout(timout int) error
 }
 
 // Find finds exactly one element by CSS selector.
