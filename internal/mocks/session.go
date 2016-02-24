@@ -243,6 +243,21 @@ type Session struct {
 		Called bool
 		Err    error
 	}
+
+	SetImplicitWaitCall struct {
+		Called bool
+		Err    error
+	}
+
+	SetPageLoadCall struct {
+		Called bool
+		Err    error
+	}
+
+	SetScriptTimeoutCall struct {
+		Called bool
+		Err    error
+	}
 }
 
 func (s *Session) Delete() error {
@@ -462,11 +477,24 @@ func (s *Session) TouchScroll(element *api.Element, offset api.Offset) error {
 func (s *Session) DeleteLocalStorage() error {
 	s.DeleteLocalStorageCall.Called = true
 	return s.DeleteLocalStorageCall.Err
-
 }
 
 func (s *Session) DeleteSessionStorage() error {
 	s.DeleteSessionStorageCall.Called = true
 	return s.DeleteSessionStorageCall.Err
+}
 
+func (s *Session) SetImplicitWait(timeout int) error {
+	s.SetImplicitWaitCall.Called = true
+	return s.SetImplicitWaitCall.Err
+}
+
+func (s *Session) SetPageLoad(timeout int) error {
+	s.SetPageLoadCall.Called = true
+	return s.SetPageLoadCall.Err
+}
+
+func (s *Session) SetScriptTimeout(timeout int) error {
+	s.SetScriptTimeoutCall.Called = true
+	return s.SetScriptTimeoutCall.Err
 }
