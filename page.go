@@ -507,3 +507,18 @@ func (p *Page) Click(event Click, button Button) error {
 
 	return nil
 }
+
+// SetImplicitWait sets the implicit wait timeout (in ms)
+func (p *Page) SetImplicitWait(timeout int) error {
+	return p.session.SetImplicitWait(timeout)
+}
+
+// SetPageLoad sets the page load timeout (in ms)
+func (p *Page) SetPageLoad(timeout int) error {
+	return p.session.SetPageLoad(timeout)
+}
+
+// SetScriptTimeout sets the script timeout (in ms)
+func (p *Page) SetScriptTimeout(timeout int) error {
+	return p.session.SetScriptTimeout(timeout)
+}
