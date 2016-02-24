@@ -8,14 +8,6 @@ import (
 var _ = Describe("integration tests", func() {
 	testPage("PhantomJS", phantomDriver.NewPage)
 	testSelection("PhantomJS", phantomDriver.NewPage)
-				By("finding an element by class", func() {
-					Expect(page.FindByClass("some-element")).To(HaveAttribute("id", "some_element"))
-				})
-
-				By("finding an element by ID", func() {
-					Expect(page.FindByID("some_element")).To(HaveAttribute("class", "some-element"))
-				})
-
 
 	if !headlessOnly {
 		testPage("ChromeDriver", chromeDriver.NewPage)
