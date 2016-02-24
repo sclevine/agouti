@@ -1,12 +1,9 @@
 package appium
 
-import (
-	"github.com/sclevine/agouti/internal/element"
-	"github.com/sclevine/agouti/internal/target"
-)
+import "github.com/sclevine/agouti/internal/element"
 
 type elementRepository interface {
-	Get(selectors target.Selectors) ([]element.Element, error)
-	GetAtLeastOne(selectors target.Selectors) ([]element.Element, error)
-	GetExactlyOne(selectors target.Selectors) (element.Element, error)
+	Get() ([]element.Element, error)
+	GetAtLeastOne() ([]element.Element, error)
+	GetExactlyOne() (element.Element, error)
 }

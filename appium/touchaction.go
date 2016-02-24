@@ -12,29 +12,41 @@ import (
 )
 
 type TouchAction struct {
-	actions  []action
-	elements elementRepository
-	session  mobileSession
+	actions []action
+	session mobileSession
 }
 
 type action struct {
 	mobile.Action
-	selectors agouti.Selectors
+	elements elementRepository
 }
 
 func NewTouchAction(session mobileSession) *TouchAction {
 	return &TouchAction{
-		elements: &element.Repository{Client: session},
-		session:  session,
+		session: session,
 	}
+}
+
+func (a *action) Elements() (out []string) {
+	if a.elements == nil {
+		return
+	}
+
+	for _, sel := range a.elements.(*element.Repository).Selectors {
+		out = append(out, sel.String())
+	}
+	return out
 }
 
 func (a *action) String() string {
 	out := []string{}
 	opts := a.Options
 
-	if a.selectors != nil && a.selectors.String() != "" {
-		out = append(out, fmt.Sprintf(`element="%s"`, a.selectors))
+	if a.elements != nil {
+		els := a.Elements()
+		if len(els) != 0 {
+			out = append(out, fmt.Sprintf(`element=%q`, els))
+		}
 	}
 	if opts.X != 0 {
 		out = append(out, fmt.Sprintf("x=%d", opts.X))
@@ -56,7 +68,13 @@ func (a *action) String() string {
 }
 
 func (t *TouchAction) append(actionObj mobile.Action, selectors agouti.Selectors) *TouchAction {
-	newAction := action{actionObj, selectors}
+	newAction := action{
+		Action: actionObj,
+	}
+	if selectors != nil {
+		newAction.elements = &element.Repository{Client: t.session, Selectors: selectors.(target.Selectors)}
+	}
+
 	touchAction := NewTouchAction(t.session)
 	touchAction.actions = append(t.actions, newAction)
 	return touchAction
@@ -143,10 +161,10 @@ func (t *TouchAction) Perform() error {
 	for _, action := range t.actions {
 
 		// resolve elements if present
-		if action.selectors != nil {
-			selectedElement, err := t.elements.GetExactlyOne(action.selectors.(target.Selectors))
+		if action.elements != nil {
+			selectedElement, err := action.elements.GetExactlyOne()
 			if err != nil {
-				return fmt.Errorf("failed to retrieve element for selection '%s': %s", action.selectors, err)
+				return fmt.Errorf("failed to retrieve element for selection %q: %s", action.Elements(), err)
 			}
 			action.Options.Element = selectedElement.(*api.Element).ID
 		}
