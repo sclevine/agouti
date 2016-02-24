@@ -237,3 +237,12 @@ func (s *Selection) ScrollFinger(xOffset, yOffset int) error {
 	}
 	return nil
 }
+
+func (s *Selection) SendKeys(key string) error {
+	return s.forEachElement(func(selectedElement element.Element) error {
+		if err := selectedElement.Value(key); err != nil {
+			return fmt.Errorf("failed to send key %s on %s: %s", key, s, err)
+		}
+		return nil
+	})
+}

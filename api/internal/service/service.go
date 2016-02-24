@@ -56,7 +56,11 @@ func (s *Service) Start(debug bool) error {
 	}
 
 	if err := command.Start(); err != nil {
-		return fmt.Errorf("failed to run command: %s", err)
+		err = fmt.Errorf("failed to run command: %s", err)
+		if debug {
+			os.Stderr.WriteString("ERROR: " + err.Error() + "\n")
+		}
+		return err
 	}
 
 	s.command = command

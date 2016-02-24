@@ -444,3 +444,25 @@ func (s *Session) DeleteLocalStorage() error {
 func (s *Session) DeleteSessionStorage() error {
 	return s.Send("DELETE", "session_storage", nil, nil)
 }
+
+func (s *Session) SetImplicitWait(timeout int) error {
+	request := struct {
+		MS int `json:"ms"`
+	}{timeout}
+	return s.Send("POST", "timeouts/implicit_wait", request, nil)
+}
+
+func (s *Session) SetPageLoad(timeout int) error {
+	request := struct {
+		MS   int    `json:"ms"`
+		Type string `json:"type"`
+	}{timeout, "page load"}
+	return s.Send("POST", "timeouts", request, nil)
+}
+
+func (s *Session) SetScriptTimeout(timeout int) error {
+	request := struct {
+		MS int `json:"ms"`
+	}{timeout}
+	return s.Send("POST", "timeouts/async_script", request, nil)
+}

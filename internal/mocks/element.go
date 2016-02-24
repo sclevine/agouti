@@ -15,6 +15,10 @@ type Element struct {
 		Err            error
 	}
 
+	GetIDCall struct {
+		ReturnText string
+	}
+
 	GetTextCall struct {
 		ReturnText string
 		Err        error
@@ -97,6 +101,10 @@ func (e *Element) GetElements(selector api.Selector) ([]*api.Element, error) {
 
 func (e *Element) GetText() (string, error) {
 	return e.GetTextCall.ReturnText, e.GetTextCall.Err
+}
+
+func (e *Element) GetID() string {
+	return e.GetIDCall.ReturnText
 }
 
 func (e *Element) GetName() (string, error) {
