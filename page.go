@@ -119,6 +119,8 @@ func (p *Page) GetCookies() ([]*http.Cookie, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get cookies: %s", err)
 	}
+	expSeconds := int64(apiCookie.Expiry)
+	expNano := int64(apiCookie.Expiry - float64(unixSeconds))
 	cookies := []*http.Cookie{}
 	for _, apiCookie := range apiCookies {
 		cookie := &http.Cookie{
@@ -128,7 +130,7 @@ func (p *Page) GetCookies() ([]*http.Cookie, error) {
 			Domain:   apiCookie.Domain,
 			Secure:   apiCookie.Secure,
 			HttpOnly: apiCookie.HTTPOnly,
-			Expires:  time.Unix(apiCookie.Expiry, 0),
+			Expires:  time.Unix(expSeconds, expNano),
 		}
 		cookies = append(cookies, cookie)
 	}
@@ -153,7 +155,7 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		Domain:   cookie.Domain,
 		Secure:   cookie.Secure,
 		HTTPOnly: cookie.HttpOnly,
-		Expiry:   expiry,
+		Expiry:   float64(expiry),
 	}
 
 	if err := p.session.SetCookie(apiCookie); err != nil {
