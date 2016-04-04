@@ -120,7 +120,7 @@ func (p *Page) GetCookies() ([]*http.Cookie, error) {
 		return nil, fmt.Errorf("failed to get cookies: %s", err)
 	}
 	expSeconds := int64(apiCookie.Expiry)
-	expNano := int64(apiCookie.Expiry - float64(unixSeconds))
+	expNano := int64(apiCookie.Expiry - float64(expSeconds))
 	cookies := []*http.Cookie{}
 	for _, apiCookie := range apiCookies {
 		cookie := &http.Cookie{
