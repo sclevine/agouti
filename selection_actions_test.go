@@ -130,6 +130,28 @@ var _ = Describe("Selection Actions", func() {
 		})
 	})
 
+	Describe("#Clear", func() {
+		It("should successfully clear each element", func() {
+			Expect(selection.Clear()).To(Succeed())
+			Expect(firstElement.ClearCall.Called).To(BeTrue())
+			Expect(secondElement.ClearCall.Called).To(BeTrue())
+		})
+
+		Context("when zero elements are returned", func() {
+			It("should return an error", func() {
+				elementRepository.GetAtLeastOneCall.Err = errors.New("some error")
+				Expect(selection.Clear()).To(MatchError("failed to select elements from selection 'CSS: #selector': some error"))
+			})
+		})
+
+		Context("when clearing any element fails", func() {
+			It("should return an error", func() {
+				secondElement.ClearCall.Err = errors.New("some error")
+				Expect(selection.Clear()).To(MatchError("failed to clear selection 'CSS: #selector': some error"))
+			})
+		})
+	})
+
 	Describe("#UploadFile", func() {
 		BeforeEach(func() {
 			firstElement.GetAttributeCall.ReturnValue = "file"
