@@ -12,9 +12,9 @@ type Bus struct {
 	}
 }
 
-func (b *Bus) Send(endpoint, method string, body, result interface{}) error {
-	b.SendCall.Endpoint = endpoint
+func (b *Bus) Send(method, endpoint string, body, result interface{}) error {
 	b.SendCall.Method = method
+	b.SendCall.Endpoint = endpoint
 	b.SendCall.BodyJSON, _ = json.Marshal(body)
 	if result != nil {
 		json.Unmarshal([]byte(b.SendCall.Result), result)

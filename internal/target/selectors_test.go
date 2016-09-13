@@ -13,60 +13,46 @@ var _ = Describe("Selectors", func() {
 		selectors = Selectors{}
 	})
 
-	Describe("#AppendCSS", func() {
-		Context("when the selection ends with an unindexed CSS selector", func() {
-			It("should modify the last CSS selector to include the new selector", func() {
-				Expect(selectors.AppendCSS("#selector").AppendCSS("#subselector").String()).To(Equal("CSS: #selector #subselector"))
+	Describe("#Append", func() {
+		Context("when the provided selector is not a CSS selector", func() {
+			It("should append a new selector", func() {
+				selectors := selectors.Append(XPath, "//selector")
+				Expect(selectors.String()).To(Equal("XPath: //selector"))
+				Expect(selectors.Append(Link, "some link").String()).To(Equal(`XPath: //selector | Link: "some link"`))
 			})
 		})
 
-		Context("when there is no selection", func() {
-			It("should add a new CSS selector to the selection", func() {
-				Expect(selectors.AppendCSS("#selector").String()).To(Equal("CSS: #selector"))
+		Context("when the provided selector is a CSS selector", func() {
+			Context("when the last selector is an unindexed CSS selector", func() {
+				It("should modify the last CSS selector to include the new selector", func() {
+					Expect(selectors.Append(CSS, "#selector").Append(CSS, "#subselector").String()).To(Equal("CSS: #selector #subselector"))
+				})
 			})
-		})
 
-		Context("when the selection ends with an non-CSS selector", func() {
-			It("should add a new selector to the selection", func() {
-				xpath := selectors.AppendXPath("//selector")
-				Expect(xpath.AppendCSS("#subselector").String()).To(Equal("XPath: //selector | CSS: #subselector"))
+			Context("when there are no selectors", func() {
+				It("should append a new selector", func() {
+					Expect(selectors.Append(CSS, "#selector").String()).To(Equal("CSS: #selector"))
+				})
 			})
-		})
 
-		Context("when the selection ends with an indexed selector", func() {
-			It("should add a new selector to the selection", func() {
-				Expect(selectors.AppendCSS("#selector").At(0).AppendCSS("#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
+			Context("when the last selector is a non-CSS selector", func() {
+				It("should append a new selector", func() {
+					xpath := selectors.Append(XPath, "//selector")
+					Expect(xpath.Append(CSS, "#subselector").String()).To(Equal("XPath: //selector | CSS: #subselector"))
+				})
 			})
-		})
 
-		Context("when the selection ends with a single-element-only selector", func() {
-			It("should add a new selector to the selection", func() {
-				Expect(selectors.AppendCSS("#selector").Single().AppendCSS("#subselector").String()).To(Equal("CSS: #selector [single] | CSS: #subselector"))
+			Context("when the last selector is an indexed selector", func() {
+				It("should append a new selector", func() {
+					Expect(selectors.Append(CSS, "#selector").At(0).Append(CSS, "#subselector").String()).To(Equal("CSS: #selector [0] | CSS: #subselector"))
+				})
 			})
-		})
-	})
 
-	Describe("#AppendXPath", func() {
-		It("should add a new XPath selector to the selection", func() {
-			Expect(selectors.AppendXPath("//selector").String()).To(Equal("XPath: //selector"))
-		})
-	})
-
-	Describe("#AppendLink", func() {
-		It("should add a new 'link text' selector to the selection", func() {
-			Expect(selectors.AppendLink("some text").String()).To(Equal(`Link: "some text"`))
-		})
-	})
-
-	Describe("#AppendLabeled", func() {
-		It("should add a new XPath label-lookup selector to the selection", func() {
-			Expect(selectors.AppendLabeled("some text").String()).To(Equal(`Label: "some text"`))
-		})
-	})
-
-	Describe("#AppendButton", func() {
-		It("should add a new XPath label-lookup selector to the selection", func() {
-			Expect(selectors.AppendButton("some text").String()).To(Equal(`Button: "some text"`))
+			Context("when the last selector is a single-element-only selector", func() {
+				It("should append a new selector", func() {
+					Expect(selectors.Append(CSS, "#selector").Single().Append(CSS, "#subselector").String()).To(Equal("CSS: #selector [single] | CSS: #subselector"))
+				})
+			})
 		})
 	})
 
@@ -79,7 +65,7 @@ var _ = Describe("Selectors", func() {
 
 		Context("when called on a selection with selectors", func() {
 			It("should select an index of the current selection", func() {
-				Expect(selectors.AppendCSS("#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
+				Expect(selectors.Append(CSS, "#selector").At(1).String()).To(Equal("CSS: #selector [1]"))
 			})
 		})
 	})
@@ -93,7 +79,7 @@ var _ = Describe("Selectors", func() {
 
 		Context("when called on a selection with selectors", func() {
 			It("should select a single element of the current selection", func() {
-				Expect(selectors.AppendCSS("#selector").Single().String()).To(Equal("CSS: #selector [single]"))
+				Expect(selectors.Append(CSS, "#selector").Single().String()).To(Equal("CSS: #selector [single]"))
 			})
 		})
 	})
@@ -101,9 +87,9 @@ var _ = Describe("Selectors", func() {
 	Describe("selectors are always copied", func() {
 		Context("when two CSS selections are created from the same XPath parent", func() {
 			It("should not overwrite the first created child", func() {
-				parent := selectors.AppendXPath("//one").AppendXPath("//two").AppendXPath("//parent")
-				firstChild := parent.AppendCSS("#firstChild")
-				parent.AppendCSS("#secondChild")
+				parent := selectors.Append(XPath, "//one").Append(XPath, "//two").Append(XPath, "//parent")
+				firstChild := parent.Append(CSS, "#firstChild")
+				parent.Append(CSS, "#secondChild")
 				Expect(firstChild.String()).To(Equal("XPath: //one | XPath: //two | XPath: //parent | CSS: #firstChild"))
 			})
 		})

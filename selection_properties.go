@@ -8,23 +8,23 @@ import (
 
 // Text returns the entirety of the text content for exactly one element.
 func (s *Selection) Text() (string, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
-		return "", fmt.Errorf("failed to select '%s': %s", s, err)
+		return "", fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
 	text, err := selectedElement.GetText()
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve text for '%s': %s", s, err)
+		return "", fmt.Errorf("failed to retrieve text for %s: %s", s, err)
 	}
 	return text, nil
 }
 
 // Active returns true if the single element that the selection refers to is active.
 func (s *Selection) Active() (bool, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", s, err)
+		return false, fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
 	activeElement, err := s.session.GetActiveElement()
@@ -43,14 +43,14 @@ func (s *Selection) Active() (bool, error) {
 type propertyMethod func(element element.Element, property string) (string, error)
 
 func (s *Selection) hasProperty(method propertyMethod, property, name string) (string, error) {
-	selectedElement, err := s.elements.GetExactlyOne(s.selectors)
+	selectedElement, err := s.elements.GetExactlyOne()
 	if err != nil {
-		return "", fmt.Errorf("failed to select '%s': %s", s, err)
+		return "", fmt.Errorf("failed to select element from %s: %s", s, err)
 	}
 
 	value, err := method(selectedElement, property)
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve %s value for '%s': %s", name, s, err)
+		return "", fmt.Errorf("failed to retrieve %s value for %s: %s", name, s, err)
 	}
 	return value, nil
 }
@@ -68,15 +68,15 @@ func (s *Selection) CSS(property string) (string, error) {
 type stateMethod func(element element.Element) (bool, error)
 
 func (s *Selection) hasState(method stateMethod, name string) (bool, error) {
-	elements, err := s.elements.GetAtLeastOne(s.selectors)
+	elements, err := s.elements.GetAtLeastOne()
 	if err != nil {
-		return false, fmt.Errorf("failed to select '%s': %s", s, err)
+		return false, fmt.Errorf("failed to select elements from %s: %s", s, err)
 	}
 
 	for _, selectedElement := range elements {
 		pass, err := method(selectedElement)
 		if err != nil {
-			return false, fmt.Errorf("failed to determine whether some '%s' is %s: %s", s, name, err)
+			return false, fmt.Errorf("failed to determine whether %s is %s: %s", s, name, err)
 		}
 		if !pass {
 			return false, nil

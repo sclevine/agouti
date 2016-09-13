@@ -3,8 +3,8 @@ package agouti
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -15,41 +15,10 @@ import (
 )
 
 // A Page represents an open browser session. Pages may be created using the
-// *WebDriver#Page() method or by calling the NewPage or SauceLabs functions.
+// *WebDriver.Page() method or by calling the NewPage or SauceLabs functions.
 type Page struct {
-	session pageSession
-	logs    map[string][]Log
 	selectable
-}
-
-type pageSession interface {
-	Delete() error
-	GetWindow() (*api.Window, error)
-	GetWindows() ([]*api.Window, error)
-	SetWindow(window *api.Window) error
-	SetWindowByName(name string) error
-	DeleteWindow() error
-	GetScreenshot() ([]byte, error)
-	GetCookies() ([]*api.Cookie, error)
-	SetCookie(cookie *api.Cookie) error
-	DeleteCookie(name string) error
-	DeleteCookies() error
-	GetURL() (string, error)
-	SetURL(url string) error
-	GetTitle() (string, error)
-	GetSource() (string, error)
-	Frame(frame *api.Element) error
-	FrameParent() error
-	Execute(body string, arguments []interface{}, result interface{}) error
-	Forward() error
-	Back() error
-	Refresh() error
-	GetAlertText() (string, error)
-	SetAlertText(text string) error
-	AcceptAlert() error
-	DismissAlert() error
-	NewLogs(logType string) ([]api.Log, error)
-	GetLogTypes() ([]string, error)
+	logs map[string][]Log
 }
 
 // A Log represents a single log message
@@ -67,10 +36,12 @@ type Log struct {
 	Time time.Time
 }
 
-// NewPage opens a Page using the provided WebDriver URL.
+// NewPage opens a Page using the provided WebDriver URL. This method takes
+// the same Options as *WebDriver.NewPage. Unlike *WebDriver.NewPage, this
+// method will respect the HTTPClient Option if provided.
 func NewPage(url string, options ...Option) (*Page, error) {
-	desiredCapabilities := getOptions(options).desired
-	session, err := api.Open(url, desiredCapabilities)
+	pageOptions := config{}.Merge(options)
+	session, err := api.OpenWithClient(url, pageOptions.Capabilities(), pageOptions.HTTPClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
 	}
@@ -78,7 +49,12 @@ func NewPage(url string, options ...Option) (*Page, error) {
 }
 
 func newPage(session *api.Session) *Page {
-	return &Page{session, nil, selectable{session, nil}}
+	return &Page{selectable{session, nil}, nil}
+}
+
+// String returns a string representation of the Page. Currently: "page"
+func (p *Page) String() string {
+	return "page"
 }
 
 // Session returns a *api.Session that can be used to send direct commands
@@ -87,12 +63,46 @@ func (p *Page) Session() *api.Session {
 	return p.session.(*api.Session)
 }
 
-// Destroy closes the session and any open browsers processes.
+// Destroy closes any open browsers by ending the session.
 func (p *Page) Destroy() error {
 	if err := p.session.Delete(); err != nil {
 		return fmt.Errorf("failed to destroy session: %s", err)
 	}
 	return nil
+}
+
+// Reset deletes all cookies set for the current domain and navigates to a blank page.
+// Unlike Destroy, Reset will permit the page to be re-used after it is called.
+// Reset is faster than Destroy, but any cookies from domains outside the current
+// domain will remain after a page is reset.
+func (p *Page) Reset() error {
+	p.ConfirmPopup()
+
+	url, err := p.URL()
+	if err != nil {
+		return err
+	}
+	if url == "about:blank" {
+		return nil
+	}
+
+	if err := p.ClearCookies(); err != nil {
+		return err
+	}
+
+	if err := p.session.DeleteLocalStorage(); err != nil {
+		if err := p.RunScript("localStorage.clear();", nil, nil); err != nil {
+			return err
+		}
+	}
+
+	if err := p.session.DeleteSessionStorage(); err != nil {
+		if err := p.RunScript("sessionStorage.clear();", nil, nil); err != nil {
+			return err
+		}
+	}
+
+	return p.Navigate("about:blank")
 }
 
 // Navigate navigates to the provided URL.
@@ -131,7 +141,7 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		return errors.New("nil cookie is invalid")
 	}
 
-	var expiry int64 = 0
+	var expiry int64
 	if !cookie.Expires.IsZero() {
 		expiry = cookie.Expires.Unix()
 	}
@@ -192,26 +202,20 @@ func (p *Page) Size(width, height int) error {
 }
 
 // Screenshot takes a screenshot and saves it to the provided filename.
+// The provided filename may be an absolute or relative path.
 func (p *Page) Screenshot(filename string) error {
-	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
-		return fmt.Errorf("failed to create directory for screenshot: %s", err)
-	}
-
-	file, err := os.Create(filename)
+	absFilePath, err := filepath.Abs(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create file for screenshot: %s", err)
+		return fmt.Errorf("failed to find absolute path for filename: %s", err)
 	}
-	defer file.Close()
 
 	screenshot, err := p.session.GetScreenshot()
 	if err != nil {
-		os.Remove(filename)
 		return fmt.Errorf("failed to retrieve screenshot: %s", err)
 	}
 
-	if _, err := file.Write(screenshot); err != nil {
-		os.Remove(filename)
-		return fmt.Errorf("failed to write file for screenshot: %s", err)
+	if err := ioutil.WriteFile(absFilePath, screenshot, 0666); err != nil {
+		return fmt.Errorf("failed to save screenshot: %s", err)
 	}
 
 	return nil
@@ -323,7 +327,7 @@ func (p *Page) Refresh() error {
 }
 
 // SwitchToParentFrame focuses on the immediate parent frame of a frame selected
-// by Selection#Frame. After switching, all new and existing selections will refer
+// by Selection.Frame. After switching, all new and existing selections will refer
 // to the parent frame. All further Page methods will apply to this frame as well.
 //
 // This method is not supported by PhantomJS. Please use SwitchToRootFrame instead.
@@ -335,7 +339,7 @@ func (p *Page) SwitchToParentFrame() error {
 }
 
 // SwitchToRootFrame focuses on the original, default page frame before any calls
-// to Selection#Frame were made. After switching, all new and existing selections
+// to Selection.Frame were made. After switching, all new and existing selections
 // will refer to the root frame. All further Page methods will apply to this frame
 // as well.
 func (p *Page) SwitchToRootFrame() error {
@@ -462,4 +466,59 @@ func msToTime(ms int64) time.Time {
 	seconds := ms / 1000
 	nanoseconds := (ms % 1000) * 1000000
 	return time.Unix(seconds, nanoseconds)
+}
+
+// MoveMouseBy moves the mouse by the provided offset.
+func (p *Page) MoveMouseBy(xOffset, yOffset int) error {
+	if err := p.session.MoveTo(nil, api.XYOffset{X: xOffset, Y: yOffset}); err != nil {
+		return fmt.Errorf("failed to move mouse: %s", err)
+	}
+
+	return nil
+}
+
+// DoubleClick double clicks the left mouse button at the current mouse
+// position.
+func (p *Page) DoubleClick() error {
+	if err := p.session.DoubleClick(); err != nil {
+		return fmt.Errorf("failed to double click: %s", err)
+	}
+
+	return nil
+}
+
+// Click performs the provided Click event using the provided Button at the
+// current mouse position.
+func (p *Page) Click(event Click, button Button) error {
+	var err error
+	switch event {
+	case SingleClick:
+		err = p.session.Click(api.Button(button))
+	case HoldClick:
+		err = p.session.ButtonDown(api.Button(button))
+	case ReleaseClick:
+		err = p.session.ButtonUp(api.Button(button))
+	default:
+		err = errors.New("invalid touch event")
+	}
+	if err != nil {
+		return fmt.Errorf("failed to %s %s: %s", event, button, err)
+	}
+
+	return nil
+}
+
+// SetImplicitWait sets the implicit wait timeout (in ms)
+func (p *Page) SetImplicitWait(timeout int) error {
+	return p.session.SetImplicitWait(timeout)
+}
+
+// SetPageLoad sets the page load timeout (in ms)
+func (p *Page) SetPageLoad(timeout int) error {
+	return p.session.SetPageLoad(timeout)
+}
+
+// SetScriptTimeout sets the script timeout (in ms)
+func (p *Page) SetScriptTimeout(timeout int) error {
+	return p.session.SetScriptTimeout(timeout)
 }

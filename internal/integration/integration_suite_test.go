@@ -10,10 +10,13 @@ import (
 )
 
 var (
-	phantomDriver  *agouti.WebDriver
-	chromeDriver   *agouti.WebDriver
-	seleniumDriver *agouti.WebDriver
-	headlessOnly   = os.Getenv("HEADLESS_ONLY") == "true"
+	phantomDriver    = agouti.PhantomJS()
+	chromeDriver     = agouti.ChromeDriver()
+	seleniumDriver   = agouti.Selenium(agouti.Browser("firefox"))
+	selendroidDriver = agouti.Selendroid("selendroid-standalone-0.15.0-with-dependencies.jar")
+
+	headlessOnly = os.Getenv("HEADLESS_ONLY") == "true"
+	mobile       = os.Getenv("MOBILE") == "true"
 )
 
 func TestIntegration(t *testing.T) {
@@ -22,23 +25,23 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	phantomDriver = agouti.PhantomJS()
 	Expect(phantomDriver.Start()).To(Succeed())
-
 	if !headlessOnly {
-		seleniumDriver = agouti.Selenium()
-		Expect(seleniumDriver.Start()).To(Succeed())
-
-		chromeDriver = agouti.ChromeDriver()
 		Expect(chromeDriver.Start()).To(Succeed())
+		Expect(seleniumDriver.Start()).To(Succeed())
+	}
+	if mobile {
+		Expect(selendroidDriver.Start()).To(Succeed())
 	}
 })
 
 var _ = AfterSuite(func() {
 	Expect(phantomDriver.Stop()).To(Succeed())
-
 	if !headlessOnly {
 		Expect(chromeDriver.Stop()).To(Succeed())
 		Expect(seleniumDriver.Stop()).To(Succeed())
+	}
+	if mobile {
+		Expect(selendroidDriver.Stop()).To(Succeed())
 	}
 })

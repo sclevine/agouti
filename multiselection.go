@@ -14,16 +14,11 @@ import "github.com/sclevine/agouti/internal/target"
 //    selection.All("div").Find("h1").Click()
 // Clicks one h1 in each div, failing if any div does not contain exactly one h1.
 type MultiSelection struct {
-	selectionWrapper
-}
-
-// This prevents exporting the embedded Selection
-type selectionWrapper struct {
 	Selection
 }
 
-func newMultiSelection(session selectionSession, selectors target.Selectors) *MultiSelection {
-	return &MultiSelection{selectionWrapper{*newSelection(session, selectors)}}
+func newMultiSelection(session apiSession, selectors target.Selectors) *MultiSelection {
+	return &MultiSelection{*newSelection(session, selectors)}
 }
 
 // At finds an element at the provided index. It only applies to the immediate selection,

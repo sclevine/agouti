@@ -34,3 +34,11 @@ type Selector struct {
 	Using string `json:"using"`
 	Value string `json:"value"`
 }
+
+type Button int
+
+const (
+	LeftButton Button = iota
+	MiddleButton
+	RightButton
+)

@@ -1,8 +1,6 @@
 package mocks
 
-import (
-	"github.com/sclevine/agouti/api"
-)
+import "github.com/sclevine/agouti/api"
 
 type Element struct {
 	GetElementCall struct {
@@ -17,8 +15,17 @@ type Element struct {
 		Err            error
 	}
 
+	GetIDCall struct {
+		ReturnText string
+	}
+
 	GetTextCall struct {
 		ReturnText string
+		Err        error
+	}
+
+	GetNameCall struct {
+		ReturnName string
 		Err        error
 	}
 
@@ -74,6 +81,12 @@ type Element struct {
 		ReturnEquals bool
 		Err          error
 	}
+
+	GetLocationCall struct {
+		ReturnX int
+		ReturnY int
+		Err     error
+	}
 }
 
 func (e *Element) GetElement(selector api.Selector) (*api.Element, error) {
@@ -88,6 +101,14 @@ func (e *Element) GetElements(selector api.Selector) ([]*api.Element, error) {
 
 func (e *Element) GetText() (string, error) {
 	return e.GetTextCall.ReturnText, e.GetTextCall.Err
+}
+
+func (e *Element) GetID() string {
+	return e.GetIDCall.ReturnText
+}
+
+func (e *Element) GetName() (string, error) {
+	return e.GetNameCall.ReturnName, e.GetNameCall.Err
 }
 
 func (e *Element) GetAttribute(attribute string) (string, error) {
@@ -135,4 +156,8 @@ func (e *Element) Submit() error {
 func (e *Element) IsEqualTo(other *api.Element) (bool, error) {
 	e.IsEqualToCall.Element = other
 	return e.IsEqualToCall.ReturnEquals, e.IsEqualToCall.Err
+}
+
+func (e *Element) GetLocation() (x, y int, err error) {
+	return e.GetLocationCall.ReturnX, e.GetLocationCall.ReturnY, e.GetLocationCall.Err
 }

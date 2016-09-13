@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti"
 	"github.com/sclevine/agouti/api"
+	. "github.com/sclevine/agouti/internal/matchers"
 	"github.com/sclevine/agouti/internal/mocks"
 )
 
@@ -20,7 +21,7 @@ var _ = Describe("Selection Frames", func() {
 	BeforeEach(func() {
 		session = &mocks.Session{}
 		elementRepository = &mocks.ElementRepository{}
-		selection = NewTestSelection(elementRepository, session, "#selector")
+		selection = NewTestSelection(session, elementRepository, "#selector")
 	})
 
 	Describe("#SwitchToFrame", func() {
@@ -33,14 +34,14 @@ var _ = Describe("Selection Frames", func() {
 
 		It("should successfully switch to the frame indicated by the selection", func() {
 			Expect(selection.SwitchToFrame()).To(Succeed())
-			Expect(session.FrameCall.Frame).To(Equal(apiElement))
+			Expect(session.FrameCall.Frame).To(ExactlyEqual(apiElement))
 		})
 
 		Context("when there is an error retrieving exactly one element", func() {
 			It("should return an error", func() {
 				elementRepository.GetExactlyOneCall.Err = errors.New("some error")
 				err := selection.SwitchToFrame()
-				Expect(err).To(MatchError("failed to select 'CSS: #selector [single]': some error"))
+				Expect(err).To(MatchError("failed to select element from selection 'CSS: #selector [single]': some error"))
 			})
 		})
 
@@ -48,7 +49,7 @@ var _ = Describe("Selection Frames", func() {
 			It("should return an error", func() {
 				session.FrameCall.Err = errors.New("some error")
 				err := selection.SwitchToFrame()
-				Expect(err).To(MatchError("failed to switch to frame 'CSS: #selector [single]': some error"))
+				Expect(err).To(MatchError("failed to switch to frame referred to by selection 'CSS: #selector [single]': some error"))
 			})
 		})
 	})

@@ -1,8 +1,14 @@
 package api
 
+import "path"
+
 type Window struct {
 	ID      string
 	Session *Session
+}
+
+func (w *Window) Send(method, endpoint string, body, result interface{}) error {
+	return w.Session.Send(method, path.Join("window", w.ID, endpoint), body, result)
 }
 
 func (w *Window) SetSize(width, height int) error {
@@ -11,5 +17,5 @@ func (w *Window) SetSize(width, height int) error {
 		Height int `json:"height"`
 	}{width, height}
 
-	return w.Session.sendWindow(w.ID, "size", "POST", request, nil)
+	return w.Send("POST", "size", request, nil)
 }

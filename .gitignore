@@ -2,3 +2,5 @@
 .idea
 *.coverprofile
 *.test
+*~
+*.jar

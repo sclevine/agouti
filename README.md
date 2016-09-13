@@ -4,8 +4,10 @@ Agouti
 [![Build Status](https://api.travis-ci.org/sclevine/agouti.png?branch=master)](http://travis-ci.org/sclevine/agouti)
 [![GoDoc](https://godoc.org/github.com/sclevine/agouti?status.svg)](https://godoc.org/github.com/sclevine/agouti)
 
-Acceptance/integration testing for Golang with support for Ginkgo and Gomega! See [agouti.org](http://agouti.org) for more complete documentation. Have questions? Check out the [Agouti mailing list](https://groups.google.com/d/forum/agouti).
+[![#agouti IRC on Freenode](https://kiwiirc.com/buttons/chat.freenode.net/agouti.png)](https://kiwiirc.com/client/chat.freenode.net/#agouti)
 
-Want to dive right in? Our [integration test](https://github.com/sclevine/agouti/blob/master/internal/integration/integration_test.go) is a great place to see everything in action.
+Agouti is a library for writing browser-based acceptance tests in Google Go. It provides [Gomega](https://github.com/onsi/gomega) matchers and plays nicely with [Ginkgo](https://github.com/onsi/ginkgo). See [agouti.org](http://agouti.org) and the [GoDoc](https://godoc.org/github.com/sclevine/agouti) for documentation. Have questions? Check out the [Agouti mailing list](https://groups.google.com/d/forum/agouti) or the #agouti IRC channel on Freenode.
 
-<p align="center"><img src="http://agouti.org/images/agouti_small.png" /></p>
+The [integration tests](https://github.com/sclevine/agouti/blob/master/internal/integration/) are a great place to see everything in action and get started quickly!
+
+<p align="center"><a href=http://agouti.org><img src="http://agouti.org/images/agouti_small.png" /></a></p>

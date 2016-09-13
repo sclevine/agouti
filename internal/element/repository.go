@@ -9,7 +9,8 @@ import (
 )
 
 type Repository struct {
-	Client Client
+	Client    Client
+	Selectors target.Selectors
 }
 
 type Client interface {
@@ -19,7 +20,9 @@ type Client interface {
 
 type Element interface {
 	Client
+	GetID() string
 	GetText() (string, error)
+	GetName() (string, error)
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
 	IsSelected() (bool, error)
@@ -30,10 +33,11 @@ type Element interface {
 	Clear() error
 	Value(text string) error
 	Submit() error
+	GetLocation() (x, y int, err error)
 }
 
-func (e *Repository) GetAtLeastOne(selectors target.Selectors) ([]Element, error) {
-	elements, err := e.Get(selectors)
+func (e *Repository) GetAtLeastOne() ([]Element, error) {
+	elements, err := e.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +49,8 @@ func (e *Repository) GetAtLeastOne(selectors target.Selectors) ([]Element, error
 	return elements, nil
 }
 
-func (e *Repository) GetExactlyOne(selectors target.Selectors) (Element, error) {
-	elements, err := e.GetAtLeastOne(selectors)
+func (e *Repository) GetExactlyOne() (Element, error) {
+	elements, err := e.GetAtLeastOne()
 	if err != nil {
 		return nil, err
 	}
@@ -58,17 +62,17 @@ func (e *Repository) GetExactlyOne(selectors target.Selectors) (Element, error) 
 	return elements[0], nil
 }
 
-func (e *Repository) Get(selectors target.Selectors) ([]Element, error) {
-	if len(selectors) == 0 {
+func (e *Repository) Get() ([]Element, error) {
+	if len(e.Selectors) == 0 {
 		return nil, errors.New("empty selection")
 	}
 
-	lastElements, err := retrieveElements(e.Client, selectors[0])
+	lastElements, err := retrieveElements(e.Client, e.Selectors[0])
 	if err != nil {
 		return nil, err
 	}
 
-	for _, selector := range selectors[1:] {
+	for _, selector := range e.Selectors[1:] {
 		elements := []Element{}
 		for _, element := range lastElements {
 			subElements, err := retrieveElements(element, selector)
