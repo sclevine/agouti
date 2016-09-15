@@ -14,6 +14,8 @@ var _ = Describe("integration tests", func() {
 		testSelection("ChromeDriver", chromeDriver.NewPage)
 		testPage("Firefox", seleniumDriver.NewPage)
 		testSelection("Firefox", seleniumDriver.NewPage)
+	}
+	if windowsOnly {
 		testPage("Edge", edgeDriver.NewPage)
 		testSelection("Edge", edgeDriver.NewPage)
 	}

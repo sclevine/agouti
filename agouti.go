@@ -52,6 +52,8 @@ func EdgeDriver(options ...Option) *WebDriver {
 	var binaryName string
 	if runtime.GOOS == "windows" {
 		binaryName = "MicrosoftWebDriver.exe"
+	} else {
+		return nil
 	}
 	command := []string{binaryName, "--port={{.Port}}"}
 	// Using {{.Address}} means using 127.0.0.1
