@@ -107,23 +107,39 @@ func SauceLabs(name, platform, browser, version, username, accessKey string, opt
 
 // Example:
 //
-// capabilities := agouti.NewCapabilities()
-// capabilities["binary"] = "C:\\Program Files (x86)\\Firefox Developer Edition\\firefox.exe"
-// driver, err := agouti.FirefoxDriver(agouti.Desired(capabilities))
-func FirefoxDriver(options ...Option) (*WebDriver, error) {
-	var binaryFirefox string
-	defaultOptions := config{}.Merge(options)
-	binaryFirefox, ok := defaultOptions.DesiredCapabilities["binary"].(string)
-	if !ok {
-		return nil, fmt.Errorf("\"binary\" capability is not specified")
-	}
-
-	var binaryName string
+// 	capabilities := agouti.NewCapabilities()
+//	capabilities[""] = ""
+//  driver := agouti.FirefoxDriver()
+//	err := driver.Start()
+//	if err != nil {
+//		fmt.Printf("Start: %s\n", err)
+//	}
+//
+//	page, err := driver.NewPage()
+//	if err != nil {
+//		fmt.Printf("NewPage: %s\n", err)
+//		return
+//	}
+//
+//	err = page.Navigate("http://ya.ru")
+//	if err != nil {
+//		fmt.Printf("Navigate: %s", err)
+//		return
+//	}
+//
+//  err = driver.Stop()
+//	if err != nil {
+//		fmt.Printf("Stop: %s\n", err)
+//	}
+func FirefoxDriver(options ...Option) (*WebDriver) {
+	var binaryDriver string
 	if runtime.GOOS == "windows" {
-		binaryName = "wires.exe"
+		binaryDriver = "geckodriver.exe"
 	} else {
-		binaryName = "wires"
+		binaryDriver = "geckodriver"
 	}
-	command := []string{binaryName, "--binary=" + binaryFirefox, "--webdriver-port={{.Port}}"}
-	return NewWebDriver("http://{{.Address}}", command, options...), nil
+	command := []string{binaryDriver, "--port={{.Port}}"}
+	options = append(options, Debug)
+	return NewWebDriver("http://{{.Address}}", command, options...)
 }
+
