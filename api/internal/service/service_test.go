@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -76,7 +75,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.URLTemplate = "{{.Bad}}"
-					Expect(service.Start(false)).To(Equal(fmt.Errorf("failed to parse URL: template: URL:1:2: executing \"URL\" at <.Bad>: can't evaluate field Bad in type service.addressInfo")))
+					Expect(service.Start(false).Error()).To(MatchRegexp(`(failed to parse URL: template: URL:1:2: executing ){1}......(at <.Bad>: can't evaluate field Bad in type service.addressInfo){1}|(failed to parse URL: template: URL:1:2: executing ){1}........(at <.Bad>: Bad is not a field of struct type service.addressInfo){1}`))
 				})
 			})
 
@@ -103,7 +102,7 @@ var _ = Describe("Service", func() {
 				It("should return an error", func() {
 					defer service.Stop()
 					service.CmdTemplate = []string{"correct", "{{.Bad}}"}
-					Expect(service.Start(false)).To(Equal(fmt.Errorf("failed to parse command: template: command:1:2: executing \"command\" at <.Bad>: can't evaluate field Bad in type service.addressInfo")))
+					Expect(service.Start(false).Error()).To(MatchRegexp(`(failed to parse command: template: command:1:2: executing ){1}..........(at <.Bad>: can't evaluate field Bad in type service.addressInfo){1}|(failed to parse command: template: command:1:2: executing ){1}............(at <.Bad>: Bad is not a field of struct type service.addressInfo){1}`))
 				})
 			})
 
