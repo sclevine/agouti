@@ -8,14 +8,22 @@ import (
 
 var _ = Describe("Capabilities", func() {
 	var capabilities Capabilities
+	proxyType := "manual"
+	proxyAddress := "localhost:8080"
 
 	BeforeEach(func() {
 		capabilities = NewCapabilities("firstEnabled", "secondEnabled")
+
 	})
 
 	It("should successfully encode all provided options into JSON", func() {
 		capabilities.Browser("some-browser").Version("v100").Platform("some-os")
 		capabilities.With("withEnabled").Without("withoutDisabled")
+		capabilities.Proxy(ProxyConfig{
+			ProxyType: &proxyType,
+			HttpProxy: &proxyAddress,
+			SslProxy:  &proxyAddress,
+		})
 		Expect(capabilities.JSON()).To(MatchJSON(`{
 			"browserName": "some-browser",
 			"version": "v100",
@@ -23,7 +31,18 @@ var _ = Describe("Capabilities", func() {
 			"withEnabled": true,
 			"withoutDisabled": false,
 			"firstEnabled": true,
-			"secondEnabled": true
+			"secondEnabled": true,
+			"proxy": {
+				"proxyType": "manual",
+				"proxyAuthoconfigUrl": null,
+				"ftpProxy": null,
+				"httpProxy": "localhost:8080",
+				"sslProxy": "localhost:8080",
+				"socksProxy": null,
+				"socksUsername": null,
+				"socksPassword": null,
+				"noProxy": null
+			}
 		}`))
 	})
 

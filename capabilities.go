@@ -30,6 +30,32 @@ func (c Capabilities) Browser(name string) Capabilities {
 	return c
 }
 
+// A ProxyConfig instance defines the desired proxy configuration the WebDriver
+// should use to proxy a Page.
+//
+//    ProxyType is required and defines the type of proxy being used
+//    Possible Values:
+//        {direct|manual|pac|autodetect|system}
+//
+// See: https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#proxy-json-object
+type ProxyConfig struct {
+	ProxyType          *string `json:"proxyType"`
+	ProxyAutoconfigUrl *string `json:"proxyAuthoconfigUrl"`
+	FtpProxy           *string `json:"ftpProxy"`
+	HttpProxy          *string `json:"httpProxy"`
+	SslProxy           *string `json:"sslProxy"`
+	SocksProxy         *string `json:"socksProxy"`
+	SocksUsername      *string `json:"socksUsername"`
+	SocksPassword      *string `json:"socksPassword"`
+	NoProxy            *string `json:"noProxy"`
+}
+
+// Proxy sets the desired proxy configuration.
+func (c Capabilities) Proxy(p ProxyConfig) Capabilities {
+	c["proxy"] = p
+	return c
+}
+
 // Version sets the desired browser version (ex. "3.6").
 func (c Capabilities) Version(version string) Capabilities {
 	c["version"] = version
