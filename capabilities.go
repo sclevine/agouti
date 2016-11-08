@@ -39,15 +39,15 @@ func (c Capabilities) Browser(name string) Capabilities {
 //
 // See: https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#proxy-json-object
 type ProxyConfig struct {
-	ProxyType          *string `json:"proxyType"`
-	ProxyAutoconfigUrl *string `json:"proxyAuthoconfigUrl"`
-	FtpProxy           *string `json:"ftpProxy"`
-	HttpProxy          *string `json:"httpProxy"`
-	SslProxy           *string `json:"sslProxy"`
-	SocksProxy         *string `json:"socksProxy"`
-	SocksUsername      *string `json:"socksUsername"`
-	SocksPassword      *string `json:"socksPassword"`
-	NoProxy            *string `json:"noProxy"`
+	ProxyType          string `json:"proxyType"`
+	ProxyAutoconfigUrl string `json:"proxyAutoconfigUrl,omitempty"`
+	FTPProxy           string `json:"ftpProxy,omitempty"`
+	HttpProxy          string `json:"httpProxy,omitempty"`
+	SslProxy           string `json:"sslProxy,omitempty"`
+	SocksProxy         string `json:"socksProxy,omitempty"`
+	SocksUsername      string `json:"socksUsername,omitempty"`
+	SocksPassword      string `json:"socksPassword,omitempty"`
+	NoProxy            string `json:"noProxy,omitempty"`
 }
 
 // Proxy sets the desired proxy configuration.
