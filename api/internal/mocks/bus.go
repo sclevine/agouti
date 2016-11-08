@@ -12,6 +12,10 @@ type Bus struct {
 	}
 }
 
+func (b *Bus) GetSessionURL() string {
+	return ""
+}
+
 func (b *Bus) Send(method, endpoint string, body, result interface{}) error {
 	b.SendCall.Method = method
 	b.SendCall.Endpoint = endpoint
