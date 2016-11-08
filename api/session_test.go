@@ -21,6 +21,13 @@ var _ = Describe("Session", func() {
 		session = &Session{bus}
 	})
 
+	Describe("#New", func() {
+		It("should successfully return and initialize a session with given SessionURL", func() {
+			session := New("http://host/sessionId")
+			Expect(session.GetSessionURL()).To(Equal("http://host/sessionId"))
+		})
+	})
+
 	Describe("#Delete", func() {
 		It("should successfully send a DELETE to the / endpoint", func() {
 			Expect(session.Delete()).To(Succeed())
