@@ -40,7 +40,7 @@ func (c Capabilities) Browser(name string) Capabilities {
 // See: https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#proxy-json-object
 type ProxyConfig struct {
 	ProxyType          string `json:"proxyType"`
-	ProxyAutoconfigUrl string `json:"proxyAutoconfigUrl,omitempty"`
+	ProxyAutoconfigURL string `json:"proxyAutoconfigUrl,omitempty"`
 	FTPProxy           string `json:"ftpProxy,omitempty"`
 	HTTPProxy          string `json:"httpProxy,omitempty"`
 	SSLProxy           string `json:"sslProxy,omitempty"`

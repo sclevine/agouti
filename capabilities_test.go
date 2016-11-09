@@ -18,8 +18,8 @@ var _ = Describe("Capabilities", func() {
 		capabilities.With("withEnabled").Without("withoutDisabled")
 		capabilities.Proxy(ProxyConfig{
 			ProxyType: "manual",
-			HttpProxy: "some-http-proxy",
-			SslProxy:  "some-http-proxy",
+			HTTPProxy: "some-http-proxy",
+			SSLProxy:  "some-http-proxy",
 		})
 		Expect(capabilities.JSON()).To(MatchJSON(`{
 			"browserName": "some-browser",
