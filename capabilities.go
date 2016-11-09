@@ -42,11 +42,11 @@ type ProxyConfig struct {
 	ProxyType          string `json:"proxyType"`
 	ProxyAutoconfigUrl string `json:"proxyAutoconfigUrl,omitempty"`
 	FTPProxy           string `json:"ftpProxy,omitempty"`
-	HttpProxy          string `json:"httpProxy,omitempty"`
-	SslProxy           string `json:"sslProxy,omitempty"`
-	SocksProxy         string `json:"socksProxy,omitempty"`
-	SocksUsername      string `json:"socksUsername,omitempty"`
-	SocksPassword      string `json:"socksPassword,omitempty"`
+	HTTPProxy          string `json:"httpProxy,omitempty"`
+	SSLProxy           string `json:"sslProxy,omitempty"`
+	SOCKSProxy         string `json:"socksProxy,omitempty"`
+	SOCKSUsername      string `json:"socksUsername,omitempty"`
+	SOCKSPassword      string `json:"socksPassword,omitempty"`
 	NoProxy            string `json:"noProxy,omitempty"`
 }
 
