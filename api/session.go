@@ -17,6 +17,11 @@ type Bus interface {
 	Send(method, endpoint string, body, result interface{}) error
 }
 
+func New(sessionURL string) *Session {
+	busClient := &bus.Client{sessionURL, http.DefaultClient}
+	return &Session{busClient}
+}
+
 func Open(url string, capabilities map[string]interface{}) (*Session, error) {
 	return OpenWithClient(url, capabilities, nil)
 }
