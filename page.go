@@ -48,6 +48,12 @@ func NewPage(url string, options ...Option) (*Page, error) {
 	return newPage(session), nil
 }
 
+// JoinPage creates a Page using existing session URL.
+func JoinPage(url string) *Page {
+	session := api.New(url)
+	return newPage(session)
+}
+
 func newPage(session *api.Session) *Page {
 	return &Page{selectable{session, nil}, nil}
 }
