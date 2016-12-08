@@ -229,6 +229,16 @@ func (p *Page) Screenshot(filename string) error {
 	return nil
 }
 
+// ScreenshotBytes takes a screenshot and returns the bytes.
+func (p *Page) ScreenshotBytes() ([]byte, error) {
+	screenshot, err := p.session.GetScreenshot()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve screenshot: %s", err)
+	}
+
+	return screenshot, nil
+}
+
 // Title returns the page title.
 func (p *Page) Title() (string, error) {
 	title, err := p.session.GetTitle()
