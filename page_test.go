@@ -372,7 +372,7 @@ var _ = Describe("Page", func() {
 	})
 
 	Describe("#ScreenshotBytes", func() {
-		It("should successfully saves the screenshot", func() {
+		It("should successfully send the screenshot bytes", func() {
 			session.GetScreenshotCall.ReturnImage = []byte("some-image")
 			result, _ := page.ScreenshotBytes()
 			Expect(string(result)).To(Equal("some-image"))
