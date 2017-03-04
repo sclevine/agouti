@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -135,7 +137,12 @@ func (s *Service) checkStatus() bool {
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.url), nil)
 	response, err := client.Do(request)
-	if err == nil && response.StatusCode == 200 {
+	if err != nil {
+		return false
+	}
+	defer response.Body.Close()
+	io.Copy(ioutil.Discard, response.Body)
+	if response.StatusCode == 200 {
 		return true
 	}
 	return false
