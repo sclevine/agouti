@@ -3,8 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -141,7 +139,6 @@ func (s *Service) checkStatus() bool {
 		return false
 	}
 	defer response.Body.Close()
-	io.Copy(ioutil.Discard, response.Body)
 	if response.StatusCode == 200 {
 		return true
 	}
