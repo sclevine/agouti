@@ -36,6 +36,12 @@ type Log struct {
 	Time time.Time
 }
 
+// Join creates a Page using existing session URL.
+func Join(url string) *Page {
+	session := api.New(url)
+	return newPage(session)
+}
+
 // NewPage opens a Page using the provided WebDriver URL. This method takes
 // the same Options as *WebDriver.NewPage. Unlike *WebDriver.NewPage, this
 // method will respect the HTTPClient Option if provided.
