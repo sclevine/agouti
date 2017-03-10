@@ -371,6 +371,22 @@ var _ = Describe("Page", func() {
 		})
 	})
 
+	Describe("#ScreenshotBytes", func() {
+		It("should successfully send the screenshot bytes", func() {
+			session.GetScreenshotCall.ReturnImage = []byte("some-image")
+			result, _ := page.ScreenshotBytes()
+			Expect(string(result)).To(Equal("some-image"))
+		})
+
+		Context("when the session fails to retrieve a screenshot", func() {
+			It("should return an error", func() {
+				session.GetScreenshotCall.Err = errors.New("some error")
+				_, err := page.ScreenshotBytes()
+				Expect(err).To(MatchError("failed to retrieve screenshot: some error"))
+			})
+		})
+	})
+
 	Describe("#Title", func() {
 		It("should successfully return the title of the current page", func() {
 			session.GetTitleCall.ReturnTitle = "Some Title"
