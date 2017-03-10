@@ -15,6 +15,12 @@ type Session struct {
 
 type Bus interface {
 	Send(method, endpoint string, body, result interface{}) error
+	GetSessionURL() string
+}
+
+func New(sessionURL string) *Session {
+	busClient := &bus.Client{sessionURL, http.DefaultClient}
+	return &Session{busClient}
 }
 
 func New(sessionURL string) *Session {
