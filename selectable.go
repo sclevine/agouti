@@ -6,6 +6,10 @@ import (
 	"github.com/sclevine/agouti/internal/target"
 )
 
+type Selectors interface {
+	String() string
+}
+
 type selectable struct {
 	session   apiSession
 	selectors target.Selectors
@@ -56,6 +60,9 @@ type apiSession interface {
 	TouchScroll(element *api.Element, offset api.Offset) error
 	DeleteLocalStorage() error
 	DeleteSessionStorage() error
+	SetImplicitWait(timout int) error
+	SetPageLoad(timout int) error
+	SetScriptTimeout(timout int) error
 }
 
 // Find finds exactly one element by CSS selector.
@@ -89,6 +96,16 @@ func (s *selectable) FindByName(name string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Name, name).Single())
 }
 
+// FindByClass finds exactly one element with a given CSS class.
+func (s *selectable) FindByClass(text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).Single())
+}
+
+// FindByID finds exactly one element that has the given ID.
+func (s *selectable) FindByID(id string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.ID, id).Single())
+}
+
 // First finds the first element by CSS selector.
 func (s *selectable) First(selector string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
@@ -120,6 +137,11 @@ func (s *selectable) FirstByName(name string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Name, name).At(0))
 }
 
+// FirstByClass finds the first element with a given CSS class.
+func (s *selectable) FirstByClass(text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
+}
+
 // All finds zero or more elements by CSS selector.
 func (s *selectable) All(selector string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.CSS, selector))
@@ -149,4 +171,23 @@ func (s *selectable) AllByButton(text string) *MultiSelection {
 // AllByName finds zero or more elements with the provided name attribute.
 func (s *selectable) AllByName(name string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.Name, name))
+}
+
+// AllByClass finds zero or more elements with a given CSS class.
+func (s *selectable) AllByClass(text string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.Class, text))
+}
+
+// AllByID finds zero or more elements with a given ID.
+func (s *selectable) AllByID(text string) *MultiSelection {
+	return newMultiSelection(s.session, s.selectors.Append(target.ID, text))
+}
+
+// FirstByClass finds the first element with a given CSS class.
+func (s *selectable) FindForAppium(selectorType string, text string) *Selection {
+	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
+}
+
+func (s *selectable) Selectors() Selectors {
+	return s.selectors
 }

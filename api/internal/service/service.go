@@ -56,7 +56,11 @@ func (s *Service) Start(debug bool) error {
 	}
 
 	if err := command.Start(); err != nil {
-		return fmt.Errorf("failed to run command: %s", err)
+		err = fmt.Errorf("failed to run command: %s", err)
+		if debug {
+			os.Stderr.WriteString("ERROR: " + err.Error() + "\n")
+		}
+		return err
 	}
 
 	s.command = command
@@ -131,7 +135,11 @@ func (s *Service) checkStatus() bool {
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.url), nil)
 	response, err := client.Do(request)
-	if err == nil && response.StatusCode == 200 {
+	if err != nil {
+		return false
+	}
+	defer response.Body.Close()
+	if response.StatusCode == 200 {
 		return true
 	}
 	return false

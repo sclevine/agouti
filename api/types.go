@@ -27,7 +27,7 @@ type Cookie struct {
 	HTTPOnly bool `json:"httpOnly,omitempty"`
 
 	// Expiry is the time when the cookie expires
-	Expiry int64 `json:"expiry,omitempty"`
+	Expiry float64 `json:"expiry,omitempty"`
 }
 
 type Selector struct {

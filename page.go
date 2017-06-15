@@ -48,6 +48,12 @@ func NewPage(url string, options ...Option) (*Page, error) {
 	return newPage(session), nil
 }
 
+// JoinPage creates a Page using existing session URL.
+func JoinPage(url string) *Page {
+	session := api.New(url)
+	return newPage(session)
+}
+
 func newPage(session *api.Session) *Page {
 	return &Page{selectable{session, nil}, nil}
 }
@@ -121,6 +127,8 @@ func (p *Page) GetCookies() ([]*http.Cookie, error) {
 	}
 	cookies := []*http.Cookie{}
 	for _, apiCookie := range apiCookies {
+		expSeconds := int64(apiCookie.Expiry)
+		expNano := int64(apiCookie.Expiry-float64(expSeconds)) * 1000000000
 		cookie := &http.Cookie{
 			Name:     apiCookie.Name,
 			Value:    apiCookie.Value,
@@ -128,7 +136,7 @@ func (p *Page) GetCookies() ([]*http.Cookie, error) {
 			Domain:   apiCookie.Domain,
 			Secure:   apiCookie.Secure,
 			HttpOnly: apiCookie.HTTPOnly,
-			Expires:  time.Unix(apiCookie.Expiry, 0),
+			Expires:  time.Unix(expSeconds, expNano),
 		}
 		cookies = append(cookies, cookie)
 	}
@@ -153,7 +161,7 @@ func (p *Page) SetCookie(cookie *http.Cookie) error {
 		Domain:   cookie.Domain,
 		Secure:   cookie.Secure,
 		HTTPOnly: cookie.HttpOnly,
-		Expiry:   expiry,
+		Expiry:   float64(expiry),
 	}
 
 	if err := p.session.SetCookie(apiCookie); err != nil {
@@ -506,4 +514,19 @@ func (p *Page) Click(event Click, button Button) error {
 	}
 
 	return nil
+}
+
+// SetImplicitWait sets the implicit wait timeout (in ms)
+func (p *Page) SetImplicitWait(timeout int) error {
+	return p.session.SetImplicitWait(timeout)
+}
+
+// SetPageLoad sets the page load timeout (in ms)
+func (p *Page) SetPageLoad(timeout int) error {
+	return p.session.SetPageLoad(timeout)
+}
+
+// SetScriptTimeout sets the script timeout (in ms)
+func (p *Page) SetScriptTimeout(timeout int) error {
+	return p.session.SetScriptTimeout(timeout)
 }

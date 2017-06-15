@@ -43,6 +43,24 @@ func ChromeDriver(options ...Option) *WebDriver {
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
 
+// EdgeDriver returns an instance of a EdgeDriver WebDriver.
+//
+// Provided Options will apply as default arguments for new pages.
+// New pages will accept invalid SSL certificates by default. This
+// may be disabled using the RejectInvalidSSL Option.
+func EdgeDriver(options ...Option) *WebDriver {
+	var binaryName string
+	if runtime.GOOS == "windows" {
+		binaryName = "MicrosoftWebDriver.exe"
+	} else {
+		return nil
+	}
+	command := []string{binaryName, "--port={{.Port}}"}
+	// Using {{.Address}} means using 127.0.0.1
+	// But MicrosoftWebDriver only supports localhost, not 127.0.0.1
+	return NewWebDriver("http://localhost:{{.Port}}", command, options...)
+}
+
 // Selenium returns an instance of a Selenium WebDriver.
 //
 // Provided Options will apply as default arguments for new pages.
