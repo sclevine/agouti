@@ -63,14 +63,23 @@ var _ = Describe("Options", func() {
 		})
 	})
 
+	Describe("#ChromeOptions", func() {
+		It("should return an Option with ChromeOptions set", func() {
+			config := NewTestConfig()
+			ChromeOptions("args", []string{"v1", "v2"})(config)
+			Expect(config.ChromeOptions["args"]).To(Equal([]string{"v1", "v2"}))
+		})
+	})
+
 	Describe("#Merge", func() {
 		It("should apply any provided options to an existing config", func() {
 			config := NewTestConfig()
 			Browser("some browser")(config)
-			newConfig := config.Merge([]Option{Timeout(5), Debug})
+			newConfig := config.Merge([]Option{Timeout(5), Debug, ChromeOptions("args", "value")})
 			Expect(newConfig.BrowserName).To(Equal("some browser"))
 			Expect(newConfig.Timeout).To(Equal(5 * time.Second))
 			Expect(newConfig.Debug).To(BeTrue())
+			Expect(newConfig.ChromeOptions).To(Equal(map[string]interface{}{"args": "value"}))
 		})
 	})
 
@@ -85,6 +94,10 @@ var _ = Describe("Options", func() {
 			RejectInvalidSSL(config)
 			Expect(config.Capabilities()["browserName"]).To(Equal("some other browser"))
 			Expect(config.Capabilities()["acceptSslCerts"]).To(BeFalse())
+			ChromeOptions("args", "someArg")(config)
+			Expect(config.Capabilities()["chromeOptions"]).To(
+				Equal(map[string]interface{}{"args": "someArg"}),
+			)
 		})
 	})
 })
