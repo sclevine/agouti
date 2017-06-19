@@ -68,6 +68,9 @@ var _ = Describe("Options", func() {
 			config := NewTestConfig()
 			ChromeOptions("args", []string{"v1", "v2"})(config)
 			Expect(config.ChromeOptions["args"]).To(Equal([]string{"v1", "v2"}))
+			ChromeOptions("other", "value")(config)
+			Expect(config.ChromeOptions["args"]).To(Equal([]string{"v1", "v2"}))
+			Expect(config.ChromeOptions["other"]).To(Equal("value"))
 		})
 	})
 
@@ -75,11 +78,10 @@ var _ = Describe("Options", func() {
 		It("should apply any provided options to an existing config", func() {
 			config := NewTestConfig()
 			Browser("some browser")(config)
-			newConfig := config.Merge([]Option{Timeout(5), Debug, ChromeOptions("args", "value")})
+			newConfig := config.Merge([]Option{Timeout(5), Debug})
 			Expect(newConfig.BrowserName).To(Equal("some browser"))
 			Expect(newConfig.Timeout).To(Equal(5 * time.Second))
 			Expect(newConfig.Debug).To(BeTrue())
-			Expect(newConfig.ChromeOptions).To(Equal(map[string]interface{}{"args": "value"}))
 		})
 	})
 
