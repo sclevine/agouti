@@ -26,7 +26,7 @@ var _ = Describe("Selection Properties", func() {
 		firstElement = &mocks.Element{}
 		secondElement = &mocks.Element{}
 		elementRepository = &mocks.ElementRepository{}
-		selection = NewTestMultiSelection(session, elementRepository, "#selector")
+		selection = NewTestMultiSelection(session, elementRepository, "#selector", nil)
 	})
 
 	Describe("#Text", func() {

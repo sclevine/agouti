@@ -1,9 +1,15 @@
 package agouti
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/png"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/sclevine/agouti/api"
+	"github.com/sclevine/agouti/internal/crop"
 	"github.com/sclevine/agouti/internal/element"
 	"github.com/sclevine/agouti/internal/target"
 )
@@ -24,6 +30,7 @@ import (
 type Selection struct {
 	selectable
 	elements elementRepository
+	cropper  crop.Cropper
 }
 
 type elementRepository interface {
@@ -39,6 +46,7 @@ func newSelection(session apiSession, selectors target.Selectors) *Selection {
 			Client:    session,
 			Selectors: selectors,
 		},
+		crop.CropperFunc(crop.Crop),
 	}
 }
 
@@ -111,6 +119,61 @@ func (s *Selection) MouseToElement() error {
 
 	if err := s.session.MoveTo(selectedElement.(*api.Element), nil); err != nil {
 		return fmt.Errorf("failed to move mouse to element for %s: %s", s, err)
+	}
+
+	return nil
+}
+
+// Screenshot takes a screenshot of exactly one element
+// and saves it to the provided filename.
+// The provided filename may be an absolute or relative path.
+func (s *Selection) Screenshot(filename string) error {
+	selectedElement, err := s.elements.GetExactlyOne()
+	if err != nil {
+		return fmt.Errorf("failed to select element from %s: %s", s, err)
+	}
+
+	absFilePath, err := filepath.Abs(filename)
+	if err != nil {
+		return fmt.Errorf("failed to find absolute path for filename: %s", err)
+	}
+
+	screenshot, err := selectedElement.GetScreenshot()
+	if err != nil {
+		// Fallback to getting full size screenshot and cropping
+		data, err := s.session.GetScreenshot()
+		if err != nil {
+			return fmt.Errorf("failed to retrieve screenshot: %s", err)
+		}
+
+		img, err := png.Decode(bytes.NewBuffer(data))
+		if err != nil {
+			return fmt.Errorf("failed to decode screenshot: %s", err)
+		}
+
+		x, y, width, height, err := selectedElement.GetRect()
+		if err != nil {
+			return fmt.Errorf("failed to retrieve bounds for selection: %s", err)
+		}
+
+		croppedImg, err := s.cropper.Crop(
+			img, width, height,
+			image.Point{X: x, Y: y})
+		if err != nil {
+			return fmt.Errorf("failed to crop screenshot: %s", err)
+		}
+
+		b := new(bytes.Buffer)
+		err = png.Encode(b, croppedImg)
+		if err != nil {
+			return fmt.Errorf("failed to encode screenshot: %s", err)
+		}
+
+		screenshot = b.Bytes()
+	}
+
+	if err := ioutil.WriteFile(absFilePath, screenshot, 0666); err != nil {
+		return fmt.Errorf("failed to save screenshot: %s", err)
 	}
 
 	return nil
