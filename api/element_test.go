@@ -386,4 +386,65 @@ var _ = Describe("Element", func() {
 			})
 		})
 	})
+
+	Describe("#GetRect", func() {
+		It("should successfully send a GET request to the rect endpoint", func() {
+			_, _, _, _, err := element.GetRect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bus.SendCall.Method).To(Equal("GET"))
+			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/rect"))
+		})
+
+		It("should return the rounded rect of the element", func() {
+			bus.SendCall.Result = `{"x": 100.7, "y": 200, "height": 55.05, "width": 33}`
+			x, y, width, height, err := element.GetRect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(x).To(Equal(101))
+			Expect(y).To(Equal(200))
+			Expect(width).To(Equal(33))
+			Expect(height).To(Equal(55))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error indicating the bus failed to retrieve the rect", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, _, _, _, err := element.GetRect()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
+
+	Describe("#GetScreenshot", func() {
+		It("should successfully send a GET request to the screenshot endpoint", func() {
+			_, err := element.GetScreenshot()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bus.SendCall.Method).To(Equal("GET"))
+			Expect(bus.SendCall.Endpoint).To(Equal("element/some-id/screenshot"))
+		})
+
+		Context("when the image is valid base64", func() {
+			It("should return the decoded image", func() {
+				bus.SendCall.Result = `"c29tZS1wbmc="`
+				image, err := element.GetScreenshot()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(image)).To(Equal("some-png"))
+			})
+		})
+
+		Context("when the image is not valid base64", func() {
+			It("should return an error", func() {
+				bus.SendCall.Result = `"..."`
+				_, err := element.GetScreenshot()
+				Expect(err).To(MatchError("illegal base64 data at input byte 0"))
+			})
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, err := element.GetScreenshot()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })

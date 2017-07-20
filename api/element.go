@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"errors"
 	"path"
 	"strings"
@@ -144,4 +145,25 @@ func (e *Element) GetLocation() (x, y int, err error) {
 
 func round(number float64) int {
 	return int(number + 0.5)
+}
+
+func (e *Element) GetRect() (x, y, width, height int, err error) {
+	var rect struct {
+		X      float64 `json:"x"`
+		Y      float64 `json:"y"`
+		Height float64 `json:"height"`
+		Width  float64 `json:"width"`
+	}
+	if err := e.Send("GET", "rect", nil, &rect); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return round(rect.X), round(rect.Y), round(rect.Width), round(rect.Height), nil
+}
+
+func (e *Element) GetScreenshot() ([]byte, error) {
+	var base64Image string
+	if err := e.Send("GET", "screenshot", nil, &base64Image); err != nil {
+		return nil, err
+	}
+	return base64.StdEncoding.DecodeString(base64Image)
 }
