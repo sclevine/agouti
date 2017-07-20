@@ -34,6 +34,8 @@ type Element interface {
 	Value(text string) error
 	Submit() error
 	GetLocation() (x, y int, err error)
+	GetRect() (x, y, width, height int, err error)
+	GetScreenshot() ([]byte, error)
 }
 
 func (e *Repository) GetAtLeastOne() ([]Element, error) {
