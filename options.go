@@ -68,6 +68,18 @@ func HTTPClient(client *http.Client) Option {
 	}
 }
 
+// Enable a simple http proxy with request
+// proxy=xx.xx.xx.xx
+// proxyAuth=user:password
+func SimpleProxy(proxy string, proxyAuth string) Option {
+	return func(c *config) {
+		c.DesiredCapabilities = Capabilities{}.Proxy(ProxyConfig{
+			HTTPProxy: proxy,
+			ProxyAuth: proxyAuth,
+		})
+	}
+}
+
 func (c config) Merge(options []Option) *config {
 	for _, option := range options {
 		option(&c)
