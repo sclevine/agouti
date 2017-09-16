@@ -27,7 +27,7 @@ var _ = Describe("Selection Actions", func() {
 		firstElement = &mocks.Element{}
 		secondElement = &mocks.Element{}
 		elementRepository = &mocks.ElementRepository{}
-		selection = NewTestMultiSelection(session, elementRepository, "#selector")
+		selection = NewTestMultiSelection(session, elementRepository, "#selector", nil)
 		elementRepository.GetAtLeastOneCall.ReturnElements = []element.Element{firstElement, secondElement}
 	})
 

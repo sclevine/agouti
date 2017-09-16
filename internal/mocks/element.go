@@ -87,6 +87,19 @@ type Element struct {
 		ReturnY int
 		Err     error
 	}
+
+	GetRectCall struct {
+		ReturnX      int
+		ReturnY      int
+		ReturnHeight int
+		ReturnWidth  int
+		Err          error
+	}
+
+	GetScreenshotCall struct {
+		ReturnImage []byte
+		Err         error
+	}
 }
 
 func (e *Element) GetElement(selector api.Selector) (*api.Element, error) {
@@ -160,4 +173,12 @@ func (e *Element) IsEqualTo(other *api.Element) (bool, error) {
 
 func (e *Element) GetLocation() (x, y int, err error) {
 	return e.GetLocationCall.ReturnX, e.GetLocationCall.ReturnY, e.GetLocationCall.Err
+}
+
+func (e *Element) GetRect() (x, y, width, height int, err error) {
+	return e.GetRectCall.ReturnX, e.GetRectCall.ReturnY, e.GetRectCall.ReturnWidth, e.GetRectCall.ReturnHeight, e.GetRectCall.Err
+}
+
+func (e *Element) GetScreenshot() (s []byte, err error) {
+	return e.GetScreenshotCall.ReturnImage, e.GetScreenshotCall.Err
 }
