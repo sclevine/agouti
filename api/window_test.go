@@ -59,4 +59,23 @@ var _ = Describe("Window", func() {
 			})
 		})
 	})
+
+	Describe("#GetSize", func() {
+		It("should successfully send a GET request to the size endpoint", func() {
+			width, height, err := window.GetSize()
+			Expect(err).To(Succeed())
+			Expect(width).To(BeNumerically(">=", 0))
+			Expect(height).To(BeNumerically(">=", 0))
+			Expect(bus.SendCall.Method).To(Equal("GET"))
+			Expect(bus.SendCall.Endpoint).To(Equal("window/some-id/size"))
+		})
+
+		Context("when the bus indicates a failure", func() {
+			It("should return an error", func() {
+				bus.SendCall.Err = errors.New("some error")
+				_, _, err := window.GetSize()
+				Expect(err).To(MatchError("some error"))
+			})
+		})
+	})
 })

@@ -336,11 +336,48 @@ var _ = Describe("Page", func() {
 			})
 		})
 
-		Context("when the window fails to retrieve its size", func() {
+		Context("when the window fails to set its size", func() {
 			It("should return an error", func() {
 				session.GetWindowCall.ReturnWindow = window
 				bus.SendCall.Err = errors.New("some error")
 				Expect(page.Size(640, 480)).To(MatchError("failed to set window size: some error"))
+			})
+		})
+	})
+
+	Describe("#GetSize", func() {
+		var (
+			bus    *mocks.Bus
+			window *api.Window
+		)
+
+		BeforeEach(func() {
+			bus = &mocks.Bus{}
+			window = &api.Window{Session: &api.Session{Bus: bus}}
+		})
+
+		It("should get the window width and height", func() {
+			session.GetWindowCall.ReturnWindow = window
+			width, height, err := page.GetSize()
+			Expect(err).To(Succeed())
+			Expect(width).To(BeNumerically(">=", 0))
+			Expect(height).To(BeNumerically(">=", 0))
+		})
+
+		Context("when the session fails to retrieve a window", func() {
+			It("should return an error", func() {
+				session.GetWindowCall.Err = errors.New("some error")
+				_, _, err := page.GetSize()
+				Expect(err).To(MatchError("failed to retrieve window: some error"))
+			})
+		})
+
+		Context("when the window fails to retrieve its size", func() {
+			It("should return an error", func() {
+				session.GetWindowCall.ReturnWindow = window
+				bus.SendCall.Err = errors.New("some error")
+				_, _, err := page.GetSize()
+				Expect(err).To(MatchError("failed to get window size: some error"))
 			})
 		})
 	})
