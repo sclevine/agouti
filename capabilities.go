@@ -48,6 +48,7 @@ type ProxyConfig struct {
 	SOCKSUsername      string `json:"socksUsername,omitempty"`
 	SOCKSPassword      string `json:"socksPassword,omitempty"`
 	NoProxy            string `json:"noProxy,omitempty"`
+	ProxyAuth          string `json:"proxyAuth",omitempty`
 }
 
 // Proxy sets the desired proxy configuration.

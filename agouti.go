@@ -20,6 +20,28 @@ import (
 // PhantomJS page.
 func PhantomJS(options ...Option) *WebDriver {
 	command := []string{"phantomjs", "--webdriver={{.Address}}"}
+	return phantomjs(command, options...)
+}
+
+// PhantomJS returns an instance of a PhantomJS WebDriver With Proxy.
+// phantomjs --proxy=xx.xx.xx.xx --proxy-auth=user:password
+//
+// Provided Options will apply as default arguments for new pages.
+// New pages will accept invalid SSL certificates by default. This
+// may be disabled using the RejectInvalidSSL Option.
+//
+// The RejectInvalidSSL Option must be provided to the PhantomJS function
+// (and not the NewPage method) for this Option to take effect on any
+// PhantomJS page.
+func PhantomJSWithProxy(proxy string, proxyAuth string, options ...Option) *WebDriver {
+	command := []string{"phantomjs",
+		"--webdriver={{.Address}}",
+		"--proxy=" + proxy, "--proxy-auth=" + proxyAuth,
+	}
+	return phantomjs(command, options...)
+}
+
+func phantomjs(command []string, options ...Option) *WebDriver {
 	defaultOptions := config{}.Merge(options)
 	if !defaultOptions.RejectInvalidSSL {
 		command = append(command, "--ignore-ssl-errors=true")
