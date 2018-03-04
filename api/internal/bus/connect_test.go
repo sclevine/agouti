@@ -120,7 +120,7 @@ var _ = Describe(".Connect", func() {
 	Context("when the request fails", func() {
 		It("should return an error", func() {
 			_, err := Connect("http://#", nil, nil)
-			Expect(err.Error()).To(ContainSubstring("Post http://#/session"))
+			Expect(err.Error()).To(ContainSubstring("#/session"))
 		})
 	})
 
