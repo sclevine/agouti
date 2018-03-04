@@ -58,19 +58,35 @@ func openSession(url string, body io.Reader, httpClient *http.Client) (sessionID
 	}
 	defer response.Body.Close()
 
-	var sessionResponse struct{ SessionID string }
+	var sessionResponse struct {
+		SessionID string
+	}
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
 
-	if err := json.Unmarshal(responseBody, &sessionResponse); err != nil {
+	if err = json.Unmarshal(responseBody, &sessionResponse); err != nil {
 		return "", err
 	}
 
-	if sessionResponse.SessionID == "" {
-		return "", errors.New("failed to retrieve a session ID")
+	if sessionResponse.SessionID != "" {
+		return sessionResponse.SessionID, nil
 	}
 
-	return sessionResponse.SessionID, nil
+	var firefoxResponse struct {
+		Value     struct {
+			SessionID string
+		}
+	}
+
+	if err = json.Unmarshal(responseBody, &firefoxResponse); err != nil {
+		return "", err
+	}
+
+	if firefoxResponse.Value.SessionID != "" {
+		return firefoxResponse.Value.SessionID, nil
+	}
+
+	return "", errors.New("failed to retrieve a session ID")
 }

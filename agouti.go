@@ -104,3 +104,42 @@ func SauceLabs(name, platform, browser, version, username, accessKey string, opt
 	capabilities["name"] = name
 	return NewPage(url, append([]Option{Desired(capabilities)}, options...)...)
 }
+
+// Example:
+//
+// 	capabilities := agouti.NewCapabilities()
+//	capabilities[""] = ""
+//  driver := agouti.FirefoxDriver()
+//	err := driver.Start()
+//	if err != nil {
+//		fmt.Printf("Start: %s\n", err)
+//	}
+//
+//	page, err := driver.NewPage()
+//	if err != nil {
+//		fmt.Printf("NewPage: %s\n", err)
+//		return
+//	}
+//
+//	err = page.Navigate("http://ya.ru")
+//	if err != nil {
+//		fmt.Printf("Navigate: %s", err)
+//		return
+//	}
+//
+//  err = driver.Stop()
+//	if err != nil {
+//		fmt.Printf("Stop: %s\n", err)
+//	}
+func FirefoxDriver(options ...Option) (*WebDriver) {
+	var binaryDriver string
+	if runtime.GOOS == "windows" {
+		binaryDriver = "geckodriver.exe"
+	} else {
+		binaryDriver = "geckodriver"
+	}
+	command := []string{binaryDriver, "--port={{.Port}}"}
+	options = append(options, Debug)
+	return NewWebDriver("http://{{.Address}}", command, options...)
+}
+
