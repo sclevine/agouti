@@ -54,6 +54,12 @@ func JoinPage(url string) *Page {
 	return newPage(session)
 }
 
+// JoinPageWithClient creates a Page using existing session URL and provided HTTP Client
+func JoinPageWithClient(url string, client *http.Client) *Page {
+	session := api.NewWithClient(url, client)
+	return newPage(session)
+}
+
 func newPage(session *api.Session) *Page {
 	return &Page{selectable{session, nil}, nil}
 }

@@ -18,7 +18,11 @@ type Bus interface {
 }
 
 func New(sessionURL string) *Session {
-	busClient := &bus.Client{sessionURL, http.DefaultClient}
+	return NewWithClient(sessionURL, http.DefaultClient)
+}
+
+func NewWithClient(sessionURL string, client *http.Client) *Session {
+	busClient := &bus.Client{sessionURL, client}
 	return &Session{busClient}
 }
 
