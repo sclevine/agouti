@@ -48,15 +48,11 @@ func NewPage(url string, options ...Option) (*Page, error) {
 	return newPage(session), nil
 }
 
-// JoinPage creates a Page using existing session URL.
-func JoinPage(url string) *Page {
-	session := api.New(url)
-	return newPage(session)
-}
-
-// JoinPageWithClient creates a Page using existing session URL and provided HTTP Client
-func JoinPageWithClient(url string, client *http.Client) *Page {
-	session := api.NewWithClient(url, client)
+// JoinPage creates a Page using existing session URL. This method takes Options
+// but respects only the HTTPClient Option if provided.
+func JoinPage(url string, options ...Option) *Page {
+	pageOptions := config{}.Merge(options)
+	session := api.NewWithClient(url, pageOptions.HTTPClient)
 	return newPage(session)
 }
 
