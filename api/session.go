@@ -15,6 +15,7 @@ type Session struct {
 
 type Bus interface {
 	Send(method, endpoint string, body, result interface{}) error
+	GetSessionURL() string
 }
 
 func New(sessionURL string) *Session {
@@ -39,6 +40,10 @@ func OpenWithClient(url string, capabilities map[string]interface{}, client *htt
 		return nil, err
 	}
 	return &Session{busClient}, nil
+}
+
+func (s *Session) URL() string {
+	return s.Bus.GetSessionURL()
 }
 
 func (s *Session) Delete() error {

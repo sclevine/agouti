@@ -21,3 +21,7 @@ func (b *Bus) Send(method, endpoint string, body, result interface{}) error {
 	}
 	return b.SendCall.Err
 }
+
+func (b *Bus) GetSessionURL() string {
+	return "mock"
+}

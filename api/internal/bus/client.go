@@ -14,6 +14,10 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+func (c *Client) GetSessionURL() string {
+	return c.SessionURL
+}
+
 func (c *Client) Send(method, endpoint string, body interface{}, result interface{}) error {
 	requestBody, err := bodyToJSON(body)
 	if err != nil {
