@@ -253,7 +253,7 @@ func (p *Page) HTML() (string, error) {
 //waiting for the element described by the selector to appear.
 //Method for testing or crawling Javascript-modified web pages (eg Ajax)
 // Simple example:
-//    page.Wait(`//*[@id="ajax-loaded"]`)
+//    page.Wait(`//*[@id="ajax-loaded"]`, 30)
 //    fmt.Println(page.HTML())
 func (p *Page) Wait(selector string, timeout int64) *Selection {
     start := time.Now().Unix()
