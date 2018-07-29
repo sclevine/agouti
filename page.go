@@ -249,6 +249,26 @@ func (p *Page) HTML() (string, error) {
 	return html, nil
 }
 
+//Wait method will cause the browser to spend up to timeout seconds
+//waiting for the element described by the selector to appear.
+//Method for testing or crawling Javascript-modified web pages (eg Ajax)
+// Simple example:
+//    page.Wait(`//*[@id="ajax-loaded"]`)
+//    fmt.Println(page.HTML())
+func (p *Page) Wait(selector string, timeout int64) *Selection {
+    start := time.Now().Unix()
+    for {
+        if time.Now().Unix()-start > timeout {
+            return nil
+        }
+        node := p.FindByXPath(selector)
+        if num, err := node.Count(); err == nil && num > 0 {
+            return node
+        }
+        time.Sleep(100 * time.Millisecond)
+    }
+}
+
 // RunScript runs the JavaScript provided in the body. Any keys present in
 // the arguments map will be available as variables in the body.
 // Values provided in arguments are converted into javascript objects.
