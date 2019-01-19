@@ -82,6 +82,12 @@ func (c Capabilities) Without(feature string) Capabilities {
 	return c
 }
 
+// Set custom capability
+func (c Capabilities) Capability(name string, value string) Capabilities {
+	c[name] = value
+	return c
+}
+
 // JSON returns a JSON string representing the desired capabilities.
 func (c Capabilities) JSON() (string, error) {
 	capabilitiesJSON, err := json.Marshal(c)

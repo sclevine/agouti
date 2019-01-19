@@ -16,6 +16,7 @@ var _ = Describe("Capabilities", func() {
 	It("should successfully encode all provided options into JSON", func() {
 		capabilities.Browser("some-browser").Version("v100").Platform("some-os")
 		capabilities.With("withEnabled").Without("withoutDisabled")
+		capabilities.Capability("capabilityName", "capabilityValue")
 		capabilities.Proxy(ProxyConfig{
 			ProxyType: "manual",
 			HTTPProxy: "some-http-proxy",
@@ -29,6 +30,7 @@ var _ = Describe("Capabilities", func() {
 			"withoutDisabled": false,
 			"firstEnabled": true,
 			"secondEnabled": true,
+			"capabilityName": "capabilityValue",
 			"proxy": {
 				"proxyType": "manual",
 				"httpProxy": "some-http-proxy",
