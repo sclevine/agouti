@@ -9,11 +9,13 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
 
 type Service struct {
+	sync.RWMutex
 	URLTemplate string
 	CmdTemplate []string
 	url         string
@@ -86,7 +88,9 @@ func (s *Service) Stop() error {
 
 	s.command.Wait()
 	s.command = nil
+	s.Lock()
 	s.url = ""
+	s.Unlock()
 
 	return nil
 }
@@ -133,7 +137,9 @@ func (s *Service) WaitForBoot(timeout time.Duration) error {
 
 func (s *Service) checkStatus() bool {
 	client := &http.Client{}
+	s.Lock()
 	request, _ := http.NewRequest("GET", fmt.Sprintf("%s/status", s.url), nil)
+	s.Unlock()
 	response, err := client.Do(request)
 	if err != nil {
 		return false
