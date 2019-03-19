@@ -38,7 +38,7 @@ func (e *Element) GetElement(selector Selector) (*Element, error) {
 		return nil, err
 	}
 
-	return &Element{result.Element, e.Session}, nil
+	return &Element{result.ID(), e.Session}, nil
 }
 
 func (e *Element) GetElements(selector Selector) ([]*Element, error) {
@@ -50,7 +50,7 @@ func (e *Element) GetElements(selector Selector) ([]*Element, error) {
 
 	elements := []*Element{}
 	for _, result := range results {
-		elements = append(elements, &Element{result.Element, e.Session})
+		elements = append(elements, &Element{result.ID(), e.Session})
 	}
 
 	return elements, nil
