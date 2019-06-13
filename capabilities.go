@@ -82,6 +82,12 @@ func (c Capabilities) Without(feature string) Capabilities {
 	return c
 }
 
+// Sets an arbitrary key-value pair (ex. "udid")
+func (c Capabilities) Set(key string, value string) Capabilities {
+	c[key] = value
+	return c
+}
+
 // JSON returns a JSON string representing the desired capabilities.
 func (c Capabilities) JSON() (string, error) {
 	capabilitiesJSON, err := json.Marshal(c)
