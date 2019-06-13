@@ -46,17 +46,17 @@ func (s *Session) Delete() error {
 }
 
 func (s *Session) GetElement(selector Selector) (*Element, error) {
-	var result struct{ Element string }
+	var result elementResult
 
 	if err := s.Send("POST", "element", selector, &result); err != nil {
 		return nil, err
 	}
 
-	return &Element{result.Element, s}, nil
+	return &Element{result.ID(), s}, nil
 }
 
 func (s *Session) GetElements(selector Selector) ([]*Element, error) {
-	var results []struct{ Element string }
+	var results []elementResult
 
 	if err := s.Send("POST", "elements", selector, &results); err != nil {
 		return nil, err
@@ -64,20 +64,20 @@ func (s *Session) GetElements(selector Selector) ([]*Element, error) {
 
 	elements := []*Element{}
 	for _, result := range results {
-		elements = append(elements, &Element{result.Element, s})
+		elements = append(elements, &Element{result.ID(), s})
 	}
 
 	return elements, nil
 }
 
 func (s *Session) GetActiveElement() (*Element, error) {
-	var result struct{ Element string }
+	var result elementResult
 
 	if err := s.Send("POST", "element/active", nil, &result); err != nil {
 		return nil, err
 	}
 
-	return &Element{result.Element, s}, nil
+	return &Element{result.ID(), s}, nil
 }
 
 func (s *Session) GetWindow() (*Window, error) {

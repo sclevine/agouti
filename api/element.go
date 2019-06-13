@@ -6,6 +6,18 @@ import (
 	"strings"
 )
 
+type elementResult struct {
+	Element    string `json:"ELEMENT"`
+	W3CElement string `json:"element-6066-11e4-a52e-4f735466cecf"`
+}
+
+func (er elementResult) ID() string {
+	if er.Element != "" {
+		return er.Element
+	}
+	return er.W3CElement
+}
+
 type Element struct {
 	ID      string
 	Session *Session
@@ -20,17 +32,17 @@ func (e *Element) GetID() string {
 }
 
 func (e *Element) GetElement(selector Selector) (*Element, error) {
-	var result struct{ Element string }
+	var result elementResult
 
 	if err := e.Send("POST", "element", selector, &result); err != nil {
 		return nil, err
 	}
 
-	return &Element{result.Element, e.Session}, nil
+	return &Element{result.ID(), e.Session}, nil
 }
 
 func (e *Element) GetElements(selector Selector) ([]*Element, error) {
-	var results []struct{ Element string }
+	var results []elementResult
 
 	if err := e.Send("POST", "elements", selector, &results); err != nil {
 		return nil, err
@@ -38,7 +50,7 @@ func (e *Element) GetElements(selector Selector) ([]*Element, error) {
 
 	elements := []*Element{}
 	for _, result := range results {
-		elements = append(elements, &Element{result.Element, e.Session})
+		elements = append(elements, &Element{result.ID(), e.Session})
 	}
 
 	return elements, nil
@@ -144,7 +156,7 @@ func (e *Element) GetLocation() (x, y int, err error) {
 
 func (e *Element) GetSize() (width, height int, err error) {
 	var size struct {
-		Width float64 `json:"width"`
+		Width  float64 `json:"width"`
 		Height float64 `json:"height"`
 	}
 	if err := e.Send("GET", "size", nil, &size); err != nil {
