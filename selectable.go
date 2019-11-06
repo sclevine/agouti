@@ -106,6 +106,16 @@ func (s *selectable) FindByID(id string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.ID, id).Single())
 }
 
+//Find by android ui automator
+func (s *selectable) FindByAndroidUIAutomator(selector string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.AndroidAut, selector).Single())
+}
+
+//Find by iOS ui automator
+func (s *selectable) FindByIOSUIAutomator(selector string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.IOSAut, selector).Single())
+}
+
 // First finds the first element by CSS selector.
 func (s *selectable) First(selector string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.CSS, selector).At(0))
@@ -140,6 +150,16 @@ func (s *selectable) FirstByName(name string) *Selection {
 // FirstByClass finds the first element with a given CSS class.
 func (s *selectable) FirstByClass(text string) *Selection {
 	return newSelection(s.session, s.selectors.Append(target.Class, text).At(0))
+}
+
+//FirstByAndroidUIAutomator finds the first element given by the ui automation expression.
+func (s *selectable) FirstByAndroidUIAutomator(selector string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.AndroidAut, selector).At(0))
+}
+
+//FirstByIOSUIAutomator finds the first element given by the ui automation expression.
+func (s *selectable) FirstByIOSUIAutomator(selector string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.IOSAut, selector).At(0))
 }
 
 // All finds zero or more elements by CSS selector.
@@ -181,6 +201,16 @@ func (s *selectable) AllByClass(text string) *MultiSelection {
 // AllByID finds zero or more elements with a given ID.
 func (s *selectable) AllByID(text string) *MultiSelection {
 	return newMultiSelection(s.session, s.selectors.Append(target.ID, text))
+}
+
+//Find by android ui automator
+func (s *selectable) AllByAndroidUIAutomator(text string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.AndroidAut, text).Single())
+}
+
+//Find by ios ui automator
+func (s *selectable) AllByIOSUIAutomator(text string) * Selection {
+	return newSelection(s.session, s.selectors.Append(target.IOSAut, text).Single())
 }
 
 // FirstByClass finds the first element with a given CSS class.
