@@ -13,6 +13,31 @@ type WebDriver struct {
 	defaultOptions *config
 }
 
+// NewWebDriverWithRunningService returns an instance of a WebDriver specified by
+// a URL. The service is expected to be already running and reachable by the url.
+// The URL should be the location of the WebDriver Wire Protocol web service.
+//
+// The Timeout Option specifies how many seconds to wait for the web service
+// to become available. The default timeout is 5 seconds.
+//
+// The HTTPClient Option specifies a *http.Client to use for all WebDriver
+// communications. The default client is http.DefaultClient.
+//
+// Any other provided Options are treated as default Options for new pages.
+//
+// In difference to NewWebDriver, url is not a template but the finished url.
+//
+// Example:
+//   agouti.NewWebDriverWithRunningService("http://localhost:1234/wd/hub")
+func NewWebDriverWithRunningService(url string, options ...Option) *WebDriver {
+	apiWebDriver := api.NewWebDriverWithRunningService(url)
+	defaultOptions := config{Timeout: apiWebDriver.Timeout}.Merge(options)
+	apiWebDriver.Timeout = defaultOptions.Timeout
+	apiWebDriver.Debug = defaultOptions.Debug
+	apiWebDriver.HTTPClient = defaultOptions.HTTPClient
+	return &WebDriver{apiWebDriver, defaultOptions}
+}
+
 // NewWebDriver returns an instance of a WebDriver specified by
 // a templated URL and command. The URL should be the location of the
 // WebDriver Wire Protocol web service brought up by the command. The
@@ -43,6 +68,7 @@ func NewWebDriver(url string, command []string, options ...Option) *WebDriver {
 	apiWebDriver.HTTPClient = defaultOptions.HTTPClient
 	return &WebDriver{apiWebDriver, defaultOptions}
 }
+
 
 // NewPage returns a *Page that corresponds to a new WebDriver session.
 // Provided Options configure the page. For instance, to disable JavaScript:

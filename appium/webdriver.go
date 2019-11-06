@@ -19,6 +19,12 @@ func New(options ...Option) *WebDriver {
 	return &WebDriver{agoutiWebDriver}
 }
 
+func NewWithRunningAppiumService(host string, port int, options ...Option) *WebDriver {
+	newOptions := config{}.merge(options)
+	agoutiWebDriver := agouti.NewWebDriverWithRunningService(fmt.Sprintf("http://%s:%d/wd/hub", host, port), newOptions.agoutiOptions...)
+	return &WebDriver{agoutiWebDriver}
+}
+
 func (w *WebDriver) NewDevice(options ...Option) (*Device, error) {
 	newOptions := config{}.merge(options)
 	page, err := w.driver.NewPage(newOptions.agoutiOptions...)
