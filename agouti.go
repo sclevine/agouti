@@ -43,6 +43,7 @@ func ChromeDriver(options ...Option) *WebDriver {
 		binaryName = "chromedriver"
 	}
 	command := []string{binaryName, "--port={{.Port}}"}
+	command = append(command, " --enable-features=NetworkService,NetworkServiceInProcess")
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
 
