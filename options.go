@@ -98,3 +98,4 @@ func (c *config) Capabilities() Capabilities {
 		merged.Without("acceptSslCerts")
 	}
 	return merged
+}
