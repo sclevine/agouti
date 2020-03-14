@@ -13,6 +13,7 @@ type config struct {
 	Debug               bool
 	HTTPClient          *http.Client
 	ChromeOptions       map[string]interface{}
+	Proxy               string
 }
 
 // An Option specifies configuration for a new WebDriver or Page.
@@ -56,6 +57,13 @@ var RejectInvalidSSL Option = func(c *config) {
 	c.RejectInvalidSSL = true
 }
 
+// Proxy is an Option specifying the proxy to use during the WebDriver navigation
+func Proxy(proxy string) Option {
+	return func(c *config) {
+		c.Proxy = proxy
+	}
+}
+
 // Debug is an Option that connects the running WebDriver to stdout and stdin.
 var Debug Option = func(c *config) {
 	c.Debug = true
@@ -90,4 +98,3 @@ func (c *config) Capabilities() Capabilities {
 		merged.Without("acceptSslCerts")
 	}
 	return merged
-}
