@@ -25,7 +25,7 @@ func PhantomJS(options ...Option) *WebDriver {
 		command = append(command, "--ignore-ssl-errors=true")
 	}
 	if defaultOptions.Proxy != "" {
-		command = append(command, "--proxy=" + defaultOptions.Proxy)
+		command = append(command, "--proxy="+defaultOptions.Proxy)
 	}
 	return NewWebDriver("http://{{.Address}}", command, options...)
 }
@@ -123,3 +123,4 @@ func GeckoDriver(options ...Option) *WebDriver {
 	}
 	command := []string{binaryName, "--port={{.Port}}"}
 	return NewWebDriver("http://{{.Address}}", command, options...)
+}
