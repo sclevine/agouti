@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
+	. "github.com/bradbev/agouti"
+	. "github.com/bradbev/agouti/internal/matchers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti"
-	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("Options", func() {

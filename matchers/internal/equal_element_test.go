@@ -2,11 +2,12 @@ package internal_test
 
 import (
 	"errors"
+
+	. "github.com/bradbev/agouti/internal/matchers"
+	. "github.com/bradbev/agouti/matchers/internal"
+	"github.com/bradbev/agouti/matchers/internal/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/internal/matchers"
-	. "github.com/sclevine/agouti/matchers/internal"
-	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
 
 var _ = Describe("EqualElementMatcher", func() {

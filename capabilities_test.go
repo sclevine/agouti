@@ -1,9 +1,9 @@
 package agouti_test
 
 import (
+	. "github.com/bradbev/agouti"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti"
 )
 
 var _ = Describe("Capabilities", func() {

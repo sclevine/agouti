@@ -3,13 +3,13 @@ package agouti_test
 import (
 	"errors"
 
+	. "github.com/bradbev/agouti"
+	"github.com/bradbev/agouti/api"
+	"github.com/bradbev/agouti/internal/element"
+	. "github.com/bradbev/agouti/internal/matchers"
+	"github.com/bradbev/agouti/internal/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti"
-	"github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/internal/element"
-	. "github.com/sclevine/agouti/internal/matchers"
-	"github.com/sclevine/agouti/internal/mocks"
 )
 
 var _ = Describe("Selection", func() {

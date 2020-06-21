@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/internal/element"
-	"github.com/sclevine/agouti/internal/target"
+	"github.com/bradbev/agouti/api"
+	"github.com/bradbev/agouti/internal/element"
+	"github.com/bradbev/agouti/internal/target"
 )
 
 type actionsFunc func(element.Element) error
@@ -50,12 +50,12 @@ func (s *Selection) DoubleClick() error {
 
 // Clear clears all fields the selection refers to.
 func (s *Selection) Clear() error {
-        return s.forEachElement(func(selectedElement element.Element) error {
-                if err := selectedElement.Clear(); err != nil {
-                        return fmt.Errorf("failed to clear %s: %s", s, err)
-                }
-                return nil
-        })
+	return s.forEachElement(func(selectedElement element.Element) error {
+		if err := selectedElement.Clear(); err != nil {
+			return fmt.Errorf("failed to clear %s: %s", s, err)
+		}
+		return nil
+	})
 }
 
 // Fill fills all of the fields the selection refers to with the provided text.

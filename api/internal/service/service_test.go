@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"time"
 
+	. "github.com/bradbev/agouti/api/internal/service"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/api/internal/service"
 )
 
 var _ = Describe("Service", func() {

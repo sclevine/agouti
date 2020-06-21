@@ -1,8 +1,8 @@
 package matchers
 
 import (
+	"github.com/bradbev/agouti/matchers/internal"
 	"github.com/onsi/gomega/types"
-	"github.com/sclevine/agouti/matchers/internal"
 )
 
 // HaveTitle passes when the expected title is equivalent to the

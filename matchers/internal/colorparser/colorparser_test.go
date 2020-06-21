@@ -1,9 +1,9 @@
 package colorparser_test
 
 import (
+	. "github.com/bradbev/agouti/matchers/internal/colorparser"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/matchers/internal/colorparser"
 )
 
 var _ = Describe("Parsing CSS Colors", func() {

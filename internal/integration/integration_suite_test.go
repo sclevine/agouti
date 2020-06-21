@@ -5,9 +5,9 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/bradbev/agouti"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sclevine/agouti"
 )
 
 var (

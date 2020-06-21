@@ -1,14 +1,14 @@
 language: go
-go_import_path: github.com/sclevine/agouti
+go_import_path: github.com/bradbev/agouti
 go:
- - 1.9.x
- - 1.10.x
+  - 1.9.x
+  - 1.10.x
 
 script:
- - go test -v ./...
+  - go test -v ./...
 
 install:
- - go get -d -t -v ./... && go build -v ./...
+  - go get -d -t -v ./... && go build -v ./...
 
 env:
- - HEADLESS_ONLY=true
+  - HEADLESS_ONLY=true

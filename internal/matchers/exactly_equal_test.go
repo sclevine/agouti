@@ -1,9 +1,9 @@
 package matchers_test
 
 import (
+	. "github.com/bradbev/agouti/internal/matchers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/internal/matchers"
 )
 
 var _ = Describe("#ExactlyEqual", func() {

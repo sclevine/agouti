@@ -3,10 +3,10 @@ package api_test
 import (
 	"errors"
 
+	. "github.com/bradbev/agouti/api"
+	"github.com/bradbev/agouti/api/internal/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/api"
-	"github.com/sclevine/agouti/api/internal/mocks"
 )
 
 var _ = Describe("Window", func() {

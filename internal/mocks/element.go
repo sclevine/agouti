@@ -1,6 +1,6 @@
 package mocks
 
-import "github.com/sclevine/agouti/api"
+import "github.com/bradbev/agouti/api"
 
 type Element struct {
 	GetElementCall struct {

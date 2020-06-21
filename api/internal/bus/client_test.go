@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	. "github.com/bradbev/agouti/api/internal/bus"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/api/internal/bus"
 )
 
 var _ = Describe("Session", func() {

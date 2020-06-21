@@ -1,10 +1,10 @@
 package matchers_test
 
 import (
+	. "github.com/bradbev/agouti/matchers"
+	"github.com/bradbev/agouti/matchers/internal/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/matchers"
-	"github.com/sclevine/agouti/matchers/internal/mocks"
 )
 
 var _ = Describe("Selection Matchers", func() {

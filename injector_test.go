@@ -1,6 +1,6 @@
 package agouti
 
-import "github.com/sclevine/agouti/internal/target"
+import "github.com/bradbev/agouti/internal/target"
 
 func NewTestSelection(session apiSession, elements elementRepository, firstSelector string) *Selection {
 	selector := target.Selector{Type: target.CSS, Value: firstSelector, Single: true}
