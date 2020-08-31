@@ -27,3 +27,8 @@ func newMultiSelection(session apiSession, selectors target.Selectors) *MultiSel
 func (s *MultiSelection) At(index int) *Selection {
 	return newSelection(s.session, s.selectors.At(index))
 }
+
+// Size finds length of selectors.
+func (s *MultiSelection) Size() int {
+	return len(s.selectors)
+}
