@@ -35,6 +35,17 @@ func NewWebDriver(url string, command []string) *WebDriver {
 	}
 }
 
+func NewWebDriverWithRunningService(url string) *WebDriver {
+	driverService := &service.RunningService{
+		Url: url,
+	}
+
+	return &WebDriver{
+		Timeout: 10 * time.Second,
+		service: driverService,
+	}
+}
+
 func (w *WebDriver) URL() string {
 	return w.service.URL()
 }
