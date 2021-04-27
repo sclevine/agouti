@@ -211,6 +211,20 @@ func (p *Page) Size(width, height int) error {
 	return nil
 }
 
+// GetSize gets the current page size in pixels.
+func (p *Page) GetSize() (width int, height int, err error) {
+	window, err := p.session.GetWindow()
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to retrieve window: %s", err)
+	}
+
+	if width, height, err = window.GetSize(); err != nil {
+		return 0, 0, fmt.Errorf("failed to get window size: %s", err)
+	}
+
+	return width, height, nil
+}
+
 // Screenshot takes a screenshot and saves it to the provided filename.
 // The provided filename may be an absolute or relative path.
 func (p *Page) Screenshot(filename string) error {

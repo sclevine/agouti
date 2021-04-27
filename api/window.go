@@ -19,3 +19,17 @@ func (w *Window) SetSize(width, height int) error {
 
 	return w.Send("POST", "size", request, nil)
 }
+
+func (w *Window) GetSize() (width int, height int, err error) {
+	request := struct {
+		Width  int `json:"width"`
+		Height int `json:"height"`
+	}{}
+
+
+	if err := w.Send("GET", "size", nil, &request); err != nil {
+		return 0, 0 , err
+	}
+
+	return request.Width, request.Height, nil
+}
