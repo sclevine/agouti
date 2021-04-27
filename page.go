@@ -270,7 +270,11 @@ func (p *Page) RunScript(body string, arguments map[string]interface{}, result i
 	}
 
 	argumentList := strings.Join(keys, ", ")
-	cleanBody := fmt.Sprintf("return (function(%s) { %s; }).apply(this, arguments);", argumentList, body)
+	callArgumentList := ""
+	if argumentList != "" {
+		callArgumentList = ", '" + strings.Join(keys, "', '") + "'"
+	}
+	cleanBody := fmt.Sprintf("(function(%s) { %s; }).call(this%s);", argumentList, body, callArgumentList)
 
 	if err := p.session.Execute(cleanBody, values, result); err != nil {
 		return fmt.Errorf("failed to run script: %s", err)
