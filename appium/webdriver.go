@@ -12,9 +12,13 @@ type WebDriver struct {
 }
 
 func New(options ...Option) *WebDriver {
+	return NewWithArgs(nil, options...)
+}
+
+func NewWithArgs(args []string, options ...Option) *WebDriver {
 	newOptions := config{}.merge(options)
 	url := "http://{{.Address}}/wd/hub"
-	command := []string{"appium", "-p", "{{.Port}}"}
+	command := append([]string{"appium", "-p", "{{.Port}}"}, args...)
 	agoutiWebDriver := agouti.NewWebDriver(url, command, newOptions.agoutiOptions...)
 	return &WebDriver{agoutiWebDriver}
 }
